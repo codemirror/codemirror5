@@ -396,12 +396,13 @@ function isInGutter(node) {
 function badPos(pos, bad) { if (bad) pos.bad = true; return pos }
 
 function domTextBetween(cm, from, to, fromLine, toLine) {
-  let text = "", closing = false, lineSep = cm.doc.lineSeparator()
+  let text = "", closing = false, lineSep = cm.doc.lineSeparator(), extraLinebreak = false
   function recognizeMarker(id) { return marker => marker.id == id }
   function close() {
     if (closing) {
       text += lineSep
-      closing = false
+      if (extraLinebreak) text += lineSep
+      closing = extraLinebreak = false
     }
   }
   function addText(str) {
@@ -431,9 +432,11 @@ function domTextBetween(cm, from, to, fromLine, toLine) {
       if (isBlock) close()
       for (let i = 0; i < node.childNodes.length; i++)
         walk(node.childNodes[i])
+
+      if (/^(pre|p)$/i.test(node.nodeName)) extraLinebreak = true
       if (isBlock) closing = true
     } else if (node.nodeType == 3) {
-      addText(node.nodeValue.replace(/\u00a0/g, " ").replace(/\u200b/g, ""))
+      addText(node.nodeValue.replace(/\u200b/g, "").replace(/\u00a0/g, " "))
     }
   }
   for (;;) {
