@@ -443,6 +443,7 @@ function domTextBetween(cm, from, to, fromLine, toLine) {
     walk(from)
     if (from == to) break
     from = from.nextSibling
+    extraLinebreak = false
   }
   return text
 }
