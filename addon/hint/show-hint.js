@@ -333,7 +333,7 @@
         i = avoidWrap ? 0  : this.data.list.length - 1;
       if (this.selectedHint == i) return;
       var node = this.hints.childNodes[this.selectedHint];
-      node.className = node.className.replace(" " + ACTIVE_HINT_ELEMENT_CLASS, "");
+      if (node) node.className = node.className.replace(" " + ACTIVE_HINT_ELEMENT_CLASS, "");
       node = this.hints.childNodes[this.selectedHint = i];
       node.className += " " + ACTIVE_HINT_ELEMENT_CLASS;
       if (node.offsetTop < this.hints.scrollTop)
