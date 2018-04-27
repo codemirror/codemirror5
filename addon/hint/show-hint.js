@@ -279,6 +279,15 @@
       hints.style.left = (left + startScroll.left - curScroll.left) + "px";
     });
 
+    if (completion.options.changeActiveOnMouseover) {
+      CodeMirror.on(hints, "mouseover", function(e) {
+        var t = getHintElement(hints, e.target || e.srcElement);
+        if (t && t.hintId != null) {
+          widget.changeActive(t.hintId);
+        }
+      });
+    }
+
     CodeMirror.on(hints, "dblclick", function(e) {
       var t = getHintElement(hints, e.target || e.srcElement);
       if (t && t.hintId != null) {widget.changeActive(t.hintId); widget.pick();}
@@ -426,7 +435,8 @@
     completeOnSingleClick: true,
     container: null,
     customKeys: null,
-    extraKeys: null
+    extraKeys: null,
+    changeActiveOnMouseover: false
   };
 
   CodeMirror.defineOption("hintOptions", null);
