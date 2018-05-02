@@ -32,6 +32,7 @@ class NativeScrollbars {
     this.cm = cm
     let vert = this.vert = elt("div", [elt("div", null, null, "min-width: 1px")], "CodeMirror-vscrollbar")
     let horiz = this.horiz = elt("div", [elt("div", null, null, "height: 100%; min-height: 1px")], "CodeMirror-hscrollbar")
+    vert.tabIndex = horiz.tabIndex = -1
     place(vert); place(horiz)
 
     on(vert, "scroll", () => {
