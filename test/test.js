@@ -889,6 +889,15 @@ testCM("hiddenLinesSelectAll", function(cm) {  // Issue #484
   eqCursorPos(cm.getCursor(false), Pos(10, 4));
 });
 
+testCM("clickFold", function(cm) { // Issue #5392
+  cm.setValue("foo { bar }")
+  var widget = document.createElement("span")
+  widget.textContent = "<>"
+  cm.markText(Pos(0, 5), Pos(0, 10), {replacedWith: widget})
+  var after = cm.charCoords(Pos(0, 10))
+  var foundOn = cm.coordsChar({left: after.left - 1, top: after.top + 4})
+  is(foundOn.ch <= 5 || foundOn.ch >= 10, "Position is not inside the folded range")
+})
 
 testCM("everythingFolded", function(cm) {
   addDoc(cm, 2, 2);
