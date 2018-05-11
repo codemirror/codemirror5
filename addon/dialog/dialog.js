@@ -25,6 +25,7 @@
     } else { // Assuming it's a detached DOM element.
       dialog.appendChild(template);
     }
+    wrap.classList.add('dialog-opened');
     return dialog;
   }
 
@@ -47,6 +48,7 @@
       } else {
         if (closed) return;
         closed = true;
+        dialog.parentNode.classList.remove('dialog-opened');
         dialog.parentNode.removeChild(dialog);
         me.focus();
 
@@ -102,6 +104,7 @@
     function close() {
       if (closed) return;
       closed = true;
+      dialog.parentNode.classList.remove('dialog-opened');
       dialog.parentNode.removeChild(dialog);
       me.focus();
     }
@@ -141,6 +144,7 @@
       if (closed) return;
       closed = true;
       clearTimeout(doneTimer);
+      dialog.parentNode.classList.remove('dialog-opened');
       dialog.parentNode.removeChild(dialog);
     }
 
