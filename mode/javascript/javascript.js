@@ -7,7 +7,7 @@
   else if (typeof define == "function" && define.amd) // AMD
     define(["../../lib/codemirror"], mod);
   else // Plain browser env
-     mod(CodeMirror);
+    mod(CodeMirror);
 })(function(CodeMirror) {
 "use strict";
 
@@ -268,7 +268,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   function register(varname) {
     function inList(list, block) {
       for (var v = list; v; v = v.next)
-        if (v.name == varname && (block === undefined || v.block == block)) return true;
+        if (v.name == varname && (block === undefined || v.block === block)) return true;
       return false;
     }
     var state = cx.state;
@@ -292,7 +292,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
 
   var defaultVars = {name: "this", next: {name: "arguments"}};
   function pushcontext() {
-    cx.state.context = {prev: cx.state.context, vars: cx.state.localVars };
+    cx.state.context = {prev: cx.state.context, vars: cx.state.localVars};
     cx.state.localVars = defaultVars;
   }
   function pushblockcontext() {
@@ -347,7 +347,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "keyword b") return cont(pushlex("form"), statement, poplex);
     if (type == "keyword d") return cx.stream.match(/^\s*$/, false) ? cont() : cont(pushlex("stat"), maybeexpression, expect(";"), poplex);
     if (type == "debugger") return cont(expect(";"));
-    if (type == "{") return cont(pushlex("}"), pushblockcontext, block, popcontext, poplex);
+    if (type == "{") return cont(pushlex("}"), block, poplex);
     if (type == ";") return cont();
     if (type == "if") {
       if (cx.state.lexical.info == "else" && cx.state.cc[cx.state.cc.length - 1] == poplex)
@@ -557,7 +557,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   }
   function block(type) {
     if (type == "}") return cont();
-    return pass(statement, block);
+    return pass(pushblockcontext, statement, block, popcontext);
   }
   function maybetype(type, value) {
     if (isTS) {
