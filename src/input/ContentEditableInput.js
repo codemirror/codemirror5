@@ -111,8 +111,12 @@ export default class ContentEditableInput {
     this.showMultipleSelections(info)
   }
 
+  getSelection() {
+    return this.cm.display.wrapper.ownerDocument.getSelection()
+  }
+
   showPrimarySelection() {
-    let sel = window.getSelection(), cm = this.cm, prim = cm.doc.sel.primary()
+    let sel = this.getSelection(), cm = this.cm, prim = cm.doc.sel.primary()
     let from = prim.from(), to = prim.to()
 
     if (cm.display.viewTo == cm.display.viewFrom || from.line >= cm.display.viewTo || to.line < cm.display.viewFrom) {
@@ -177,13 +181,13 @@ export default class ContentEditableInput {
   }
 
   rememberSelection() {
-    let sel = window.getSelection()
+    let sel = this.getSelection()
     this.lastAnchorNode = sel.anchorNode; this.lastAnchorOffset = sel.anchorOffset
     this.lastFocusNode = sel.focusNode; this.lastFocusOffset = sel.focusOffset
   }
 
   selectionInEditor() {
-    let sel = window.getSelection()
+    let sel = this.getSelection()
     if (!sel.rangeCount) return false
     let node = sel.getRangeAt(0).commonAncestorContainer
     return contains(this.div, node)
@@ -218,14 +222,14 @@ export default class ContentEditableInput {
   }
 
   selectionChanged() {
-    let sel = window.getSelection()
+    let sel = this.getSelection()
     return sel.anchorNode != this.lastAnchorNode || sel.anchorOffset != this.lastAnchorOffset ||
       sel.focusNode != this.lastFocusNode || sel.focusOffset != this.lastFocusOffset
   }
 
   pollSelection() {
     if (this.readDOMTimeout != null || this.gracePeriod || !this.selectionChanged()) return
-    let sel = window.getSelection(), cm = this.cm
+    let sel = this.getSelection(), cm = this.cm
     // On Android Chrome (version 56, at least), backspacing into an
     // uneditable block element will put the cursor in that element,
     // and then, because it's not editable, hide the virtual keyboard.
