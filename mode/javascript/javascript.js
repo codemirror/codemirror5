@@ -347,7 +347,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "keyword b") return cont(pushlex("form"), statement, poplex);
     if (type == "keyword d") return cx.stream.match(/^\s*$/, false) ? cont() : cont(pushlex("stat"), maybeexpression, expect(";"), poplex);
     if (type == "debugger") return cont(expect(";"));
-    if (type == "{") return cont(pushlex("}"), block, poplex);
+    if (type == "{") return cont(pushlex("}"), pushblockcontext, block, poplex, popcontext);
     if (type == ";") return cont();
     if (type == "if") {
       if (cx.state.lexical.info == "else" && cx.state.cc[cx.state.cc.length - 1] == poplex)
@@ -557,7 +557,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   }
   function block(type) {
     if (type == "}") return cont();
-    return pass(pushblockcontext, statement, block, popcontext);
+    return pass(statement, block);
   }
   function maybetype(type, value) {
     if (isTS) {
