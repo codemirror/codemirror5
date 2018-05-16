@@ -302,8 +302,13 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   function popcontext() {
     if (cx.state.context.block) {
       var newVars = {name: "this", next: {name: "arguments"}};
+      // drop block-scoped variables
       for (var v = cx.state.localVars; v; v = v.next) {
         if (!v.block) newVars = { name: v.name, scope: v.scope, next: newVars };
+      }
+      // inherit from previous scope
+      for (v = cx.state.context.vars; v; v = v.next) {
+        newVars = { name: v.name, scope: v.scope, next: newVars };
       }
       cx.state.localVars = newVars;
     } else {
@@ -376,8 +381,8 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
         return cont(pushlex("stat"), maybelabel);
       }
     }
-    if (type == "switch") return cont(pushlex("form"), parenExpr, expect("{"), pushlex("}", "switch"),
-                                      block, poplex, poplex);
+    if (type == "switch") return cont(pushblockcontext, pushlex("form"), parenExpr, expect("{"), pushlex("}", "switch"),
+                                      block, poplex, poplex, popcontext);
     if (type == "case") return cont(expression, expect(":"));
     if (type == "default") return cont(expect(":"));
     if (type == "catch") return cont(pushlex("form"), pushcontext, maybeCatchBinding, statement, poplex, popcontext);
