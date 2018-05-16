@@ -90,7 +90,7 @@
      "[keyword function] [def scoped]([def n]) {",
      "  { [keyword var] [def i]; } [variable-2 i];",
      "  { [keyword let] [def j]; } [variable j];",
-     "  if (true) { [keyword const] [def k]; [variable-2 k]; } [variable k];",
+     "  if ([atom true]) { [keyword const] [def k]; [variable-2 k]; } [variable k];",
      "}");
 
   MT("quotedStringAddition",
