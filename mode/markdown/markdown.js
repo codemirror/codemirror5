@@ -619,8 +619,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     }
 
     if (ch === ' ') {
-
-      if (stream.matchTrailing(" ")) {
+      if (stream.match(/^ +$/, false)) {
         state.trailingSpace++;
       } else if (state.trailingSpace) {
         state.trailingSpaceNewLine = true;

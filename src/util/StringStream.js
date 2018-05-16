@@ -72,28 +72,6 @@ class StringStream {
     }
   }
 
-  matchTrailing(character) {
-    let hasMatch = false
-    let matchIndex = -1
-    let currentIndex = this.string.length - 1
-
-    while (currentIndex >= 0 && currentIndex >= this.pos && this.string.charAt(currentIndex) === character) {
-      matchIndex = currentIndex
-      currentIndex--
-      hasMatch = true
-    }
-
-    matchIndex -= this.pos
-
-    if (hasMatch && matchIndex > 0) {
-      return null
-    } else if (hasMatch && matchIndex === 0) {
-      return true
-    } else {
-      return null
-    }
-  }
-
   current(){return this.string.slice(this.start, this.pos)}
   hideFirstChars(n, inner) {
     this.lineStart += n
