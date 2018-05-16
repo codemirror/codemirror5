@@ -71,7 +71,6 @@ class StringStream {
       return match
     }
   }
-
   current(){return this.string.slice(this.start, this.pos)}
   hideFirstChars(n, inner) {
     this.lineStart += n
