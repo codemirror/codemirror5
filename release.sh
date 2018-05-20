@@ -59,6 +59,7 @@ mode/sql/sql.js \
 mode/haskell/haskell.js \
 mode/coffeescript/coffeescript.js \
 mode/yaml/yaml.js \
+mode/yaml-frontmatter/yaml-frontmatter.js \
 mode/pug/pug.js \
 mode/lua/lua.js \
 mode/cmake/cmake.js \
