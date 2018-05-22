@@ -101,6 +101,20 @@
      "}",
      "[variable j];")
 
+  MT("leaving_scope",
+     "[keyword function] [def a]() {",
+     "  {",
+     "    [keyword const] [def x] [operator =] [number 1]",
+     "    [keyword if] ([atom true]) {",
+     "      [keyword let] [def y] [operator =] [number 2]",
+     "      [keyword var] [def z] [operator =] [number 3]",
+     "      [variable console].[property log]([variable-2 x], [variable-2 y], [variable-2 z])",
+     "    }",
+     "    [variable console].[property log]([variable-2 x], [variable y], [variable-2 z])",
+     "  }",
+     "  [variable console].[property log]([variable x], [variable y], [variable-2 z])",
+     "}")
+
   MT("quotedStringAddition",
      "[keyword let] [def f] [operator =] [variable a] [operator +] [string 'fatarrow'] [operator +] [variable c];");
 
