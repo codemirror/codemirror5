@@ -30,16 +30,13 @@
     }
   ];
 
-
   function escapeHtmlList(o) {
     return '<code>' +
       JSON.stringify(o.list,null,2)
       .replace(/</g, "&lt;")
       .replace(/>/g, "&gt;") +
       '</code>'
-      ;
   }
-
 
   function test(name, spec) {
     testCM(name, function(cm) {
@@ -65,16 +62,15 @@
     value.from = value.from || Pos(lines.length-1,0);
     value.cursor = value.cursor || value.to;
     var name = value.name ||value.value;
-    test(name,value) });
-
-
+    test(name,value)
+  });
 
   function deepCompare(a, b) {
     if (a === b) return true;
     if (!(a && typeof a === "object") ||
         !(b && typeof b === "object")) return false;
-    var array = Array.isArray(a);
-    if (Array.isArray(b) !== array) return false;
+    var array = a instanceof Array
+    if ((b instanceof Array) !== array) return false;
     if (array) {
       if (a.length !== b.length) return false;
       for (var i = 0; i < a.length; i++) if (!deepCompare(a[i], b[i])) return false
