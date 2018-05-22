@@ -30,6 +30,21 @@
 
   <h2>Version 5.x</h2>
 
+  <p class="rel">21-05-2018: <a href="http://codemirror.net/codemirror-5.38.0.zip">Version 5.38.0</a>:</p>
+
+  <ul class="rel-note">
+    <li>Improve reliability of noticing a missing mouseup event during dragging.</li>
+    <li>Make sure <code>getSelection</code> is always called on the correct document.</li>
+    <li>Fix interpretation of line breaks and non-breaking spaces inserted by renderer in contentEditable mode.</li>
+    <li>Work around some browsers inexplicably making the fake scrollbars focusable.</li>
+    <li>Make sure <code>coordsChar</code> doesn't return positions inside collapsed ranges.</li>
+    <li><a href="http://codemirror.net/mode/javascript/">javascript mode</a>: Support block scopes, bindingless catch, bignum suffix, <code>s</code> regexp flag.</li>
+    <li><a href="http://codemirror.net/mode/markdown/">markdown mode</a>: Adjust a wasteful regexp.</li>
+    <li><a href="http://codemirror.net/doc/manual.html#addon_show-hint">show-hint addon</a>: Allow opening the control without any item selected.</li>
+    <li>New theme: <a href="http://codemirror.net/demo/theme.html#darcula">darcula</a>.</li>
+    <li><a href="http://codemirror.net/doc/manual.html#addon_dialog">dialog addon</a>: Add a CSS class (<code>dialog-opened</code>) to the editor when a dialog is open.</li>
+  </ul>
+
   <p class="rel">20-04-2018: <a href="http://codemirror.net/codemirror-5.37.0.zip">Version 5.37.0</a>:</p>
 
   <ul class="rel-note">
