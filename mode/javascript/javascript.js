@@ -77,15 +77,18 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       return ret("=>", "operator");
     } else if (ch == "0" && stream.eat(/x/i)) {
       stream.eatWhile(/[\da-f]/i);
+      stream.eat(/n/);
       return ret("number", "number");
     } else if (ch == "0" && stream.eat(/o/i)) {
       stream.eatWhile(/[0-7]/i);
+      stream.eat(/n/);
       return ret("number", "number");
     } else if (ch == "0" && stream.eat(/b/i)) {
       stream.eatWhile(/[01]/i);
+      stream.eat(/n/);
       return ret("number", "number");
     } else if (/\d/.test(ch)) {
-      stream.match(/^\d*(?:\.\d*)?(?:[eE][+\-]?\d+)?/);
+      stream.match(/^\d*(n|(?:\.\d*)?(?:[eE][+\-]?\d+)?)?/);
       return ret("number", "number");
     } else if (ch == "/") {
       if (stream.eat("*")) {
