@@ -16,7 +16,7 @@
 })(function(CodeMirror) {
   "use strict";
 
-  CodeMirror.defineMode("stex", function() {
+  CodeMirror.defineMode("stex", function(_config, parserConfig) {
     "use strict";
 
     function pushCommand(state, command) {
@@ -173,7 +173,7 @@
       if (source.eatSpace()) {
         return null;
       }
-      if (source.match(endModeSeq)) {
+      if (endModeSeq && source.match(endModeSeq)) {
         setState(state, normal);
         return "keyword";
       }
@@ -235,9 +235,10 @@
 
     return {
       startState: function() {
+        var f = parserConfig.inMathMode ? function(source, state){ return inMathMode(source, state); } : normal;
         return {
           cmdState: [],
-          f: normal
+          f: f
         };
       },
       copyState: function(s) {
