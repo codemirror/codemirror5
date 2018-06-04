@@ -206,6 +206,7 @@ export function markText(doc, from, to, options, type) {
     marker.id = ++nextMarkerId
     marker.atomic = true
   }
+  if (marker.isolate) { doc.cm.state.newIsolate = true; }
   if (cm) {
     // Sync editor state
     if (updateMaxLine) cm.curOp.updateMaxLine = true

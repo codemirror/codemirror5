@@ -34,6 +34,26 @@ export function getBidiPartAt(order, ch, sticky) {
   return found != null ? found : bidiOther
 }
 
+// Returns an array with the positions of isolate and normal segments for the entire string
+function getTextAndIsolatePositions(str, marks) {
+  var flag = 0, len = str.length, textAndIsolates = [], start, nextIsolate
+  if (!marks) return [{from: 0, to: len}]
+  for (var i = 0; i < len;) {
+    start = i, nextIsolate = marks[flag]
+    while (nextIsolate && !nextIsolate.marker.isolate) { nextIsolate = marks[++flag] }
+    if (!nextIsolate) { nextIsolate = {from: len } }
+    if (i < nextIsolate.from) {
+      for (; i < len && i < nextIsolate.from; i++ ) {}
+      textAndIsolates.push({from: start, to: i})
+    } else {
+      for (; i < len && i < nextIsolate.to; i++) {}
+      textAndIsolates.push({from: start, to: i, isolate: true})
+      flag += 1
+    }
+  }
+  return textAndIsolates
+}
+
 // Bidirectional ordering algorithm
 // See http://unicode.org/reports/tr9/tr9-13.html for the algorithm
 // that this (partially) implements.
@@ -75,12 +95,13 @@ let bidiOrdering = (function() {
   let bidiRE = /[\u0590-\u05f4\u0600-\u06ff\u0700-\u08ac]/
   let isNeutral = /[stwN]/, isStrong = /[LRr]/, countsAsLeft = /[Lb1n]/, countsAsNum = /[1n]/
 
-  function BidiSpan(level, from, to) {
+  function BidiSpan(level, from, to, isolate) {
     this.level = level
     this.from = from; this.to = to
+    this.isolate = isolate
   }
 
-  return function(str, direction) {
+  return function(str, direction, marks) {
     let outerType = direction == "ltr" ? "L" : "R"
 
     if (str.length == 0 || direction == "ltr" && !bidiRE.test(str)) return false
@@ -169,24 +190,32 @@ let bidiOrdering = (function() {
     // explicit embedding into account, we can build up the order on
     // the fly, without following the level-based algorithm.
     let order = [], m
-    for (let i = 0; i < len;) {
-      if (countsAsLeft.test(types[i])) {
-        let start = i
-        for (++i; i < len && countsAsLeft.test(types[i]); ++i) {}
-        order.push(new BidiSpan(0, start, i))
-      } else {
-        let pos = i, at = order.length
-        for (++i; i < len && types[i] != "L"; ++i) {}
-        for (let j = pos; j < i;) {
-          if (countsAsNum.test(types[j])) {
-            if (pos < j) order.splice(at, 0, new BidiSpan(1, pos, j))
-            let nstart = j
-            for (++j; j < i && countsAsNum.test(types[j]); ++j) {}
-            order.splice(at, 0, new BidiSpan(2, nstart, j))
-            pos = j
-          } else ++j
+    var textAndIsolates = getTextAndIsolatePositions(str, marks)
+    for (var i$0 = 0; i$0 < textAndIsolates.length; i$0++) {
+      len = textAndIsolates[i$0].to
+      if (textAndIsolates[i$0].isolate) {
+        order.push(new BidiSpan(0, textAndIsolates[i$0].from, len, true))
+        continue
+      }
+      for (var i$7 = textAndIsolates[i$0].from; i$7 < len;) {
+        if (countsAsLeft.test(types[i$7])) {
+          var start = i$7
+          for (++i$7; i$7 < len && countsAsLeft.test(types[i$7]); ++i$7) {}
+          order.push(new BidiSpan(0, start, i$7))
+        } else {
+          var pos = i$7, at = order.length
+          for (++i$7; i$7 < len && types[i$7] != "L"; ++i$7) {}
+          for (var j$2 = pos; j$2 < i$7;) {
+            if (countsAsNum.test(types[j$2])) {
+              if (pos < j$2) { order.splice(at, 0, new BidiSpan(1, pos, j$2)); }
+              var nstart = j$2
+              for (++j$2; j$2 < i$7 && countsAsNum.test(types[j$2]); ++j$2) {}
+              order.splice(at, 0, new BidiSpan(2, nstart, j$2))
+              pos = j$2
+            } else { ++j$2; }
+          }
+          if (pos < i$7) { order.splice(at, 0, new BidiSpan(1, pos, i$7)); }
         }
-        if (pos < i) order.splice(at, 0, new BidiSpan(1, pos, i))
       }
     }
     if (direction == "ltr") {
@@ -199,7 +228,6 @@ let bidiOrdering = (function() {
         order.push(new BidiSpan(0, len - m[0].length, len))
       }
     }
-
     return direction == "rtl" ? order.reverse() : order
   }
 })()
@@ -209,6 +237,6 @@ let bidiOrdering = (function() {
 // BidiSpan objects otherwise.
 export function getOrder(line, direction) {
   let order = line.order
-  if (order == null) order = line.order = bidiOrdering(line.text, direction)
+  if (order == null) { order = line.order = bidiOrdering(line.text, direction, line.markedSpans); }
   return order
 }

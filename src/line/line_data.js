@@ -127,7 +127,7 @@ export function defaultSpecialCharPlaceholder(ch) {
 
 // Build up the DOM representation for a single token, and add it to
 // the line map. Takes care to render special characters separately.
-function buildToken(builder, text, style, startStyle, endStyle, title, css) {
+function buildToken(builder, text, style, startStyle, endStyle, title, css, isolate) {
   if (!text) return
   let displayText = builder.splitSpaces ? splitSpaces(text, builder.trailingSpace) : text
   let special = builder.cm.state.specialChars, mustWrap = false
@@ -178,12 +178,17 @@ function buildToken(builder, text, style, startStyle, endStyle, title, css) {
     }
   }
   builder.trailingSpace = displayText.charCodeAt(text.length - 1) == 32
-  if (style || startStyle || endStyle || mustWrap || css) {
+  if (style || startStyle || endStyle || mustWrap || css || isolate) {
     let fullStyle = style || ""
     if (startStyle) fullStyle += startStyle
     if (endStyle) fullStyle += endStyle
     let token = elt("span", [content], fullStyle, css)
     if (title) token.title = title
+    if (isolate) {
+      var bdiWrapper = document.createElement("bdi")
+      bdiWrapper.appendChild(token)
+      token = bdiWrapper
+    }
     return builder.content.appendChild(token)
   }
   builder.content.appendChild(content)
@@ -251,7 +256,7 @@ function insertLineContent(line, builder, styles) {
   }
 
   let len = allText.length, pos = 0, i = 1, text = "", style, css
-  let nextChange = 0, spanStyle, spanEndStyle, spanStartStyle, title, collapsed
+  let nextChange = 0, spanStyle, spanEndStyle, spanStartStyle, title, collapsed, isolate
   for (;;) {
     if (nextChange == pos) { // Update current marker set
       spanStyle = spanEndStyle = spanStartStyle = title = css = ""
@@ -271,6 +276,7 @@ function insertLineContent(line, builder, styles) {
           if (m.startStyle && sp.from == pos) spanStartStyle += " " + m.startStyle
           if (m.endStyle && sp.to == nextChange) (endStyles || (endStyles = [])).push(m.endStyle, sp.to)
           if (m.title && !title) title = m.title
+          if (m.isolate) { isolate = true }
           if (m.collapsed && (!collapsed || compareCollapsedMarkers(collapsed.marker, m) < 0))
             collapsed = sp
         } else if (sp.from > pos && nextChange > sp.from) {
@@ -298,7 +304,7 @@ function insertLineContent(line, builder, styles) {
         if (!collapsed) {
           let tokenText = end > upto ? text.slice(0, upto - pos) : text
           builder.addToken(builder, tokenText, style ? style + spanStyle : spanStyle,
-                           spanStartStyle, pos + tokenText.length == nextChange ? spanEndStyle : "", title, css)
+                           spanStartStyle, pos + tokenText.length == nextChange ? spanEndStyle : "", title, css, isolate)
         }
         if (end >= upto) {text = text.slice(upto - pos); pos = upto; break}
         pos = end
