@@ -185,6 +185,7 @@ function buildToken(builder, text, style, startStyle, endStyle, title, css, isol
     let token = elt("span", [content], fullStyle, css)
     if (title) token.title = title
     if (isolate) {
+      token.setAttribute("dir", isolate)
       var bdiWrapper = document.createElement("bdi")
       bdiWrapper.appendChild(token)
       token = bdiWrapper
@@ -260,7 +261,7 @@ function insertLineContent(line, builder, styles) {
   for (;;) {
     if (nextChange == pos) { // Update current marker set
       spanStyle = spanEndStyle = spanStartStyle = title = css = ""
-      collapsed = null; nextChange = Infinity
+      collapsed = isolate = null; nextChange = Infinity
       let foundBookmarks = [], endStyles
       for (let j = 0; j < spans.length; ++j) {
         let sp = spans[j], m = sp.marker
@@ -276,7 +277,7 @@ function insertLineContent(line, builder, styles) {
           if (m.startStyle && sp.from == pos) spanStartStyle += " " + m.startStyle
           if (m.endStyle && sp.to == nextChange) (endStyles || (endStyles = [])).push(m.endStyle, sp.to)
           if (m.title && !title) title = m.title
-          if (m.isolate) { isolate = true }
+          if (m.isolate) { isolate = m.isolate }
           if (m.collapsed && (!collapsed || compareCollapsedMarkers(collapsed.marker, m) < 0))
             collapsed = sp
         } else if (sp.from > pos && nextChange > sp.from) {

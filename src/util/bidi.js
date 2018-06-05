@@ -36,18 +36,18 @@ export function getBidiPartAt(order, ch, sticky) {
 
 // Returns an array with the positions of isolate and normal segments for the entire string
 function getTextAndIsolatePositions(str, marks) {
-  var flag = 0, len = str.length, textAndIsolates = [], start, nextIsolate
+  let flag = 0, len = str.length, textAndIsolates = [], start, nextIsolate
   if (!marks) return [{from: 0, to: len}]
-  for (var i = 0; i < len;) {
+  for (let i = 0; i < len;) {
     start = i, nextIsolate = marks[flag]
-    while (nextIsolate && !nextIsolate.marker.isolate) { nextIsolate = marks[++flag] }
+    for (let j = 0; j < marks.length; j++) { if (i >= marks[j].from && i < marks[j].to) { nextIsolate = marks[j]; break; }}
     if (!nextIsolate) { nextIsolate = {from: len } }
     if (i < nextIsolate.from) {
       for (; i < len && i < nextIsolate.from; i++ ) {}
       textAndIsolates.push({from: start, to: i})
     } else {
       for (; i < len && i < nextIsolate.to; i++) {}
-      textAndIsolates.push({from: start, to: i, isolate: true})
+      textAndIsolates.push({from: start, to: i, isolate: nextIsolate.marker.isolate, atomic: nextIsolate.marker.atomic})
       flag += 1
     }
   }
@@ -95,14 +95,16 @@ let bidiOrdering = (function() {
   let bidiRE = /[\u0590-\u05f4\u0600-\u06ff\u0700-\u08ac]/
   let isNeutral = /[stwN]/, isStrong = /[LRr]/, countsAsLeft = /[Lb1n]/, countsAsNum = /[1n]/
 
-  function BidiSpan(level, from, to, isolate) {
+  function BidiSpan(level, from, to, isolate, atomic) {
     this.level = level
     this.from = from; this.to = to
-    this.isolate = isolate
+    this.isolate = isolate; this.atomic = atomic
   }
 
   return function(str, direction, marks) {
     let outerType = direction == "ltr" ? "L" : "R"
+
+    let textAndIsolates = getTextAndIsolatePositions(str, marks)
 
     if (str.length == 0 || direction == "ltr" && !bidiRE.test(str)) return false
     let len = str.length, types = []
@@ -172,15 +174,20 @@ let bidiOrdering = (function() {
     // terms of their influence on neutrals. Start-of-level-run (sor)
     // and end-of-level-run (eor) are used at level run boundaries.
     // N2. Any remaining neutrals take the embedding direction.
-    for (let i = 0; i < len; ++i) {
-      if (isNeutral.test(types[i])) {
-        let end
-        for (end = i + 1; end < len && isNeutral.test(types[end]); ++end) {}
-        let before = (i ? types[i-1] : outerType) == "L"
-        let after = (end < len ? types[end] : outerType) == "L"
-        let replace = before == after ? (before ? "L" : "R") : outerType
-        for (let j = i; j < end; ++j) types[j] = replace
-        i = end - 1
+    for (var i$6b = 0; i$6b < textAndIsolates.length; i$6b++) {
+      var isolatePart = textAndIsolates[i$6b], isolateDir = isolatePart.isolate
+      var isolateLen = textAndIsolates[i$6b].to
+      for (var i$6 = 0; i$6 < isolateLen; ++i$6) {
+        if (isNeutral.test(types[i$6])) {
+          var end$1 = (void 0), replace$1
+          for (end$1 = i$6 + 1; end$1 < isolateLen && isNeutral.test(types[end$1]); ++end$1) {}
+          var before = (i$6 ? types[i$6-1] : outerType) == "L"
+          var after = (end$1 < isolateLen ? types[end$1] : outerType) == "L"
+          if (isolateDir) { replace$1 = isolateDir == "rtl" ? "R" : "L"}
+          else { replace$1 = before == after ? (before ? "L" : "R") : outerType }
+          for (var j$1 = i$6; j$1 < end$1; ++j$1) { types[j$1] = replace$1 }
+          i$6 = end$1 - 1
+        }
       }
     }
 
@@ -190,31 +197,31 @@ let bidiOrdering = (function() {
     // explicit embedding into account, we can build up the order on
     // the fly, without following the level-based algorithm.
     let order = [], m
-    var textAndIsolates = getTextAndIsolatePositions(str, marks)
     for (var i$0 = 0; i$0 < textAndIsolates.length; i$0++) {
       len = textAndIsolates[i$0].to
-      if (textAndIsolates[i$0].isolate) {
-        order.push(new BidiSpan(0, textAndIsolates[i$0].from, len, true))
+      let isolate = textAndIsolates[i$0].isolate, atomic = textAndIsolates[i$0].atomic
+      if (isolate && atomic) {
+        order.push(new BidiSpan(0, textAndIsolates[i$0].from, len, isolate, atomic))
         continue
       }
       for (var i$7 = textAndIsolates[i$0].from; i$7 < len;) {
         if (countsAsLeft.test(types[i$7])) {
           var start = i$7
           for (++i$7; i$7 < len && countsAsLeft.test(types[i$7]); ++i$7) {}
-          order.push(new BidiSpan(0, start, i$7))
+          order.push(new BidiSpan(0, start, i$7, isolate, atomic))
         } else {
           var pos = i$7, at = order.length
           for (++i$7; i$7 < len && types[i$7] != "L"; ++i$7) {}
           for (var j$2 = pos; j$2 < i$7;) {
             if (countsAsNum.test(types[j$2])) {
-              if (pos < j$2) { order.splice(at, 0, new BidiSpan(1, pos, j$2)); }
+              if (pos < j$2) { order.splice(at, 0, new BidiSpan(1, pos, j$2,isolate, atomic)); }
               var nstart = j$2
               for (++j$2; j$2 < i$7 && countsAsNum.test(types[j$2]); ++j$2) {}
-              order.splice(at, 0, new BidiSpan(2, nstart, j$2))
+              order.splice(at, 0, new BidiSpan(2, nstart, j$2, isolate, atomic))
               pos = j$2
             } else { ++j$2; }
           }
-          if (pos < i$7) { order.splice(at, 0, new BidiSpan(1, pos, i$7)); }
+          if (pos < i$7) { order.splice(at, 0, new BidiSpan(1, pos, i$7, isolate, atomic)); }
         }
       }
     }

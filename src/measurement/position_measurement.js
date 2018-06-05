@@ -124,7 +124,7 @@ export function prepareMeasureForLine(cm, line) {
 
 // Given a prepared measurement object, measures the position of an
 // actual character (or fetches it from the cache).
-export function measureCharPrepared(cm, prepared, ch, bias, varHeight, isolate) {
+export function measureCharPrepared(cm, prepared, ch, bias, varHeight, atomic) {
   if (prepared.before) ch = -1
   let key = ch + (bias || ""), found
   if (prepared.cache.hasOwnProperty(key)) {
@@ -136,7 +136,7 @@ export function measureCharPrepared(cm, prepared, ch, bias, varHeight, isolate) 
       ensureLineHeights(cm, prepared.view, prepared.rect)
       prepared.hasHeights = true
     }
-    found = measureCharInner(cm, prepared, ch, bias, isolate)
+    found = measureCharInner(cm, prepared, ch, bias, atomic)
     if (!found.bogus) prepared.cache[key] = found
   }
   return {left: found.left, right: found.right,
@@ -194,7 +194,7 @@ function getUsefulRect(rects, bias) {
   return rect
 }
 
-function measureCharInner(cm, prepared, ch, bias, isolate) {
+function measureCharInner(cm, prepared, ch, bias, atomic) {
   let place = nodeAndOffsetInLineMap(prepared.map, ch, bias)
   let node = place.node, start = place.start, end = place.end, collapse = place.collapse
 
@@ -206,7 +206,7 @@ function measureCharInner(cm, prepared, ch, bias, isolate) {
       if (ie && ie_version < 9 && start == 0 && end == place.coverEnd - place.coverStart)
         rect = node.parentNode.getBoundingClientRect()
         else {
-          if (isolate) {start = 0, end = place.coverEnd - place.coverStart} // cover the entire isolate segment
+          if (atomic) {start = 0, end = place.coverEnd - place.coverStart} // cover the entire isolate segment
           rect = getUsefulRect(range(node, start, end).getClientRects(), bias)
          }
       if (rect.left || rect.right || start == 0) break
@@ -368,10 +368,10 @@ export function charCoords(cm, pos, context, lineObj, bias) {
 export function cursorCoords(cm, pos, context, lineObj, preparedMeasure, varHeight) {
   lineObj = lineObj || getLine(cm.doc, pos.line)
   if (!preparedMeasure) preparedMeasure = prepareMeasureForLine(cm, lineObj)
-  function get(ch, right, isolate) {
-    var m = measureCharPrepared(cm, preparedMeasure, ch, right ? "right" : "left", varHeight, isolate)
-    if (isolate && right) { m.right = m.left; }
-    else if (isolate || right) { m.left = m.right; }
+  function get(ch, right, atomic) {
+    var m = measureCharPrepared(cm, preparedMeasure, ch, right ? "right" : "left", varHeight, atomic)
+    if (atomic && right) { m.right = m.left; }
+    else if (atomic || right) { m.left = m.right; }
     else { m.right = m.left; }
     return intoCoordSystem(cm, lineObj, m, context)
   }
@@ -388,7 +388,7 @@ export function cursorCoords(cm, pos, context, lineObj, preparedMeasure, varHeig
 
   function getBidi(ch, partPos, invert) {
     let part = order[partPos], right = part.level == 1
-    return get(invert ? ch - 1 : ch, right != invert, part.isolate)
+    return get(invert ? ch - 1 : ch, right != invert, part.atomic)
   }
   let partPos = getBidiPartAt(order, ch, sticky)
   let other = bidiOther
