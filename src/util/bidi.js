@@ -8,7 +8,7 @@ export function iterateBidiSections(order, from, to, f) {
   for (let i = 0; i < order.length; ++i) {
     let part = order[i]
     if (part.from < to && part.to > from || from == to && part.to == from) {
-      f(Math.max(part.from, from), Math.min(part.to, to), part.level == 1 ? "rtl" : "ltr", i)
+      f(Math.max(part.from, from), Math.min(part.to, to), part.level == 1 ? "rtl" : "ltr", i, part.atomic)
       found = true
     }
   }

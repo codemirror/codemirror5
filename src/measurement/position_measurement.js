@@ -84,8 +84,8 @@ function updateExternalMeasurement(cm, line) {
 
 // Get a {top, bottom, left, right} box (in line-local coordinates)
 // for a given character.
-export function measureChar(cm, line, ch, bias) {
-  return measureCharPrepared(cm, prepareMeasureForLine(cm, line), ch, bias)
+export function measureChar(cm, line, ch, bias, atomic) {
+  return measureCharPrepared(cm, prepareMeasureForLine(cm, line), ch, bias, null, atomic)
 }
 
 // Find a line view that corresponds to the given line number.
@@ -344,9 +344,9 @@ export function fromCoordSystem(cm, coords, context) {
   return {left: left - lineSpaceBox.left, top: top - lineSpaceBox.top}
 }
 
-export function charCoords(cm, pos, context, lineObj, bias) {
+export function charCoords(cm, pos, context, lineObj, bias, atomic) {
   if (!lineObj) lineObj = getLine(cm.doc, pos.line)
-  return intoCoordSystem(cm, lineObj, measureChar(cm, lineObj, pos.ch, bias), context)
+  return intoCoordSystem(cm, lineObj, measureChar(cm, lineObj, pos.ch, bias, atomic), context)
 }
 
 // Returns a box for a given cursor position, which may have an

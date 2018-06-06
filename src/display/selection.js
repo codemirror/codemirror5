@@ -69,8 +69,8 @@ function drawSelectionRange(cm, range, output) {
     let lineObj = getLine(doc, line)
     let lineLen = lineObj.text.length
     let start, end
-    function coords(ch, bias) {
-      return charCoords(cm, Pos(line, ch), "div", lineObj, bias)
+    function coords(ch, bias, atomic) {
+      return charCoords(cm, Pos(line, ch), "div", lineObj, bias, atomic)
     }
 
     function wrapX(pos, dir, side) {
@@ -81,10 +81,10 @@ function drawSelectionRange(cm, range, output) {
     }
 
     let order = getOrder(lineObj, doc.direction)
-    iterateBidiSections(order, fromArg || 0, toArg == null ? lineLen : toArg, (from, to, dir, i) => {
+    iterateBidiSections(order, fromArg || 0, toArg == null ? lineLen : toArg, (from, to, dir, i, atomic) => {
       let ltr = dir == "ltr"
-      let fromPos = coords(from, ltr ? "left" : "right")
-      let toPos = coords(to - 1, ltr ? "right" : "left")
+      let fromPos = coords(from, ltr ? "left" : "right", atomic)
+      let toPos = coords(to - 1, ltr ? "right" : "left", atomic)
 
       let openStart = fromArg == null && from == 0, openEnd = toArg == null && to == lineLen
       let first = i == 0, last = !order || i == order.length - 1
