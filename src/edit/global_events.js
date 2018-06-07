@@ -35,8 +35,6 @@ function registerGlobalHandlers() {
 // Called when the window resizes
 function onResize(cm) {
   let d = cm.display
-  if (d.lastWrapHeight == d.wrapper.clientHeight && d.lastWrapWidth == d.wrapper.clientWidth)
-    return
   // Might be a text scaling operation, clear size caches.
   d.cachedCharWidth = d.cachedTextHeight = d.cachedPaddingH = null
   d.scrollbarsClipped = false
