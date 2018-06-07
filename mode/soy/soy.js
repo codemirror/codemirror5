@@ -149,11 +149,13 @@
             return "string";
         }
 
-        if (stream.match(/^\/\*/)) {
-          state.soyState.push("comment");
-          return "comment";
-        } else if (stream.match(stream.sol() || (state.soyState.length && last(state.soyState) != "literal") ? /^\s*\/\/.*/ : /^\s+\/\/.*/)) {
-          return "comment";
+        if (!state.soyState.length || last(state.soyState) != "literal") {
+          if (stream.match(/^\/\*/)) {
+            state.soyState.push("comment");
+            return "comment";
+          } else if (stream.match(stream.sol() ? /^\s*\/\/.*/ : /^\s+\/\/.*/)) {
+            return "comment";
+          }
         }
 
         switch (last(state.soyState)) {
