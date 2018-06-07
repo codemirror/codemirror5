@@ -200,10 +200,6 @@ let bidiOrdering = (function() {
     for (var i$0 = 0; i$0 < textAndIsolates.length; i$0++) {
       len = textAndIsolates[i$0].to
       let isolate = textAndIsolates[i$0].isolate, atomic = textAndIsolates[i$0].atomic
-      if (isolate && atomic) {
-        order.push(new BidiSpan(isolate == "rtl" ? 1 : 0, textAndIsolates[i$0].from, len, isolate, atomic))
-        continue
-      }
       for (var i$7 = textAndIsolates[i$0].from; i$7 < len;) {
         if (countsAsLeft.test(types[i$7])) {
           var start = i$7
