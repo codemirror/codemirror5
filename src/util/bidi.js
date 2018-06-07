@@ -181,7 +181,7 @@ let bidiOrdering = (function() {
         if (isNeutral.test(types[i$6])) {
           var end$1 = (void 0), replace$1
           for (end$1 = i$6 + 1; end$1 < isolateLen && isNeutral.test(types[end$1]); ++end$1) {}
-          var before = (i$6 ? types[i$6-1] : outerType) == "L"
+          var before = (i$6 - textAndIsolates[i$6b].from ? types[i$6-1] : outerType) == "L"
           var after = (end$1 < isolateLen ? types[end$1] : outerType) == "L"
           if (isolateDir) { replace$1 = isolateDir == "rtl" ? "R" : "L"}
           else { replace$1 = before == after ? (before ? "L" : "R") : outerType }
