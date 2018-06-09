@@ -229,6 +229,12 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
   cursor: default;
   z-index: 4;
 }
+.CodeMirror-activeline-gutter .CodeMirror-gutter-elt {
+  opacity: 1 !important
+}
+.CodeMirror-gutter-elt {
+  opacity: .5
+}
 .CodeMirror-gutter-wrapper ::selection { background-color: transparent }
 .CodeMirror-gutter-wrapper ::-moz-selection { background-color: transparent }
 
