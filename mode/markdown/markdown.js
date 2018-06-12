@@ -126,9 +126,13 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
     // Reset state.indentedCode
     state.indentedCode = false;
     if (state.f == htmlBlock) {
-      var htmlState = state.htmlState;
-      while ('htmlState' in htmlState) htmlState = htmlState.htmlState; // htmlmixed -> xml
-      if (!htmlState || !htmlState.tokenize || !htmlState.tokenize.isInBlock) {
+      var exit = htmlModeMissing
+      if (!exit) {
+        var inner = CodeMirror.innerMode(htmlMode, state.htmlState)
+        exit = inner.mode.name == "xml" && inner.state.tagStart === null &&
+          (!inner.state.context && inner.state.tokenize.isInText)
+      }
+      if (exit) {
         state.f = inlineNormal;
         state.block = blockNormal;
         state.htmlState = null;
