@@ -154,7 +154,7 @@ CodeMirror.defineMode("xml", function(editorConf, config_) {
   }
 
   function inBlock(style, terminator) {
-    return function(stream, state) {
+    var closure = function(stream, state) {
       while (!stream.eol()) {
         if (stream.match(terminator)) {
           state.tokenize = inText;
@@ -164,7 +164,10 @@ CodeMirror.defineMode("xml", function(editorConf, config_) {
       }
       return style;
     };
+    closure.isInBlock = true;
+    return closure;
   }
+
   function doctype(depth) {
     return function(stream, state) {
       var ch;
