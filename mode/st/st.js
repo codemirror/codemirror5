@@ -12,12 +12,12 @@
 
 CodeMirror.defineMode("st", function() {
   function words(str) {
-    var pref="", suf, obj = {}, word, words = str.split("|");
+    var pref="", obj = {}, word, words = str.split("|");
     for (var i = 0; i < words.length; ++i) {
       word = words[i];
       if (~word.indexOf("(")) {
         word = word.split("(");
-        pref = word[0]; 
+        pref = word[0];
         word = word[1];
       }
       if (~word.indexOf(")")) {
@@ -28,7 +28,6 @@ CodeMirror.defineMode("st", function() {
     }
     return obj;
   }
-  var ERRORCLASS = "error";
   var statements = "IF|CASE|FOR|WHILE|REPEAT";
   var keywords = words(
       statements+"|END_("+statements+")|"+
