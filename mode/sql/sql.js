@@ -421,7 +421,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     support: set("ODBCdotTable decimallessFloat zerolessFloat binaryNumber hexNumber nCharCast charsetCast")
   });
 
-  // Presto SQL query language 
+  // Presto SQL query language
   CodeMirror.defineMIME("text/x-prestosql", {
     name: "sql",
     client: set("source"),
