@@ -421,6 +421,20 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     support: set("ODBCdotTable decimallessFloat zerolessFloat binaryNumber hexNumber nCharCast charsetCast")
   });
 
+  // Presto SQL query language 
+  CodeMirror.defineMIME("text/x-prestosql", {
+    name: "sql",
+    client: set("source"),
+    // https://prestodb.io/docs/current/language/reserved.html
+    keywords: set(sqlKeywords + "alter and as between by case cast constraint create cross cube current_date current_time current_timestamp current_user deallocate delete describe distinct drop else end escape except execute exists extract false or from full group grouping having in inner insert intersect into is join left like localtime localtimstamp natural normalize not null on or order outer prepare recursive right rollup select table then true uescape union unnest using values when where with"),
+    // https://prestodb.io/docs/current/language/types.html
+    builtin: set("boolean tinyint smallint integer bigint real double decimal varchar char varbinary array map row ipaddress"),
+    atoms: set("false true null unknown"),
+    operatorChars: /^[*+\-%<>!=&|^\/#@?~]/,
+    dateSQL: set("date time timestamp interval"),
+    support: set("ODBCdotTable decimallessFloat zerolessFloat binaryNumber hexNumber nCharCast charsetCast")
+  });
+
   // Google's SQL-like query language, GQL
   CodeMirror.defineMIME("text/x-gql", {
     name: "sql",
