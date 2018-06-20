@@ -41,9 +41,10 @@ function getTextAndIsolatePositions(str, marks) {
   marks.sort((a, b) => { return a.from - b.from == 0 ? a.to - b.to : a.from - b.from })
   for (let i = 0; i < len;) {
     start = i, nextIsolate = marks[flag], nextNextIsolate = marks[flag + 1]
-    if (!nextIsolate) { nextIsolate = {from: len } }
+    if (nextIsolate) { nextIsolateEnd = nextIsolate.to }
+    else { nextIsolate = {from: len } }
     // If the second next isolate overlaps the previous one, truncate the first one
-    else if (nextNextIsolate && nextNextIsolate.from < nextIsolate.to) { nextIsolateEnd = nextNextIsolate.from }
+    if (nextNextIsolate && nextNextIsolate.from < nextIsolate.to) { nextIsolateEnd = nextNextIsolate.from }
     if (i < nextIsolate.from) {
       for (; i < len && i < nextIsolate.from; i++ ) {}
       textAndIsolates.push({from: start, to: i})
