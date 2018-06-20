@@ -1,3 +1,15 @@
+## 5.39.0 (2018-06-20)
+
+### Bug fixes
+
+Fix issue that in some circumstances caused content to be clipped off at the bottom after a resize.
+
+[markdown mode](http://codemirror.net/mode/markdown/): Improve handling of blank lines in HTML tags.
+
+### New features
+
+[stex mode](http://codemirror.net/mode/stex/): Add an `inMathMode` option to start the mode in math mode.
+
 ## 5.38.0 (2018-05-21)
 
 ### Bug fixes
