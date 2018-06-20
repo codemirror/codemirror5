@@ -36,17 +36,19 @@ export function getBidiPartAt(order, ch, sticky) {
 
 // Returns an array with the positions of isolate and normal segments for the entire string
 function getTextAndIsolatePositions(str, marks) {
-  let flag = 0, len = str.length, textAndIsolates = [], start, nextIsolate
+  let flag = 0, len = str.length, textAndIsolates = [], start, nextIsolate, nextNextIsolate, nextIsolateEnd
   if (!marks) return [{from: 0, to: len}]
+  marks.sort((a, b) => { return a.from - b.from == 0 ? a.to - b.to : a.from - b.from })
   for (let i = 0; i < len;) {
-    start = i, nextIsolate = marks[flag]
-    for (let j = 0; j < marks.length; j++) { if (i >= marks[j].from && i < marks[j].to) { nextIsolate = marks[j]; break; }}
+    start = i, nextIsolate = marks[flag], nextNextIsolate = marks[flag + 1]
     if (!nextIsolate) { nextIsolate = {from: len } }
+    // If the second next isolate overlaps the previous one, truncate the first one
+    else if (nextNextIsolate && nextNextIsolate.from < nextIsolate.to) { nextIsolateEnd = nextNextIsolate.from }
     if (i < nextIsolate.from) {
       for (; i < len && i < nextIsolate.from; i++ ) {}
       textAndIsolates.push({from: start, to: i})
     } else {
-      for (; i < len && i < nextIsolate.to; i++) {}
+      for (; i < len && i < nextIsolateEnd; i++) {}
       textAndIsolates.push({from: start, to: i, isolate: nextIsolate.marker.isolate, atomic: nextIsolate.marker.atomic})
       flag += 1
     }
