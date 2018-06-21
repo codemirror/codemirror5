@@ -1,5 +1,5 @@
 // Optimize some code when these features are not used.
-export let sawReadOnlySpans = false, sawCollapsedSpans = false
+export let sawReadOnlySpans = false, sawCollapsedSpans = false, sawIsolateSpans = false
 
 export function seeReadOnlySpans() {
   sawReadOnlySpans = true
@@ -7,4 +7,8 @@ export function seeReadOnlySpans() {
 
 export function seeCollapsedSpans() {
   sawCollapsedSpans = true
+}
+
+export function seeIsolateSpans() {
+  sawIsolateSpans = true
 }
