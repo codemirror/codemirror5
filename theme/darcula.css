@@ -34,13 +34,13 @@
 .cm-s-darcula  { font-family: Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif;}
 .cm-s-darcula .CodeMirror-matchingbracket { outline:1px solid #A9B7C6; color: yellow !important; }
 
-.CodeMirror-hints {
+.CodeMirror-hints.darcula {
   font-family: Menlo, Monaco, Consolas, 'Courier New', monospace;
   color: #9c9e9e;
   background-color: #3b3e3f !important;
 }
 
-.CodeMirror-hint-active {
+.CodeMirror-hints.darcula .CodeMirror-hint-active {
   background-color: #494d4e !important;
   color: #9c9e9e !important;
 }
