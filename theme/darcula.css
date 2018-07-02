@@ -32,7 +32,7 @@
 
 .cm-s-darcula span.cm-builtin { color: #A9B7C6; }
 .cm-s-darcula  { font-family: Consolas, Menlo, Monaco, Lucida Console, Liberation Mono, DejaVu Sans Mono, Bitstream Vera Sans Mono, Courier New, monospace, serif;}
-.cm-s-darcula .CodeMirror-matchingbracket { outline:1px solid #A9B7C6; color: yellow !important; }
+.cm-s-darcula .CodeMirror-matchingbracket { background-color: #3b514d; color: yellow !important; }
 
 .CodeMirror-hints.darcula {
   font-family: Menlo, Monaco, Consolas, 'Courier New', monospace;
