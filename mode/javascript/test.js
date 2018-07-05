@@ -86,6 +86,35 @@
      "    [keyword yield] [variable-2 i];",
      "}");
 
+  MT("let_scoping",
+     "[keyword function] [def scoped]([def n]) {",
+     "  { [keyword var] [def i]; } [variable-2 i];",
+     "  { [keyword let] [def j]; [variable-2 j]; } [variable j];",
+     "  [keyword if] ([atom true]) { [keyword const] [def k]; [variable-2 k]; } [variable k];",
+     "}");
+
+  MT("switch_scoping",
+     "[keyword switch] ([variable x]) {",
+     "  [keyword default]:",
+     "    [keyword let] [def j];",
+     "    [keyword return] [variable-2 j]",
+     "}",
+     "[variable j];")
+
+  MT("leaving_scope",
+     "[keyword function] [def a]() {",
+     "  {",
+     "    [keyword const] [def x] [operator =] [number 1]",
+     "    [keyword if] ([atom true]) {",
+     "      [keyword let] [def y] [operator =] [number 2]",
+     "      [keyword var] [def z] [operator =] [number 3]",
+     "      [variable console].[property log]([variable-2 x], [variable-2 y], [variable-2 z])",
+     "    }",
+     "    [variable console].[property log]([variable-2 x], [variable y], [variable-2 z])",
+     "  }",
+     "  [variable console].[property log]([variable x], [variable y], [variable-2 z])",
+     "}")
+
   MT("quotedStringAddition",
      "[keyword let] [def f] [operator =] [variable a] [operator +] [string 'fatarrow'] [operator +] [variable c];");
 
@@ -238,6 +267,8 @@
   MT("async_variable",
      "[keyword const] [def async] [operator =] {[property a]: [number 1]};",
      "[keyword const] [def foo] [operator =] [string-2 `bar ${][variable async].[property a][string-2 }`];")
+
+  MT("bigint", "[number 1n] [operator +] [number 0x1afn] [operator +] [number 0o064n] [operator +] [number 0b100n];")
 
   MT("async_comment",
      "[keyword async] [comment /**/] [keyword function] [def foo]([def args]) { [keyword return] [atom true]; }");

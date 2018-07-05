@@ -1,3 +1,59 @@
+## 5.39.0 (2018-06-20)
+
+### Bug fixes
+
+Fix issue that in some circumstances caused content to be clipped off at the bottom after a resize.
+
+[markdown mode](http://codemirror.net/mode/markdown/): Improve handling of blank lines in HTML tags.
+
+### New features
+
+[stex mode](http://codemirror.net/mode/stex/): Add an `inMathMode` option to start the mode in math mode.
+
+## 5.38.0 (2018-05-21)
+
+### Bug fixes
+
+Improve reliability of noticing a missing mouseup event during dragging.
+
+Make sure `getSelection` is always called on the correct document.
+
+Fix interpretation of line breaks and non-breaking spaces inserted by renderer in contentEditable mode.
+
+Work around some browsers inexplicably making the fake scrollbars focusable.
+
+Make sure `coordsChar` doesn't return positions inside collapsed ranges.
+
+[javascript mode](http://codemirror.net/mode/javascript/): Support block scopes, bindingless catch, bignum suffix, `s` regexp flag.
+
+[markdown mode](http://codemirror.net/mode/markdown/): Adjust a wasteful regexp.
+
+[show-hint addon](http://codemirror.net/doc/manual.html#addon_show-hint): Allow opening the control without any item selected.
+
+### New features
+
+New theme: [darcula](http://codemirror.net/demo/theme.html#darcula).
+
+[dialog addon](http://codemirror.net/doc/manual.html#addon_dialog): Add a CSS class (`dialog-opened`) to the editor when a dialog is open.
+
+## 5.37.0 (2018-04-20)
+
+### Bug fixes
+
+Suppress keypress events during composition, for platforms that don't properly do this themselves.
+
+[xml-fold addon](http://codemirror.net/demo/folding.html): Improve handling of line-wrapped opening tags.
+
+[javascript mode](http://codemirror.net/mode/javascript/): Improve TypeScript support.
+
+[python mode](http://codemirror.net/mode/python/): Highlight expressions inside format strings.
+
+### New features
+
+[vim bindings](http://codemirror.net/demo/vim.html): Add support for '(' and ')' movement.
+
+New themes: [idea](http://codemirror.net/demo/theme.html#idea), [ssms](http://codemirror.net/demo/theme.html#ssms), [gruvbox-dark](http://codemirror.net/demo/theme.html#gruvbox-dark).
+
 ## 5.36.0 (2018-03-20)
 
 ### Bug fixes

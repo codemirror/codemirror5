@@ -69,7 +69,7 @@
 <section class=first id=overview>
     <h2 style="position: relative">
       User manual and reference guide
-      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 5.36.1</span>
+      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 5.39.1</span>
     </h2>
 
     <p>CodeMirror is a code-editor component that can be embedded in
@@ -291,6 +291,17 @@
       option, produces a DOM node that is used to represent the
       character. By default, a red dot (<span style="color: red">•</span>)
       is shown, with a title tooltip to indicate the character code.</dd>
+
+      <dt id="option_direction"><code><strong>direction</strong>: "ltr" | "rtl"</code></dt>
+      <dd>Flips overall layout and selects base paragraph direction to
+      be left-to-right or right-to-left.  Default is "ltr".
+      CodeMirror applies the Unicode Bidirectional Algorithm to each
+      line, but does not autodetect base direction — it's set to the
+      editor direction for all lines.  The resulting order is
+      sometimes wrong when base direction doesn't match user intent
+      (for example, leading and trailing punctuation jumps to the
+      wrong side of the line).  Therefore, it's helpful for
+      multilingual input to let users toggle this option.
 
       <dt id="option_rtlMoveVisually"><code><strong>rtlMoveVisually</strong>: boolean</code></dt>
       <dd>Determines whether horizontal cursor movement through

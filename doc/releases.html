@@ -30,9 +30,43 @@
 
   <h2>Version 5.x</h2>
 
+  <p class="rel">20-06-2018: <a href="http://codemirror.net/codemirror-5.39.0.zip">Version 5.39.0</a>:</p>
+
+  <ul class="rel-note">
+    <li>Fix issue that in some circumstances caused content to be clipped off at the bottom after a resize.</li>
+    <li><a href="http://codemirror.net/mode/markdown/">markdown mode</a>: Improve handling of blank lines in HTML tags.</li>
+    <li><a href="http://codemirror.net/mode/stex/">stex mode</a>: Add an <code>inMathMode</code> option to start the mode in math mode.</li>
+  </ul>
+
+  <p class="rel">21-05-2018: <a href="http://codemirror.net/codemirror-5.38.0.zip">Version 5.38.0</a>:</p>
+
+  <ul class="rel-note">
+    <li>Improve reliability of noticing a missing mouseup event during dragging.</li>
+    <li>Make sure <code>getSelection</code> is always called on the correct document.</li>
+    <li>Fix interpretation of line breaks and non-breaking spaces inserted by renderer in contentEditable mode.</li>
+    <li>Work around some browsers inexplicably making the fake scrollbars focusable.</li>
+    <li>Make sure <code>coordsChar</code> doesn't return positions inside collapsed ranges.</li>
+    <li><a href="http://codemirror.net/mode/javascript/">javascript mode</a>: Support block scopes, bindingless catch, bignum suffix, <code>s</code> regexp flag.</li>
+    <li><a href="http://codemirror.net/mode/markdown/">markdown mode</a>: Adjust a wasteful regexp.</li>
+    <li><a href="http://codemirror.net/doc/manual.html#addon_show-hint">show-hint addon</a>: Allow opening the control without any item selected.</li>
+    <li>New theme: <a href="http://codemirror.net/demo/theme.html#darcula">darcula</a>.</li>
+    <li><a href="http://codemirror.net/doc/manual.html#addon_dialog">dialog addon</a>: Add a CSS class (<code>dialog-opened</code>) to the editor when a dialog is open.</li>
+  </ul>
+
+  <p class="rel">20-04-2018: <a href="http://codemirror.net/codemirror-5.37.0.zip">Version 5.37.0</a>:</p>
+
+  <ul class="rel-note">
+    <li>Suppress keypress events during composition, for platforms that don't properly do this themselves.</li>
+    <li><a href="http://codemirror.net/demo/folding.html">xml-fold addon</a>: Improve handling of line-wrapped opening tags.</li>
+    <li><a href="http://codemirror.net/mode/javascript/">javascript mode</a>: Improve TypeScript support.</li>
+    <li><a href="http://codemirror.net/mode/python/">python mode</a>: Highlight expressions inside format strings.</li>
+    <li><a href="http://codemirror.net/demo/vim.html">vim bindings</a>: Add support for '(' and ')' movement.</li>
+    <li>New themes: <a href="http://codemirror.net/demo/theme.html#idea">idea</a>, <a href="http://codemirror.net/demo/theme.html#ssms">ssms</a>, <a href="http://codemirror.net/demo/theme.html#gruvbox-dark">gruvbox-dark</a>.</li>
+  </ul>
+
   <p class="rel">20-03-2018: <a href="http://codemirror.net/codemirror-5.36.0.zip">Version 5.36.0</a>:</p>
 
-  <ul>
+  <ul class="rel-note">
     <li>Make sure all document-level event handlers are registered on the document that the editor is part of.</li>
     <li>Fix issue that prevented edits whose origin starts with <code>+</code> from being combined in history events for an editor-less document.</li>
     <li><a href="http://codemirror.net/demo/multiplex.html">multiplex addon</a>: Improve handling of indentation.</li>
@@ -46,7 +80,7 @@
 
   <p class="rel">20-02-2018: <a href="http://codemirror.net/codemirror-5.35.0.zip">Version 5.35.0</a>:</p>
 
-  <ul>
+  <ul class="rel-note">
     <li>Fix problem where selection undo might change read-only documents.</li>
     <li>Fix crash when calling <code>addLineWidget</code> on a document that has no attached editor.</li>
     <li><a href="http://codemirror.net/doc/manual.html#addon_searchcursor">searchcursor addon</a>: Fix behavior of <code>^</code> in multiline regexp mode.</li>
@@ -62,7 +96,7 @@
 
   <p class="rel">29-01-2018: <a href="http://codemirror.net/codemirror-5.34.0.zip">Version 5.34.0</a>:</p>
 
-  <ul>
+  <ul class="rel-note">
     <li><a href="http://codemirror.net/mode/markdown/">markdown mode</a>: Fix a problem where inline styles would persist across list items.</li>
     <li><a href="http://codemirror.net/demo/sublime.html">sublime bindings</a>: Fix the <code>toggleBookmark</code> command.</li>
     <li><a href="http://codemirror.net/doc/manual.html#addon_closebrackets">closebrackets addon</a>: Improve behavior when closing triple quotes.</li>

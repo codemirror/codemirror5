@@ -1,6 +1,6 @@
 import { buildLineContent, LineView } from "../line/line_data.js"
 import { clipPos, Pos } from "../line/pos.js"
-import { collapsedSpanAtEnd, heightAtLine, lineIsHidden, visualLine } from "../line/spans.js"
+import { collapsedSpanAround, heightAtLine, lineIsHidden, visualLine } from "../line/spans.js"
 import { getLine, lineAtHeight, lineNo, updateLineHeight } from "../line/utils_line.js"
 import { bidiOther, getBidiPartAt, getOrder } from "../util/bidi.js"
 import { chrome, android, ie, ie_version } from "../util/browser.js"
@@ -430,12 +430,11 @@ export function coordsChar(cm, x, y) {
   let lineObj = getLine(doc, lineN)
   for (;;) {
     let found = coordsCharInner(cm, lineObj, lineN, x, y)
-    let merged = collapsedSpanAtEnd(lineObj)
-    let mergedPos = merged && merged.find(0, true)
-    if (merged && (found.ch > mergedPos.from.ch || found.ch == mergedPos.from.ch && found.xRel > 0))
-      lineN = lineNo(lineObj = mergedPos.to.line)
-    else
-      return found
+    let collapsed = collapsedSpanAround(lineObj, found.ch + (found.xRel > 0 ? 1 : 0))
+    if (!collapsed) return found
+    let rangeEnd = collapsed.find(1)
+    if (rangeEnd.line == lineN) return rangeEnd
+    lineObj = getLine(doc, lineN = rangeEnd.line)
   }
 }
 

@@ -216,15 +216,15 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     indent: function(state, textAfter) {
       if (state.tokenize != tokenBase && state.tokenize != null || state.typeAtEndOfLine) return CodeMirror.Pass;
       var ctx = state.context, firstChar = textAfter && textAfter.charAt(0);
+      var closing = firstChar == ctx.type;
       if (ctx.type == "statement" && firstChar == "}") ctx = ctx.prev;
       if (parserConfig.dontIndentStatements)
         while (ctx.type == "statement" && parserConfig.dontIndentStatements.test(ctx.info))
           ctx = ctx.prev
       if (hooks.indent) {
-        var hook = hooks.indent(state, ctx, textAfter);
+        var hook = hooks.indent(state, ctx, textAfter, indentUnit);
         if (typeof hook == "number") return hook
       }
-      var closing = firstChar == ctx.type;
       var switchBlock = ctx.prev && ctx.prev.info == "switch";
       if (parserConfig.allmanIndentation && /[{(]/.test(firstChar)) {
         while (ctx.type != "top" && ctx.type != "}") ctx = ctx.prev
@@ -631,6 +631,17 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       '"': function(stream, state) {
         state.tokenize = tokenKotlinString(stream.match('""'));
         return state.tokenize(stream, state);
+      },
+      indent: function(state, ctx, textAfter, indentUnit) {
+        var firstChar = textAfter && textAfter.charAt(0);
+        if ((state.prevToken == "}" || state.prevToken == ")") && textAfter == "")
+          return state.indented;
+        if (state.prevToken == "operator" && textAfter != "}" ||
+          state.prevToken == "variable" && firstChar == "." ||
+          (state.prevToken == "}" || state.prevToken == ")") && firstChar == ".")
+          return indentUnit * 2 + ctx.indented;
+        if (ctx.align && ctx.type == "}")
+          return ctx.indented + (state.context.type == (textAfter || "").charAt(0) ? 0 : indentUnit);
       }
     },
     modeProps: {closeBrackets: {triples: '"'}}

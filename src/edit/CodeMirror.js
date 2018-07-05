@@ -37,6 +37,7 @@ export function CodeMirror(place, options) {
 
   let doc = options.value
   if (typeof doc == "string") doc = new Doc(doc, options.mode, null, options.lineSeparator, options.direction)
+  else if (options.mode) doc.modeOption = options.mode
   this.doc = doc
 
   let input = new CodeMirror.inputStyles[options.inputStyle](this)

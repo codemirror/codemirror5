@@ -29,3 +29,14 @@
 
 
 .cm-s-idea .CodeMirror-matchingbracket { outline:1px solid grey; color:black !important; }
+
+.CodeMirror-hints.idea {
+  font-family: Menlo, Monaco, Consolas, 'Courier New', monospace;
+  color: #616569;
+  background-color: #ebf3fd !important;
+}
+
+.CodeMirror-hints.idea .CodeMirror-hint-active {
+  background-color: #a2b8c9 !important;
+  color: #5c6065 !important;
+}
