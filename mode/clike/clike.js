@@ -222,7 +222,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
         while (ctx.type == "statement" && parserConfig.dontIndentStatements.test(ctx.info))
           ctx = ctx.prev
       if (hooks.indent) {
-        var hook = hooks.indent(state, ctx, textAfter, indentUnit, closing);
+        var hook = hooks.indent(state, ctx, textAfter, indentUnit);
         if (typeof hook == "number") return hook
       }
       var switchBlock = ctx.prev && ctx.prev.info == "switch";
@@ -632,7 +632,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
         state.tokenize = tokenKotlinString(stream.match('""'));
         return state.tokenize(stream, state);
       },
-      indent: function(state, ctx, textAfter, indentUnit, closing) {
+      indent: function(state, ctx, textAfter, indentUnit) {
         var firstChar = textAfter && textAfter.charAt(0);
         if ((state.prevToken == "}" || state.prevToken == ")") && textAfter == "")
           return state.indented;
@@ -641,7 +641,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
           (state.prevToken == "}" || state.prevToken == ")") && firstChar == ".")
           return indentUnit * 2 + ctx.indented;
         if (ctx.align && ctx.type == "}")
-          return ctx.indented + (closing ? 0 : indentUnit);
+          return ctx.indented + (state.context.type == (textAfter || "").charAt(0) ? 0 : indentUnit);
       }
     },
     modeProps: {closeBrackets: {triples: '"'}}
