@@ -16,7 +16,7 @@
       stopListening(cm, cm.state.autoRefresh)
       cm.state.autoRefresh = null
     }
-    if (val && cm.display.wrapper.offsetHeight == 0)
+    if (val && (val.force || cm.display.wrapper.offsetHeight == 0))
       startListening(cm, cm.state.autoRefresh = {delay: val.delay || 250})
   })
 
