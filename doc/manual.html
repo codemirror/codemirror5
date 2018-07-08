@@ -2954,7 +2954,13 @@ editor.setOption("extraKeys", {
       500}</code> as the option value to configure this). Note that
       this addon will only refresh the editor <em>once</em> when it
       first becomes visible, and won't take care of further restyling
-      and resizing.</dd>
+      and resizing.<br>The option's value may be a boolean or an object specifying the following options:
+      <dl>
+        <dt><code><strong>delay</strong>: number</code></dt>
+        <dd>Delay before starting polling (msec)</dd>
+        <dt><code><strong>force</strong>: boolean</code></dt>
+        <dd>Force to start polling to refresh even if after the CodeMirror element has already initialized.</dd>
+      </dl></dd>
 
       <dt id="addon_simplescrollbars"><a href="../addon/scroll/simplescrollbars.js"><code>scroll/simplescrollbars.js</code></a></dt>
       <dd>Defines two additional scrollbar
