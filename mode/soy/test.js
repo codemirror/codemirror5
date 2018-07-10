@@ -114,4 +114,8 @@
 
   MT('literal-comments',
      '[keyword {literal}]/* comment */ // comment[keyword {/literal}]');
+
+  MT('highlight-command-at-eol',
+     '[keyword {msg]',
+     '    [keyword }]');
 })();
