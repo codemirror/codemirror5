@@ -30,6 +30,15 @@
 
   <h2>Version 5.x</h2>
 
+  <p class="rel">20-07-2018: <a href="http://codemirror.net/codemirror-5.39.2.zip">Version 5.39.2</a>:</p>
+
+  <ul class="rel-note">
+    <li>Fix issue where when you pass the document as a <code>Doc</code> instance to the <code>CodeMirror</code> constructor, the <code>mode</code> option was ignored.</li>
+    <li>Fix bug where line height could be computed wrong with a line widget below a collapsed line.</li>
+    <li>Fix overeager <code>.npmignore</code> dropping the <code>bin/source-highlight</code> utility from the distribution.</li>
+    <li><a href="http://codemirror.net/doc/manual.html#addon_show-hint">show-hint addon</a>: Fix behavior when backspacing to the start of the line with completions open.</li>
+  </ul>
+
   <p class="rel">20-06-2018: <a href="http://codemirror.net/codemirror-5.39.0.zip">Version 5.39.0</a>:</p>
 
   <ul class="rel-note">

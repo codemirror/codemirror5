@@ -1,3 +1,15 @@
+## 5.39.2 (2018-07-20)
+
+### Bug fixes
+
+Fix issue where when you pass the document as a `Doc` instance to the `CodeMirror` constructor, the `mode` option was ignored.
+
+Fix bug where line height could be computed wrong with a line widget below a collapsed line.
+
+Fix overeager `.npmignore` dropping the `bin/source-highlight` utility from the distribution.
+
+[show-hint addon](http://codemirror.net/doc/manual.html#addon_show-hint): Fix behavior when backspacing to the start of the line with completions open.
+
 ## 5.39.0 (2018-06-20)
 
 ### Bug fixes
