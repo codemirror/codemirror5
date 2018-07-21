@@ -44,27 +44,32 @@ export function finishOperation(op, endCb) {
 // purposes of where this function would be used in CodeMirror, adding in support
 // for clearImmediate would be non-sensible because it would never be used, only 
 // only bloat the code size, make setImmediate run a little slower than otherwise.
-const setImmediateOrFallBack = (function(){
-    if (typeof setImmediate !== "undefined") return setImmediate // for IE10+
-    if (typeof MessageChannel === "undefined") return setTimeout // for IE9 and below
-    const msgChannel = new MessageChannelport1 = msgChannel.port1, port2 = msgChannel.port2
-    const postMessage = port2.postMessage.bind(port2)
-    var waitingImmediates = null, immediatesLen=0
-    port1.onmessage = function(){
-        var curImmediates = waitingImmediates, i = 0
-        waitingImmediates = null
-        for (; i !== immediatesLen; i++) curImmediates[i]()
+const setImmediateOrFallBack = (() => {
+  if (typeof setImmediate !== "undefined") return setImmediate // for IE10+
+  if (typeof MessageChannel === "undefined") return setTimeout // for IE9 and below
+  const msgChannel = new MessageChannel
+  const port1 = msgChannel.port1
+  const port2 = msgChannel.port2
+  const postMessage = port2.postMessage.bind(port2)
+  var waitingImmediates = null
+  var immediatesLen = 0
+  port1.onmessage = () => {
+    var curImmediates = waitingImmediates
+    waitingImmediates = null
+    for (var i = 0; i !== immediatesLen; i++) {
+      curImmediates[i]( /*no arguments*/ )
     }
-    return function(f){
-        if (waitingImmediates === null) {
-            waitingImmediates = [f]
-            postMessage(void 0)
-            immediatesLen = 1
-        } else {
-            waitingImmediates.push(f)
-            return immediatesLen++
-        }
+  }
+  return f => {
+    if (waitingImmediates === null) {
+      waitingImmediates = [ f ]
+      postMessage( undefined )
+      immediatesLen = 1
+    } else {
+      waitingImmediates.push( f )
+      immediatesLen += 1;
     }
+  }
 })()
 
 let orphanDelayedCallbacks = null
