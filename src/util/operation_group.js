@@ -40,6 +40,33 @@ export function finishOperation(op, endCb) {
   }
 }
 
+// The below implementation of setImmediate is intended to be only one-way. For the
+// purposes of where this function would be used in CodeMirror, adding in support
+// for clearImmediate would be non-sensible because it would never be used, only 
+// only bloat the code size, make setImmediate run a little slower than otherwise.
+const setImmediateOrFallBack = (function(){
+    if (typeof setImmediate !== "undefined") return setImmediate // for IE10+
+    if (typeof MessageChannel === "undefined") return setTimeout // for IE9 and below
+    const msgChannel = new MessageChannelport1 = msgChannel.port1, port2 = msgChannel.port2
+    const postMessage = port2.postMessage.bind(port2)
+    var waitingImmediates = null, immediatesLen=0
+    port1.onmessage = function(){
+        var curImmediates = waitingImmediates, i = 0
+        waitingImmediates = null
+        for (; i !== immediatesLen; i++) curImmediates[i]()
+    }
+    return function(f){
+        if (waitingImmediates === null) {
+            waitingImmediates = [f]
+            postMessage(void 0)
+            immediatesLen = 1
+        } else {
+            waitingImmediates.push(f)
+            return immediatesLen++
+        }
+    }
+})()
+
 let orphanDelayedCallbacks = null
 
 // Often, we want to signal events at a point where we are in the
@@ -59,7 +86,7 @@ export function signalLater(emitter, type /*, values...*/) {
     list = orphanDelayedCallbacks
   } else {
     list = orphanDelayedCallbacks = []
-    setTimeout(fireOrphanDelayed, 0)
+    setImmediateOrFallBack(fireOrphanDelayed)
   }
   for (let i = 0; i < arr.length; ++i)
     list.push(() => arr[i].apply(null, args))
