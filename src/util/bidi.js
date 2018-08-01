@@ -38,9 +38,9 @@ export function getBidiPartAt(order, ch, sticky) {
 function getTextAndIsolatePositions(str, marks) {
   let flag = 0, len = str.length, textAndIsolates = [], start, nextIsolate, nextNextIsolate, nextIsolateEnd
   if (!marks) return [{from: 0, to: len}]
-  marks.sort((a, b) => { return a.from - b.from == 0 ? a.to - b.to : a.from - b.from })
+  let markers = marks.sort((a, b) => { return a.from - b.from == 0 ? a.to - b.to : a.from - b.from }).filter(x => x.marker.isolate)
   for (let i = 0; i < len;) {
-    start = i, nextIsolate = marks[flag], nextNextIsolate = marks[flag + 1]
+    start = i, nextIsolate = markers[flag], nextNextIsolate = markers[flag + 1]
     if (nextIsolate) { nextIsolateEnd = nextIsolate.to }
     else { nextIsolate = {from: len } }
     // If the second next isolate overlaps the previous one, truncate the first one
@@ -50,8 +50,9 @@ function getTextAndIsolatePositions(str, marks) {
       textAndIsolates.push({from: start, to: i})
     } else {
       for (; i < len && i < nextIsolateEnd; i++) {}
-      textAndIsolates.push({from: start, to: i, isolate: nextIsolate.marker.isolate, atomic: nextIsolate.marker.atomic})
       flag += 1
+      if (start === i) continue
+      textAndIsolates.push({from: start, to: i, isolate: nextIsolate.marker.isolate, atomic: nextIsolate.marker.atomic})
     }
   }
   return textAndIsolates
