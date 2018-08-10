@@ -46,7 +46,7 @@ CodeMirror.defineMode("pascal", function() {
       state.tokenize = tokenString(ch);
       return state.tokenize(stream, state);
     }
-    if (ch == "(" && stream.eat("*")) {
+    if (ch == "(" && stream.eat("*") || ch == "{") {
       state.tokenize = tokenComment;
       return tokenComment(stream, state);
     }
@@ -89,7 +89,7 @@ CodeMirror.defineMode("pascal", function() {
   function tokenComment(stream, state) {
     var maybeEnd = false, ch;
     while (ch = stream.next()) {
-      if (ch == ")" && maybeEnd) {
+      if (ch == ")" && maybeEnd || ch == "}" && maybeEnd) {
         state.tokenize = null;
         break;
       }
