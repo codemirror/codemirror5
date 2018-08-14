@@ -500,7 +500,7 @@
       var copy = dv.copyButtons.appendChild(elt("div", dv.type == "left" ? "\u21dd" : "\u21dc",
                                                 "CodeMirror-merge-copy"));
       var editOriginals = dv.mv.options.allowEditingOriginals;
-      copy.title = editOriginals ? "Push to left" : "Revert chunk";
+      copy.title = editOriginals ? dv.mv.editor().phrase("Push to left") : dv.mv.editor().phrase("Revert chunk");
       copy.chunk = chunk;
       copy.style.top = (chunk.origTo > chunk.origFrom ? top : dv.edit.heightAtLine(chunk.editFrom, "local") - sTopEdit) + "px";
 
@@ -594,6 +594,7 @@
 
   function buildGap(dv) {
     var lock = dv.lockButton = elt("div", null, "CodeMirror-merge-scrolllock");
+    // TODO: this does not use CodeMirror.phrase() because no editor has been created when this is called, so phrases can not exist
     lock.title = "Toggle locked scrolling";
     var lockWrap = elt("div", [lock], "CodeMirror-merge-scrolllock-wrap");
     CodeMirror.on(lock, "click", function() { setScrollLock(dv, !dv.lockScroll); });
@@ -728,7 +729,7 @@
     cm.addLineClass(from, "wrap", "CodeMirror-merge-collapsed-line");
     var widget = document.createElement("span");
     widget.className = "CodeMirror-merge-collapsed-widget";
-    widget.title = "Identical text collapsed. Click to expand.";
+    widget.title = cm.phrase("Identical text collapsed. Click to expand.");
     var mark = cm.markText(Pos(from, 0), Pos(to - 1), {
       inclusiveLeft: true,
       inclusiveRight: true,

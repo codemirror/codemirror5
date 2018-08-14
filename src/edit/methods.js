@@ -432,6 +432,21 @@ export default function(CodeMirror) {
       return old
     }),
 
+    phrases: {},
+    setPhrases: function(customPhrases) {
+      for (var key in customPhrases) {
+          if (customPhrases.hasOwnProperty(key)) this.phrases[key] = customPhrases[key]
+      }
+    },
+
+    phrase: function(phraseText) {
+      if (this.phrases !== null && this.phrases.hasOwnProperty(phraseText)) {
+          return this.phrases[phraseText]
+      } else {
+          return phraseText
+      }
+    },
+
     getInputField: function(){return this.display.input.getField()},
     getWrapperElement: function(){return this.display.wrapper},
     getScrollerElement: function(){return this.display.scroller},
