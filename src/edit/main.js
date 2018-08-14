@@ -34,7 +34,7 @@ CodeMirror.inputStyles = {"textarea": TextareaInput, "contenteditable": ContentE
 // DIALOGUE LANGUAGE
 
 import { phrase } from "../language/language.js";
-CodeMirror.prototype.phrase = phrase;
+CodeMirror.phrase = phrase;
 
 // MODE DEFINITION AND QUERYING
 
