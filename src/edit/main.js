@@ -31,6 +31,11 @@ import ContentEditableInput from "../input/ContentEditableInput.js"
 import TextareaInput from "../input/TextareaInput.js"
 CodeMirror.inputStyles = {"textarea": TextareaInput, "contenteditable": ContentEditableInput}
 
+// DIALOGUE LANGUAGE
+
+import { phrase } from "../language/Language.js";
+CodeMirror.prototype.phrase = phrase;
+
 // MODE DEFINITION AND QUERYING
 
 import { defineMIME, defineMode } from "../modes.js"
