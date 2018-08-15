@@ -101,6 +101,15 @@ CodeMirror.defaults = defaults
 // Functions to run when options are changed.
 CodeMirror.optionHandlers = optionHandlers
 
+// Language independence - relies on a global object called CodeMirrorPhrases containing phrase keys and text.
+CodeMirror.phrase = function(phraseText) {
+  if (typeof window.CodeMirrorPhrases != 'undefined' && window.CodeMirrorPhrases.hasOwnProperty(phraseText)) {
+    return window.CodeMirrorPhrases[phraseText];
+  } else {
+    return phraseText;
+  }
+}
+
 export default CodeMirror
 
 // Attach the necessary event handlers when initializing the editor

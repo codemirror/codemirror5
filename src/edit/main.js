@@ -31,19 +31,6 @@ import ContentEditableInput from "../input/ContentEditableInput.js"
 import TextareaInput from "../input/TextareaInput.js"
 CodeMirror.inputStyles = {"textarea": TextareaInput, "contenteditable": ContentEditableInput}
 
-// INTERFACE LANGUAGE
-
-CodeMirror.phrases = {}
-CodeMirror.phrase = function(phrase) {
-	return CodeMirror.phrases.hasOwnProperty(phrase) ? CodeMirror.phrases[phrase] : phrase;
-}
-CodeMirror.setPhrases = function(customPhrases)
-{
-  for (var key in customPhrases) {
-    if (customPhrases.hasOwnProperty(key)) CodeMirror.phrases[key] = customPhrases[key];
-  }
-}
-
 // MODE DEFINITION AND QUERYING
 
 import { defineMIME, defineMode } from "../modes.js"
