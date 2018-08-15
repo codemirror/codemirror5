@@ -104,9 +104,9 @@ CodeMirror.optionHandlers = optionHandlers
 // Language independence - relies on a global object called CodeMirrorPhrases containing phrase keys and text.
 CodeMirror.phrase = function(phraseText) {
   if (typeof window.CodeMirrorPhrases != 'undefined' && window.CodeMirrorPhrases.hasOwnProperty(phraseText)) {
-    return window.CodeMirrorPhrases[phraseText];
+    return window.CodeMirrorPhrases[phraseText]
   } else {
-    return phraseText;
+    return phraseText
   }
 }
 
