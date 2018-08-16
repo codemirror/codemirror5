@@ -432,19 +432,9 @@ export default function(CodeMirror) {
       return old
     }),
 
-    phrases: {},
-    setPhrases: function(customPhrases) {
-      for (var key in customPhrases) {
-          if (customPhrases.hasOwnProperty(key)) this.phrases[key] = customPhrases[key]
-      }
-    },
-
     phrase: function(phraseText) {
-      if (this.phrases !== null && this.phrases.hasOwnProperty(phraseText)) {
-          return this.phrases[phraseText]
-      } else {
-          return phraseText
-      }
+      let phrases = this.options.phrases
+      return phrases && Object.prototype.hasOwnProperty.call(phrases, phraseText) ? phrases[phraseText] : phraseText
     },
 
     getInputField: function(){return this.display.input.getField()},
