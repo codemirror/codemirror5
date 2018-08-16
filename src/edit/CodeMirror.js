@@ -101,10 +101,11 @@ CodeMirror.defaults = defaults
 // Functions to run when options are changed.
 CodeMirror.optionHandlers = optionHandlers
 
-// Language independence - relies on a global object called CodeMirrorPhrases containing phrase keys and text.
+// Language independence - relies on CodeMirror.phrases being overwritten before addon modules are included.
+CodeMirror.phrases = null;
 CodeMirror.phrase = function(phraseText) {
-  if (typeof window.CodeMirrorPhrases != 'undefined' && window.CodeMirrorPhrases.hasOwnProperty(phraseText)) {
-    return window.CodeMirrorPhrases[phraseText]
+  if (CodeMirror.phrases !== null && CodeMirror.phrases.hasOwnProperty(phraseText)) {
+    return CodeMirror.phrases[phraseText]
   } else {
     return phraseText
   }

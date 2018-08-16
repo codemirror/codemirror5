@@ -19,7 +19,7 @@
   }
 
   var jumpDialog =
-      CodeMirror.phrase('Jump to line:') + ' <input type="text" style="width: 10em" class="CodeMirror-search-field"/> <span style="color: #888" class="CodeMirror-search-hint">' + CodeMirror.phrase('(Use line:column or scroll% syntax)') + '</span>';
+      CodeMirror.phrase("Jump to line:") + ' <input type="text" style="width: 10em" class="CodeMirror-search-field"/> <span style="color: #888" class="CodeMirror-search-hint">' + CodeMirror.phrase("(Use line:column or scroll% syntax)") + '</span>';
 
   function interpretLine(cm, string) {
     var num = Number(string)
