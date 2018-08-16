@@ -154,6 +154,7 @@ export function defineOptions(CodeMirror) {
   option("tabindex", null, (cm, val) => cm.display.input.getField().tabIndex = val || "")
   option("autofocus", null)
   option("direction", "ltr", (cm, val) => cm.doc.setDirection(val), true)
+  option("phrases", null, (cm, val) => cm.setPhrases(val))
 }
 
 function guttersChanged(cm) {
