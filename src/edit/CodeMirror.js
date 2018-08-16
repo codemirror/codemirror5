@@ -102,7 +102,7 @@ CodeMirror.defaults = defaults
 CodeMirror.optionHandlers = optionHandlers
 
 // Language independence - relies on CodeMirror.phrases being overwritten before addon modules are included.
-CodeMirror.phrases = null;
+CodeMirror.phrases = null
 CodeMirror.phrase = function(phraseText) {
   if (CodeMirror.phrases !== null && CodeMirror.phrases.hasOwnProperty(phraseText)) {
     return CodeMirror.phrases[phraseText]
