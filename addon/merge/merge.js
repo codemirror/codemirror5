@@ -500,7 +500,7 @@
       var copy = dv.copyButtons.appendChild(elt("div", dv.type == "left" ? "\u21dd" : "\u21dc",
                                                 "CodeMirror-merge-copy"));
       var editOriginals = dv.mv.options.allowEditingOriginals;
-      copy.title = editOriginals ? dv.mv.editor().phrase("Push to left") : dv.mv.editor().phrase('Revert chunk');
+      copy.title = editOriginals ? dv.mv.editor().phrase("Push to left") : dv.mv.editor().phrase("Revert chunk");
       copy.chunk = chunk;
       copy.style.top = (chunk.origTo > chunk.origFrom ? top : dv.edit.heightAtLine(chunk.editFrom, "local") - sTopEdit) + "px";
 
