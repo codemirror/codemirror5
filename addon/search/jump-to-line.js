@@ -18,8 +18,8 @@
     else f(prompt(shortText, deflt));
   }
 
-  function getJumpDialog() {
-    return CodeMirror.phrase("Jump to line:") + ' <input type="text" style="width: 10em" class="CodeMirror-search-field"/> <span style="color: #888" class="CodeMirror-search-hint">' + CodeMirror.phrase("(Use line:column or scroll% syntax)") + '</span>';
+  function getJumpDialog(cm) {
+    return cm.phrase("Jump to line:") + ' <input type="text" style="width: 10em" class="CodeMirror-search-field"/> <span style="color: #888" class="CodeMirror-search-hint">' + cm.phrase("(Use line:column or scroll% syntax)") + '</span>';
   }
 
   function interpretLine(cm, string) {
@@ -30,7 +30,7 @@
 
   CodeMirror.commands.jumpToLine = function(cm) {
     var cur = cm.getCursor();
-    dialog(cm, getJumpDialog(), "Jump to line:", (cur.line + 1) + ":" + cur.ch, function(posStr) {
+    dialog(cm, getJumpDialog(cm), cm.phrase("Jump to line:"), (cur.line + 1) + ":" + cur.ch, function(posStr) {
       if (!posStr) return;
 
       var match;
