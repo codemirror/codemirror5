@@ -869,6 +869,8 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
     getType: getType,
 
+    blockCommentStart: "<!--",
+    blockCommentEnd: "-->",
     closeBrackets: "()[]{}''\"\"``",
     fold: "markdown"
   };
