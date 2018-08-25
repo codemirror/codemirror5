@@ -2434,7 +2434,8 @@
               CodeMirror.commands.newlineAndIndent;
           newlineFn(cm);
         }
-        this.enterInsertMode(cm, { repeat: actionArgs.repeat }, vim);
+        var that = this;
+        setTimeout(that.enterInsertMode.bind(that, cm, { repeat: actionArgs.repeat }, vim),1);
       },
       paste: function(cm, actionArgs, vim) {
         var cur = copyCursor(cm.getCursor());
