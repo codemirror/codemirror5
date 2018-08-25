@@ -1,3 +1,19 @@
+## 5.40.0 (2018-08-25)
+
+### Bug fixes
+
+[closebrackets addon](https://codemirror.net/doc/manual.html#addon_closebrackets): Fix issue where bracket-closing wouldn't work before punctuation.
+
+[panel addon](https://codemirror.net/doc/manual.html#addon_panel): Fix problem where replacing the last remaining panel dropped the newly added panel.
+
+[hardwrap addon](https://codemirror.net/doc/manual.html#addon_hardwrap): Fix an infinite loop when the indention is greater than the target column.
+
+[jinja2](https://codemirror.net/mode/jinja2/) and [markdown](https://codemirror.net/mode/markdown/) modes: Add comment metadata.
+
+### New features
+
+New method [`phrase`](https://codemirror.net/doc/manual.html#phrase) and option [`phrases`](https://codemirror.net/doc/manual.html#option_phrases) to make translating UI text in addons easier.
+
 ## 5.39.2 (2018-07-20)
 
 ### Bug fixes
