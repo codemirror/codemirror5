@@ -29,7 +29,6 @@ import { defaults, optionHandlers, Init } from "./options.js"
 
 export function CodeMirror(place, options) {
   if (!(this instanceof CodeMirror)) return new CodeMirror(place, options)
-
   this.options = options = options ? copyObj(options) : {}
   // Determine effective options based on given values and defaults.
   copyObj(defaults, options, false)
@@ -98,6 +97,7 @@ export function CodeMirror(place, options) {
 
 // The default configuration options.
 CodeMirror.defaults = defaults
+
 // Functions to run when options are changed.
 CodeMirror.optionHandlers = optionHandlers
 

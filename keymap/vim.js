@@ -2301,6 +2301,10 @@
           if (vim.visualMode){
             return;
           }
+        } else if (insertAt == 'newLine') {
+            // if (!vimGlobalState.macroModeState.isPlaying) {
+              // cm.setCursor(cm.getCursor().line, cm.getCursor().ch-1);
+          // }
         }
         cm.setOption('disableInput', false);
         if (actionArgs && actionArgs.replace) {
@@ -2310,7 +2314,12 @@
           CodeMirror.signal(cm, "vim-mode-change", {mode: "replace"});
         } else {
           cm.toggleOverwrite(false);
-          cm.setOption('keyMap', 'vim-insert');
+          if (insertAt == 'newLine' && !vimGlobalState.macroModeState.isPlaying) {
+            head = offsetCursor(cm.getCursor('head'), 0, -1);
+            setTimeout(cm.setOption.bind(cm, 'keyMap', 'vim-insert'),0);
+          } else {
+            cm.setOption('keyMap', 'vim-insert');
+          }
           CodeMirror.signal(cm, "vim-mode-change", {mode: "insert"});
         }
         if (!vimGlobalState.macroModeState.isPlaying) {
@@ -2434,8 +2443,7 @@
               CodeMirror.commands.newlineAndIndent;
           newlineFn(cm);
         }
-        var that = this;
-        setTimeout(that.enterInsertMode.bind(that, cm, { repeat: actionArgs.repeat }, vim),1);
+        cm.operation(actions.enterInsertMode.bind(undefined, cm, { repeat: actionArgs.repeat, insertAt: 'newLine' }, vim));
       },
       paste: function(cm, actionArgs, vim) {
         var cur = copyCursor(cm.getCursor());
