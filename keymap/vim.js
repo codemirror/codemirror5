@@ -2315,7 +2315,8 @@
         } else {
           cm.toggleOverwrite(false);
           if (insertAt == 'newLine' && !vimGlobalState.macroModeState.isPlaying) {
-            head = offsetCursor(cm.getCursor('head'), 0, -1);
+            // head = offsetCursor(cm.getCursor('head'), 0, -1);
+            // cm.endOperation(cm.operation(cm.setOption.bind(cm, 'keyMap', 'vim-insert')));
             setTimeout(cm.setOption.bind(cm, 'keyMap', 'vim-insert'),0);
           } else {
             cm.setOption('keyMap', 'vim-insert');

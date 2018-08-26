@@ -187,6 +187,9 @@ function testVim(name, run, opts, expectedFail) {
         matcher(text);
       }
     }
+    function runNextLoop(f) {
+      setTimeout(f, 0);
+    }
     var helpers = {
       doKeys: doKeysFn(cm),
       // Warning: Only emulates keymap events, not character insertions. Use
@@ -199,7 +202,8 @@ function testVim(name, run, opts, expectedFail) {
       fakeOpenNotification: fakeOpenNotification,
       getRegisterController: function() {
         return CodeMirror.Vim.getRegisterController();
-      }
+      },
+      runNextLoop: runNextLoop
     }
     CodeMirror.Vim.resetVimGlobalState_();
     var successful = false;
@@ -1543,9 +1547,11 @@ testVim('I_visual_block', function(cm, vim, helpers) {
 testVim('o', function(cm, vim, helpers) {
   cm.setCursor(0, 4);
   helpers.doKeys('o');
-  // eq('word1\n\nword2', cm.getValue());
-  // helpers.assertCursorAt(1, 0);
-  eq('vim-insert', cm.getOption('keyMap'));
+  helpers.runNextLoop(function() {
+    eq('word1\n\nword2', cm.getValue());
+    helpers.assertCursorAt(1, 0);
+    eq('vim-insert', cm.getOption('keyMap'));
+  });
 }, { value: 'word1\nword2' });
 testVim('o_repeat', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
@@ -1558,9 +1564,11 @@ testVim('o_repeat', function(cm, vim, helpers) {
 testVim('O', function(cm, vim, helpers) {
   cm.setCursor(0, 4);
   helpers.doKeys('O');
-  eq('\nword1\nword2', cm.getValue());
-  helpers.assertCursorAt(0, 0);
-  eq('vim-insert', cm.getOption('keyMap'));
+  helpers.runNextLoop(function() {
+    eq('\nword1\nword2', cm.getValue());
+    helpers.assertCursorAt(0, 0);
+    eq('vim-insert', cm.getOption('keyMap'));
+  });
 }, { value: 'word1\nword2' });
 testVim('J', function(cm, vim, helpers) {
   cm.setCursor(0, 4);
@@ -2930,12 +2938,14 @@ testVim('._insert', function(cm, vim, helpers) {
   helpers.assertCursorAt(0, 6);
   helpers.doKeys('O');
   cm.replaceRange('xyz', cm.getCursor());
-  helpers.doInsertModeKeys('Backspace');
-  helpers.doInsertModeKeys('Down');
-  helpers.doKeys('<Esc>');
-  helpers.doKeys('.');
-  eq('xy\nxy\ntestestt', cm.getValue());
-  helpers.assertCursorAt(1, 1);
+  setTimeout(function() {
+    helpers.doInsertModeKeys('Backspace');
+    helpers.doInsertModeKeys('Down');
+    helpers.doKeys('<Esc>');
+    helpers.doKeys('.');
+    eq('xy\nxy\ntestestt', cm.getValue());
+    helpers.assertCursorAt(1, 1);
+  },0);
 }, { value: ''});
 testVim('._insert_repeat', function(cm, vim, helpers) {
   helpers.doKeys('i');
