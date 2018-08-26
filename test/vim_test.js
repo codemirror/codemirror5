@@ -2938,14 +2938,14 @@ testVim('._insert', function(cm, vim, helpers) {
   helpers.assertCursorAt(0, 6);
   helpers.doKeys('O');
   cm.replaceRange('xyz', cm.getCursor());
-  setTimeout(function() {
+  helpers.runNextLoop(function() {
     helpers.doInsertModeKeys('Backspace');
     helpers.doInsertModeKeys('Down');
     helpers.doKeys('<Esc>');
     helpers.doKeys('.');
     eq('xy\nxy\ntestestt', cm.getValue());
     helpers.assertCursorAt(1, 1);
-  },0);
+  });
 }, { value: ''});
 testVim('._insert_repeat', function(cm, vim, helpers) {
   helpers.doKeys('i');

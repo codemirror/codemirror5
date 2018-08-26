@@ -2301,10 +2301,6 @@
           if (vim.visualMode){
             return;
           }
-        } else if (insertAt == 'newLine') {
-            // if (!vimGlobalState.macroModeState.isPlaying) {
-              // cm.setCursor(cm.getCursor().line, cm.getCursor().ch-1);
-          // }
         }
         cm.setOption('disableInput', false);
         if (actionArgs && actionArgs.replace) {
@@ -2315,8 +2311,8 @@
         } else {
           cm.toggleOverwrite(false);
           if (insertAt == 'newLine' && !vimGlobalState.macroModeState.isPlaying) {
-            // head = offsetCursor(cm.getCursor('head'), 0, -1);
-            // cm.endOperation(cm.operation(cm.setOption.bind(cm, 'keyMap', 'vim-insert')));
+            //ugly, but this fixed a bug where thick cursor would get permantly stuck
+            //when (o | O) newLineandinsertMode function was called
             setTimeout(cm.setOption.bind(cm, 'keyMap', 'vim-insert'),0);
           } else {
             cm.setOption('keyMap', 'vim-insert');
