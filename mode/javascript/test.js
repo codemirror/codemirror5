@@ -12,7 +12,7 @@
      "[keyword function](){ [keyword var] [def x] [operator =] [number 1] [operator +] [number 2], [def y]; }");
 
   MT("destructuring",
-     "([keyword function]([def a], [[[def b], [def c] ]]) {",
+     "([keyword function]([def a], [[[def b] [operator =] [number 10], [def c] ]]) {",
      "  [keyword let] {[def d], [property foo]: [def c][operator =][number 10], [def x]} [operator =] [variable foo]([variable-2 a]);",
      "  [[[variable-2 c], [variable y] ]] [operator =] [variable-2 c];",
      "})();");
