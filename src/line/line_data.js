@@ -68,7 +68,7 @@ export function buildLineContent(cm, lineView) {
   let builder = {pre: eltP("pre", [content], "CodeMirror-line"), content: content,
                  col: 0, pos: 0, cm: cm,
                  trailingSpace: false,
-                 splitSpaces: (ie || webkit) && cm.getOption("lineWrapping")}
+                 splitSpaces: cm.getOption("lineWrapping")}
   lineView.measure = {}
 
   // Iterate over the logical lines that make up this visual line.
@@ -189,6 +189,8 @@ function buildToken(builder, text, style, startStyle, endStyle, title, css) {
   builder.content.appendChild(content)
 }
 
+// Change some spaces to NBSP to prevent the browser from collapsing
+// trailing spaces at the end of a line when rendering text (issue #1362).
 function splitSpaces(text, trailingBefore) {
   if (text.length > 1 && !/  /.test(text)) return text
   let spaceBefore = trailingBefore, result = ""
