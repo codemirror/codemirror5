@@ -41,6 +41,9 @@ CodeMirror.defineMode('mllike', function(_config, parserConfig) {
       words[prop] = parserConfig.extraWords[prop];
     }
   }
+  var hintWords = [];
+  for (var k in words) { hintWords.push(k); }
+  CodeMirror.registerHelper("hintWords", "mllike", hintWords);
 
   function tokenBase(stream, state) {
     var ch = stream.next();
