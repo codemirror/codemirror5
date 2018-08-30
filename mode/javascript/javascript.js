@@ -644,7 +644,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (isTS && isModifier(value)) { cx.marked = "keyword"; return cont(pattern) }
     if (type == "variable") { register(value); return cont(); }
     if (type == "spread") return cont(pattern);
-    if (type == "[") return contCommasep(pattern, "]");
+    if (type == "[") return contCommasep(eltpattern, "]");
     if (type == "{") return contCommasep(proppattern, "}");
   }
   function proppattern(type, value) {
@@ -656,6 +656,9 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "spread") return cont(pattern);
     if (type == "}") return pass();
     return cont(expect(":"), pattern, maybeAssign);
+  }
+  function eltpattern() {
+    return cont(pattern, maybeAssign)
   }
   function maybeAssign(_type, value) {
     if (value == "=") return cont(expressionNoComma);
