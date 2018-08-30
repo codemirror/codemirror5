@@ -658,7 +658,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     return cont(expect(":"), pattern, maybeAssign);
   }
   function eltpattern() {
-    return cont(pattern, maybeAssign)
+    return pass(pattern, maybeAssign)
   }
   function maybeAssign(_type, value) {
     if (value == "=") return cont(expressionNoComma);
