@@ -1,0 +1,605 @@
+// CodeMirror, copyright (c) by Marijn Haverbeke and others
+// Distributed under an MIT license: https://codemirror.net/LICENSE
+
+(function () {
+    var mode = CodeMirror.getMode({indentUnit: 2}, "clojure");
+
+    function MT(name) {
+        test.mode(name, mode, Array.prototype.slice.call(arguments, 1));
+    }
+
+    MT("atoms",
+        "[atom nil]",
+        "[atom false]",
+        "[atom true]"
+    );
+
+    MT("keywords",
+        "[atom :foo]",
+        "[atom ::bar]",
+        "[atom :foo/bar]",
+        "[atom :foo.bar/baz]"
+    );
+
+    MT("numbers",
+        "[number 42] [number +42] [number -421]",
+        // FIXME
+        // "[number 42N] [number +42N] [number -42N]",
+        "[number 0.42] [number +0.42] [number -0.42]",
+        // FIXME
+        // "[number 42M] [number +42M] [number -42M]",
+        // "[number 42.42M] [number +42.42M] [number -42.42M]",
+        "[number 1/42] [number +1/42] [number -1/42]",
+        "[number 0x420f]",
+        // FIXME
+        // "[number +0x420f] [number -0x420f]",
+        "[number 1e2] [number 1e+2] [number 1e-2]",
+        "[number +1e2] [number +1e+2] [number +1e-2]",
+        "[number -1e2] [number -1e+2] [number -1e-2]",
+        "[number -1.0e2] [number -0.1e+2] [number -1.01e-2]"
+        // FIXME
+        // "[number 2r101010] [number +2r101010] [number -2r101010]",
+        // "[number 8r52] [number +8r52] [number -8r52]"
+    );
+
+    MT("characters",
+        "[string-2 \\1]",
+        "[string-2 \\a]",
+        "[string-2 \\#]",
+        "[string-2 \\\\]",
+        "[string-2 \\\"]",
+        "[string-2 \\(]",
+        "[string-2 \\A]",
+        "[string-2 \\backspace]",
+        "[string-2 \\formfeed]",
+        "[string-2 \\newline]",
+        "[string-2 \\space]",
+        "[string-2 \\return]",
+        "[string-2 \\tab]",
+        "[string-2 \\u1000]",
+        "[string-2 \\uAaAa]",
+        "[string-2 \\u9F9F]"
+    );
+
+    MT("strings",
+        "[string \"I'm a teapot.\"]",
+        "[string \"I'm a \\\"teapot\\\".\"]",
+        "[string \"I'm]",       // this is
+        "[string a]",           // a multi-line
+        "[string teapot.\"]"    // string
+    );
+
+    MT("comments",
+        "[comment ; this is an in-line comment.]",
+        "[comment ;; this is a line comment.]"
+        // FIXME
+        // "[bracket (][comment comment] [comment (][comment foo] [comment 1] [comment 2] [comment 3][comment )][bracket )]"
+    );
+
+    // FIXME
+    // MT("whitespaces",
+    //     "[null \u0020]", // space
+    //     "[null \u0009]"  // horizontal tab
+    // );
+
+    MT("quotes",
+        "[atom '][number 1]",
+        "[atom ':foo]",
+        "[atom '][string \"foo\"]",
+        "[atom '][variable x]",
+        "[atom '][bracket (][variable a] [variable b] [variable c][bracket )]",
+        "[atom '][bracket [[][variable a] [variable b] [variable c][bracket ]]]",
+        "[atom '][bracket {][variable a] [number 1] [atom :foo] [number 2] [variable c] [number 3][bracket }]",
+        "[atom '][variable #][bracket {][variable a] [number 1] [atom :foo][bracket }]"
+    );
+
+    var coreSymbolsAsKeywords = [
+        "defn", "defn-", "def", "def-", "defonce", "defmulti", "defmethod", "defmacro",
+        "defstruct", "deftype", "defprotocol", "defrecord", "defproject", "deftest", "slice", "defalias",
+        "defhinted", "defmacro-", "defn-memo", "defnk", "defonce-", "defunbound", "defunbound-",
+        "defvar", "defvar-", "let", "letfn", "do", "case", "cond", "condp", "for", "loop", "recur", "when",
+        "when-not", "when-let", "when-first", "when-some", "if", "if-let", "if-not", ".", "..", "->", "->>", "doto",
+        "and", "or", "dosync", "doseq", "dotimes", "dorun", "doall", "load", "import", "unimport", "ns",
+        "in-ns", "refer", "try", "catch", "finally", "throw", "with-open", "with-local-vars", "binding",
+        "gen-class", "gen-and-load-class", "gen-and-save-class", "handler-case", "handle", "new"
+    ];
+    var coreSymbolsAsKeywordsLookupMap = lookupMap(coreSymbolsAsKeywords);
+
+    MT("specials",
+        typeTokenPairs("keyword", coreSymbolsAsKeywords)
+    );
+
+    var coreSymbolsAsBuiltins1 = [
+        "*", "*'", "*1", "*2", "*3", "*agent*", "*allow-unresolved-vars*", "*assert*",
+        "*clojure-version*", "*command-line-args*", "*compile-files*", "*compile-path*", "*compiler-options*",
+        "*data-readers*", "*default-data-reader-fn*", "*e", "*err*", "*file*", "*flush-on-newline*", "*fn-loader*",
+        "*in*", "*math-context*", "*ns*", "*out*", "*print-dup*", "*print-length*", "*print-level*", "*print-meta*",
+        "*print-namespace-maps*", "*print-readably*", "*read-eval*", "*reader-resolver*", "*source-path*",
+        "*suppress-read*", "*unchecked-math*", "*use-context-classloader*", "*verbose-defrecords*",
+        "*warn-on-reflection*", "+", "+'", "-", "-'", "->", "->>", "->ArrayChunk", "->Eduction", "->Vec", "->VecNode",
+        "->VecSeq", "-cache-protocol-fn", "-reset-methods", "..", "/", "<", "<=", "=", "==", ">", ">=",
+        "EMPTY-NODE", "Inst", "StackTraceElement->vec", "Throwable->map", "accessor", "aclone", "add-classpath",
+        "add-watch", "agent", "agent-error", "agent-errors", "aget", "alength", "alias", "all-ns", "alter",
+        "alter-meta!", "alter-var-root", "amap", "ancestors", "and", "any?", "apply", "areduce", "array-map",
+        "as->", "aset", "aset-boolean", "aset-byte", "aset-char", "aset-double", "aset-float", "aset-int",
+        "aset-long", "aset-short", "assert", "assoc", "assoc!", "assoc-in", "associative?", "atom", "await",
+        "await-for", "await1", "bases", "bean", "bigdec", "bigint", "biginteger", "binding", "bit-and", "bit-and-not",
+        "bit-clear", "bit-flip", "bit-not", "bit-or", "bit-set", "bit-shift-left", "bit-shift-right", "bit-test",
+        "bit-xor", "boolean", "boolean-array", "boolean?", "booleans", "bound-fn", "bound-fn*", "bound?",
+        "bounded-count", "butlast", "byte", "byte-array", "bytes", "bytes?", "case", "cast", "cat", "char",
+        "char-array", "char-escape-string", "char-name-string", "char?", "chars", "chunk", "chunk-append",
+        "chunk-buffer", "chunk-cons", "chunk-first", "chunk-next", "chunk-rest", "chunked-seq?", "class", "class?",
+        "clear-agent-errors", "clojure-version", "coll?", "comment", "commute", "comp", "comparator", "compare",
+        "compare-and-set!", "compile", "complement", "completing", "concat", "cond", "cond->", "cond->>", "condp",
+        "conj", "conj!", "cons", "constantly", "construct-proxy", "contains?", "count", "counted?", "create-ns",
+        "create-struct", "cycle", "dec", "dec'", "decimal?", "declare", "dedupe", "default-data-readers", "definline",
+        "definterface", "defmacro", "defmethod", "defmulti", "defn", "defn-", "defonce", "defprotocol", "defrecord",
+        "defstruct", "deftype", "delay", "delay?", "deliver", "denominator", "deref", "derive", "descendants",
+        "destructure", "disj", "disj!", "dissoc", "dissoc!", "distinct", "distinct?", "doall", "dorun", "doseq",
+        "dosync", "dotimes", "doto", "double", "double-array", "double?", "doubles", "drop", "drop-last", "drop-while",
+        "eduction", "empty", "empty?", "ensure", "ensure-reduced", "enumeration-seq", "error-handler", "error-mode",
+        "eval", "even?", "every-pred", "every?", "ex-data", "ex-info", "extend", "extend-protocol", "extend-type",
+        "extenders", "extends?", "false?", "ffirst", "file-seq", "filter", "filterv", "find", "find-keyword", "find-ns",
+        "find-protocol-impl", "find-protocol-method", "find-var", "first", "flatten", "float", "float-array", "float?",
+        "floats", "flush", "fn", "fn?", "fnext", "fnil", "for", "force", "format", "frequencies", "future", "future-call",
+        "future-cancel", "future-cancelled?", "future-done?", "future?", "gen-class", "gen-interface", "gensym", "get",
+        "get-in", "get-method", "get-proxy-class", "get-thread-bindings", "get-validator", "group-by", "halt-when", "hash",
+        "hash-combine", "hash-map", "hash-ordered-coll", "hash-set", "hash-unordered-coll", "ident?", "identical?",
+        "identity", "if-let", "if-not", "if-some", "ifn?", "import", "in-ns", "inc", "inc'", "indexed?", "init-proxy",
+        "inst-ms", "inst-ms*", "inst?", "instance?", "int", "int-array", "int?", "integer?", "interleave", "intern",
+        "interpose", "into", "into-array", "ints", "io!", "isa?", "iterate", "iterator-seq", "juxt", "keep", "keep-indexed",
+        "key", "keys", "keyword", "keyword?", "last", "lazy-cat", "lazy-seq", "let", "letfn", "line-seq", "list", "list*",
+        "list?", "load", "load-file", "load-reader", "load-string", "loaded-libs", "locking", "long", "long-array", "longs",
+        "loop", "macroexpand", "macroexpand-1", "make-array", "make-hierarchy", "map", "map-entry?", "map-indexed", "map?",
+        "mapcat", "mapv", "max", "max-key", "memfn", "memoize", "merge", "merge-with", "meta", "method-sig", "methods"];
+
+    var coreSymbolsAsBuiltins2 = [
+        "min", "min-key", "mix-collection-hash", "mod", "munge", "name", "namespace", "namespace-munge", "nat-int?",
+        "neg-int?", "neg?", "newline", "next", "nfirst", "nil?", "nnext", "not", "not-any?", "not-empty", "not-every?",
+        "not=", "ns", "ns-aliases", "ns-imports", "ns-interns", "ns-map", "ns-name", "ns-publics", "ns-refers", "ns-resolve",
+        "ns-unalias", "ns-unmap", "nth", "nthnext", "nthrest", "num", "number?", "numerator", "object-array", "odd?", "or",
+        "parents", "partial", "partition", "partition-all", "partition-by", "pcalls", "peek", "persistent!", "pmap", "pop",
+        "pop!", "pop-thread-bindings", "pos-int?", "pos?", "pr", "pr-str", "prefer-method", "prefers",
+        "primitives-classnames", "print", "print-ctor", "print-dup", "print-method", "print-simple", "print-str", "printf",
+        "println", "println-str", "prn", "prn-str", "promise", "proxy", "proxy-call-with-super", "proxy-mappings",
+        "proxy-name", "proxy-super", "push-thread-bindings", "pvalues", "qualified-ident?", "qualified-keyword?",
+        "qualified-symbol?", "quot", "rand", "rand-int", "rand-nth", "random-sample", "range", "ratio?", "rational?",
+        "rationalize", "re-find", "re-groups", "re-matcher", "re-matches", "re-pattern", "re-seq", "read", "read-line",
+        "read-string", "reader-conditional", "reader-conditional?", "realized?", "record?", "reduce", "reduce-kv", "reduced",
+        "reduced?", "reductions", "ref", "ref-history-count", "ref-max-history", "ref-min-history", "ref-set", "refer",
+        "refer-clojure", "reify", "release-pending-sends", "rem", "remove", "remove-all-methods", "remove-method", "remove-ns",
+        "remove-watch", "repeat", "repeatedly", "replace", "replicate", "require", "reset!", "reset-meta!", "reset-vals!",
+        "resolve", "rest", "restart-agent", "resultset-seq", "reverse", "reversible?", "rseq", "rsubseq", "run!", "satisfies?",
+        "second", "select-keys", "send", "send-off", "send-via", "seq", "seq?", "seqable?", "seque", "sequence", "sequential?",
+        "set", "set-agent-send-executor!", "set-agent-send-off-executor!", "set-error-handler!", "set-error-mode!",
+        "set-validator!", "set?", "short", "short-array", "shorts", "shuffle", "shutdown-agents", "simple-ident?",
+        "simple-keyword?", "simple-symbol?", "slurp", "some", "some->", "some->>", "some-fn", "some?", "sort", "sort-by",
+        "sorted-map", "sorted-map-by", "sorted-set", "sorted-set-by", "sorted?", "special-symbol?", "spit", "split-at",
+        "split-with", "str", "string?", "struct", "struct-map", "subs", "subseq", "subvec", "supers", "swap!", "swap-vals!",
+        "symbol", "symbol?", "sync", "tagged-literal", "tagged-literal?", "take", "take-last", "take-nth", "take-while", "test",
+        "the-ns", "thread-bound?", "time", "to-array", "to-array-2d", "trampoline", "transduce", "transient", "tree-seq",
+        "true?", "type", "unchecked-add", "unchecked-add-int", "unchecked-byte", "unchecked-char", "unchecked-dec",
+        "unchecked-dec-int", "unchecked-divide-int", "unchecked-double", "unchecked-float", "unchecked-inc", "unchecked-inc-int",
+        "unchecked-int", "unchecked-long", "unchecked-multiply", "unchecked-multiply-int", "unchecked-negate",
+        "unchecked-negate-int", "unchecked-remainder-int", "unchecked-short", "unchecked-subtract", "unchecked-subtract-int",
+        "underive", "unquote", "unquote-splicing", "unreduced", "unsigned-bit-shift-right", "update", "update-in",
+        "update-proxy", "uri?", "use", "uuid?", "val", "vals", "var-get", "var-set", "var?", "vary-meta", "vec", "vector",
+        "vector-of", "vector?", "volatile!", "volatile?", "vreset!", "vswap!", "when", "when-first", "when-let", "when-not",
+        "when-some", "while", "with-bindings", "with-bindings*", "with-in-str", "with-loading-context", "with-local-vars",
+        "with-meta", "with-open", "with-out-str", "with-precision", "with-redefs", "with-redefs-fn", "xml-seq", "zero?",
+        "zipmap"
+    ];
+
+    MT("core symbols (part 1/2)",
+        typeTokenPairs("builtin", coreSymbolsAsBuiltins1)
+    );
+
+    MT("core symbols (part 2/2)",
+        typeTokenPairs("builtin", coreSymbolsAsBuiltins2)
+    );
+
+    MT("should_indent_assoc",
+        "[bracket (][builtin assoc] [variable foo]",
+        "  [atom :1] [string \"three\"]",
+        "  [atom :2] [string \"two\"]",
+        "  [atom :3] [string \"three\"][bracket )]"
+    );
+
+    MT("should_indent_binding",
+        "[bracket (][keyword binding] [bracket [[][variable foo] [number 2]",
+        "          [variable *bar*] [number 3][bracket ]]]",
+        "  [bracket (][builtin +] [variable foo] [variable *bar*][bracket ))]");
+
+    MT("should_indent_bound-fn",
+        "[bracket (][builtin bound-fn] [bracket [[]]]",
+        "  [bracket (][variable f][bracket ))]"
+    );
+
+    MT("should_indent_case",
+        "[bracket (][keyword case] [variable foo]",
+        "  [string \"\"] [number 0]",
+        "  [string \"hello\"] [atom :bar]",
+        "  [bracket [[][number 1] [number 2][bracket ]]] [bracket (][string \"my seq\"][bracket )]",
+        "  [bracket (][variable x] [variable y] [variable z][bracket )] [string \"x, y, or z\"]",
+        "  [atom :default]"
+    );
+
+    MT("should_indent_catch",
+        "[bracket (][keyword catch] [variable Exception] [variable e]",
+        "  [bracket (][builtin println] [string \"Some other exception, won't be caught in this case...\"][bracket )]",
+        "  [number 666][bracket )]"
+    );
+
+    MT("should_indent_comment",
+        "[bracket (][builtin comment] [bracket (][variable foo][bracket )]",
+        "  [bracket (][variable bar] [number 1] [number 2] [number 3][bracket ))]"
+    );
+
+    MT("should_indent_cond",
+        "[bracket (][keyword cond]",
+        "  [bracket (][builtin <] [variable n] [number 0][bracket )] [string \"negative\"]",
+        "  [bracket (][builtin >] [variable n] [number 0][bracket )] [string \"positive\"]",
+        "  [atom :else] [string \"zero\"][bracket ))]"
+    );
+
+    MT("should_indent_condp",
+        "[bracket (][keyword condp] [builtin =] [variable foo]",
+        "  [number 1] [string \"one\"]",
+        "  [number 2] [string \"two\"]",
+        "  [number 3] [string \"three\"]",
+        "  [string \"unexpected value\"][bracket )]"
+    );
+
+    MT("should_indent_def",
+        "[bracket (][keyword def] [variable x]",
+        "  [string \"here is an indented doc-string.\"]",
+        "  [number 1][bracket )]"
+    );
+
+    MT("should_indent_defn",
+        "[bracket (][keyword defn] [variable foo]",
+        "  [bracket [[][variable x][bracket ]]]",
+        "  [bracket (][variable bar] [variable x][bracket ))]",
+        "",
+        "[bracket (][keyword defn] [variable foo] [bracket [[][variable x][bracket ]]]",
+        "  [bracket (][variable bar] [variable x][bracket ))]"
+    );
+
+    MT("should_indent_defmacro",
+        "[bracket (][keyword defmacro] [variable foo]",
+        "  [string \"here is an indented doc-string.\"]",
+        "  [bracket [[][variable x] [variable y][bracket ]]]",
+        "  [variable `][bracket (][builtin println] [variable ~x] [variable ~@y][bracket ))]"
+    );
+
+    MT("should_indent_defmethod",
+        "[bracket (][keyword defmethod] [variable foo] [atom :bar] [bracket [[][variable x][bracket ]]] [bracket (][variable baz] [variable x][bracket ))]",
+        "",
+        "[bracket (][keyword defmethod] [variable foo] [atom :bar]",
+        "  [bracket [[][variable x][bracket ]]]",
+        "  [bracket (][variable baz] [variable x][bracket ))]"
+    );
+
+    MT("should_indent_defstruct",
+        "[bracket (][keyword defstruct] [variable person]",
+        "  [atom :name]",
+        "  [atom :age]",
+        "  [atom :height][bracket )]"
+    );
+
+    MT("should_indent_deftest and testing",
+        "[bracket (][keyword deftest] [variable addition]",
+        "  [bracket (][variable testing] [string \"with positive integers\"]",
+        "    [bracket (][variable is] [bracket (][builtin =] [number 4] [bracket (][builtin +] [number 2] [number 2][bracket )))]",
+        "    [bracket (][variable is] [bracket (][builtin =] [number 7] [bracket (][builtin +] [number 3] [number 4][bracket ))))]"
+    );
+
+    MT("should_indent_doseq",
+        "[bracket (][keyword doseq] [bracket [[][variable x] [bracket [[][number -1] [number 0] [number 1][bracket ]]]",
+        "        [variable y] [bracket [[][number 1] [number 2] [number 3][bracket ]]]]]",
+        "  [bracket (][builtin prn] [bracket (][builtin *] [variable x] [variable y][bracket )))]"
+    );
+
+    MT("should_indent_dotimes",
+        "[bracket (][keyword dotimes] [bracket [[][variable n] [number 5][bracket ]]]",
+        "  [bracket (][builtin println] [string \"n is\"] [variable n][bracket ))]");
+
+    MT("should_indent_for",
+        "[bracket (][keyword for] [bracket [[][variable x] [bracket [[][number 1] [number 2] [number 3][bracket ]]]",
+        "      [atom :let] [bracket [[][variable y] [bracket (][builtin *] [variable x] [number 3][bracket )]]]",
+        "      [atom :when] [bracket (][builtin even?] [variable y][bracket )]]]",
+        "  [variable y][bracket )]"
+    );
+
+    MT("should_indent_if-let",
+        "[bracket (][keyword if-let] [bracket [[][variable x] [variable foo][bracket ]]]",
+        "  [string \"then\"]",
+        "  [string \"else\"][bracket ))]"
+    );
+
+    MT("should_indent_let",
+        "[bracket (][keyword let] [bracket [[][variable foo] [number 2]",
+        "      [variable bar] [number 3][bracket ]]]",
+        "  [bracket (][builtin +] [variable foo] [variable *bar*][bracket ))]"
+    );
+
+    MT("should_indent_letfn",
+        "[bracket (][keyword letfn] [bracket [[(][variable twice] [bracket [[][variable x][bracket ]]]",
+        "               [bracket (][builtin *] [variable x] [number 2][bracket ))]",
+        "        [bracket (][variable six-times] [bracket [[][variable y][bracket ]]]",
+        "                   [bracket (][builtin *] [bracket (][variable twice] [variable y][bracket )] [number 3][bracket ))]]]",
+        "  [bracket (][builtin println] [string \"twice 15 =\"] [bracket (][variable twice] [number 15][bracket ))]]]",
+        "  [bracket (][builtin println] [string \"six times 15 =\"] [bracket (][variable six-times] [number 15][bracket )))]"
+    );
+
+    MT("should_indent_loop",
+        "[bracket (][keyword loop] [bracket [[][variable foo] [number 2]",
+        "       [variable bar] [number 3][bracket ]]]",
+        "  [bracket (][builtin +] [variable foo] [variable *bar*][bracket ))]"
+    );
+
+    MT("should_indent_when-first",
+        "[bracket (][keyword when-first] [bracket [[][variable a] [bracket [[][number 1] [number 2] [number 3][bracket ]]]]]",
+        "  [variable a][bracket )]"
+    );
+
+    MT("should_indent_when-let",
+        "[bracket (][keyword when-let] [bracket [[][variable x] [variable foo][bracket ]]]",
+        "  [string \"foo\"]"
+    );
+
+    MT("should_indent_when-some",
+        "[bracket (][keyword when-some] [bracket [[][variable x] [variable foo][bracket ]]]",
+        "  [string \"foo\"]"
+    );
+
+    MT("should_indent_struct-map",
+        "[bracket (][builtin struct-map] [variable foo]",
+        "  [atom :1] [string \"one\"]",
+        "  [atom :2] [string \"two\"][bracket )]"
+    );
+
+    MT("should_indent_defprotocol",
+        "[bracket (][keyword defprotocol] [variable Protocol]",
+        "  [bracket (][variable foo] [bracket [[][variable this][bracket ]])]",
+        "  [bracket (][variable bar] [bracket [[][variable this][bracket ]]] [bracket [[][variable this] [variable x][bracket ]])]",
+        "  [bracket (][variable baz] [bracket [[][variable this][bracket ]]]",
+        "       [bracket [[][variable this] [variable y][bracket ]]))]"
+    );
+
+    MT("should_indent_defrecord",
+        "[bracket (][keyword defrecord] [variable Person] [bracket [[][variable first-name] [variable last-name] [variable address][bracket ]])]",
+        "",
+        "[bracket (][keyword defrecord] [variable Person] [bracket [[][variable first-name] [variable last-name] [variable address][bracket ]]]",
+        "  [variable Protocol]",
+        "  [bracket (][variable foo] [bracket [[][variable this][bracket ]]] [variable first-name][bracket )]",
+        "  [bracket (][variable bar] [bracket [[][variable this][bracket ]]] [variable last-name][bracket )]",
+        "  [bracket (][variable baz] [bracket [[][variable this] [variable y][bracket ]]] [bracket (][builtin str] [variable first-name] [variable last-name][bracket )))]",
+        "",
+        "[bracket (][keyword defrecord] [variable Person] [bracket [[][variable first-name]",
+        "                   [variable last-name]",
+        "                   [variable address][bracket ]])]",
+        "",
+        "[bracket (][keyword defrecord] [variable Person]",
+        "  [bracket [[][variable first-name]",
+        "   [variable last-name]",
+        "   [variable address][bracket ]])]"
+    );
+
+    MT("should_indent_deftype",
+        "[bracket (][keyword deftype] [variable Person] [bracket [[][variable first-name] [variable last-name] [variable address][bracket ]])]",
+        "",
+        "[bracket (][keyword deftype] [variable Person] [bracket [[][variable first-name] [variable last-name] [variable address][bracket ]]]",
+        "  [variable Protocol]",
+        "  [bracket (][variable foo] [bracket [[][variable this][bracket ]]] [variable first-name][bracket )]",
+        "  [bracket (][variable bar] [bracket [[][variable this][bracket ]]] [variable last-name][bracket )]",
+        "  [bracket (][variable baz] [bracket [[][variable this] [variable y][bracket ]]] [bracket (][builtin str] [variable first-name] [variable last-name][bracket )))]",
+        "",
+        "[bracket (][keyword deftype] [variable Person] [bracket [[][variable first-name]",
+        "                 [variable last-name]",
+        "                 [variable address][bracket ]])]",
+        "",
+        "[bracket (][keyword deftype] [variable Person]",
+        "  [bracket [[][variable first-name]",
+        "   [variable last-name]",
+        "   [variable address][bracket ]])]"
+    );
+
+    MT("should_indent_do",
+        "[bracket (][keyword do] [bracket (][variable foo][bracket )]",
+        "  [bracket (][variable bar][bracket ))]",
+        "",
+        "[bracket (][keyword do]",
+        "  [bracket (][variable foo][bracket )]",
+        "  [bracket (][variable bar][bracket ))]"
+    );
+
+    MT("should_indent_doto",
+        "[bracket (][keyword doto] [bracket (][keyword new] [variable java.util.HashMap][bracket )] [bracket (][variable .put] [string \"a\"] [number 1][bracket )] [bracket (][variable .put] [string \"b\"] [number 2][bracket ))]",
+        "",
+        "[bracket (][keyword doto] [bracket (][variable java.util.HashMap.][bracket )]",
+        "  [bracket (][variable .put] [string \"a\"] [number 1][bracket )]",
+        "  [bracket (][variable .put] [string \"b\"] [number 2][bracket ))]"
+    );
+
+    MT("should_indent_extend",
+        "[bracket (][builtin extend] [variable FooType]",
+        "  [variable FooProtocol]",
+        "  [bracket {][atom :foo] [variable an-existing-fn]",
+        "   [atom :bar] [bracket (][builtin fn] [bracket [[][variable a] [variable b][bracket ]]]",
+        "          [bracket (][variable f] [variable a] [variable b][bracket ))]",
+        "   [atom :baz] [bracket (][builtin fn] [bracket ([[][variable a][bracket ]]] [variable a][bracket )]",
+        "          [bracket ([[][variable a] [variable b][bracket ]]] [bracket [[][variable a] [variable b][bracket ]]))})]"
+    );
+
+    MT("should_indent_extend-protocol",
+        "[bracket (][builtin extend-protocol] [variable Protocol]",
+        "  [variable FooType]",
+        "  [bracket (][variable foo] [bracket [[][variable x][bracket ]]] [bracket (][variable f] [variable x][bracket ))]",
+        "  [bracket (][variable bar] [bracket [[][variable x] [variable y][bracket ]]] [bracket (][variable g] [variable x] [variable y][bracket ))]"
+    );
+
+    MT("should_indent_extend-type",
+        "[bracket (][builtin extend-type] [variable FooType]",
+        "  [variable Countable]",
+        "  [bracket (][variable cnt] [bracket [][variable c][bracket ]]] [bracket (][builtin count] [variable c][bracket ))]",
+        "  ",
+        "  [variable Foo]",
+        "  [bracket (][variable bar] [bracket [[][variable x] [variable y][bracket ]]] [bracket (][variable f] [variable x] [variable y][bracket ))]",
+        "  [bracket (][variable baz] [bracket ([][variable x] [variable x][bracket ]])] [bracket ([[][variable x] [variable y] [variable &] [variable zs][bracket ]]] [bracket [[][variable x] [variable y] [bracket (][variable g] [variable zs][bracket )]])))]"
+    );
+
+    MT("should_indent_fn",
+        "[bracket (][builtin fn] [variable foo]",
+        "  [bracket [[][variable x][bracket ]]]",
+        "  [bracket (][variable bar] [variable x][bracket ))]",
+        "",
+        "[bracket (][builtin fn] [variable foo] [bracket [[][variable x][bracket ]]]",
+        "  [bracket (][variable bar] [variable x][bracket ))]"
+    );
+
+    MT("should_indent_future",
+        "[bracket (][builtin future] [bracket (][variable Thread/sleep] [number 10000][bracket )] [bracket (][builtin println] [string \"done\"][bracket )] [number 100][bracket )]",
+        "",
+        "[bracket (][builtin future] [bracket (][variable Thread/sleep] [number 10000][bracket )]",
+        "  [bracket (][builtin println] [string \"done\"][bracket )]",
+        "  [number 100][bracket )]",
+        "",
+        "[bracket (][builtin future]",
+        "  [bracket (][variable Thread/sleep] [number 10000][bracket )]",
+        "  [bracket (][builtin println] [string \"done\"][bracket )]",
+        "  [number 100][bracket )]"
+    );
+
+    MT("should_indent_if",
+        "[bracket (][keyword if] [bracket (][builtin <] [variable foo] [number 100][bracket )] [string \"yes\"] [string \"no\"][bracket )]",
+        "",
+        "[bracket (][keyword if] [bracket (][builtin <] [variable foo] [number 100][bracket )]",
+        "  [string \"yes\"]",
+        "  [string \"no\"][bracket )]",
+        "",
+        "[bracket (][keyword if] [bracket (][keyword and] [bracket (][builtin <] [variable foo] [number 100][bracket )]",
+        "         [bracket (][builtin <] [variable bar] [number 50][bracket ))]",
+        "  [string \"yes\"]",
+        "  [string \"no\"][bracket )]"
+    );
+
+    MT("should_indent_if-not",
+        "[bracket (][keyword if-not] [bracket (][builtin <] [variable foo] [number 100][bracket )] [string \"yes\"] [string \"no\"][bracket )]",
+        "",
+        "[bracket (][keyword if-not] [bracket (][builtin <] [variable foo] [number 100][bracket )]",
+        "  [string \"yes\"]",
+        "  [string \"no\"][bracket )]",
+        "",
+        "[bracket (][keyword if-not] [bracket (][keyword and] [bracket (][builtin <] [variable foo] [number 100][bracket )]",
+        "             [bracket (][builtin <] [variable bar] [number 50][bracket ))]",
+        "  [string \"yes\"]",
+        "  [string \"no\"][bracket )]"
+    );
+
+    MT("should_indent_locking",
+        "[bracket (][builtin locking] [variable foo] [bracket (][variable Thread/sleep] [number 1000][bracket )] [bracket (][builtin println] [string \"done\"][bracket ))]",
+        "",
+        "[bracket (][builtin locking] [variable foo]",
+        "  [bracket (][variable Thread/sleep] [number 1000][bracket )]",
+        "  [bracket (][builtin println] [string \"done\"][bracket ))]"
+    );
+
+    MT("should_indent_ns",
+        "[bracket (][keyword ns] [variable foo.bar]",
+        "  [bracket (][atom :refer-clojure] [atom :exclude] [bracket [][builtin ancestors] [builtin printf][bracket ]])]",
+        "  [bracket (][atom :require] [bracket [][variable clojure.contrib] [variable sql] [variable combinatorics][bracket ]])]",
+        "  [bracket (][atom :use] [bracket [][variable my.lib] [variable this] [variable that][bracket ]])]",
+        "  [bracket (][atom :import] [bracket (][variable java.util] [variable Date] [variable Timer] [variable Random][bracket )]",
+        "           [bracket (][variable java.sql] [variable Connection] [variable Statement][bracket )))]"
+    );
+
+    MT("should_indent_proxy",
+        "[bracket (][builtin proxy] [bracket [][variable MouseAdapter][bracket ]]] [bracket [[]]]",
+        "  [bracket (][variable mousePressed] [bracket [][variable event][bracket ]]]",
+        "                [bracket (][builtin apply] [variable f] [variable event] [variable args][bracket )))]"
+    );
+
+    MT("should_indent_reify",
+        "[bracket (][builtin reify] [variable Foo]",
+        "  [bracket (][variable foo] [bracket [[][variable _] [variable x][bracket ]]] [variable x][bracket )]",
+        "  [bracket (][variable foo] [bracket [[][variable _] [variable x] [variable y][bracket ]]] [variable y][bracket ))]"
+    );
+
+    MT("should_indent_try",
+        "[bracket (][keyword try]",
+        "  [bracket (][builtin /] [number 1] [number 0][bracket )]",
+        "  [bracket (][keyword catch] [variable Exception] [variable e] [bracket (][builtin str] [string \"caught exception: \"] [bracket (][variable .getMessage] [variable e][bracket ))))]"
+    );
+
+    MT("should_indent_with-open",
+        "[bracket (][keyword with-open] [bracket [[][variable out-data] [bracket (][variable io/writer] [variable out-file][bracket )]]]",
+        "  [bracket (][variable csv/write-csv] [variable out-data] [variable out-sos][bracket )))]"
+    );
+
+    MT("should_indent_with-precision",
+        "[bracket (][builtin with-precision] [number 10] [bracket (][builtin /] [number 1][variable M] [number 3][bracket ))]",
+        "",
+        "[bracket (][builtin with-precision] [number 10] [atom :rounding] [variable HALF_DOWN] [bracket (][builtin /] [number 1][variable M] [number 3][bracket ))]",
+        "",
+        "[bracket (][builtin with-precision]",
+        "  [number 10]",
+        "  [atom :rounding]",
+        "  [variable HALF_DOWN]",
+        "  [bracket (][builtin /] [number 1][variable M] [number 3][bracket ))]"
+    );
+
+    MT("should_indent_when",
+        "[bracket (][keyword when] [bracket (][builtin <] [variable foo] [number 100][bracket )] [string \"yes\"][bracket )]",
+        "",
+        "[bracket (][keyword when] [bracket (][builtin <] [variable foo] [number 100][bracket )]",
+        "  [string \"yes\"][bracket )]",
+        "",
+        "[bracket (][keyword when] [bracket (][keyword and] [bracket (][builtin <] [variable foo] [number 100][bracket )]",
+        "           [bracket (][builtin <] [variable bar] [number 50][bracket ))]",
+        "  [string \"yes\"][bracket )]"
+    );
+
+    MT("should_indent_when-not",
+        "[bracket (][keyword when-not] [bracket (][builtin <] [variable foo] [number 100][bracket )] [string \"no\"][bracket )]",
+        "",
+        "[bracket (][keyword when-not] [bracket (][builtin <] [variable foo] [number 100][bracket )]",
+        "  [string \"no\"][bracket )]",
+        "",
+        "[bracket (][keyword when-not] [bracket (][keyword and] [bracket (][builtin <] [variable foo] [number 100][bracket )]",
+        "               [bracket (][builtin <] [variable bar] [number 50][bracket ))]",
+        "  [string \"no\"][bracket )]"
+    );
+
+    MT("should_indent_while",
+        "[bracket (][builtin while] [variable foo] [bracket (][keyword do] [bracket (][builtin println] [variable a][bracket )] [bracket (][builtin println] [variable b][bracket )))]",
+        "",
+        "[bracket (][builtin while] [variable foo]",
+        "  [bracket (][keyword do] [bracket (][builtin println] [variable a][bracket )]",
+        "    [bracket (][builtin println] [variable b][bracket )))]"
+    );
+
+    function lookupMap(words) {
+        var map = {};
+
+        for (var i = 0; i < words.length; ++i) {
+            map[words[i]] = true;
+        }
+
+        return map;
+    }
+
+    function typeTokenPairs(type, tokens) {
+        var pairs = "";
+
+        for (var i = 0; i < tokens.length; i++) {
+            if (coreSymbolsAsKeywordsLookupMap.propertyIsEnumerable(tokens[i])) {
+                pairs = pairs + "[keyword " + tokens[i] + "] ";
+            } else {
+                pairs = pairs + "[" + type + " " + tokens[i] + "] ";
+            }
+        }
+
+        return pairs;
+    }
+})();

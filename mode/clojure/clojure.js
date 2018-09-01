@@ -33,17 +33,17 @@ CodeMirror.defineMode("clojure", function (options) {
         "defstruct", "deftype", "defprotocol", "defrecord", "defproject", "deftest", "slice", "defalias",
         "defhinted", "defmacro-", "defn-memo", "defnk", "defonce-", "defunbound", "defunbound-",
         "defvar", "defvar-", "let", "letfn", "do", "case", "cond", "condp", "for", "loop", "recur", "when",
-        "when-not", "when-let", "when-first", "if", "if-let", "if-not", ".", "..", "->", "->>", "doto",
+        "when-not", "when-let", "when-first", "when-some", "if", "if-let", "if-not", ".", "..", "->", "->>", "doto",
         "and", "or", "dosync", "doseq", "dotimes", "dorun", "doall", "load", "import", "unimport", "ns",
         "in-ns", "refer", "try", "catch", "finally", "throw", "with-open", "with-local-vars", "binding",
-        "gen-class", "gen-and-load-class", "gen-and-save-class", "handler-case", "handle"];
+        "gen-class", "gen-and-load-class", "gen-and-save-class", "handler-case", "handle", "new"];
     var commonBuiltins = ["*", "*'", "*1", "*2", "*3", "*agent*", "*allow-unresolved-vars*", "*assert*",
         "*clojure-version*", "*command-line-args*", "*compile-files*", "*compile-path*", "*compiler-options*",
         "*data-readers*", "*default-data-reader-fn*", "*e", "*err*", "*file*", "*flush-on-newline*", "*fn-loader*",
         "*in*", "*math-context*", "*ns*", "*out*", "*print-dup*", "*print-length*", "*print-level*", "*print-meta*",
         "*print-namespace-maps*", "*print-readably*", "*read-eval*", "*reader-resolver*", "*source-path*",
         "*suppress-read*", "*unchecked-math*", "*use-context-classloader*", "*verbose-defrecords*",
-        "*warn-on-reflection*'", "-", "-'", "->", "->>", "->ArrayChunk", "->Eduction", "->Vec", "->VecNode",
+        "*warn-on-reflection*", "+", "+'", "-", "-'", "->", "->>", "->ArrayChunk", "->Eduction", "->Vec", "->VecNode",
         "->VecSeq", "-cache-protocol-fn", "-reset-methods", "..", "/", "<", "<=", "=", "==", ">", ">=",
         "EMPTY-NODE", "Inst", "StackTraceElement->vec", "Throwable->map", "accessor", "aclone", "add-classpath",
         "add-watch", "agent", "agent-error", "agent-errors", "aget", "alength", "alias", "all-ns", "alter",
@@ -115,7 +115,7 @@ CodeMirror.defineMode("clojure", function (options) {
         "zipmap"];
     var commonIndentKeys = [
         // Built-ins
-        "ns", "fn", "def", "defn", "defmethod", "bound-fn", "if", "if-not", "case", "condp", "when", "while", "when-not", "when-first", "do", "future", "comment", "doto",
+        "ns", "fn", "def", "defn", "defmethod", "bound-fn", "if", "if-not", "case", "condp", "when", "while", "when-not", "when-first", "when-some", "do", "future", "comment", "doto",
         "locking", "proxy", "with-open", "with-precision", "reify", "deftype", "defrecord", "defprotocol", "extend", "extend-protocol", "extend-type",
         "try", "catch",
         // Binding forms
@@ -136,12 +136,11 @@ CodeMirror.defineMode("clojure", function (options) {
 
     var tests = {
         digit: /\d/,
-        digit_or_colon: /[\d:]/,
         hex: /[0-9a-f]/i,
         sign: /[+-]/,
         exponent: /e/i,
-        keyword_char: /[^\s\(\[\;\)\]]/,
-        symbol: /[\w*+!\-\._?:<>\/\xa1-\uffff]/,
+        keyword_char: /[^\s;()\[\]{}]/,
+        symbol: /[\w*+!\-._?:<>\/'\xa1-\uffff]/,
         block_indent: /^(?:def|with)[^\/]+$|\/(?:def|with)/
     };
 
@@ -252,7 +251,7 @@ CodeMirror.defineMode("clojure", function (options) {
                     } else if (ch == "\\") {
                         eatCharacter(stream);
                         returnType = CHARACTER;
-                    } else if (ch == "'" && !( tests.digit_or_colon.test(stream.peek()) )) {
+                    } else if (ch == "'") {
                         returnType = ATOM;
                     } else if (ch == ";") { // comment
                         stream.skipToEnd(); // rest of the line is a comment
