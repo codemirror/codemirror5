@@ -17,8 +17,10 @@
 "use strict";
 
 CodeMirror.defineMode("clojure", function (options) {
-    var BUILTIN = "builtin", COMMENT = "comment", STRING = "string", CHARACTER = "string-2",
-        ATOM = "atom", NUMBER = "number", BRACKET = "bracket", KEYWORD = "keyword", VAR = "variable";
+    var ATOM = "atom", BRACKET = "bracket", CHARACTER = "string-2",
+        COMMENT = "comment", CORE_SYMBOL = "keyword", KEYWORD="atom",
+        NUMBER = "number", SPECIAL_FORM = "keyword", STRING = "string",
+        VAR = "variable";
     var INDENT_WORD_SKIP = options.indentUnit || 2;
     var NORMAL_INDENT_UNIT = options.indentUnit || 2;
 
@@ -28,16 +30,10 @@ CodeMirror.defineMode("clojure", function (options) {
         return obj;
     }
 
-    var commonAtoms = ["true", "false", "nil"];
-    var commonKeywords = ["defn", "defn-", "def", "def-", "defonce", "defmulti", "defmethod", "defmacro",
-        "defstruct", "deftype", "defprotocol", "defrecord", "defproject", "deftest", "slice", "defalias",
-        "defhinted", "defmacro-", "defn-memo", "defnk", "defonce-", "defunbound", "defunbound-",
-        "defvar", "defvar-", "let", "letfn", "do", "case", "cond", "condp", "for", "loop", "recur", "when",
-        "when-not", "when-let", "when-first", "when-some", "if", "if-let", "if-not", ".", "..", "->", "->>", "doto",
-        "and", "or", "dosync", "doseq", "dotimes", "dorun", "doall", "load", "import", "unimport", "ns",
-        "in-ns", "refer", "try", "catch", "finally", "throw", "with-open", "with-local-vars", "binding",
-        "gen-class", "gen-and-load-class", "gen-and-save-class", "handler-case", "handle", "new"];
-    var commonBuiltins = ["*", "*'", "*1", "*2", "*3", "*agent*", "*allow-unresolved-vars*", "*assert*",
+    var commonAtoms = ["false", "nil", "true"];
+    var commonSpecialForms = [".", "catch", "def", "do", "if", "monitor-enter",
+        "monitor-exit", "new", "quote", "recur", "set!", "throw", "try", "var"];
+    var commonCoreSymbols = ["*", "*'", "*1", "*2", "*3", "*agent*", "*allow-unresolved-vars*", "*assert*",
         "*clojure-version*", "*command-line-args*", "*compile-files*", "*compile-path*", "*compiler-options*",
         "*data-readers*", "*default-data-reader-fn*", "*e", "*err*", "*file*", "*flush-on-newline*", "*fn-loader*",
         "*in*", "*math-context*", "*ns*", "*out*", "*print-dup*", "*print-length*", "*print-level*", "*print-meta*",
@@ -113,7 +109,7 @@ CodeMirror.defineMode("clojure", function (options) {
         "when-some", "while", "with-bindings", "with-bindings*", "with-in-str", "with-loading-context", "with-local-vars",
         "with-meta", "with-open", "with-out-str", "with-precision", "with-redefs", "with-redefs-fn", "xml-seq", "zero?",
         "zipmap"];
-    var commonIndentKeys = [
+    var commonIndentSymbols = [
         // Built-ins
         "ns", "fn", "def", "defn", "defmethod", "bound-fn", "if", "if-not", "case", "condp", "when", "while", "when-not", "when-first", "when-some", "do", "future", "comment", "doto",
         "locking", "proxy", "with-open", "with-precision", "reify", "deftype", "defrecord", "defprotocol", "extend", "extend-protocol", "extend-type",
@@ -127,12 +123,13 @@ CodeMirror.defineMode("clojure", function (options) {
         // contrib
         "handler-case", "handle", "dotrace", "deftrace"];
 
-    CodeMirror.registerHelper("hintWords", "clojure", commonAtoms.concat(commonBuiltins));
+    CodeMirror.registerHelper("hintWords", "clojure",
+        commonAtoms.concat(commonSpecialForms, commonCoreSymbols));
 
     var atoms = makeKeywords(commonAtoms);
-    var keywords = makeKeywords(commonKeywords);
-    var builtins = makeKeywords(commonBuiltins);
-    var indentKeys = makeKeywords(commonIndentKeys);
+    var specialForms = makeKeywords(commonSpecialForms);
+    var coreSymbols = makeKeywords(commonCoreSymbols);
+    var indentSymbols = makeKeywords(commonIndentSymbols);
 
     var tests = {
         digit: /\d/,
@@ -271,7 +268,7 @@ CodeMirror.defineMode("clojure", function (options) {
                             keyWord += letter;
                         }
 
-                        if (keyWord.length > 0 && (indentKeys.propertyIsEnumerable(keyWord) ||
+                        if (keyWord.length > 0 && (indentSymbols.propertyIsEnumerable(keyWord) ||
                                                    tests.block_indent.test(keyWord))) { // indent-word
                             pushStack(state, indentTemp + INDENT_WORD_SKIP, ch);
                         } else { // non-indent word
@@ -295,14 +292,14 @@ CodeMirror.defineMode("clojure", function (options) {
                         }
                     } else if ( ch == ":" ) {
                         stream.eatWhile(tests.symbol);
-                        return ATOM;
+                        return KEYWORD;
                     } else {
                         stream.eatWhile(tests.symbol);
 
-                        if (keywords && keywords.propertyIsEnumerable(stream.current())) {
-                            returnType = KEYWORD;
-                        } else if (builtins && builtins.propertyIsEnumerable(stream.current())) {
-                            returnType = BUILTIN;
+                        if (specialForms && specialForms.propertyIsEnumerable(stream.current())) {
+                            returnType = SPECIAL_FORM;
+                        } else if (coreSymbols && coreSymbols.propertyIsEnumerable(stream.current())) {
+                            returnType = CORE_SYMBOL;
                         } else if (atoms && atoms.propertyIsEnumerable(stream.current())) {
                             returnType = ATOM;
                         } else {

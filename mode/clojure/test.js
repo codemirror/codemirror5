@@ -93,23 +93,14 @@
         "[atom '][variable #][bracket {][variable a] [number 1] [atom :foo][bracket }]"
     );
 
-    var coreSymbolsAsKeywords = [
-        "defn", "defn-", "def", "def-", "defonce", "defmulti", "defmethod", "defmacro",
-        "defstruct", "deftype", "defprotocol", "defrecord", "defproject", "deftest", "slice", "defalias",
-        "defhinted", "defmacro-", "defn-memo", "defnk", "defonce-", "defunbound", "defunbound-",
-        "defvar", "defvar-", "let", "letfn", "do", "case", "cond", "condp", "for", "loop", "recur", "when",
-        "when-not", "when-let", "when-first", "when-some", "if", "if-let", "if-not", ".", "..", "->", "->>", "doto",
-        "and", "or", "dosync", "doseq", "dotimes", "dorun", "doall", "load", "import", "unimport", "ns",
-        "in-ns", "refer", "try", "catch", "finally", "throw", "with-open", "with-local-vars", "binding",
-        "gen-class", "gen-and-load-class", "gen-and-save-class", "handler-case", "handle", "new"
-    ];
-    var coreSymbolsAsKeywordsLookupMap = lookupMap(coreSymbolsAsKeywords);
+    var specialForms = [".", "catch", "def", "do", "if", "monitor-enter",
+        "monitor-exit", "new", "quote", "recur", "set!", "throw", "try", "var"];
 
-    MT("specials",
-        typeTokenPairs("keyword", coreSymbolsAsKeywords)
+    MT("should highlight special forms as keywords",
+        typeTokenPairs("keyword", specialForms)
     );
 
-    var coreSymbolsAsBuiltins1 = [
+    var coreSymbols1 = [
         "*", "*'", "*1", "*2", "*3", "*agent*", "*allow-unresolved-vars*", "*assert*",
         "*clojure-version*", "*command-line-args*", "*compile-files*", "*compile-path*", "*compiler-options*",
         "*data-readers*", "*default-data-reader-fn*", "*e", "*err*", "*file*", "*flush-on-newline*", "*fn-loader*",
@@ -153,7 +144,7 @@
         "loop", "macroexpand", "macroexpand-1", "make-array", "make-hierarchy", "map", "map-entry?", "map-indexed", "map?",
         "mapcat", "mapv", "max", "max-key", "memfn", "memoize", "merge", "merge-with", "meta", "method-sig", "methods"];
 
-    var coreSymbolsAsBuiltins2 = [
+    var coreSymbols2 = [
         "min", "min-key", "mix-collection-hash", "mod", "munge", "name", "namespace", "namespace-munge", "nat-int?",
         "neg-int?", "neg?", "newline", "next", "nfirst", "nil?", "nnext", "not", "not-any?", "not-empty", "not-every?",
         "not=", "ns", "ns-aliases", "ns-imports", "ns-interns", "ns-map", "ns-name", "ns-publics", "ns-refers", "ns-resolve",
@@ -190,32 +181,32 @@
         "zipmap"
     ];
 
-    MT("core symbols (part 1/2)",
-        typeTokenPairs("builtin", coreSymbolsAsBuiltins1)
+    MT("should syntax highlight core symbols as keywords (part 1/2)",
+        typeTokenPairs("keyword", coreSymbols1)
     );
 
-    MT("core symbols (part 2/2)",
-        typeTokenPairs("builtin", coreSymbolsAsBuiltins2)
+    MT("should syntax highlight core symbols as keywords (part 2/2)",
+        typeTokenPairs("keyword", coreSymbols2)
     );
 
-    MT("should_indent_assoc",
-        "[bracket (][builtin assoc] [variable foo]",
+    MT("should indent assoc",
+        "[bracket (][keyword assoc] [variable foo]",
         "  [atom :1] [string \"three\"]",
         "  [atom :2] [string \"two\"]",
         "  [atom :3] [string \"three\"][bracket )]"
     );
 
-    MT("should_indent_binding",
+    MT("should indent binding",
         "[bracket (][keyword binding] [bracket [[][variable foo] [number 2]",
         "          [variable *bar*] [number 3][bracket ]]]",
-        "  [bracket (][builtin +] [variable foo] [variable *bar*][bracket ))]");
+        "  [bracket (][keyword +] [variable foo] [variable *bar*][bracket ))]");
 
-    MT("should_indent_bound-fn",
-        "[bracket (][builtin bound-fn] [bracket [[]]]",
+    MT("should indent bound-fn",
+        "[bracket (][keyword bound-fn] [bracket [[]]]",
         "  [bracket (][variable f][bracket ))]"
     );
 
-    MT("should_indent_case",
+    MT("should indent case",
         "[bracket (][keyword case] [variable foo]",
         "  [string \"\"] [number 0]",
         "  [string \"hello\"] [atom :bar]",
@@ -224,39 +215,39 @@
         "  [atom :default]"
     );
 
-    MT("should_indent_catch",
+    MT("should indent catch",
         "[bracket (][keyword catch] [variable Exception] [variable e]",
-        "  [bracket (][builtin println] [string \"Some other exception, won't be caught in this case...\"][bracket )]",
+        "  [bracket (][keyword println] [string \"Some other exception, won't be caught in this case...\"][bracket )]",
         "  [number 666][bracket )]"
     );
 
-    MT("should_indent_comment",
-        "[bracket (][builtin comment] [bracket (][variable foo][bracket )]",
+    MT("should indent comment",
+        "[bracket (][keyword comment] [bracket (][variable foo][bracket )]",
         "  [bracket (][variable bar] [number 1] [number 2] [number 3][bracket ))]"
     );
 
-    MT("should_indent_cond",
+    MT("should indent cond",
         "[bracket (][keyword cond]",
-        "  [bracket (][builtin <] [variable n] [number 0][bracket )] [string \"negative\"]",
-        "  [bracket (][builtin >] [variable n] [number 0][bracket )] [string \"positive\"]",
+        "  [bracket (][keyword <] [variable n] [number 0][bracket )] [string \"negative\"]",
+        "  [bracket (][keyword >] [variable n] [number 0][bracket )] [string \"positive\"]",
         "  [atom :else] [string \"zero\"][bracket ))]"
     );
 
-    MT("should_indent_condp",
-        "[bracket (][keyword condp] [builtin =] [variable foo]",
+    MT("should indent condp",
+        "[bracket (][keyword condp] [keyword =] [variable foo]",
         "  [number 1] [string \"one\"]",
         "  [number 2] [string \"two\"]",
         "  [number 3] [string \"three\"]",
         "  [string \"unexpected value\"][bracket )]"
     );
 
-    MT("should_indent_def",
+    MT("should indent def",
         "[bracket (][keyword def] [variable x]",
         "  [string \"here is an indented doc-string.\"]",
         "  [number 1][bracket )]"
     );
 
-    MT("should_indent_defn",
+    MT("should indent defn",
         "[bracket (][keyword defn] [variable foo]",
         "  [bracket [[][variable x][bracket ]]]",
         "  [bracket (][variable bar] [variable x][bracket ))]",
@@ -265,14 +256,14 @@
         "  [bracket (][variable bar] [variable x][bracket ))]"
     );
 
-    MT("should_indent_defmacro",
+    MT("should indent defmacro",
         "[bracket (][keyword defmacro] [variable foo]",
         "  [string \"here is an indented doc-string.\"]",
         "  [bracket [[][variable x] [variable y][bracket ]]]",
-        "  [variable `][bracket (][builtin println] [variable ~x] [variable ~@y][bracket ))]"
+        "  [variable `][bracket (][keyword println] [variable ~x] [variable ~@y][bracket ))]"
     );
 
-    MT("should_indent_defmethod",
+    MT("should indent defmethod",
         "[bracket (][keyword defmethod] [variable foo] [atom :bar] [bracket [[][variable x][bracket ]]] [bracket (][variable baz] [variable x][bracket ))]",
         "",
         "[bracket (][keyword defmethod] [variable foo] [atom :bar]",
@@ -280,86 +271,86 @@
         "  [bracket (][variable baz] [variable x][bracket ))]"
     );
 
-    MT("should_indent_defstruct",
+    MT("should indent defstruct",
         "[bracket (][keyword defstruct] [variable person]",
         "  [atom :name]",
         "  [atom :age]",
         "  [atom :height][bracket )]"
     );
 
-    MT("should_indent_deftest and testing",
-        "[bracket (][keyword deftest] [variable addition]",
+    MT("should indent deftest and testing",
+        "[bracket (][variable deftest] [variable addition]",
         "  [bracket (][variable testing] [string \"with positive integers\"]",
-        "    [bracket (][variable is] [bracket (][builtin =] [number 4] [bracket (][builtin +] [number 2] [number 2][bracket )))]",
-        "    [bracket (][variable is] [bracket (][builtin =] [number 7] [bracket (][builtin +] [number 3] [number 4][bracket ))))]"
+        "    [bracket (][variable is] [bracket (][keyword =] [number 4] [bracket (][keyword +] [number 2] [number 2][bracket )))]",
+        "    [bracket (][variable is] [bracket (][keyword =] [number 7] [bracket (][keyword +] [number 3] [number 4][bracket ))))]"
     );
 
-    MT("should_indent_doseq",
+    MT("should indent doseq",
         "[bracket (][keyword doseq] [bracket [[][variable x] [bracket [[][number -1] [number 0] [number 1][bracket ]]]",
         "        [variable y] [bracket [[][number 1] [number 2] [number 3][bracket ]]]]]",
-        "  [bracket (][builtin prn] [bracket (][builtin *] [variable x] [variable y][bracket )))]"
+        "  [bracket (][keyword prn] [bracket (][keyword *] [variable x] [variable y][bracket )))]"
     );
 
-    MT("should_indent_dotimes",
+    MT("should indent dotimes",
         "[bracket (][keyword dotimes] [bracket [[][variable n] [number 5][bracket ]]]",
-        "  [bracket (][builtin println] [string \"n is\"] [variable n][bracket ))]");
+        "  [bracket (][keyword println] [string \"n is\"] [variable n][bracket ))]");
 
-    MT("should_indent_for",
+    MT("should indent for",
         "[bracket (][keyword for] [bracket [[][variable x] [bracket [[][number 1] [number 2] [number 3][bracket ]]]",
-        "      [atom :let] [bracket [[][variable y] [bracket (][builtin *] [variable x] [number 3][bracket )]]]",
-        "      [atom :when] [bracket (][builtin even?] [variable y][bracket )]]]",
+        "      [atom :let] [bracket [[][variable y] [bracket (][keyword *] [variable x] [number 3][bracket )]]]",
+        "      [atom :when] [bracket (][keyword even?] [variable y][bracket )]]]",
         "  [variable y][bracket )]"
     );
 
-    MT("should_indent_if-let",
+    MT("should indent if-let",
         "[bracket (][keyword if-let] [bracket [[][variable x] [variable foo][bracket ]]]",
         "  [string \"then\"]",
         "  [string \"else\"][bracket ))]"
     );
 
-    MT("should_indent_let",
+    MT("should indent let",
         "[bracket (][keyword let] [bracket [[][variable foo] [number 2]",
         "      [variable bar] [number 3][bracket ]]]",
-        "  [bracket (][builtin +] [variable foo] [variable *bar*][bracket ))]"
+        "  [bracket (][keyword +] [variable foo] [variable *bar*][bracket ))]"
     );
 
-    MT("should_indent_letfn",
+    MT("should indent letfn",
         "[bracket (][keyword letfn] [bracket [[(][variable twice] [bracket [[][variable x][bracket ]]]",
-        "               [bracket (][builtin *] [variable x] [number 2][bracket ))]",
+        "               [bracket (][keyword *] [variable x] [number 2][bracket ))]",
         "        [bracket (][variable six-times] [bracket [[][variable y][bracket ]]]",
-        "                   [bracket (][builtin *] [bracket (][variable twice] [variable y][bracket )] [number 3][bracket ))]]]",
-        "  [bracket (][builtin println] [string \"twice 15 =\"] [bracket (][variable twice] [number 15][bracket ))]]]",
-        "  [bracket (][builtin println] [string \"six times 15 =\"] [bracket (][variable six-times] [number 15][bracket )))]"
+        "                   [bracket (][keyword *] [bracket (][variable twice] [variable y][bracket )] [number 3][bracket ))]]]",
+        "  [bracket (][keyword println] [string \"twice 15 =\"] [bracket (][variable twice] [number 15][bracket ))]]]",
+        "  [bracket (][keyword println] [string \"six times 15 =\"] [bracket (][variable six-times] [number 15][bracket )))]"
     );
 
-    MT("should_indent_loop",
+    MT("should indent loop",
         "[bracket (][keyword loop] [bracket [[][variable foo] [number 2]",
         "       [variable bar] [number 3][bracket ]]]",
-        "  [bracket (][builtin +] [variable foo] [variable *bar*][bracket ))]"
+        "  [bracket (][keyword +] [variable foo] [variable *bar*][bracket ))]"
     );
 
-    MT("should_indent_when-first",
+    MT("should indent when-first",
         "[bracket (][keyword when-first] [bracket [[][variable a] [bracket [[][number 1] [number 2] [number 3][bracket ]]]]]",
         "  [variable a][bracket )]"
     );
 
-    MT("should_indent_when-let",
+    MT("should indent when-let",
         "[bracket (][keyword when-let] [bracket [[][variable x] [variable foo][bracket ]]]",
         "  [string \"foo\"]"
     );
 
-    MT("should_indent_when-some",
+    MT("should indent when-some",
         "[bracket (][keyword when-some] [bracket [[][variable x] [variable foo][bracket ]]]",
         "  [string \"foo\"]"
     );
 
-    MT("should_indent_struct-map",
-        "[bracket (][builtin struct-map] [variable foo]",
+    MT("should indent struct-map",
+        "[bracket (][keyword struct-map] [variable foo]",
         "  [atom :1] [string \"one\"]",
         "  [atom :2] [string \"two\"][bracket )]"
     );
 
-    MT("should_indent_defprotocol",
+    MT("should indent defprotocol",
         "[bracket (][keyword defprotocol] [variable Protocol]",
         "  [bracket (][variable foo] [bracket [[][variable this][bracket ]])]",
         "  [bracket (][variable bar] [bracket [[][variable this][bracket ]]] [bracket [[][variable this] [variable x][bracket ]])]",
@@ -367,14 +358,14 @@
         "       [bracket [[][variable this] [variable y][bracket ]]))]"
     );
 
-    MT("should_indent_defrecord",
+    MT("should indent defrecord",
         "[bracket (][keyword defrecord] [variable Person] [bracket [[][variable first-name] [variable last-name] [variable address][bracket ]])]",
         "",
         "[bracket (][keyword defrecord] [variable Person] [bracket [[][variable first-name] [variable last-name] [variable address][bracket ]]]",
         "  [variable Protocol]",
         "  [bracket (][variable foo] [bracket [[][variable this][bracket ]]] [variable first-name][bracket )]",
         "  [bracket (][variable bar] [bracket [[][variable this][bracket ]]] [variable last-name][bracket )]",
-        "  [bracket (][variable baz] [bracket [[][variable this] [variable y][bracket ]]] [bracket (][builtin str] [variable first-name] [variable last-name][bracket )))]",
+        "  [bracket (][variable baz] [bracket [[][variable this] [variable y][bracket ]]] [bracket (][keyword str] [variable first-name] [variable last-name][bracket )))]",
         "",
         "[bracket (][keyword defrecord] [variable Person] [bracket [[][variable first-name]",
         "                   [variable last-name]",
@@ -386,14 +377,14 @@
         "   [variable address][bracket ]])]"
     );
 
-    MT("should_indent_deftype",
+    MT("should indent deftype",
         "[bracket (][keyword deftype] [variable Person] [bracket [[][variable first-name] [variable last-name] [variable address][bracket ]])]",
         "",
         "[bracket (][keyword deftype] [variable Person] [bracket [[][variable first-name] [variable last-name] [variable address][bracket ]]]",
         "  [variable Protocol]",
         "  [bracket (][variable foo] [bracket [[][variable this][bracket ]]] [variable first-name][bracket )]",
         "  [bracket (][variable bar] [bracket [[][variable this][bracket ]]] [variable last-name][bracket )]",
-        "  [bracket (][variable baz] [bracket [[][variable this] [variable y][bracket ]]] [bracket (][builtin str] [variable first-name] [variable last-name][bracket )))]",
+        "  [bracket (][variable baz] [bracket [[][variable this] [variable y][bracket ]]] [bracket (][keyword str] [variable first-name] [variable last-name][bracket )))]",
         "",
         "[bracket (][keyword deftype] [variable Person] [bracket [[][variable first-name]",
         "                 [variable last-name]",
@@ -405,7 +396,7 @@
         "   [variable address][bracket ]])]"
     );
 
-    MT("should_indent_do",
+    MT("should indent do",
         "[bracket (][keyword do] [bracket (][variable foo][bracket )]",
         "  [bracket (][variable bar][bracket ))]",
         "",
@@ -414,7 +405,7 @@
         "  [bracket (][variable bar][bracket ))]"
     );
 
-    MT("should_indent_doto",
+    MT("should indent doto",
         "[bracket (][keyword doto] [bracket (][keyword new] [variable java.util.HashMap][bracket )] [bracket (][variable .put] [string \"a\"] [number 1][bracket )] [bracket (][variable .put] [string \"b\"] [number 2][bracket ))]",
         "",
         "[bracket (][keyword doto] [bracket (][variable java.util.HashMap.][bracket )]",
@@ -422,182 +413,168 @@
         "  [bracket (][variable .put] [string \"b\"] [number 2][bracket ))]"
     );
 
-    MT("should_indent_extend",
-        "[bracket (][builtin extend] [variable FooType]",
+    MT("should indent extend",
+        "[bracket (][keyword extend] [variable FooType]",
         "  [variable FooProtocol]",
         "  [bracket {][atom :foo] [variable an-existing-fn]",
-        "   [atom :bar] [bracket (][builtin fn] [bracket [[][variable a] [variable b][bracket ]]]",
+        "   [atom :bar] [bracket (][keyword fn] [bracket [[][variable a] [variable b][bracket ]]]",
         "          [bracket (][variable f] [variable a] [variable b][bracket ))]",
-        "   [atom :baz] [bracket (][builtin fn] [bracket ([[][variable a][bracket ]]] [variable a][bracket )]",
+        "   [atom :baz] [bracket (][keyword fn] [bracket ([[][variable a][bracket ]]] [variable a][bracket )]",
         "          [bracket ([[][variable a] [variable b][bracket ]]] [bracket [[][variable a] [variable b][bracket ]]))})]"
     );
 
-    MT("should_indent_extend-protocol",
-        "[bracket (][builtin extend-protocol] [variable Protocol]",
+    MT("should indent extend-protocol",
+        "[bracket (][keyword extend-protocol] [variable Protocol]",
         "  [variable FooType]",
         "  [bracket (][variable foo] [bracket [[][variable x][bracket ]]] [bracket (][variable f] [variable x][bracket ))]",
         "  [bracket (][variable bar] [bracket [[][variable x] [variable y][bracket ]]] [bracket (][variable g] [variable x] [variable y][bracket ))]"
     );
 
-    MT("should_indent_extend-type",
-        "[bracket (][builtin extend-type] [variable FooType]",
+    MT("should indent extend-type",
+        "[bracket (][keyword extend-type] [variable FooType]",
         "  [variable Countable]",
-        "  [bracket (][variable cnt] [bracket [][variable c][bracket ]]] [bracket (][builtin count] [variable c][bracket ))]",
+        "  [bracket (][variable cnt] [bracket [][variable c][bracket ]]] [bracket (][keyword count] [variable c][bracket ))]",
         "  ",
         "  [variable Foo]",
         "  [bracket (][variable bar] [bracket [[][variable x] [variable y][bracket ]]] [bracket (][variable f] [variable x] [variable y][bracket ))]",
         "  [bracket (][variable baz] [bracket ([][variable x] [variable x][bracket ]])] [bracket ([[][variable x] [variable y] [variable &] [variable zs][bracket ]]] [bracket [[][variable x] [variable y] [bracket (][variable g] [variable zs][bracket )]])))]"
     );
 
-    MT("should_indent_fn",
-        "[bracket (][builtin fn] [variable foo]",
+    MT("should indent fn",
+        "[bracket (][keyword fn] [variable foo]",
         "  [bracket [[][variable x][bracket ]]]",
         "  [bracket (][variable bar] [variable x][bracket ))]",
         "",
-        "[bracket (][builtin fn] [variable foo] [bracket [[][variable x][bracket ]]]",
+        "[bracket (][keyword fn] [variable foo] [bracket [[][variable x][bracket ]]]",
         "  [bracket (][variable bar] [variable x][bracket ))]"
     );
 
-    MT("should_indent_future",
-        "[bracket (][builtin future] [bracket (][variable Thread/sleep] [number 10000][bracket )] [bracket (][builtin println] [string \"done\"][bracket )] [number 100][bracket )]",
+    MT("should indent future",
+        "[bracket (][keyword future] [bracket (][variable Thread/sleep] [number 10000][bracket )] [bracket (][keyword println] [string \"done\"][bracket )] [number 100][bracket )]",
         "",
-        "[bracket (][builtin future] [bracket (][variable Thread/sleep] [number 10000][bracket )]",
-        "  [bracket (][builtin println] [string \"done\"][bracket )]",
+        "[bracket (][keyword future] [bracket (][variable Thread/sleep] [number 10000][bracket )]",
+        "  [bracket (][keyword println] [string \"done\"][bracket )]",
         "  [number 100][bracket )]",
         "",
-        "[bracket (][builtin future]",
+        "[bracket (][keyword future]",
         "  [bracket (][variable Thread/sleep] [number 10000][bracket )]",
-        "  [bracket (][builtin println] [string \"done\"][bracket )]",
+        "  [bracket (][keyword println] [string \"done\"][bracket )]",
         "  [number 100][bracket )]"
     );
 
-    MT("should_indent_if",
-        "[bracket (][keyword if] [bracket (][builtin <] [variable foo] [number 100][bracket )] [string \"yes\"] [string \"no\"][bracket )]",
+    MT("should indent if",
+        "[bracket (][keyword if] [bracket (][keyword <] [variable foo] [number 100][bracket )] [string \"yes\"] [string \"no\"][bracket )]",
         "",
-        "[bracket (][keyword if] [bracket (][builtin <] [variable foo] [number 100][bracket )]",
+        "[bracket (][keyword if] [bracket (][keyword <] [variable foo] [number 100][bracket )]",
         "  [string \"yes\"]",
         "  [string \"no\"][bracket )]",
         "",
-        "[bracket (][keyword if] [bracket (][keyword and] [bracket (][builtin <] [variable foo] [number 100][bracket )]",
-        "         [bracket (][builtin <] [variable bar] [number 50][bracket ))]",
+        "[bracket (][keyword if] [bracket (][keyword and] [bracket (][keyword <] [variable foo] [number 100][bracket )]",
+        "         [bracket (][keyword <] [variable bar] [number 50][bracket ))]",
         "  [string \"yes\"]",
         "  [string \"no\"][bracket )]"
     );
 
-    MT("should_indent_if-not",
-        "[bracket (][keyword if-not] [bracket (][builtin <] [variable foo] [number 100][bracket )] [string \"yes\"] [string \"no\"][bracket )]",
+    MT("should indent if-not",
+        "[bracket (][keyword if-not] [bracket (][keyword <] [variable foo] [number 100][bracket )] [string \"yes\"] [string \"no\"][bracket )]",
         "",
-        "[bracket (][keyword if-not] [bracket (][builtin <] [variable foo] [number 100][bracket )]",
+        "[bracket (][keyword if-not] [bracket (][keyword <] [variable foo] [number 100][bracket )]",
         "  [string \"yes\"]",
         "  [string \"no\"][bracket )]",
         "",
-        "[bracket (][keyword if-not] [bracket (][keyword and] [bracket (][builtin <] [variable foo] [number 100][bracket )]",
-        "             [bracket (][builtin <] [variable bar] [number 50][bracket ))]",
+        "[bracket (][keyword if-not] [bracket (][keyword and] [bracket (][keyword <] [variable foo] [number 100][bracket )]",
+        "             [bracket (][keyword <] [variable bar] [number 50][bracket ))]",
         "  [string \"yes\"]",
         "  [string \"no\"][bracket )]"
     );
 
-    MT("should_indent_locking",
-        "[bracket (][builtin locking] [variable foo] [bracket (][variable Thread/sleep] [number 1000][bracket )] [bracket (][builtin println] [string \"done\"][bracket ))]",
+    MT("should indent locking",
+        "[bracket (][keyword locking] [variable foo] [bracket (][variable Thread/sleep] [number 1000][bracket )] [bracket (][keyword println] [string \"done\"][bracket ))]",
         "",
-        "[bracket (][builtin locking] [variable foo]",
+        "[bracket (][keyword locking] [variable foo]",
         "  [bracket (][variable Thread/sleep] [number 1000][bracket )]",
-        "  [bracket (][builtin println] [string \"done\"][bracket ))]"
+        "  [bracket (][keyword println] [string \"done\"][bracket ))]"
     );
 
-    MT("should_indent_ns",
+    MT("should indent ns",
         "[bracket (][keyword ns] [variable foo.bar]",
-        "  [bracket (][atom :refer-clojure] [atom :exclude] [bracket [][builtin ancestors] [builtin printf][bracket ]])]",
+        "  [bracket (][atom :refer-clojure] [atom :exclude] [bracket [][keyword ancestors] [keyword printf][bracket ]])]",
         "  [bracket (][atom :require] [bracket [][variable clojure.contrib] [variable sql] [variable combinatorics][bracket ]])]",
         "  [bracket (][atom :use] [bracket [][variable my.lib] [variable this] [variable that][bracket ]])]",
         "  [bracket (][atom :import] [bracket (][variable java.util] [variable Date] [variable Timer] [variable Random][bracket )]",
         "           [bracket (][variable java.sql] [variable Connection] [variable Statement][bracket )))]"
     );
 
-    MT("should_indent_proxy",
-        "[bracket (][builtin proxy] [bracket [][variable MouseAdapter][bracket ]]] [bracket [[]]]",
+    MT("should indent proxy",
+        "[bracket (][keyword proxy] [bracket [][variable MouseAdapter][bracket ]]] [bracket [[]]]",
         "  [bracket (][variable mousePressed] [bracket [][variable event][bracket ]]]",
-        "                [bracket (][builtin apply] [variable f] [variable event] [variable args][bracket )))]"
+        "                [bracket (][keyword apply] [variable f] [variable event] [variable args][bracket )))]"
     );
 
-    MT("should_indent_reify",
-        "[bracket (][builtin reify] [variable Foo]",
+    MT("should indent reify",
+        "[bracket (][keyword reify] [variable Foo]",
         "  [bracket (][variable foo] [bracket [[][variable _] [variable x][bracket ]]] [variable x][bracket )]",
         "  [bracket (][variable foo] [bracket [[][variable _] [variable x] [variable y][bracket ]]] [variable y][bracket ))]"
     );
 
-    MT("should_indent_try",
+    MT("should indent try",
         "[bracket (][keyword try]",
-        "  [bracket (][builtin /] [number 1] [number 0][bracket )]",
-        "  [bracket (][keyword catch] [variable Exception] [variable e] [bracket (][builtin str] [string \"caught exception: \"] [bracket (][variable .getMessage] [variable e][bracket ))))]"
+        "  [bracket (][keyword /] [number 1] [number 0][bracket )]",
+        "  [bracket (][keyword catch] [variable Exception] [variable e] [bracket (][keyword str] [string \"caught exception: \"] [bracket (][variable .getMessage] [variable e][bracket ))))]"
     );
 
-    MT("should_indent_with-open",
+    MT("should indent with-open",
         "[bracket (][keyword with-open] [bracket [[][variable out-data] [bracket (][variable io/writer] [variable out-file][bracket )]]]",
         "  [bracket (][variable csv/write-csv] [variable out-data] [variable out-sos][bracket )))]"
     );
 
-    MT("should_indent_with-precision",
-        "[bracket (][builtin with-precision] [number 10] [bracket (][builtin /] [number 1][variable M] [number 3][bracket ))]",
+    MT("should indent with-precision",
+        "[bracket (][keyword with-precision] [number 10] [bracket (][keyword /] [number 1][variable M] [number 3][bracket ))]",
         "",
-        "[bracket (][builtin with-precision] [number 10] [atom :rounding] [variable HALF_DOWN] [bracket (][builtin /] [number 1][variable M] [number 3][bracket ))]",
+        "[bracket (][keyword with-precision] [number 10] [atom :rounding] [variable HALF_DOWN] [bracket (][keyword /] [number 1][variable M] [number 3][bracket ))]",
         "",
-        "[bracket (][builtin with-precision]",
+        "[bracket (][keyword with-precision]",
         "  [number 10]",
         "  [atom :rounding]",
         "  [variable HALF_DOWN]",
-        "  [bracket (][builtin /] [number 1][variable M] [number 3][bracket ))]"
+        "  [bracket (][keyword /] [number 1][variable M] [number 3][bracket ))]"
     );
 
-    MT("should_indent_when",
-        "[bracket (][keyword when] [bracket (][builtin <] [variable foo] [number 100][bracket )] [string \"yes\"][bracket )]",
+    MT("should indent when",
+        "[bracket (][keyword when] [bracket (][keyword <] [variable foo] [number 100][bracket )] [string \"yes\"][bracket )]",
         "",
-        "[bracket (][keyword when] [bracket (][builtin <] [variable foo] [number 100][bracket )]",
+        "[bracket (][keyword when] [bracket (][keyword <] [variable foo] [number 100][bracket )]",
         "  [string \"yes\"][bracket )]",
         "",
-        "[bracket (][keyword when] [bracket (][keyword and] [bracket (][builtin <] [variable foo] [number 100][bracket )]",
-        "           [bracket (][builtin <] [variable bar] [number 50][bracket ))]",
+        "[bracket (][keyword when] [bracket (][keyword and] [bracket (][keyword <] [variable foo] [number 100][bracket )]",
+        "           [bracket (][keyword <] [variable bar] [number 50][bracket ))]",
         "  [string \"yes\"][bracket )]"
     );
 
-    MT("should_indent_when-not",
-        "[bracket (][keyword when-not] [bracket (][builtin <] [variable foo] [number 100][bracket )] [string \"no\"][bracket )]",
+    MT("should indent when-not",
+        "[bracket (][keyword when-not] [bracket (][keyword <] [variable foo] [number 100][bracket )] [string \"no\"][bracket )]",
         "",
-        "[bracket (][keyword when-not] [bracket (][builtin <] [variable foo] [number 100][bracket )]",
+        "[bracket (][keyword when-not] [bracket (][keyword <] [variable foo] [number 100][bracket )]",
         "  [string \"no\"][bracket )]",
         "",
-        "[bracket (][keyword when-not] [bracket (][keyword and] [bracket (][builtin <] [variable foo] [number 100][bracket )]",
-        "               [bracket (][builtin <] [variable bar] [number 50][bracket ))]",
+        "[bracket (][keyword when-not] [bracket (][keyword and] [bracket (][keyword <] [variable foo] [number 100][bracket )]",
+        "               [bracket (][keyword <] [variable bar] [number 50][bracket ))]",
         "  [string \"no\"][bracket )]"
     );
 
-    MT("should_indent_while",
-        "[bracket (][builtin while] [variable foo] [bracket (][keyword do] [bracket (][builtin println] [variable a][bracket )] [bracket (][builtin println] [variable b][bracket )))]",
+    MT("should indent while",
+        "[bracket (][keyword while] [variable foo] [bracket (][keyword do] [bracket (][keyword println] [variable a][bracket )] [bracket (][keyword println] [variable b][bracket )))]",
         "",
-        "[bracket (][builtin while] [variable foo]",
-        "  [bracket (][keyword do] [bracket (][builtin println] [variable a][bracket )]",
-        "    [bracket (][builtin println] [variable b][bracket )))]"
+        "[bracket (][keyword while] [variable foo]",
+        "  [bracket (][keyword do] [bracket (][keyword println] [variable a][bracket )]",
+        "    [bracket (][keyword println] [variable b][bracket )))]"
     );
-
-    function lookupMap(words) {
-        var map = {};
-
-        for (var i = 0; i < words.length; ++i) {
-            map[words[i]] = true;
-        }
-
-        return map;
-    }
 
     function typeTokenPairs(type, tokens) {
         var pairs = "";
 
         for (var i = 0; i < tokens.length; i++) {
-            if (coreSymbolsAsKeywordsLookupMap.propertyIsEnumerable(tokens[i])) {
-                pairs = pairs + "[keyword " + tokens[i] + "] ";
-            } else {
-                pairs = pairs + "[" + type + " " + tokens[i] + "] ";
-            }
+            pairs = pairs + "[" + type + " " + tokens[i] + "] ";
         }
 
         return pairs;
