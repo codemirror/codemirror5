@@ -278,13 +278,6 @@
         "  [atom :height][bracket )]"
     );
 
-    MT("should indent deftest and testing",
-        "[bracket (][variable deftest] [variable addition]",
-        "  [bracket (][variable testing] [string \"with positive integers\"]",
-        "    [bracket (][variable is] [bracket (][keyword =] [number 4] [bracket (][keyword +] [number 2] [number 2][bracket )))]",
-        "    [bracket (][variable is] [bracket (][keyword =] [number 7] [bracket (][keyword +] [number 3] [number 4][bracket ))))]"
-    );
-
     MT("should indent doseq",
         "[bracket (][keyword doseq] [bracket [[][variable x] [bracket [[][number -1] [number 0] [number 1][bracket ]]]",
         "        [variable y] [bracket [[][number 1] [number 2] [number 3][bracket ]]]]]",

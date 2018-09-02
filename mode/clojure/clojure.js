@@ -117,11 +117,7 @@ CodeMirror.defineMode("clojure", function (options) {
         // Binding forms
         "let", "letfn", "binding", "loop", "for", "doseq", "dotimes", "when-let", "if-let",
         // Data structures
-        "defstruct", "struct-map", "assoc",
-        // clojure.test
-        "testing", "deftest",
-        // contrib
-        "handler-case", "handle", "dotrace", "deftrace"];
+        "defstruct", "struct-map", "assoc"];
 
     CodeMirror.registerHelper("hintWords", "clojure",
         commonAtoms.concat(commonSpecialForms, commonCoreSymbols));
