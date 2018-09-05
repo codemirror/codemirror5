@@ -127,11 +127,8 @@ CodeMirror.defineMode("clojure", function (options) {
     var coreSymbols = makeKeywords(commonCoreSymbols);
     var indentSymbols = makeKeywords(commonIndentSymbols);
 
+    var numberLiteral = /^[+\-]?\d+(?:(?:N|(?:[eE][+\-]?\d+))|(?:\.?\d*(?:M|(?:[eE][+\-]?\d+))?)|\/\d+|[xX][0-9a-fA-F]+|r[0-9a-zA-Z]+)?/;
     var tests = {
-        digit: /\d/,
-        hex: /[0-9a-f]/i,
-        sign: /[+-]/,
-        exponent: /e/i,
         keyword_char: /[^\s;()\[\]{}]/,
         symbol: /[\w*+!\-._?:<>\/'\xa1-\uffff]/,
         block_indent: /^(?:def|with)[^\/]+$|\/(?:def|with)/
@@ -149,42 +146,6 @@ CodeMirror.defineMode("clojure", function (options) {
 
     function popStack(state) {
         state.indentStack = state.indentStack.prev;
-    }
-
-    function isNumber(ch, stream){
-        // hex
-        if ( ch === '0' && stream.eat(/x/i) ) {
-            stream.eatWhile(tests.hex);
-            return true;
-        }
-
-        // leading sign
-        if ( ( ch == '+' || ch == '-' ) && ( tests.digit.test(stream.peek()) ) ) {
-          stream.eat(tests.sign);
-          ch = stream.next();
-        }
-
-        if ( tests.digit.test(ch) ) {
-            stream.eat(ch);
-            stream.eatWhile(tests.digit);
-
-            if ( '.' == stream.peek() ) {
-                stream.eat('.');
-                stream.eatWhile(tests.digit);
-            } else if ('/' == stream.peek() ) {
-                stream.eat('/');
-                stream.eatWhile(tests.digit);
-            }
-
-            if ( stream.eat(tests.exponent) ) {
-                stream.eat(tests.sign);
-                stream.eatWhile(tests.digit);
-            }
-
-            return true;
-        }
-
-        return false;
     }
 
     // Eat character that starts after backslash \
@@ -236,6 +197,10 @@ CodeMirror.defineMode("clojure", function (options) {
                     returnType = STRING; // continue on in string mode
                     break;
                 default: // default parsing mode
+                    if (stream.match(numberLiteral)) {
+                        return NUMBER;
+                    }
+
                     var ch = stream.next();
 
                     if (ch == "\"") {
@@ -249,8 +214,6 @@ CodeMirror.defineMode("clojure", function (options) {
                     } else if (ch == ";") { // comment
                         stream.skipToEnd(); // rest of the line is a comment
                         returnType = COMMENT;
-                    } else if (isNumber(ch,stream)){
-                        returnType = NUMBER;
                     } else if (ch == "(" || ch == "[" || ch == "{" ) {
                         var keyWord = '', indentTemp = stream.column(), letter;
                         /**
