@@ -23,23 +23,27 @@
 
     MT("numbers",
         "[number 42] [number +42] [number -421]",
-        // FIXME
-        // "[number 42N] [number +42N] [number -42N]",
+        "[number 42N] [number +42N] [number -42N]",
         "[number 0.42] [number +0.42] [number -0.42]",
-        // FIXME
-        // "[number 42M] [number +42M] [number -42M]",
-        // "[number 42.42M] [number +42.42M] [number -42.42M]",
+        "[number 42M] [number +42M] [number -42M]",
+        "[number 42.42M] [number +42.42M] [number -42.42M]",
         "[number 1/42] [number +1/42] [number -1/42]",
-        "[number 0x420f]",
-        // FIXME
-        // "[number +0x420f] [number -0x420f]",
+        "[number 0x42af] [number +0x42af] [number -0x42af]",
+        "[number 0x42AF] [number +0x42AF] [number -0x42AF]",
         "[number 1e2] [number 1e+2] [number 1e-2]",
         "[number +1e2] [number +1e+2] [number +1e-2]",
         "[number -1e2] [number -1e+2] [number -1e-2]",
-        "[number -1.0e2] [number -0.1e+2] [number -1.01e-2]"
-        // FIXME
-        // "[number 2r101010] [number +2r101010] [number -2r101010]",
-        // "[number 8r52] [number +8r52] [number -8r52]"
+        "[number -1.0e2] [number -0.1e+2] [number -1.01e-2]",
+        "[number 1E2] [number 1E+2] [number 1E-2]",
+        "[number +1E2] [number +1E+2] [number +1E-2]",
+        "[number -1E2] [number -1E+2] [number -1E-2]",
+        "[number -1.0E2] [number -0.1E+2] [number -1.01E-2]",
+        "[number 2r101010] [number +2r101010] [number -2r101010]",
+        "[number 2r101010] [number +2r101010] [number -2r101010]",
+        "[number 8r52] [number +8r52] [number -8r52]",
+        "[number 36rhello] [number +36rhello] [number -36rhello]",
+        "[number 36rz] [number +36rz] [number -36rz]",
+        "[number 36rZ] [number +36rZ] [number -36rZ]"
     );
 
     MT("characters",
@@ -522,15 +526,15 @@
     );
 
     MT("should indent with-precision",
-        "[bracket (][keyword with-precision] [number 10] [bracket (][keyword /] [number 1][variable M] [number 3][bracket ))]",
+        "[bracket (][keyword with-precision] [number 10] [bracket (][keyword /] [number 1M] [number 3][bracket ))]",
         "",
-        "[bracket (][keyword with-precision] [number 10] [atom :rounding] [variable HALF_DOWN] [bracket (][keyword /] [number 1][variable M] [number 3][bracket ))]",
+        "[bracket (][keyword with-precision] [number 10] [atom :rounding] [variable HALF_DOWN] [bracket (][keyword /] [number 1M] [number 3][bracket ))]",
         "",
         "[bracket (][keyword with-precision]",
         "  [number 10]",
         "  [atom :rounding]",
         "  [variable HALF_DOWN]",
-        "  [bracket (][keyword /] [number 1][variable M] [number 3][bracket ))]"
+        "  [bracket (][keyword /] [number 1M] [number 3][bracket ))]"
     );
 
     MT("should indent when",
