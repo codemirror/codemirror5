@@ -167,8 +167,8 @@ CodeMirror.defineMode("clojure", function (options) {
 
     if (ch === "\\") {stream.next(); readSymbol(stream); return "string-2";}
     if (ch === '"') return (state.tokenize = inString)(stream, state);
-    if (ch === "(" || ch === "[" || ch === "{") {tokenType = "open"; return "bracket";}
-    if (ch === ")" || ch === "]" || ch === "}") {tokenType = "close"; return "bracket";}
+    if (/[(\[{]/.test(ch)) {tokenType = "open"; return "bracket";}
+    if (/[)\]}]/.test(ch)) {tokenType = "close"; return "bracket";}
     if (ch === ";") {stream.skipToEnd(); tokenType = "space"; return "comment";}
     if (/[#'@^`~]/.test(ch)) return "meta";
 
