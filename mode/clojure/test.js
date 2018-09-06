@@ -80,21 +80,20 @@
         // "[bracket (][comment comment] [comment (][comment foo] [comment 1] [comment 2] [comment 3][comment )][bracket )]"
     );
 
-    // FIXME
-    // MT("whitespaces",
-    //     "[null \u0020]", // space
-    //     "[null \u0009]"  // horizontal tab
-    // );
-
     MT("quotes",
         "[atom '][number 1]",
         "[atom ':foo]",
         "[atom '][string \"foo\"]",
         "[atom '][variable x]",
-        "[atom '][bracket (][variable a] [variable b] [variable c][bracket )]",
+        "[atom '][bracket (][builtin a] [variable b] [variable c][bracket )]",
         "[atom '][bracket [[][variable a] [variable b] [variable c][bracket ]]]",
         "[atom '][bracket {][variable a] [number 1] [atom :foo] [number 2] [variable c] [number 3][bracket }]",
-        "[atom '][variable #][bracket {][variable a] [number 1] [atom :foo][bracket }]"
+        "[atom '][meta #][bracket {][variable a] [number 1] [atom :foo][bracket }]"
+    );
+
+    MT("# and ^",
+        "[meta #]",
+        "[meta ^]"
     );
 
     var specialForms = [".", "catch", "def", "do", "if", "monitor-enter",
@@ -185,12 +184,96 @@
         "zipmap"
     ];
 
-    MT("should syntax highlight core symbols as keywords (part 1/2)",
+    MT("should highlight core symbols as keywords (part 1/2)",
         typeTokenPairs("keyword", coreSymbols1)
     );
 
-    MT("should syntax highlight core symbols as keywords (part 2/2)",
+    MT("should highlight core symbols as keywords (part 2/2)",
         typeTokenPairs("keyword", coreSymbols2)
+    );
+
+    MT("should indent list literal",
+        "[bracket (][builtin foo] [atom :a] [number 1] [atom true] [atom nil][bracket )]",
+        "",
+        "[bracket (][builtin foo] [atom :a]",
+        "     [number 1]",
+        "     [atom true]",
+        "     [atom nil][bracket )]",
+        "",
+        "[bracket (][builtin foo] [atom :a] [number 1]",
+        "     [atom true]",
+        "     [atom nil][bracket )]",
+        "",
+        "[bracket (]",
+        " [builtin foo]",
+        " [atom :a]",
+        " [number 1]",
+        " [atom true]",
+        " [atom nil][bracket )]",
+        "",
+        "[bracket (][builtin foo] [bracket [[][atom :a][bracket ]]]",
+        "     [number 1]",
+        "     [atom true]",
+        "     [atom nil][bracket )]"
+    );
+
+    MT("should indent vector literal",
+        "[bracket [[][atom :a] [number 1] [atom true] [atom nil][bracket ]]]",
+        "",
+        "[bracket [[][atom :a]",
+        " [number 1]",
+        " [atom true]",
+        " [atom nil][bracket ]]]",
+        "",
+        "[bracket [[][atom :a] [number 1]",
+        " [atom true]",
+        " [atom nil][bracket ]]]",
+        "",
+        "[bracket [[]",
+        " [variable foo]",
+        " [atom :a]",
+        " [number 1]",
+        " [atom true]",
+        " [atom nil][bracket ]]]"
+    );
+
+    MT("should indent map literal",
+        "[bracket {][atom :a] [atom :a] [atom :b] [number 1] [atom :c] [atom true] [atom :d] [atom nil] [bracket }]",
+        "",
+        "[bracket {][atom :a] [atom :a]",
+        " [atom :b] [number 1]",
+        " [atom :c] [atom true]",
+        " [atom :d] [atom nil][bracket }]",
+        "",
+        "[bracket {][atom :a]",
+        " [atom :a]",
+        " [atom :b]",
+        " [number 1]",
+        " [atom :c]",
+        " [atom true]",
+        " [atom :d]",
+        " [atom nil][bracket }]",
+        "",
+        "[bracket {]",
+        " [atom :a] [atom :a]",
+        " [atom :b] [number 1]",
+        " [atom :c] [atom true]",
+        " [atom :d] [atom nil][bracket }]"
+    );
+
+    MT("should indent set literal",
+        "[meta #][bracket {][atom :a] [number 1] [atom true] [atom nil] [bracket }]",
+        "",
+        "[meta #][bracket {][atom :a]",
+        "  [number 1]",
+        "  [atom true]",
+        "  [atom nil][bracket }]",
+        "",
+        "[meta #][bracket {]",
+        "  [atom :a]",
+        "  [number 1]",
+        "  [atom true]",
+        "  [atom nil][bracket }]"
     );
 
     MT("should indent assoc",
@@ -207,7 +290,7 @@
 
     MT("should indent bound-fn",
         "[bracket (][keyword bound-fn] [bracket [[]]]",
-        "  [bracket (][variable f][bracket ))]"
+        "  [bracket (][builtin f][bracket ))]"
     );
 
     MT("should indent case",
@@ -215,7 +298,7 @@
         "  [string \"\"] [number 0]",
         "  [string \"hello\"] [atom :bar]",
         "  [bracket [[][number 1] [number 2][bracket ]]] [bracket (][string \"my seq\"][bracket )]",
-        "  [bracket (][variable x] [variable y] [variable z][bracket )] [string \"x, y, or z\"]",
+        "  [bracket (][builtin x] [variable y] [variable z][bracket )] [string \"x, y, or z\"]",
         "  [atom :default]"
     );
 
@@ -226,8 +309,8 @@
     );
 
     MT("should indent comment",
-        "[bracket (][keyword comment] [bracket (][variable foo][bracket )]",
-        "  [bracket (][variable bar] [number 1] [number 2] [number 3][bracket ))]"
+        "[bracket (][keyword comment] [bracket (][builtin foo][bracket )]",
+        "  [bracket (][builtin bar] [number 1] [number 2] [number 3][bracket ))]"
     );
 
     MT("should indent cond",
@@ -254,25 +337,25 @@
     MT("should indent defn",
         "[bracket (][keyword defn] [variable foo]",
         "  [bracket [[][variable x][bracket ]]]",
-        "  [bracket (][variable bar] [variable x][bracket ))]",
+        "  [bracket (][builtin bar] [variable x][bracket ))]",
         "",
         "[bracket (][keyword defn] [variable foo] [bracket [[][variable x][bracket ]]]",
-        "  [bracket (][variable bar] [variable x][bracket ))]"
+        "  [bracket (][builtin bar] [variable x][bracket ))]"
     );
 
     MT("should indent defmacro",
         "[bracket (][keyword defmacro] [variable foo]",
         "  [string \"here is an indented doc-string.\"]",
         "  [bracket [[][variable x] [variable y][bracket ]]]",
-        "  [variable `][bracket (][keyword println] [variable ~x] [variable ~@y][bracket ))]"
+        "  [atom `][bracket (][keyword println] [atom ~][variable x] [atom ~@][variable y][bracket ))]"
     );
 
     MT("should indent defmethod",
-        "[bracket (][keyword defmethod] [variable foo] [atom :bar] [bracket [[][variable x][bracket ]]] [bracket (][variable baz] [variable x][bracket ))]",
+        "[bracket (][keyword defmethod] [variable foo] [atom :bar] [bracket [[][variable x][bracket ]]] [bracket (][builtin baz] [variable x][bracket ))]",
         "",
         "[bracket (][keyword defmethod] [variable foo] [atom :bar]",
         "  [bracket [[][variable x][bracket ]]]",
-        "  [bracket (][variable baz] [variable x][bracket ))]"
+        "  [bracket (][builtin baz] [variable x][bracket ))]"
     );
 
     MT("should indent defstruct",
@@ -312,12 +395,12 @@
     );
 
     MT("should indent letfn",
-        "[bracket (][keyword letfn] [bracket [[(][variable twice] [bracket [[][variable x][bracket ]]]",
+        "[bracket (][keyword letfn] [bracket [[(][builtin twice] [bracket [[][variable x][bracket ]]]",
         "               [bracket (][keyword *] [variable x] [number 2][bracket ))]",
-        "        [bracket (][variable six-times] [bracket [[][variable y][bracket ]]]",
-        "                   [bracket (][keyword *] [bracket (][variable twice] [variable y][bracket )] [number 3][bracket ))]]]",
-        "  [bracket (][keyword println] [string \"twice 15 =\"] [bracket (][variable twice] [number 15][bracket ))]]]",
-        "  [bracket (][keyword println] [string \"six times 15 =\"] [bracket (][variable six-times] [number 15][bracket )))]"
+        "        [bracket (][builtin six-times] [bracket [[][variable y][bracket ]]]",
+        "                   [bracket (][keyword *] [bracket (][builtin twice] [variable y][bracket )] [number 3][bracket ))]]]",
+        "  [bracket (][keyword println] [string \"twice 15 =\"] [bracket (][builtin twice] [number 15][bracket ))]",
+        "  [bracket (][keyword println] [string \"six times 15 =\"] [bracket (][builtin six-times] [number 15][bracket )))]"
     );
 
     MT("should indent loop",
@@ -349,9 +432,9 @@
 
     MT("should indent defprotocol",
         "[bracket (][keyword defprotocol] [variable Protocol]",
-        "  [bracket (][variable foo] [bracket [[][variable this][bracket ]])]",
-        "  [bracket (][variable bar] [bracket [[][variable this][bracket ]]] [bracket [[][variable this] [variable x][bracket ]])]",
-        "  [bracket (][variable baz] [bracket [[][variable this][bracket ]]]",
+        "  [bracket (][builtin foo] [bracket [[][variable this][bracket ]])]",
+        "  [bracket (][builtin bar] [bracket [[][variable this][bracket ]]] [bracket [[][variable this] [variable x][bracket ]])]",
+        "  [bracket (][builtin baz] [bracket [[][variable this][bracket ]]]",
         "       [bracket [[][variable this] [variable y][bracket ]]))]"
     );
 
@@ -360,9 +443,9 @@
         "",
         "[bracket (][keyword defrecord] [variable Person] [bracket [[][variable first-name] [variable last-name] [variable address][bracket ]]]",
         "  [variable Protocol]",
-        "  [bracket (][variable foo] [bracket [[][variable this][bracket ]]] [variable first-name][bracket )]",
-        "  [bracket (][variable bar] [bracket [[][variable this][bracket ]]] [variable last-name][bracket )]",
-        "  [bracket (][variable baz] [bracket [[][variable this] [variable y][bracket ]]] [bracket (][keyword str] [variable first-name] [variable last-name][bracket )))]",
+        "  [bracket (][builtin foo] [bracket [[][variable this][bracket ]]] [variable first-name][bracket )]",
+        "  [bracket (][builtin bar] [bracket [[][variable this][bracket ]]] [variable last-name][bracket )]",
+        "  [bracket (][builtin baz] [bracket [[][variable this] [variable y][bracket ]]] [bracket (][keyword str] [variable first-name] [variable last-name][bracket )))]",
         "",
         "[bracket (][keyword defrecord] [variable Person] [bracket [[][variable first-name]",
         "                   [variable last-name]",
@@ -379,9 +462,9 @@
         "",
         "[bracket (][keyword deftype] [variable Person] [bracket [[][variable first-name] [variable last-name] [variable address][bracket ]]]",
         "  [variable Protocol]",
-        "  [bracket (][variable foo] [bracket [[][variable this][bracket ]]] [variable first-name][bracket )]",
-        "  [bracket (][variable bar] [bracket [[][variable this][bracket ]]] [variable last-name][bracket )]",
-        "  [bracket (][variable baz] [bracket [[][variable this] [variable y][bracket ]]] [bracket (][keyword str] [variable first-name] [variable last-name][bracket )))]",
+        "  [bracket (][builtin foo] [bracket [[][variable this][bracket ]]] [variable first-name][bracket )]",
+        "  [bracket (][builtin bar] [bracket [[][variable this][bracket ]]] [variable last-name][bracket )]",
+        "  [bracket (][builtin baz] [bracket [[][variable this] [variable y][bracket ]]] [bracket (][keyword str] [variable first-name] [variable last-name][bracket )))]",
         "",
         "[bracket (][keyword deftype] [variable Person] [bracket [[][variable first-name]",
         "                 [variable last-name]",
@@ -394,20 +477,20 @@
     );
 
     MT("should indent do",
-        "[bracket (][keyword do] [bracket (][variable foo][bracket )]",
-        "  [bracket (][variable bar][bracket ))]",
+        "[bracket (][keyword do] [bracket (][builtin foo][bracket )]",
+        "  [bracket (][builtin bar][bracket ))]",
         "",
         "[bracket (][keyword do]",
-        "  [bracket (][variable foo][bracket )]",
-        "  [bracket (][variable bar][bracket ))]"
+        "  [bracket (][builtin foo][bracket )]",
+        "  [bracket (][builtin bar][bracket ))]"
     );
 
     MT("should indent doto",
-        "[bracket (][keyword doto] [bracket (][keyword new] [variable java.util.HashMap][bracket )] [bracket (][variable .put] [string \"a\"] [number 1][bracket )] [bracket (][variable .put] [string \"b\"] [number 2][bracket ))]",
+        "[bracket (][keyword doto] [bracket (][keyword new] [variable java.util.HashMap][bracket )] [bracket (][builtin .put] [string \"a\"] [number 1][bracket )] [bracket (][builtin .put] [string \"b\"] [number 2][bracket ))]",
         "",
-        "[bracket (][keyword doto] [bracket (][variable java.util.HashMap.][bracket )]",
-        "  [bracket (][variable .put] [string \"a\"] [number 1][bracket )]",
-        "  [bracket (][variable .put] [string \"b\"] [number 2][bracket ))]"
+        "[bracket (][keyword doto] [bracket (][builtin java.util.HashMap.][bracket )]",
+        "  [bracket (][builtin .put] [string \"a\"] [number 1][bracket )]",
+        "  [bracket (][builtin .put] [string \"b\"] [number 2][bracket ))]"
     );
 
     MT("should indent extend",
@@ -415,7 +498,7 @@
         "  [variable FooProtocol]",
         "  [bracket {][atom :foo] [variable an-existing-fn]",
         "   [atom :bar] [bracket (][keyword fn] [bracket [[][variable a] [variable b][bracket ]]]",
-        "          [bracket (][variable f] [variable a] [variable b][bracket ))]",
+        "          [bracket (][builtin f] [variable a] [variable b][bracket ))]",
         "   [atom :baz] [bracket (][keyword fn] [bracket ([[][variable a][bracket ]]] [variable a][bracket )]",
         "          [bracket ([[][variable a] [variable b][bracket ]]] [bracket [[][variable a] [variable b][bracket ]]))})]"
     );
@@ -423,38 +506,38 @@
     MT("should indent extend-protocol",
         "[bracket (][keyword extend-protocol] [variable Protocol]",
         "  [variable FooType]",
-        "  [bracket (][variable foo] [bracket [[][variable x][bracket ]]] [bracket (][variable f] [variable x][bracket ))]",
-        "  [bracket (][variable bar] [bracket [[][variable x] [variable y][bracket ]]] [bracket (][variable g] [variable x] [variable y][bracket ))]"
+        "  [bracket (][builtin foo] [bracket [[][variable x][bracket ]]] [bracket (][builtin f] [variable x][bracket ))]",
+        "  [bracket (][builtin bar] [bracket [[][variable x] [variable y][bracket ]]] [bracket (][builtin g] [variable x] [variable y][bracket ))]"
     );
 
     MT("should indent extend-type",
         "[bracket (][keyword extend-type] [variable FooType]",
         "  [variable Countable]",
-        "  [bracket (][variable cnt] [bracket [][variable c][bracket ]]] [bracket (][keyword count] [variable c][bracket ))]",
+        "  [bracket (][builtin cnt] [bracket [][variable c][bracket ]]] [bracket (][keyword count] [variable c][bracket ))]",
         "  ",
         "  [variable Foo]",
-        "  [bracket (][variable bar] [bracket [[][variable x] [variable y][bracket ]]] [bracket (][variable f] [variable x] [variable y][bracket ))]",
-        "  [bracket (][variable baz] [bracket ([][variable x] [variable x][bracket ]])] [bracket ([[][variable x] [variable y] [variable &] [variable zs][bracket ]]] [bracket [[][variable x] [variable y] [bracket (][variable g] [variable zs][bracket )]])))]"
+        "  [bracket (][builtin bar] [bracket [[][variable x] [variable y][bracket ]]] [bracket (][builtin f] [variable x] [variable y][bracket ))]",
+        "  [bracket (][builtin baz] [bracket ([][variable x] [variable x][bracket ]])] [bracket ([[][variable x] [variable y] [variable &] [variable zs][bracket ]]] [bracket [[][variable x] [variable y] [bracket (][builtin g] [variable zs][bracket )]])))]"
     );
 
     MT("should indent fn",
         "[bracket (][keyword fn] [variable foo]",
         "  [bracket [[][variable x][bracket ]]]",
-        "  [bracket (][variable bar] [variable x][bracket ))]",
+        "  [bracket (][builtin bar] [variable x][bracket ))]",
         "",
         "[bracket (][keyword fn] [variable foo] [bracket [[][variable x][bracket ]]]",
-        "  [bracket (][variable bar] [variable x][bracket ))]"
+        "  [bracket (][builtin bar] [variable x][bracket ))]"
     );
 
     MT("should indent future",
-        "[bracket (][keyword future] [bracket (][variable Thread/sleep] [number 10000][bracket )] [bracket (][keyword println] [string \"done\"][bracket )] [number 100][bracket )]",
+        "[bracket (][keyword future] [bracket (][builtin Thread/sleep] [number 10000][bracket )] [bracket (][keyword println] [string \"done\"][bracket )] [number 100][bracket )]",
         "",
-        "[bracket (][keyword future] [bracket (][variable Thread/sleep] [number 10000][bracket )]",
+        "[bracket (][keyword future] [bracket (][builtin Thread/sleep] [number 10000][bracket )]",
         "  [bracket (][keyword println] [string \"done\"][bracket )]",
         "  [number 100][bracket )]",
         "",
         "[bracket (][keyword future]",
-        "  [bracket (][variable Thread/sleep] [number 10000][bracket )]",
+        "  [bracket (][builtin Thread/sleep] [number 10000][bracket )]",
         "  [bracket (][keyword println] [string \"done\"][bracket )]",
         "  [number 100][bracket )]"
     );
@@ -486,10 +569,10 @@
     );
 
     MT("should indent locking",
-        "[bracket (][keyword locking] [variable foo] [bracket (][variable Thread/sleep] [number 1000][bracket )] [bracket (][keyword println] [string \"done\"][bracket ))]",
+        "[bracket (][keyword locking] [variable foo] [bracket (][builtin Thread/sleep] [number 1000][bracket )] [bracket (][keyword println] [string \"done\"][bracket ))]",
         "",
         "[bracket (][keyword locking] [variable foo]",
-        "  [bracket (][variable Thread/sleep] [number 1000][bracket )]",
+        "  [bracket (][builtin Thread/sleep] [number 1000][bracket )]",
         "  [bracket (][keyword println] [string \"done\"][bracket ))]"
     );
 
@@ -498,31 +581,31 @@
         "  [bracket (][atom :refer-clojure] [atom :exclude] [bracket [][keyword ancestors] [keyword printf][bracket ]])]",
         "  [bracket (][atom :require] [bracket [][variable clojure.contrib] [variable sql] [variable combinatorics][bracket ]])]",
         "  [bracket (][atom :use] [bracket [][variable my.lib] [variable this] [variable that][bracket ]])]",
-        "  [bracket (][atom :import] [bracket (][variable java.util] [variable Date] [variable Timer] [variable Random][bracket )]",
-        "           [bracket (][variable java.sql] [variable Connection] [variable Statement][bracket )))]"
+        "  [bracket (][atom :import] [bracket (][builtin java.util] [variable Date] [variable Timer] [variable Random][bracket )]",
+        "           [bracket (][builtin java.sql] [variable Connection] [variable Statement][bracket )))]"
     );
 
     MT("should indent proxy",
         "[bracket (][keyword proxy] [bracket [][variable MouseAdapter][bracket ]]] [bracket [[]]]",
-        "  [bracket (][variable mousePressed] [bracket [][variable event][bracket ]]]",
+        "  [bracket (][builtin mousePressed] [bracket [][variable event][bracket ]]]",
         "                [bracket (][keyword apply] [variable f] [variable event] [variable args][bracket )))]"
     );
 
     MT("should indent reify",
         "[bracket (][keyword reify] [variable Foo]",
-        "  [bracket (][variable foo] [bracket [[][variable _] [variable x][bracket ]]] [variable x][bracket )]",
-        "  [bracket (][variable foo] [bracket [[][variable _] [variable x] [variable y][bracket ]]] [variable y][bracket ))]"
+        "  [bracket (][builtin foo] [bracket [[][variable _] [variable x][bracket ]]] [variable x][bracket )]",
+        "  [bracket (][builtin foo] [bracket [[][variable _] [variable x] [variable y][bracket ]]] [variable y][bracket ))]"
     );
 
     MT("should indent try",
         "[bracket (][keyword try]",
         "  [bracket (][keyword /] [number 1] [number 0][bracket )]",
-        "  [bracket (][keyword catch] [variable Exception] [variable e] [bracket (][keyword str] [string \"caught exception: \"] [bracket (][variable .getMessage] [variable e][bracket ))))]"
+        "  [bracket (][keyword catch] [variable Exception] [variable e] [bracket (][keyword str] [string \"caught exception: \"] [bracket (][builtin .getMessage] [variable e][bracket ))))]"
     );
 
     MT("should indent with-open",
-        "[bracket (][keyword with-open] [bracket [[][variable out-data] [bracket (][variable io/writer] [variable out-file][bracket )]]]",
-        "  [bracket (][variable csv/write-csv] [variable out-data] [variable out-sos][bracket )))]"
+        "[bracket (][keyword with-open] [bracket [[][variable out-data] [bracket (][builtin io/writer] [variable out-file][bracket )]]]",
+        "  [bracket (][builtin csv/write-csv] [variable out-data] [variable out-sos][bracket )))]"
     );
 
     MT("should indent with-precision",
@@ -568,12 +651,6 @@
     );
 
     function typeTokenPairs(type, tokens) {
-        var pairs = "";
-
-        for (var i = 0; i < tokens.length; i++) {
-            pairs = pairs + "[" + type + " " + tokens[i] + "] ";
-        }
-
-        return pairs;
+        return "[" + type + " " + tokens.join("] [" + type + " ") + "]";
     }
 })();
