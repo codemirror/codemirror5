@@ -80,20 +80,20 @@
         // "[bracket (][comment comment] [comment (][comment foo] [comment 1] [comment 2] [comment 3][comment )][bracket )]"
     );
 
-    MT("quotes",
-        "[atom '][number 1]",
-        "[atom ':foo]",
-        "[atom '][string \"foo\"]",
-        "[atom '][variable x]",
-        "[atom '][bracket (][builtin a] [variable b] [variable c][bracket )]",
-        "[atom '][bracket [[][variable a] [variable b] [variable c][bracket ]]]",
-        "[atom '][bracket {][variable a] [number 1] [atom :foo] [number 2] [variable c] [number 3][bracket }]",
-        "[atom '][meta #][bracket {][variable a] [number 1] [atom :foo][bracket }]"
-    );
-
-    MT("# and ^",
-        "[meta #]",
-        "[meta ^]"
+    MT("reader macro characters",
+        "[meta #][variable _]",
+        "[meta @][variable x]",
+        "[meta ^][bracket {][atom :tag] [variable String][bracket }]",
+        "[meta `][bracket (][builtin f] [variable x][bracket )]",
+        "[meta ~][variable foo#]",
+        "[meta '][number 1]",
+        "[meta '][atom :foo]",
+        "[meta '][string \"foo\"]",
+        "[meta '][variable x]",
+        "[meta '][bracket (][builtin a] [variable b] [variable c][bracket )]",
+        "[meta '][bracket [[][variable a] [variable b] [variable c][bracket ]]]",
+        "[meta '][bracket {][variable a] [number 1] [atom :foo] [number 2] [variable c] [number 3][bracket }]",
+        "[meta '#][bracket {][variable a] [number 1] [atom :foo][bracket }]"
     );
 
     var specialForms = [".", "catch", "def", "do", "if", "monitor-enter",
@@ -347,7 +347,7 @@
         "[bracket (][keyword defmacro] [variable foo]",
         "  [string \"here is an indented doc-string.\"]",
         "  [bracket [[][variable x] [variable y][bracket ]]]",
-        "  [atom `][bracket (][keyword println] [atom ~][variable x] [atom ~@][variable y][bracket ))]"
+        "  [meta `][bracket (][keyword println] [meta ~][variable x#] [meta ~@][variable y][bracket ))]"
     );
 
     MT("should indent defmethod",

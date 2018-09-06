@@ -152,10 +152,10 @@ CodeMirror.defineMode("clojure", function (options) {
   var atom = createLookupMap(commonAtoms);
   var specialForm = createLookupMap(commonSpecialForms);
   var coreSymbol = createLookupMap(commonCoreSymbols);
-  var indentSymbol = createLookupMap(commonIndentSymbols);;
+  var indentSymbol = createLookupMap(commonIndentSymbols);
   var assumeBody = /^(?:def|with)[^\/]+$|\/(?:def|with)/;
   var numberLiteral = /^[+\-]?\d+(?:(?:N|(?:[eE][+\-]?\d+))|(?:\.?\d*(?:M|(?:[eE][+\-]?\d+))?)|\/\d+|[xX][0-9a-fA-F]+|r[0-9a-zA-Z]+)?/;
-  var symbol = /[\w*+!\-._?:<>\/'\xa1-\uffff]/;
+  var symbol = /[!#'*+\-.\/:<>?_\w\xa1-\uffff]/;
 
   var tokenType;
 
@@ -170,8 +170,7 @@ CodeMirror.defineMode("clojure", function (options) {
     if (ch === "(" || ch === "[" || ch === "{") {tokenType = "open"; return "bracket";}
     if (ch === ")" || ch === "]" || ch === "}") {tokenType = "close"; return "bracket";}
     if (ch === ";") {stream.skipToEnd(); tokenType = "space"; return "comment";}
-    if (/['`~@]/.test(ch)) return "atom";
-    if (/[#^]/.test(ch)) return "meta"
+    if (/[#'@^`~]/.test(ch)) return "meta";
 
     var name = readSymbol(stream);
     tokenType = "symbol";
@@ -179,7 +178,7 @@ CodeMirror.defineMode("clojure", function (options) {
     if (atom.propertyIsEnumerable(name) || name.charAt(0) === ":") return "atom";
     if (specialForm.propertyIsEnumerable(name) ||
       coreSymbol.propertyIsEnumerable(name)) return "keyword";
-    if (state.lastToken === "(") return "builtin";
+    if (state.lastToken === "(") return "builtin";  // head symbol
 
     return "variable";
   }
@@ -230,7 +229,7 @@ CodeMirror.defineMode("clojure", function (options) {
       tokenType = null;
       var style = state.tokenize(stream, state);
 
-      if (tokenType != "space") {
+      if (tokenType !== "space") {
         if (state.lastToken === "(" && state.ctx.indentTo === null) {
           if (tokenType === "symbol" &&
               (indentSymbol.propertyIsEnumerable(stream.current()) ||
@@ -251,7 +250,7 @@ CodeMirror.defineMode("clojure", function (options) {
       return style;
     },
 
-    indent: function (state, _textAfter) {
+    indent: function (state) {
       var i = state.ctx.indentTo;
 
       return (typeof i === "number") ?
