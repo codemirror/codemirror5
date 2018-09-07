@@ -573,7 +573,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
         return state.tokenize(stream, state)
       }
     },
-    modeProps: {closeBrackets: {triples: '"'}}
+    modeProps: {closeBrackets: {pairs: '()[]{}""', triples: '"'}}
   });
 
   function tokenKotlinString(tripleString){
