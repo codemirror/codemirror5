@@ -137,14 +137,9 @@ CodeMirror.defineMode("clojure", function (options) {
       "with-local-vars", "with-meta", "with-open", "with-out-str",
       "with-precision", "with-redefs", "with-redefs-fn", "xml-seq", "zero?",
       "zipmap"];
-  var commonIndentSymbols = [
-      "assoc", "binding", "bound-fn", "case", "catch", "comment", "cond",
-      "condp", "def", "defmethod", "defn", "defprotocol", "defrecord",
-      "defstruct", "deftype", "do", "doseq", "dotimes", "doto", "extend",
-      "extend-protocol", "extend-type", "fn", "for", "future", "if", "if-let",
-      "if-not", "let", "letfn", "locking", "loop", "ns", "proxy", "reify",
-      "struct-map", "try", "when", "when-first", "when-let", "when-not",
-      "when-some", "while", "with-open", "with-precision"];
+  var commonIndentCoreSymbols = [
+      "assoc", "binding", "bound-fn", "case", "catch", "comment", "fn", "for",
+      "future", "locking", "loop", "ns", "proxy", "reify", "struct-map", "try"];
 
   CodeMirror.registerHelper("hintWords", "clojure",
       commonAtoms.concat(commonSpecialForms, commonCoreSymbols));
@@ -152,8 +147,8 @@ CodeMirror.defineMode("clojure", function (options) {
   var atom = createLookupMap(commonAtoms);
   var specialForm = createLookupMap(commonSpecialForms);
   var coreSymbol = createLookupMap(commonCoreSymbols);
-  var indentSymbol = createLookupMap(commonIndentSymbols);
-  var assumeBody = /^(?:def|with)[^\/]+$|\/(?:def|with)/;
+  var indentCoreSymbols = createLookupMap(commonIndentCoreSymbols);
+  var assumeBody = /^cond|^def|^do|^extend|^if|^let|^when|^while|^with|\/(?:def|with)/;
   var numberLiteral = /^[+\-]?\d+(?:(?:N|(?:[eE][+\-]?\d+))|(?:\.?\d*(?:M|(?:[eE][+\-]?\d+))?)|\/\d+|[xX][0-9a-fA-F]+|r[0-9a-zA-Z]+)?/;
   var symbol = /[!#'*+\-.\/:<>?_\w\xa1-\uffff]/;
 
@@ -219,7 +214,7 @@ CodeMirror.defineMode("clojure", function (options) {
 
     while (ch = stream.next()) {
       if (is(ch, "\\")) stream.next();
-      else if (!symbol.test(ch)) {stream.backUp(1); break;}
+      else if (!is(ch, symbol)) {stream.backUp(1); break;}
     }
 
     return stream.current();
@@ -257,8 +252,9 @@ CodeMirror.defineMode("clojure", function (options) {
 
       if (!is(tokenType, "space")) {
         if (is(state.lastToken, "(") && is(state.ctx.indentTo, null)) {
-          if (is(tokenType, "symbol") && (is(stream.current(), indentSymbol) ||
-              is(stream.current(), assumeBody)))
+          if (is(tokenType, "symbol") &&
+            (is(stream.current(), indentCoreSymbols) ||
+             is(stream.current(), assumeBody)))
             state.ctx.indentTo = state.ctx.start + options.indentUnit;
           else state.ctx.indentTo = "next";
         } else if (is(state.ctx.indentTo, "next")) {
