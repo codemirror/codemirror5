@@ -165,20 +165,19 @@ CodeMirror.defineMode("clojure", function (options) {
 
     var ch = stream.next();
 
-    if (ch === "\\") {stream.next(); readSymbol(stream); return "string-2";}
-    if (ch === '"') return (state.tokenize = inString)(stream, state);
-    if (/[(\[{]/.test(ch)) {tokenType = "open"; return "bracket";}
-    if (/[)\]}]/.test(ch)) {tokenType = "close"; return "bracket";}
-    if (ch === ";") {stream.skipToEnd(); tokenType = "space"; return "comment";}
-    if (/[#'@^`~]/.test(ch)) return "meta";
+    if (is(ch, "\\")) {stream.next(); readSymbol(stream); return "string-2";}
+    if (is(ch, '"')) return (state.tokenize = inString)(stream, state);
+    if (is(ch, /[(\[{]/)) {tokenType = "open"; return "bracket";}
+    if (is(ch, /[)\]}]/)) {tokenType = "close"; return "bracket";}
+    if (is(ch, ";")) {stream.skipToEnd(); tokenType = "space"; return "comment";}
+    if (is(ch, /[#'@^`~]/)) return "meta";
 
     var name = readSymbol(stream);
     tokenType = "symbol";
 
-    if (atom.propertyIsEnumerable(name) || name.charAt(0) === ":") return "atom";
-    if (specialForm.propertyIsEnumerable(name) ||
-      coreSymbol.propertyIsEnumerable(name)) return "keyword";
-    if (state.lastToken === "(") return "builtin";  // head symbol
+    if (is(name, atom) || is(name.charAt(0), ":")) return "atom";
+    if (is(name, specialForm) || is(name, coreSymbol)) return "keyword";
+    if (is(state.lastToken, "(")) return "builtin";  // other head symbol
 
     return "variable";
   }
@@ -187,8 +186,8 @@ CodeMirror.defineMode("clojure", function (options) {
     var escaped = false, next;
 
     while (next = stream.next()) {
-      if (next === '"' && !escaped) { state.tokenize = base; break; }
-      escaped = !escaped && next === "\\";
+      if (is(next, '"') && !escaped) {state.tokenize = base; break;}
+      escaped = !escaped && is(next, "\\");
     }
 
     return "string";
@@ -198,7 +197,7 @@ CodeMirror.defineMode("clojure", function (options) {
     var ch;
 
     while (ch = stream.next()) {
-      if (ch === "\\") stream.next();
+      if (is(ch, "\\")) stream.next();
       else if (!symbol.test(ch)) {stream.backUp(1); break;}
     }
 
@@ -211,6 +210,12 @@ CodeMirror.defineMode("clojure", function (options) {
     for (var i = 0; i < words.length; ++i) obj[words[i]] = true;
 
     return obj;
+  }
+
+  function is(name, test) {
+    if (test instanceof RegExp) return test.test(name);
+    if (test instanceof Object) return test.propertyIsEnumerable(name);
+    return name === test;
   }
 
   return {
@@ -229,23 +234,22 @@ CodeMirror.defineMode("clojure", function (options) {
       tokenType = null;
       var style = state.tokenize(stream, state);
 
-      if (tokenType !== "space") {
-        if (state.lastToken === "(" && state.ctx.indentTo === null) {
-          if (tokenType === "symbol" &&
-              (indentSymbol.propertyIsEnumerable(stream.current()) ||
-               assumeBody.test(stream.current())))
+      if (!is(tokenType, "space")) {
+        if (is(state.lastToken, "(") && is(state.ctx.indentTo, null)) {
+          if (is(tokenType, "symbol") && (is(stream.current(), indentSymbol) ||
+              is(stream.current(), assumeBody)))
             state.ctx.indentTo = state.ctx.start + options.indentUnit;
           else state.ctx.indentTo = "next";
-        } else if (state.ctx.indentTo === "next") {
+        } else if (is(state.ctx.indentTo, "next")) {
           state.ctx.indentTo = stream.column();
         }
 
         state.lastToken = stream.current();
       }
 
-      if (tokenType === "open")
+      if (is(tokenType, "open"))
         state.ctx = {prev: state.ctx, start: stream.column(), indentTo: null};
-      else if (tokenType === "close") state.ctx = state.ctx.prev || state.ctx;
+      else if (is(tokenType, "close")) state.ctx = state.ctx.prev || state.ctx;
 
       return style;
     },
@@ -253,7 +257,7 @@ CodeMirror.defineMode("clojure", function (options) {
     indent: function (state) {
       var i = state.ctx.indentTo;
 
-      return (typeof i === "number") ?
+      return (is(typeof i, "number")) ?
         i :
         state.ctx.start + 1;
     },
