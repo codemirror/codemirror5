@@ -175,6 +175,8 @@ CodeMirror.defineMode("clojure", function (options) {
     var name = readSymbol(stream);
     tokenType = "symbol";
 
+    if (is(name, "comment") && is(state.lastToken, "("))
+      return (state.tokenize = inComment)(stream, state);
     if (is(name, atom) || is(name.charAt(0), ":")) return "atom";
     if (is(name, specialForm) || is(name, coreSymbol)) return "keyword";
     if (is(state.lastToken, "(")) return "builtin";  // other head symbol
@@ -191,6 +193,25 @@ CodeMirror.defineMode("clojure", function (options) {
     }
 
     return "string";
+  }
+
+  function inComment(stream, state) {
+    var parenthesisCount = 1;
+    var next;
+
+    while (next = stream.next()) {
+      if (is(next, ")")) parenthesisCount--;
+      if (is(next, "(")) parenthesisCount++;
+      if (is(parenthesisCount, 0)) {
+        stream.backUp(1);
+        state.tokenize = base;
+        break;
+      }
+    }
+
+    tokenType = "ws";
+
+    return "comment";
   }
 
   function readSymbol(stream) {

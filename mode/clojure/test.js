@@ -75,9 +75,9 @@
 
     MT("comments",
         "[comment ; this is an in-line comment.]",
-        "[comment ;; this is a line comment.]"
-        // FIXME
-        // "[bracket (][comment comment] [comment (][comment foo] [comment 1] [comment 2] [comment 3][comment )][bracket )]"
+        "[comment ;; this is a line comment.]",
+        "[keyword comment]",
+        "[bracket (][comment comment (foo 1 2 3)][bracket )]"
     );
 
     MT("reader macro characters",
@@ -309,8 +309,8 @@
     );
 
     MT("should indent comment",
-        "[bracket (][keyword comment] [bracket (][builtin foo][bracket )]",
-        "  [bracket (][builtin bar] [number 1] [number 2] [number 3][bracket ))]"
+        "[bracket (][comment comment (foo)]",
+        "[comment  (bar 1 2 3)][bracket )]"
     );
 
     MT("should indent cond",
