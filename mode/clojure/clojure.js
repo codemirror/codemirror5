@@ -165,21 +165,21 @@ CodeMirror.defineMode("clojure", function (options) {
 
     var ch = stream.next();
 
-    if (is(ch, "\\")) {stream.next(); readSymbol(stream); return "string-2";}
-    if (is(ch, '"')) return (state.tokenize = inString)(stream, state);
+    if (ch === "\\") {stream.next(); readSymbol(stream); return "string-2";}
+    if (ch === '"') return (state.tokenize = inString)(stream, state);
     if (is(ch, /[(\[{]/)) {tokenType = "open"; return "bracket";}
     if (is(ch, /[)\]}]/)) {tokenType = "close"; return "bracket";}
-    if (is(ch, ";")) {stream.skipToEnd(); tokenType = "space"; return "comment";}
+    if (ch === ";") {stream.skipToEnd(); tokenType = "space"; return "comment";}
     if (is(ch, /[#'@^`~]/)) return "meta";
 
     var name = readSymbol(stream);
     tokenType = "symbol";
 
-    if (is(name, "comment") && is(state.lastToken, "("))
+    if (name === "comment" && state.lastToken === "(")
       return (state.tokenize = inComment)(stream, state);
-    if (is(name, atom) || is(name.charAt(0), ":")) return "atom";
+    if (is(name, atom) || name.charAt(0) === ":") return "atom";
     if (is(name, specialForm) || is(name, coreSymbol)) return "keyword";
-    if (is(state.lastToken, "(")) return "builtin";  // other head symbol
+    if (state.lastToken === "(") return "builtin";  // other head symbol
 
     return "variable";
   }
@@ -188,8 +188,8 @@ CodeMirror.defineMode("clojure", function (options) {
     var escaped = false, next;
 
     while (next = stream.next()) {
-      if (is(next, '"') && !escaped) {state.tokenize = base; break;}
-      escaped = !escaped && is(next, "\\");
+      if (next === '"' && !escaped) {state.tokenize = base; break;}
+      escaped = !escaped && next === "\\";
     }
 
     return "string";
@@ -200,9 +200,9 @@ CodeMirror.defineMode("clojure", function (options) {
     var next;
 
     while (next = stream.next()) {
-      if (is(next, ")")) parenthesisCount--;
-      if (is(next, "(")) parenthesisCount++;
-      if (is(parenthesisCount, 0)) {
+      if (next === ")") parenthesisCount--;
+      if (next === "(") parenthesisCount++;
+      if (parenthesisCount === 0) {
         stream.backUp(1);
         state.tokenize = base;
         break;
@@ -218,8 +218,8 @@ CodeMirror.defineMode("clojure", function (options) {
     var ch;
 
     while (ch = stream.next()) {
-      if (is(ch, "\\")) stream.next();
-      else if (!symbol.test(ch)) {stream.backUp(1); break;}
+      if (ch === "\\") stream.next();
+      else if (!is(ch, symbol)) {stream.backUp(1); break;}
     }
 
     return stream.current();
@@ -233,10 +233,9 @@ CodeMirror.defineMode("clojure", function (options) {
     return obj;
   }
 
-  function is(name, test) {
-    if (test instanceof RegExp) return test.test(name);
-    if (test instanceof Object) return test.propertyIsEnumerable(name);
-    return name === test;
+  function is(value, test) {
+    if (test instanceof RegExp) return test.test(value);
+    if (test instanceof Object) return test.propertyIsEnumerable(value);
   }
 
   return {
@@ -254,23 +253,24 @@ CodeMirror.defineMode("clojure", function (options) {
 
       tokenType = null;
       var style = state.tokenize(stream, state);
+      var currentToken = stream.current();
 
-      if (!is(tokenType, "space")) {
-        if (is(state.lastToken, "(") && is(state.ctx.indentTo, null)) {
-          if (is(tokenType, "symbol") && (is(stream.current(), indentSymbol) ||
-              is(stream.current(), assumeBody)))
+      if (tokenType !== "space") {
+        if (state.lastToken === "(" && state.ctx.indentTo === null) {
+          if (tokenType === "symbol" && (is(currentToken, indentSymbol) ||
+              is(currentToken, assumeBody)))
             state.ctx.indentTo = state.ctx.start + options.indentUnit;
           else state.ctx.indentTo = "next";
-        } else if (is(state.ctx.indentTo, "next")) {
+        } else if (state.ctx.indentTo === "next") {
           state.ctx.indentTo = stream.column();
         }
 
-        state.lastToken = stream.current();
+        state.lastToken = currentToken;
       }
 
-      if (is(tokenType, "open"))
+      if (tokenType === "open")
         state.ctx = {prev: state.ctx, start: stream.column(), indentTo: null};
-      else if (is(tokenType, "close")) state.ctx = state.ctx.prev || state.ctx;
+      else if (tokenType === "close") state.ctx = state.ctx.prev || state.ctx;
 
       return style;
     },
@@ -278,7 +278,7 @@ CodeMirror.defineMode("clojure", function (options) {
     indent: function (state) {
       var i = state.ctx.indentTo;
 
-      return (is(typeof i, "number")) ?
+      return (typeof i === "number") ?
         i :
         state.ctx.start + 1;
     },
