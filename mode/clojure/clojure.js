@@ -137,7 +137,7 @@ CodeMirror.defineMode("clojure", function (options) {
       "with-local-vars", "with-meta", "with-open", "with-out-str",
       "with-precision", "with-redefs", "with-redefs-fn", "xml-seq", "zero?",
       "zipmap"];
-  var formsThatHaveBodyParameter = [
+  var haveBodyParameter = [
       "binding", "bound-fn", "case", "catch", "comment", "cond", "cond->",
       "cond->>", "condp", "def", "definterface", "defmethod", "defn",
       "defmacro", "defprotocol", "defrecord", "defstruct", "deftype", "do",
@@ -153,9 +153,9 @@ CodeMirror.defineMode("clojure", function (options) {
   var atom = createLookupMap(atoms);
   var specialForm = createLookupMap(specialForms);
   var coreSymbol = createLookupMap(coreSymbols);
-  var hasBodyParameter = createLookupMap(formsThatHaveBodyParameter);
+  var hasBodyParameter = createLookupMap(haveBodyParameter);
   var numberLiteral = /^[+\-]?\d+(?:(?:N|(?:[eE][+\-]?\d+))|(?:\.?\d*(?:M|(?:[eE][+\-]?\d+))?)|\/\d+|[xX][0-9a-fA-F]+|r[0-9a-zA-Z]+)?/;
-  var symbol = /[!#'*+\-.\/:<>?_\w\xa1-\uffff]/;
+  var symbolCharacter = /[!#'*+\-.\/:<>?_\w\xa1-\uffff]/;
 
   function base(stream, state) {
     if (stream.eatSpace()) return ["space", null];
@@ -170,12 +170,12 @@ CodeMirror.defineMode("clojure", function (options) {
     if (ch === ";") {stream.skipToEnd(); return ["space", "comment"];}
     if (is(ch, /[#'@^`~]/)) return [null, "meta"];
 
-    var name = readSymbol(stream);
+    var symbol = readSymbol(stream);
 
-    if (name === "comment" && state.lastToken === "(")
+    if (symbol === "comment" && state.lastToken === "(")
       return (state.tokenize = inComment)(stream, state);
-    if (is(name, atom) || name.charAt(0) === ":") return ["symbol", "atom"];
-    if (is(name, specialForm) || is(name, coreSymbol)) return ["symbol", "keyword"];
+    if (is(symbol, atom) || symbol.charAt(0) === ":") return ["symbol", "atom"];
+    if (is(symbol, specialForm) || is(symbol, coreSymbol)) return ["symbol", "keyword"];
     if (state.lastToken === "(") return ["symbol", "builtin"]; // other operator
 
     return ["symbol", "variable"];
@@ -214,7 +214,7 @@ CodeMirror.defineMode("clojure", function (options) {
 
     while (ch = stream.next()) {
       if (ch === "\\") stream.next();
-      else if (!is(ch, symbol)) {stream.backUp(1); break;}
+      else if (!is(ch, symbolCharacter)) {stream.backUp(1); break;}
     }
 
     return stream.current();
