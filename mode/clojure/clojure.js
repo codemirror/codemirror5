@@ -138,14 +138,16 @@ CodeMirror.defineMode("clojure", function (options) {
       "with-precision", "with-redefs", "with-redefs-fn", "xml-seq", "zero?",
       "zipmap"];
   var haveBodyParameter = [
-      "binding", "bound-fn", "case", "catch", "comment", "cond", "cond->",
-      "cond->>", "condp", "def", "definterface", "defmethod", "defn",
-      "defmacro", "defprotocol", "defrecord", "defstruct", "deftype", "do",
-      "doseq", "dotimes", "doto", "extend", "extend-protocol", "extend-type",
-      "fn", "for", "future", "if", "if-let", "if-not", "if-some", "let",
-      "letfn", "locking", "loop", "ns", "proxy", "reify", "struct-map", "try",
-      "when", "when-first", "when-let", "when-not", "when-some", "while",
-      "with-open", "with-precision"];
+      "->", "->>", "as->", "binding", "bound-fn", "case", "catch", "comment",
+      "cond", "cond->", "cond->>", "condp", "def", "definterface", "defmethod",
+      "defn", "defmacro", "defprotocol", "defrecord", "defstruct", "deftype",
+      "do", "doseq", "dotimes", "doto", "extend", "extend-protocol",
+      "extend-type", "fn", "for", "future", "if", "if-let", "if-not", "if-some",
+      "let", "letfn", "locking", "loop", "ns", "proxy", "reify", "struct-map",
+      "some->", "some->>", "try", "when", "when-first", "when-let", "when-not",
+      "when-some", "while", "with-bindings", "with-bindings*", "with-in-str",
+      "with-loading-context", "with-local-vars", "with-meta", "with-open",
+      "with-out-str", "with-precision", "with-redefs", "with-redefs-fn"];
 
   CodeMirror.registerHelper("hintWords", "clojure",
     [].concat(atoms, specialForms, coreSymbols));
