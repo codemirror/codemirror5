@@ -277,14 +277,16 @@
     );
 
     var haveBodyParameter = [
-        "binding", "bound-fn", "case", "catch", "cond", "cond->",
-        "cond->>", "condp", "def", "definterface", "defmethod", "defn",
+        "->", "->>", "as->", "binding", "bound-fn", "case", "catch", "cond",
+        "cond->", "cond->>", "condp", "def", "definterface", "defmethod", "defn",
         "defmacro", "defprotocol", "defrecord", "defstruct", "deftype", "do",
         "doseq", "dotimes", "doto", "extend", "extend-protocol", "extend-type",
         "fn", "for", "future", "if", "if-let", "if-not", "if-some", "let",
-        "letfn", "locking", "loop", "ns", "proxy", "reify", "struct-map", "try",
-        "when", "when-first", "when-let", "when-not", "when-some", "while",
-        "with-open", "with-precision"];
+        "letfn", "locking", "loop", "ns", "proxy", "reify", "some->", "some->>",
+        "struct-map", "try", "when", "when-first", "when-let", "when-not",
+        "when-some", "while", "with-bindings", "with-bindings*", "with-in-str",
+        "with-loading-context", "with-local-vars", "with-meta", "with-open",
+        "with-out-str", "with-precision", "with-redefs", "with-redefs-fn"];
 
     function testFormsThatHaveBodyParameter(forms) {
         for (var i = 0; i < forms.length; i++) {
