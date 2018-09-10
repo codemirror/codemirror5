@@ -276,7 +276,7 @@
         "  [atom nil][bracket }]"
     );
 
-    var formsThatHaveBodyParameter = [
+    var haveBodyParameter = [
         "binding", "bound-fn", "case", "catch", "cond", "cond->",
         "cond->>", "condp", "def", "definterface", "defmethod", "defn",
         "defmacro", "defprotocol", "defrecord", "defstruct", "deftype", "do",
@@ -296,7 +296,7 @@
         }
     }
 
-    testFormsThatHaveBodyParameter(formsThatHaveBodyParameter);
+    testFormsThatHaveBodyParameter(haveBodyParameter);
 
     MT("should indent body argument of `comment` by `options.indentUnit` spaces",
         "[bracket (][comment comment foo bar]",
