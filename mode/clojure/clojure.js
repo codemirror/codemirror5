@@ -12,10 +12,10 @@
 "use strict";
 
 CodeMirror.defineMode("clojure", function (options) {
-  var commonAtoms = ["false", "nil", "true"];
-  var commonSpecialForms = [".", "catch", "def", "do", "if", "monitor-enter",
+  var atoms = ["false", "nil", "true"];
+  var specialForms = [".", "catch", "def", "do", "if", "monitor-enter",
       "monitor-exit", "new", "quote", "recur", "set!", "throw", "try", "var"];
-  var commonCoreSymbols = ["*", "*'", "*1", "*2", "*3", "*agent*",
+  var coreSymbols = ["*", "*'", "*1", "*2", "*3", "*agent*",
       "*allow-unresolved-vars*", "*assert*", "*clojure-version*",
       "*command-line-args*", "*compile-files*", "*compile-path*",
       "*compiler-options*", "*data-readers*", "*default-data-reader-fn*", "*e",
@@ -137,23 +137,22 @@ CodeMirror.defineMode("clojure", function (options) {
       "with-local-vars", "with-meta", "with-open", "with-out-str",
       "with-precision", "with-redefs", "with-redefs-fn", "xml-seq", "zero?",
       "zipmap"];
-  var commonIndentSymbols = [
+  var formsThatHaveBodyParameter = [
       "assoc", "binding", "bound-fn", "case", "catch", "comment", "cond",
-      "condp", "def", "defmethod", "defn", "defprotocol", "defrecord",
-      "defstruct", "deftype", "do", "doseq", "dotimes", "doto", "extend",
-      "extend-protocol", "extend-type", "fn", "for", "future", "if", "if-let",
-      "if-not", "let", "letfn", "locking", "loop", "ns", "proxy", "reify",
-      "struct-map", "try", "when", "when-first", "when-let", "when-not",
-      "when-some", "while", "with-open", "with-precision"];
+      "condp", "def", "defmethod", "defn", "defmacro", "defprotocol",
+      "defrecord", "defstruct", "deftype", "do", "doseq", "dotimes", "doto",
+      "extend", "extend-protocol", "extend-type", "fn", "for", "future", "if",
+      "if-let", "if-not", "let", "letfn", "locking", "loop", "ns", "proxy",
+      "reify", "struct-map", "try", "when", "when-first", "when-let",
+      "when-not", "when-some", "while", "with-open", "with-precision"];
 
   CodeMirror.registerHelper("hintWords", "clojure",
-      commonAtoms.concat(commonSpecialForms, commonCoreSymbols));
+    [].concat(atoms, specialForms, coreSymbols));
 
-  var atom = createLookupMap(commonAtoms);
-  var specialForm = createLookupMap(commonSpecialForms);
-  var coreSymbol = createLookupMap(commonCoreSymbols);
-  var indentSymbol = createLookupMap(commonIndentSymbols);
-  var assumeBody = /^(?:def|with)[^\/]+$|\/(?:def|with)/;
+  var atom = createLookupMap(atoms);
+  var specialForm = createLookupMap(specialForms);
+  var coreSymbol = createLookupMap(coreSymbols);
+  var hasBodyParameter = createLookupMap(formsThatHaveBodyParameter);
   var numberLiteral = /^[+\-]?\d+(?:(?:N|(?:[eE][+\-]?\d+))|(?:\.?\d*(?:M|(?:[eE][+\-]?\d+))?)|\/\d+|[xX][0-9a-fA-F]+|r[0-9a-zA-Z]+)?/;
   var symbol = /[!#'*+\-.\/:<>?_\w\xa1-\uffff]/;
 
@@ -253,8 +252,7 @@ CodeMirror.defineMode("clojure", function (options) {
 
       if (type !== "space") {
         if (state.lastToken === "(" && state.ctx.indentTo === null) {
-          if (type === "symbol" &&
-            (is(current, indentSymbol) || is(current, assumeBody)))
+          if (type === "symbol" && is(current, hasBodyParameter))
             state.ctx.indentTo = state.ctx.start + options.indentUnit;
           else state.ctx.indentTo = "next";
         } else if (state.ctx.indentTo === "next") {
