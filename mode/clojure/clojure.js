@@ -157,31 +157,28 @@ CodeMirror.defineMode("clojure", function (options) {
   var numberLiteral = /^[+\-]?\d+(?:(?:N|(?:[eE][+\-]?\d+))|(?:\.?\d*(?:M|(?:[eE][+\-]?\d+))?)|\/\d+|[xX][0-9a-fA-F]+|r[0-9a-zA-Z]+)?/;
   var symbol = /[!#'*+\-.\/:<>?_\w\xa1-\uffff]/;
 
-  var tokenType;
-
   function base(stream, state) {
-    if (stream.eatSpace()) {tokenType = "space"; return null;}
-    if (stream.match(numberLiteral)) return "number";
+    if (stream.eatSpace()) return ["space", null];
+    if (stream.match(numberLiteral)) return [null, "number"];
 
     var ch = stream.next();
 
-    if (ch === "\\") {stream.next(); readSymbol(stream); return "string-2";}
+    if (ch === "\\") {stream.next(); readSymbol(stream); return [null, "string-2"];}
     if (ch === '"') return (state.tokenize = inString)(stream, state);
-    if (is(ch, /[(\[{]/)) {tokenType = "open"; return "bracket";}
-    if (is(ch, /[)\]}]/)) {tokenType = "close"; return "bracket";}
-    if (ch === ";") {stream.skipToEnd(); tokenType = "space"; return "comment";}
-    if (is(ch, /[#'@^`~]/)) return "meta";
+    if (is(ch, /[(\[{]/)) return ["open", "bracket"];
+    if (is(ch, /[)\]}]/)) return ["close", "bracket"];
+    if (ch === ";") {stream.skipToEnd(); return ["space", "comment"];}
+    if (is(ch, /[#'@^`~]/)) return [null, "meta"];
 
     var name = readSymbol(stream);
-    tokenType = "symbol";
 
     if (name === "comment" && state.lastToken === "(")
       return (state.tokenize = inComment)(stream, state);
-    if (is(name, atom) || name.charAt(0) === ":") return "atom";
-    if (is(name, specialForm) || is(name, coreSymbol)) return "keyword";
-    if (state.lastToken === "(") return "builtin";  // other head symbol
+    if (is(name, atom) || name.charAt(0) === ":") return ["symbol", "atom"];
+    if (is(name, specialForm) || is(name, coreSymbol)) return ["symbol", "keyword"];
+    if (state.lastToken === "(") return ["symbol", "builtin"]; // other operator
 
-    return "variable";
+    return ["symbol", "variable"];
   }
 
   function inString(stream, state) {
@@ -192,7 +189,7 @@ CodeMirror.defineMode("clojure", function (options) {
       escaped = !escaped && next === "\\";
     }
 
-    return "string";
+    return [null, "string"];
   }
 
   function inComment(stream, state) {
@@ -209,9 +206,7 @@ CodeMirror.defineMode("clojure", function (options) {
       }
     }
 
-    tokenType = "ws";
-
-    return "comment";
+    return ["space", "comment"];
   }
 
   function readSymbol(stream) {
@@ -251,26 +246,27 @@ CodeMirror.defineMode("clojure", function (options) {
       if (stream.sol() && (typeof state.ctx.indentTo !== "number"))
         state.ctx.indentTo = state.ctx.start + 1;
 
-      tokenType = null;
-      var style = state.tokenize(stream, state);
-      var currentToken = stream.current();
+      var typeStylePair = state.tokenize(stream, state);
+      var type = typeStylePair[0];
+      var style = typeStylePair[1];
+      var current = stream.current();
 
-      if (tokenType !== "space") {
+      if (type !== "space") {
         if (state.lastToken === "(" && state.ctx.indentTo === null) {
-          if (tokenType === "symbol" && (is(currentToken, indentSymbol) ||
-              is(currentToken, assumeBody)))
+          if (type === "symbol" &&
+            (is(current, indentSymbol) || is(current, assumeBody)))
             state.ctx.indentTo = state.ctx.start + options.indentUnit;
           else state.ctx.indentTo = "next";
         } else if (state.ctx.indentTo === "next") {
           state.ctx.indentTo = stream.column();
         }
 
-        state.lastToken = currentToken;
+        state.lastToken = current;
       }
 
-      if (tokenType === "open")
+      if (type === "open")
         state.ctx = {prev: state.ctx, start: stream.column(), indentTo: null};
-      else if (tokenType === "close") state.ctx = state.ctx.prev || state.ctx;
+      else if (type === "close") state.ctx = state.ctx.prev || state.ctx;
 
       return style;
     },
