@@ -138,13 +138,14 @@ CodeMirror.defineMode("clojure", function (options) {
       "with-precision", "with-redefs", "with-redefs-fn", "xml-seq", "zero?",
       "zipmap"];
   var formsThatHaveBodyParameter = [
-      "assoc", "binding", "bound-fn", "case", "catch", "comment", "cond",
-      "condp", "def", "defmethod", "defn", "defmacro", "defprotocol",
-      "defrecord", "defstruct", "deftype", "do", "doseq", "dotimes", "doto",
-      "extend", "extend-protocol", "extend-type", "fn", "for", "future", "if",
-      "if-let", "if-not", "let", "letfn", "locking", "loop", "ns", "proxy",
-      "reify", "struct-map", "try", "when", "when-first", "when-let",
-      "when-not", "when-some", "while", "with-open", "with-precision"];
+      "binding", "bound-fn", "case", "catch", "comment", "cond", "cond->",
+      "cond->>", "condp", "def", "definterface", "defmethod", "defn",
+      "defmacro", "defprotocol", "defrecord", "defstruct", "deftype", "do",
+      "doseq", "dotimes", "doto", "extend", "extend-protocol", "extend-type",
+      "fn", "for", "future", "if", "if-let", "if-not", "if-some", "let",
+      "letfn", "locking", "loop", "ns", "proxy", "reify", "struct-map", "try",
+      "when", "when-first", "when-let", "when-not", "when-some", "while",
+      "with-open", "with-precision"];
 
   CodeMirror.registerHelper("hintWords", "clojure",
     [].concat(atoms, specialForms, coreSymbols));
