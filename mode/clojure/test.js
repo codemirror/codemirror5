@@ -650,12 +650,6 @@
         "    [bracket (][keyword println] [variable b][bracket )))]"
     );
 
-    MT("should indent deftest and similar forms that assume body parameter",
-        "[bracket (][builtin clojure.test/deftest] [variable foo-test]",
-        "  [bracket (][builtin testing] [string \"that foo should work\"]",
-        "           [bracket (][builtin is] [bracket (][keyword =] [atom :baz] [bracket (][builtin foo] [atom :bar][bracket )))))]"
-    );
-
     function typeTokenPairs(type, tokens) {
         return "[" + type + " " + tokens.join("] [" + type + " ") + "]";
     }
