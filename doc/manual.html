@@ -946,6 +946,9 @@ editor.setOption("extraKeys", {
       <dt class=command id=command_delWrappedLineLeft><code><strong>delWrappedLineLeft</strong></code><span class=keybinding>Cmd-Backspace (Mac)</span></dt>
       <dd>Delete the part of the line from the left side of the visual line the cursor is on to the cursor.</dd>
 
+      <dt class=command id=command_delLineRight><code><strong>delLineRight</strong></code></dt>
+      <dd>Delete the part of the line after the cursor.</dd>
+
       <dt class=command id=command_delWrappedLineRight><code><strong>delWrappedLineRight</strong></code><span class=keybinding>Cmd-Delete (Mac)</span></dt>
       <dd>Delete the part of the line from the cursor to the right side of the visual line the cursor is on.</dd>
 
@@ -1262,12 +1265,12 @@ editor.setOption("extraKeys", {
       <dt id="lineCount"><code><strong>doc.lineCount</strong>() → integer</code></dt>
       <dd>Get the number of lines in the editor.</dd>
       <dt id="firstLine"><code><strong>doc.firstLine</strong>() → integer</code></dt>
-      <dd>Get the first line of the editor. This will
+      <dd>Get the number of first line in the editor. This will
       usually be zero but for <a href="#linkedDoc_from">linked sub-views</a>,
       or <a href="#api_doc">documents</a> instantiated with a non-zero
       first line, it might return other values.</dd>
       <dt id="lastLine"><code><strong>doc.lastLine</strong>() → integer</code></dt>
-      <dd>Get the last line of the editor. This will
+      <dd>Get the number of last line in the editor. This will
       usually be <code>doc.lineCount() - 1</code>,
       but for <a href="#linkedDoc_from">linked sub-views</a>,
       it might return other values.</dd>
@@ -2066,8 +2069,8 @@ editor.setOption("extraKeys", {
       instance, you can call this method with a function argument. It
       will call the function, buffering up all changes, and only doing
       the expensive update after the function returns. This can be a
-      lot faster. The return value from this method will be the return
-      value of your function.</dd>
+      lot faster. This method return value, returned by your
+      function.</dd>
 
       <dt id="startOperation"><code><strong>cm.startOperation</strong>()</code></dt>
       <dt id="endOperation"><code><strong>cm.endOperation</strong>()</code></dt>
