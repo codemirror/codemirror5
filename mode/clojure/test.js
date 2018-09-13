@@ -51,6 +51,7 @@
         "[string-2 \\a]",
         "[string-2 \\#]",
         "[string-2 \\\\]",
+        "[string-2 \\\"]",
         "[string-2 \\(]",
         "[string-2 \\A]",
         "[string-2 \\backspace]",
