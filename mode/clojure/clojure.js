@@ -157,7 +157,7 @@ CodeMirror.defineMode("clojure", function (options) {
   var coreSymbol = createLookupMap(coreSymbols);
   var hasBodyParameter = createLookupMap(haveBodyParameter);
   var numberLiteral = /^[+\-]?\d+(?:(?:N|(?:[eE][+\-]?\d+))|(?:\.?\d*(?:M|(?:[eE][+\-]?\d+))?)|\/\d+|[xX][0-9a-fA-F]+|r[0-9a-zA-Z]+)?/;
-  var symbolCharacter = /[!#'*+\-.\/:<>?_\w\xa1-\uffff]/;
+  var symbolCharacter = /[!#$&'*+\-.\/:<=>?_|\w\xa1-\uffff]/;
 
   function base(stream, state) {
     if (stream.eatSpace()) return ["space", null];

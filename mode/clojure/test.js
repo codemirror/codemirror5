@@ -9,8 +9,8 @@
     }
 
     MT("atoms",
-        "[atom nil]",
         "[atom false]",
+        "[atom nil]",
         "[atom true]"
     );
 
@@ -62,7 +62,8 @@
         "[string-2 \\tab]",
         "[string-2 \\u1000]",
         "[string-2 \\uAaAa]",
-        "[string-2 \\u9F9F]"
+        "[string-2 \\u9F9F]",
+        "[string-2 \\o123]"
     );
 
     MT("strings",
@@ -82,6 +83,9 @@
 
     MT("reader macro characters",
         "[meta #][variable _]",
+        "[meta #][variable -Inf]",
+        "[meta ##][variable Inf]",
+        "[meta ##][variable NaN]",
         "[meta @][variable x]",
         "[meta ^][bracket {][atom :tag] [variable String][bracket }]",
         "[meta `][bracket (][builtin f] [variable x][bracket )]",
@@ -94,6 +98,32 @@
         "[meta '][bracket [[][variable a] [variable b] [variable c][bracket ]]]",
         "[meta '][bracket {][variable a] [number 1] [atom :foo] [number 2] [variable c] [number 3][bracket }]",
         "[meta '#][bracket {][variable a] [number 1] [atom :foo][bracket }]"
+    );
+
+    MT("symbols",
+      "[variable foo!]",
+      "[variable foo#]",
+      "[variable foo$]",
+      "[variable foo&]",
+      "[variable foo']",
+      "[variable foo*]",
+      "[variable foo+]",
+      "[variable foo-]",
+      "[variable foo.]",
+      "[variable foo/bar]",
+      "[variable foo:bar]",
+      "[variable foo<]",
+      "[variable foo=]",
+      "[variable foo>]",
+      "[variable foo?]",
+      "[variable foo_]",
+      "[variable foo|]",
+      "[variable foobarBaz]",
+      "[variable foo¡]",
+      "[variable 符号]",
+      "[variable シンボル]",
+      "[variable ئۇيغۇر]",
+      "[variable 🙂❤🇺🇸]"
     );
 
     var specialForms = [".", "catch", "def", "do", "if", "monitor-enter",
