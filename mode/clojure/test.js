@@ -9,8 +9,8 @@
     }
 
     MT("atoms",
-        "[atom nil]",
         "[atom false]",
+        "[atom nil]",
         "[atom true]"
     );
 
@@ -51,7 +51,6 @@
         "[string-2 \\a]",
         "[string-2 \\#]",
         "[string-2 \\\\]",
-        "[string-2 \\\"]",
         "[string-2 \\(]",
         "[string-2 \\A]",
         "[string-2 \\backspace]",
@@ -62,7 +61,8 @@
         "[string-2 \\tab]",
         "[string-2 \\u1000]",
         "[string-2 \\uAaAa]",
-        "[string-2 \\u9F9F]"
+        "[string-2 \\u9F9F]",
+        "[string-2 \\o123]"
     );
 
     MT("strings",
@@ -82,6 +82,9 @@
 
     MT("reader macro characters",
         "[meta #][variable _]",
+        "[meta #][variable -Inf]",
+        "[meta ##][variable Inf]",
+        "[meta ##][variable NaN]",
         "[meta @][variable x]",
         "[meta ^][bracket {][atom :tag] [variable String][bracket }]",
         "[meta `][bracket (][builtin f] [variable x][bracket )]",
