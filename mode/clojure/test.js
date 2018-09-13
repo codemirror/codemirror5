@@ -96,6 +96,29 @@
         "[meta '#][bracket {][variable a] [number 1] [atom :foo][bracket }]"
     );
 
+    MT("symbols",
+      "[variable foo!]",
+      "[variable foo#]",
+      "[variable foo']",
+      "[variable foo*]",
+      "[variable foo+]",
+      "[variable foo-]",
+      "[variable foo.]",
+      "[variable foo/bar]",
+      "[variable foo:bar]",
+      "[variable foo<]",
+      "[variable foo=]",
+      "[variable foo>]",
+      "[variable foo?]",
+      "[variable foo_]",
+      "[variable foobarBaz]",
+      "[variable foo¡]",
+      "[variable 符号]",
+      "[variable シンボル]",
+      "[variable ئۇيغۇر]",
+      "[variable 🙂❤🇺🇸]"
+    );
+
     var specialForms = [".", "catch", "def", "do", "if", "monitor-enter",
         "monitor-exit", "new", "quote", "recur", "set!", "throw", "try", "var"];
 
