@@ -156,23 +156,34 @@ CodeMirror.defineMode("clojure", function (options) {
   var specialForm = createLookupMap(specialForms);
   var coreSymbol = createLookupMap(coreSymbols);
   var hasBodyParameter = createLookupMap(haveBodyParameter);
-  var numberLiteral = /^[+\-]?\d+(?:(?:N|(?:[eE][+\-]?\d+))|(?:\.?\d*(?:M|(?:[eE][+\-]?\d+))?)|\/\d+|[xX][0-9a-fA-F]+|r[0-9a-zA-Z]+)?/;
-  var symbolCharacter = /[!#$&'*+\-.\/:<=>?_|\w\xa1-\uffff]/;
+  var delimiter = /^(?:[\\\[\]\s"(),;@^`{}~]|$)/;
+  var numberLiteral = /^(?:[+\-]?\d+(?:(?:N|(?:[eE][+\-]?\d+))|(?:\.?\d*(?:M|(?:[eE][+\-]?\d+))?)|\/\d+|[xX][0-9a-fA-F]+|r[0-9a-zA-Z]+)?(?=[\\\[\]\s"#'(),;@^`{}~]|$))/;
+  var characterLiteral = /^(?:\\(?:backspace|formfeed|newline|return|space|tab|o[0-7]{3}|u[0-9A-Fa-f]{4}|x[0-9A-Fa-f]{4}|.)?(?=[\\\[\]\s"(),;@^`{}~]|$))/;
+
+  // simple-namespace := /^[^\\\/\[\]\d\s"#'(),;@^`{}~][^\\\[\]\s"(),;@^`{}~]*/
+  // simple-symbol    := /^(?:\/|[^\\\/\[\]\d\s"#'(),;@^`{}~][^\\\[\]\s"(),;@^`{}~]*)/
+  // qualified-symbol := (<simple-namespace>(<.><simple-namespace>)*</>)?<simple-symbol>
+  var qualifiedSymbol = /^(?:(?:[^\\\/\[\]\d\s"#'(),;@^`{}~][^\\\[\]\s"(),;@^`{}~]*(?:\.[^\\\/\[\]\d\s"#'(),;@^`{}~][^\\\[\]\s"(),;@^`{}~]*)*\/)?(?:\/|[^\\\/\[\]\d\s"#'(),;@^`{}~][^\\\[\]\s"(),;@^`{}~]*)*(?=[\\\[\]\s"(),;@^`{}~]|$))/;
 
   function base(stream, state) {
     if (stream.eatSpace()) return ["space", null];
     if (stream.match(numberLiteral)) return [null, "number"];
+    if (stream.match(characterLiteral)) return [null, "string-2"];
+    if (stream.eat(/^"/)) return (state.tokenize = inString)(stream, state);
+    if (stream.eat(/^[(\[{]/)) return ["open", "bracket"];
+    if (stream.eat(/^[)\]}]/)) return ["close", "bracket"];
+    if (stream.eat(/^;/)) {stream.skipToEnd(); return ["space", "comment"];}
+    if (stream.eat(/^[#'@^`~]/)) return [null, "meta"];
 
-    var ch = stream.next();
+    var matches = stream.match(qualifiedSymbol);
+    var symbol = matches && matches[0];
 
-    if (ch === "\\") {stream.next(); readSymbol(stream); return [null, "string-2"];}
-    if (ch === '"') return (state.tokenize = inString)(stream, state);
-    if (is(ch, /[(\[{]/)) return ["open", "bracket"];
-    if (is(ch, /[)\]}]/)) return ["close", "bracket"];
-    if (ch === ";") {stream.skipToEnd(); return ["space", "comment"];}
-    if (is(ch, /[#'@^`~]/)) return [null, "meta"];
-
-    var symbol = readSymbol(stream);
+    if (!symbol) {
+      // advance stream by at least one character so we don't get stuck.
+      stream.next();
+      stream.eatWhile(function (c) {return !is(c, delimiter);});
+      return [null, "error"];
+    }
 
     if (symbol === "comment" && state.lastToken === "(")
       return (state.tokenize = inComment)(stream, state);
@@ -187,7 +198,7 @@ CodeMirror.defineMode("clojure", function (options) {
     var escaped = false, next;
 
     while (next = stream.next()) {
-      if (next === '"' && !escaped) {state.tokenize = base; break;}
+      if (next === "\"" && !escaped) {state.tokenize = base; break;}
       escaped = !escaped && next === "\\";
     }
 
@@ -209,17 +220,6 @@ CodeMirror.defineMode("clojure", function (options) {
     }
 
     return ["space", "comment"];
-  }
-
-  function readSymbol(stream) {
-    var ch;
-
-    while (ch = stream.next()) {
-      if (ch === "\\") stream.next();
-      else if (!is(ch, symbolCharacter)) {stream.backUp(1); break;}
-    }
-
-    return stream.current();
   }
 
   function createLookupMap(words) {

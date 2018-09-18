@@ -43,12 +43,22 @@
         "[number 8r52] [number +8r52] [number -8r52]",
         "[number 36rhello] [number +36rhello] [number -36rhello]",
         "[number 36rz] [number +36rz] [number -36rz]",
-        "[number 36rZ] [number +36rZ] [number -36rZ]"
+        "[number 36rZ] [number +36rZ] [number -36rZ]",
+
+        // invalid numbers
+        "[error 42foo]",
+        "[error 42Nfoo]",
+        "[error 42Mfoo]",
+        "[error 42.42Mfoo]",
+        "[error 42.42M!]",
+        "[error 42!]",
+        "[error 0x42afm]"
     );
 
     MT("characters",
         "[string-2 \\1]",
         "[string-2 \\a]",
+        "[string-2 \\a\\b\\c]",
         "[string-2 \\#]",
         "[string-2 \\\\]",
         "[string-2 \\\"]",
@@ -63,7 +73,21 @@
         "[string-2 \\u1000]",
         "[string-2 \\uAaAa]",
         "[string-2 \\u9F9F]",
-        "[string-2 \\o123]"
+        "[string-2 \\o123]",
+        "[string-2 \\符]",
+        "[string-2 \\シ]",
+        "[string-2 \\ۇ]",
+        // FIXME
+        // "[string-2 \\🙂]",
+
+        // invalid character literals
+        "[error \\abc]",
+        "[error \\a123]",
+        "[error \\a!]",
+        "[error \\newlines]",
+        "[error \\NEWLINE]",
+        "[error \\u9F9FF]",
+        "[error \\o1234]"
     );
 
     MT("strings",
@@ -72,6 +96,8 @@
         "[string \"I'm]",       // this is
         "[string a]",           // a multi-line
         "[string teapot.\"]"    // string
+
+        // TODO unterminated (multi-line) strings?
     );
 
     MT("comments",
@@ -123,7 +149,23 @@
       "[variable 符号]",
       "[variable シンボル]",
       "[variable ئۇيغۇر]",
-      "[variable 🙂❤🇺🇸]"
+      "[variable 🙂❤🇺🇸]",
+
+      // invalid symbols
+      "[error 3foo]",
+      "[error 3+]",
+      "[error 3|]",
+      "[error 3_]"
+    );
+
+    MT("numbers and other forms",
+      "[number 42][bracket (][builtin foo][bracket )]",
+      "[number 42][bracket [[][variable foo][bracket ]]]",
+      "[number 42][meta #][bracket {][variable foo][bracket }]",
+      "[number 42][bracket {][atom :foo] [variable bar][bracket }]",
+      "[number 42][meta `][variable foo]",
+      "[number 42][meta ~][variable foo]",
+      "[number 42][meta #][variable foo]"
     );
 
     var specialForms = [".", "catch", "def", "do", "if", "monitor-enter",
