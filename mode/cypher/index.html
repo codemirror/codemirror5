@@ -7,6 +7,7 @@
 <link rel="stylesheet" href="../../lib/codemirror.css" />
 <link rel="stylesheet" href="../../theme/neo.css" />
 <script src="../../lib/codemirror.js"></script>
+<script src="../../addon/edit/matchbrackets.js"></script>
 <script src="cypher.js"></script>
 <style>
 .CodeMirror {
@@ -53,7 +54,7 @@ window.onload = function() {
     indentWithTabs: true,
     smartIndent: true,
     lineNumbers: true,
-    matchBrackets : true,
+    matchBrackets: true,
     autofocus: true,
     theme: 'neo'
   });
