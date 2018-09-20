@@ -122,7 +122,7 @@ CodeMirror.defineMode("scheme", function () {
                         state.sExprComment = 0;
                     }else{
                         // if not we just comment the entire of the next token
-                        stream.eatWhile(/[^\s]/); // eat non spaces
+                        stream.eatWhile(/[^\s\(\)\[\]]/); // eat symbol atom
                         returnType = COMMENT;
                         break;
                     }
