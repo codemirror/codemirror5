@@ -1,3 +1,13 @@
+## 5.40.2 (2018-09-20)
+
+### Bug fixes
+
+Fix firing of `gutterContextMenu` event on Firefox.
+
+Add `hintWords` (basic completion) helper to [clojure](https://codemirror.net/mode/clojure/index.html), [mllike](https://codemirror.net/mode/mllike/index.html), [julia](https://codemirror.net/mode/julia/), [shell](https://codemirror.net/mode/shell/), and [r](https://codemirror.net/mode/r/) modes.
+
+[clojure mode](https://codemirror.net/mode/clojure/index.html): Clean up and improve.
+
 ## 5.40.0 (2018-08-25)
 
 ### Bug fixes
