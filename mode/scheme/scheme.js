@@ -134,10 +134,10 @@ CodeMirror.defineMode("scheme", function () {
                         returnType = STRING;
 
                     } else if (ch == "'") {
-			if (stream.peek() == "(" || stream.peek() == "["){
+                        if (stream.peek() == "(" || stream.peek() == "["){
                             if (typeof state.sExprQuote != "number") {
-				state.sExprQuote = 0;
-			    } // else already in a quoted expression
+                                state.sExprQuote = 0;
+                            } // else already in a quoted expression
                             returnType = ATOM;
                         } else {
                             stream.eatWhile(/[\w_\-!$%&*+\.\/:<=>?@\^~]/);
