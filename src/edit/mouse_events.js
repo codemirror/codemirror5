@@ -71,9 +71,8 @@ export function onMouseDown(e) {
     }
     return
   }
-  let button = e_button(e)
-  if (button == 3 && captureRightClick ? contextMenuInGutter(cm, e) : clickInGutter(cm, e)) return
-  let pos = posFromMouse(cm, e), repeat = pos ? clickRepeat(pos, button) : "single"
+  if (clickInGutter(cm, e)) return
+  let pos = posFromMouse(cm, e), button = e_button(e), repeat = pos ? clickRepeat(pos, button) : "single"
   window.focus()
 
   // #3261: make sure, that we're not starting a second selection
@@ -89,7 +88,7 @@ export function onMouseDown(e) {
     if (pos) extendSelection(cm.doc, pos)
     setTimeout(() => display.input.focus(), 20)
   } else if (button == 3) {
-    if (captureRightClick) onContextMenu(cm, e)
+    if (captureRightClick) cm.display.input.onContextMenu(e)
     else delayBlurEvent(cm)
   }
 }
@@ -399,7 +398,7 @@ export function clickInGutter(cm, e) {
 export function onContextMenu(cm, e) {
   if (eventInWidget(cm.display, e) || contextMenuInGutter(cm, e)) return
   if (signalDOMEvent(cm, e, "contextmenu")) return
-  cm.display.input.onContextMenu(e)
+  if (!captureRightClick) cm.display.input.onContextMenu(e)
 }
 
 function contextMenuInGutter(cm, e) {
