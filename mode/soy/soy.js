@@ -300,7 +300,7 @@
             if (!state.scopes) {
               state.variables = prepend(null, 'ij');
             }
-          } else if (state.tag.match(/^@(?:param\??|inject)/)) {
+          } else if (state.tag.match(/^@(?:param\??|inject|prop)/)) {
             state.soyState.push("param-def");
           }
           return "keyword";
