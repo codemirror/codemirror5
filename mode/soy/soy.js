@@ -350,6 +350,8 @@
     };
   }, "htmlmixed");
 
+  CodeMirror.registerHelper("wordChars", "soy", /[\w$]/);
+
   CodeMirror.registerHelper("hintWords", "soy", indentingTags.concat(
       ["delpackage", "namespace", "alias", "print", "css", "debugger"]));
 
