@@ -12,7 +12,7 @@
 <script src="../mode/javascript/javascript.js"></script>
 <script src="../mode/css/css.js"></script>
 <script src="../mode/htmlmixed/htmlmixed.js"></script>
-<style type="text/css">
+<style>
       .CodeMirror {border-top: 1px solid #888; border-bottom: 1px solid #888;}
     </style>
 <div id=nav>
@@ -32,7 +32,7 @@
 <h2>Close-Tag Demo</h2>
 <form><textarea id="code" name="code"><html</textarea></form>
 
-    <script type="text/javascript">
+    <script>
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         mode: 'text/html',
         autoCloseTags: true

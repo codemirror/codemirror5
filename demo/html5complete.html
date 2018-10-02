@@ -15,7 +15,7 @@
   <script src="../mode/javascript/javascript.js"></script>
   <script src="../mode/css/css.js"></script>
   <script src="../mode/htmlmixed/htmlmixed.js"></script>
-  <style type="text/css">
+  <style>
     .CodeMirror {border-top: 1px solid #888; border-bottom: 1px solid #888;}
   </style>
 </head>
@@ -43,7 +43,7 @@
 
     <div id="code"></div>
 
-    <script type="text/javascript">
+    <script>
       window.onload = function() {
         editor = CodeMirror(document.getElementById("code"), {
           mode: "text/html",
