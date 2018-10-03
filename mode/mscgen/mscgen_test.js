@@ -25,7 +25,7 @@
   );
 
   MT("xù/ msgenny keywords classify as 'base'",
-    "[base watermark]",
+    "[base watermark wordwrapentities]",
     "[base alt loop opt ref else break par seq assert]"
   );
 
