@@ -61,13 +61,15 @@ export class Range {
 // Take an unsorted, potentially overlapping set of ranges, and
 // build a selection out of it. 'Consumes' ranges array (modifying
 // it).
-export function normalizeSelection(ranges, primIndex) {
+export function normalizeSelection(cm, ranges, primIndex) {
+  let mayTouch = cm && cm.options.selectionsMayTouch
   let prim = ranges[primIndex]
   ranges.sort((a, b) => cmp(a.from(), b.from()))
   primIndex = indexOf(ranges, prim)
   for (let i = 1; i < ranges.length; i++) {
     let cur = ranges[i], prev = ranges[i - 1]
-    if (cmp(prev.to(), cur.from()) >= 0) {
+    let diff = cmp(prev.to(), cur.from())
+    if (mayTouch ? diff > 0 : diff >= 0) {
       let from = minPos(prev.from(), cur.from()), to = maxPos(prev.to(), cur.to())
       let inv = prev.empty() ? cur.from() == cur.head : prev.from() == prev.head
       if (i <= primIndex) --primIndex

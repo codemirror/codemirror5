@@ -29,7 +29,7 @@ export function computeSelAfterChange(doc, change) {
     out.push(new Range(adjustForChange(range.anchor, change),
                        adjustForChange(range.head, change)))
   }
-  return normalizeSelection(out, doc.sel.primIndex)
+  return normalizeSelection(doc.cm, out, doc.sel.primIndex)
 }
 
 function offsetPos(pos, old, nw) {

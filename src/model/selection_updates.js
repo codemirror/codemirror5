@@ -47,7 +47,7 @@ export function extendSelections(doc, heads, options) {
   let extend = doc.cm && (doc.cm.display.shift || doc.extend)
   for (let i = 0; i < doc.sel.ranges.length; i++)
     out[i] = extendRange(doc.sel.ranges[i], heads[i], null, extend)
-  let newSel = normalizeSelection(out, doc.sel.primIndex)
+  let newSel = normalizeSelection(doc.cm, out, doc.sel.primIndex)
   setSelection(doc, newSel, options)
 }
 
@@ -55,7 +55,7 @@ export function extendSelections(doc, heads, options) {
 export function replaceOneSelection(doc, i, range, options) {
   let ranges = doc.sel.ranges.slice(0)
   ranges[i] = range
-  setSelection(doc, normalizeSelection(ranges, doc.sel.primIndex), options)
+  setSelection(doc, normalizeSelection(doc.cm, ranges, doc.sel.primIndex), options)
 }
 
 // Reset the selection to a single range.
@@ -78,7 +78,7 @@ function filterSelectionChange(doc, sel, options) {
   }
   signal(doc, "beforeSelectionChange", doc, obj)
   if (doc.cm) signal(doc.cm, "beforeSelectionChange", doc.cm, obj)
-  if (obj.ranges != sel.ranges) return normalizeSelection(obj.ranges, obj.ranges.length - 1)
+  if (obj.ranges != sel.ranges) return normalizeSelection(doc.cm, obj.ranges, obj.ranges.length - 1)
   else return sel
 }
 
@@ -142,7 +142,7 @@ function skipAtomicInSelection(doc, sel, bias, mayClear) {
       out[i] = new Range(newAnchor, newHead)
     }
   }
-  return out ? normalizeSelection(out, sel.primIndex) : sel
+  return out ? normalizeSelection(doc.cm, out, sel.primIndex) : sel
 }
 
 function skipAtomicInner(doc, pos, oldPos, dir, mayClear) {

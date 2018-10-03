@@ -122,6 +122,7 @@ export function defineOptions(CodeMirror) {
   option("resetSelectionOnContextMenu", true)
   option("lineWiseCopyCut", true)
   option("pasteLinesPerSelection", true)
+  option("selectionsMayTouch", false)
 
   option("readOnly", false, (cm, val) => {
     if (val == "nocursor") {
