@@ -4245,7 +4245,6 @@ testVim('ex_unmap_api', function(cm, vim, helpers) {
   CodeMirror.Vim.unmap("<Alt-X>", "normal");
   is(!CodeMirror.Vim.handleKey(cm, "<Alt-X>", "normal"), "Alt-X key is unmapped");
 });
-
 // Testing registration of functions as ex-commands and mapping to <Key>-keys
 testVim('ex_api_test', function(cm, vim, helpers) {
   var res=false;
@@ -4267,6 +4266,30 @@ testVim('ex_map_key2key_from_colon', function(cm, vim, helpers) {
   helpers.assertCursorAt(0, 0);
   eq('bc', cm.getValue());
 }, { value: 'abc' });
+
+testVim('noremap', function(cm, vim, helpers) {
+  CodeMirror.Vim.noremap(';', 'l');
+  cm.setCursor(0, 0);
+  eq('wOrd1', cm.getValue());
+  // Mapping should work in normal mode.
+  helpers.doKeys(';', 'r', '1');
+  eq('w1rd1', cm.getValue());
+  // Mapping will not work in insert mode because of no current fallback
+  // keyToKey mapping support.
+  helpers.doKeys('i', ';', '<Esc>');
+  eq('w;1rd1', cm.getValue());
+}, { value: 'wOrd1' });
+testVim('noremap_swap', function(cm, vim, helpers) {
+  CodeMirror.Vim.noremap('i', 'a', 'normal');
+  CodeMirror.Vim.noremap('a', 'i', 'normal');
+  cm.setCursor(0, 0);
+  // 'a' should act like 'i'.
+  helpers.doKeys('a');
+  eqCursorPos(Pos(0, 0), cm.getCursor());
+  // ...and 'i' should act like 'a'.
+  helpers.doKeys('<Esc>', 'i');
+  eqCursorPos(Pos(0, 1), cm.getCursor());
+}, { value: 'foo' });
 
 // Test event handlers
 testVim('beforeSelectionChange', function(cm, vim, helpers) {
