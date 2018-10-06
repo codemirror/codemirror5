@@ -3,7 +3,7 @@
 
 /**
  * Supported keybindings:
- *   Too many to list. Refer to defaultKeyMap below.
+ *   Too many to list. Refer to defaultKeymap below.
  *
  * Supported Ex commands:
  *   Refer to defaultExCommandMap below.
@@ -207,6 +207,7 @@
     // Ex command
     { keys: ':', type: 'ex' }
   ];
+  var defaultKeymapLength = defaultKeymap.length;
 
   /**
    * Ex commands
@@ -741,6 +742,44 @@
       },
       unmap: function(lhs, ctx) {
         exCommandDispatcher.unmap(lhs, ctx);
+      },
+      // Non-recursive map function.
+      // NOTE: This will not create mappings to key maps that aren't present
+      // in the default key map. See TODO at bottom of function.
+      noremap: function(lhs, rhs, ctx) {
+        function toCtxArray(ctx) {
+          return ctx ? [ctx] : ['normal', 'insert', 'visual'];
+        }
+        var ctxsToMap = toCtxArray(ctx);
+        // Look through all actual defaults to find a map candidate.
+        var actualLength = defaultKeymap.length, origLength = defaultKeymapLength;
+        for (var i = actualLength - origLength - 1;
+             i < actualLength && ctxsToMap.length;
+             i++) {
+          var mapping = defaultKeymap[i];
+          // Omit mappings that operate in the wrong context(s) and those of invalid type.
+          if (mapping.keys == rhs &&
+              (!ctx || !mapping.context || mapping.context === ctx) &&
+              mapping.type.substr(0, 2) !== 'ex' &&
+              mapping.type.substr(0, 3) !== 'key') {
+            // Make a shallow copy of the original keymap entry.
+            var newMapping = {};
+            for (var key in mapping) {
+              newMapping[key] = mapping[key];
+            }
+            // Modify it point to the new mapping with the proper context.
+            newMapping.keys = lhs;
+            if (ctx && !newMapping.context) {
+              newMapping.context = ctx;
+            }
+            // Add it to the keymap with a higher priority than the original.
+            this._mapCommand(newMapping);
+            // Record the mapped contexts as complete.
+            var mappedCtxs = toCtxArray(mapping.context);
+            ctxsToMap = ctxsToMap.filter(function(el) { return mappedCtxs.indexOf(el) === -1; });
+          }
+        }
+        // TODO: Create non-recursive keyToKey mappings for the unmapped contexts once those exist.
       },
       // TODO: Expose setOption and getOption as instance methods. Need to decide how to namespace
       // them, or somehow make them work with the existing CodeMirror setOption/getOption API.
