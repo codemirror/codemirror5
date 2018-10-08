@@ -4231,7 +4231,9 @@ testVim('ex_imap', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   CodeMirror.Vim.map('jj', '<Esc>', 'insert');
   helpers.doKeys('<C-v>', '2', 'j', 'l', 'c');
-  var replacement = fillArray('fo', 3);
+  var replacement = fillArray('f', 3);
+  cm.replaceSelections(replacement);
+  var replacement = fillArray('o', 3);
   cm.replaceSelections(replacement);
   eq('1fo4\n5fo8\nafodefg', cm.getValue());
   helpers.doKeys('j', 'j');
