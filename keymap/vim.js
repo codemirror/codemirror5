@@ -5079,32 +5079,7 @@
       var insertModeChangeRegister = vimGlobalState.registerController.getRegister('.');
       var isPlaying = macroModeState.isPlaying;
       var lastChange = macroModeState.lastInsertModeChanges;
-      // In case of visual block, the insertModeChanges are not saved as a
-      // single word, so we convert them to a single word
-      // so as to update the ". register as expected in real vim.
-      var text = [];
       if (!isPlaying) {
-        var selLength = lastChange.inVisualBlock && vim.lastSelection ?
-            vim.lastSelection.visualBlock.height : 1;
-        var changes = lastChange.changes;
-        var text = [];
-        var i = 0;
-        // In case of multiple selections in blockwise visual,
-        // the inserted text, for example: 'f<Backspace>oo', is stored as
-        // 'f', 'f', InsertModeKey 'o', 'o', 'o', 'o'. (if you have a block with 2 lines).
-        // We push the contents of the changes array as per the following:
-        // 1. In case of InsertModeKey, just increment by 1.
-        // 2. In case of a character, jump by selLength (2 in the example).
-        while (i < changes.length) {
-          // This loop will convert 'ff<bs>oooo' to 'f<bs>oo'.
-          text.push(changes[i]);
-          if (changes[i] instanceof InsertModeKey) {
-             i++;
-          } else {
-             i+= selLength;
-          }
-        }
-        lastChange.changes = text;
         cm.off('change', onChange);
         CodeMirror.off(cm.getInputField(), 'keydown', onKeyEventTargetKeyDown);
       }
@@ -5235,17 +5210,24 @@
       if (!macroModeState.isPlaying) {
         while(changeObj) {
           lastChange.expectCursorActivityForChange = true;
-          if (changeObj.origin == '+input' || changeObj.origin == 'paste'
+          if (lastChange.ignoreCount > 1) {
+            lastChange.ignoreCount--;
+          } else if (changeObj.origin == '+input' || changeObj.origin == 'paste'
               || changeObj.origin === undefined /* only in testing */) {
+            var selectionCount = cm.listSelections().length;
+            if (selectionCount > 1)
+              lastChange.ignoreCount = selectionCount;
             var text = changeObj.text.join('\n');
             if (lastChange.maybeReset) {
               lastChange.changes = [];
               lastChange.maybeReset = false;
             }
-            if (cm.state.overwrite && !/\n/.test(text)) {
+            if (text) {
+              if (cm.state.overwrite && !/\n/.test(text)) {
                 lastChange.changes.push([text]);
-            } else {
+              } else {
                 lastChange.changes.push(text);
+              }
             }
           }
           // Change objects may be chained with next.
