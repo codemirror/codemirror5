@@ -583,14 +583,39 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
         if (!tripleString && !escaped && stream.match('"') ) {end = true; break;}
         if (tripleString && stream.match('"""')) {end = true; break;}
         next = stream.next();
-        if(!escaped && next == "$" && stream.match('{'))
+        if(!escaped && next == "$" && stream.match('{')){
           stream.skipTo("}");
+          state.tokenize = tokenBaseUntilBrace(stream, state);
+          return state.tokenize(stream, state);
+        }
         escaped = !escaped && next == "\\" && !tripleString;
       }
       if (end || !tripleString)
         state.tokenize = null;
       return "string";
     }
+  }
+
+  function tokenBaseUntilBrace() {
+    var depth = 1;
+    function t(stream, state) {
+      if (stream.peek() == "}") {
+        depth--;
+        if (depth == 0) {
+          //TODO:
+          //state.tokenize.pop();
+          //return state.tokenize[state.tokenize.length-1](stream, state);
+          return state.tokenize(stream, state);
+        }
+      } else if (stream.peek() == "{") {
+        depth++;
+      }
+      //TODO:
+      //return tokenBase(stream, state);
+      return state.tokenize(stream, state);
+    }
+    t.isBase = true;
+    return t;
   }
 
   def("text/x-kotlin", {
