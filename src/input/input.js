@@ -50,7 +50,7 @@ export function applyTextInput(cm, inserted, deleted, sel, origin) {
         from = Pos(from.line, from.ch - deleted)
       else if (cm.state.overwrite && !paste) // Handle overwrite
         to = Pos(to.line, Math.min(getLine(doc, to.line).text.length, to.ch + lst(textLines).length))
-      else if (lastCopied && lastCopied.lineWise && lastCopied.text.join("\n") == inserted)
+      else if (paste && lastCopied && lastCopied.lineWise && lastCopied.text.join("\n") == inserted)
         from = to = Pos(from.line, 0)
     }
     updateInput = cm.curOp.updateInput
