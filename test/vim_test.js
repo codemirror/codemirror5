@@ -4280,6 +4280,8 @@ testVim('noremap', function(cm, vim, helpers) {
   // keyToKey mapping support.
   helpers.doKeys('i', ';', '<Esc>');
   eq('w;1rd1', cm.getValue());
+  // unmap all mappings
+  CodeMirror.Vim.unmap(';');
 }, { value: 'wOrd1' });
 testVim('noremap_swap', function(cm, vim, helpers) {
   CodeMirror.Vim.noremap('i', 'a', 'normal');
@@ -4291,7 +4293,45 @@ testVim('noremap_swap', function(cm, vim, helpers) {
   // ...and 'i' should act like 'a'.
   helpers.doKeys('<Esc>', 'i');
   eqCursorPos(Pos(0, 1), cm.getCursor());
+  // unmap all mappings
+  CodeMirror.Vim.unmap('a', 'normal');
+  CodeMirror.Vim.unmap('i', 'normal');
 }, { value: 'foo' });
+testVim('noremap_map_interaction', function(cm, vim, helpers) {
+  // noremap should clobber map
+  CodeMirror.Vim.map(';', 'l');
+  CodeMirror.Vim.noremap(';', 'l');
+  CodeMirror.Vim.map('l', 'j');
+  cm.setCursor(0, 0);
+  helpers.doKeys(';');
+  eqCursorPos(Pos(0, 1), cm.getCursor());
+  helpers.doKeys('l');
+  eqCursorPos(Pos(1, 1), cm.getCursor());
+  // map should be able to point to a noremap
+  CodeMirror.Vim.map('m', ';');
+  helpers.doKeys('m');
+  eqCursorPos(Pos(1, 2), cm.getCursor());
+  // unmap all mappings
+  CodeMirror.Vim.unmap('m');
+  CodeMirror.Vim.unmap('l');
+  CodeMirror.Vim.unmap(';');
+  CodeMirror.Vim.unmap(';');
+}, { value: 'wOrd1\nwOrd2' });
+testVim('noremap_map_interaction2', function(cm, vim, helpers) {
+  // map should point to the most recent noremap
+  CodeMirror.Vim.noremap(';', 'l');
+  CodeMirror.Vim.map('m', ';');
+  CodeMirror.Vim.noremap(';', 'h');
+  cm.setCursor(0, 0);
+  helpers.doKeys('l');
+  eqCursorPos(Pos(0, 1), cm.getCursor());
+  helpers.doKeys('m');
+  eqCursorPos(Pos(0, 0), cm.getCursor());
+  // unmap all mappings
+  CodeMirror.Vim.unmap(';');
+  CodeMirror.Vim.unmap('m');
+  CodeMirror.Vim.unmap(';');
+}, { value: 'wOrd1\nwOrd2' });
 
 // Test event handlers
 testVim('beforeSelectionChange', function(cm, vim, helpers) {
