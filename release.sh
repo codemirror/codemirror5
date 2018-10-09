@@ -50,6 +50,7 @@ mode/clike/clike.js \
 mode/clojure/clojure.js \
 mode/diff/diff.js \
 mode/ruby/ruby.js \
+mode/rust/rust.js \
 mode/python/python.js \
 mode/shell/shell.js \
 mode/php/php.js \
