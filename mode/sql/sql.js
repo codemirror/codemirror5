@@ -98,7 +98,6 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
       return "operator";
     } else if (brackets.test(ch)) {
       // brackets
-      stream.eatWhile(brackets);
       return "bracket";
     } else if (punctuation.test(ch)) {
       // punctuation
