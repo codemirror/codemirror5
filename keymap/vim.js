@@ -753,7 +753,7 @@
         var ctxsToMap = toCtxArray(ctx);
         // Look through all actual defaults to find a map candidate.
         var actualLength = defaultKeymap.length, origLength = defaultKeymapLength;
-        for (var i = actualLength - origLength - 1;
+        for (var i = actualLength - origLength;
              i < actualLength && ctxsToMap.length;
              i++) {
           var mapping = defaultKeymap[i];
@@ -780,6 +780,40 @@
           }
         }
         // TODO: Create non-recursive keyToKey mappings for the unmapped contexts once those exist.
+      },
+      // Remove all user-defined mappings for the provided context.
+      mapclear: function(ctx) {
+        // Partition the existing keymap into user-defined and true defaults.
+        var actualLength = defaultKeymap.length,
+            origLength = defaultKeymapLength;
+        var userKeymap = defaultKeymap.slice(0, actualLength - origLength);
+        defaultKeymap = defaultKeymap.slice(actualLength - origLength);
+        if (ctx) {
+          // If a specific context is being cleared, we need to keep mappings
+          // from all other contexts.
+          for (var i = userKeymap.length - 1; i >= 0; i--) {
+            var mapping = userKeymap[i];
+            if (ctx !== mapping.context) {
+              if (mapping.context) {
+                this._mapCommand(mapping);
+              } else {
+                // `mapping` applies to all contexts so create keymap copies
+                // for each context except the one being cleared.
+                var contexts = ['normal', 'insert', 'visual'];
+                for (var j in contexts) {
+                  if (contexts[j] !== ctx) {
+                    var newMapping = {};
+                    for (var key in mapping) {
+                      newMapping[key] = mapping[key];
+                    }
+                    newMapping.context = contexts[j];
+                    this._mapCommand(newMapping);
+                  }
+                }
+              }
+            }
+          }
+        }
       },
       // TODO: Expose setOption and getOption as instance methods. Need to decide how to namespace
       // them, or somehow make them work with the existing CodeMirror setOption/getOption API.

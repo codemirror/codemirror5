@@ -4140,17 +4140,45 @@ testVim('ex_set_filetype_null', function(cm, vim, helpers) {
   helpers.doEx('set filetype=');
   eq('null', cm.getMode().name);
 });
-// TODO: Reset key maps after each test.
+
+testVim('mapclear', function(cm, vim, helpers) {
+  CodeMirror.Vim.map('w', 'l');
+  cm.setCursor(0, 0);
+  helpers.assertCursorAt(0, 0);
+  helpers.doKeys('w');
+  helpers.assertCursorAt(0, 1);
+  CodeMirror.Vim.mapclear('visual');
+  helpers.doKeys('v', 'w', 'v');
+  helpers.assertCursorAt(0, 4);
+  helpers.doKeys('w');
+  helpers.assertCursorAt(0, 5);
+  CodeMirror.Vim.mapclear();
+}, { value: 'abc abc' });
+testVim('mapclear_context', function(cm, vim, helpers) {
+  CodeMirror.Vim.map('w', 'l', 'normal');
+  cm.setCursor(0, 0);
+  helpers.assertCursorAt(0, 0);
+  helpers.doKeys('w');
+  helpers.assertCursorAt(0, 1);
+  CodeMirror.Vim.mapclear('normal');
+  helpers.doKeys('w');
+  helpers.assertCursorAt(0, 4);
+  CodeMirror.Vim.mapclear();
+}, { value: 'abc abc' });
+
 testVim('ex_map_key2key', function(cm, vim, helpers) {
   helpers.doEx('map a x');
   helpers.doKeys('a');
   helpers.assertCursorAt(0, 0);
   eq('bc', cm.getValue());
+  CodeMirror.Vim.mapclear();
 }, { value: 'abc' });
 testVim('ex_unmap_key2key', function(cm, vim, helpers) {
+  helpers.doEx('map a x');
   helpers.doEx('unmap a');
   helpers.doKeys('a');
   eq('vim-insert', cm.getOption('keyMap'));
+  CodeMirror.Vim.mapclear();
 }, { value: 'abc' });
 testVim('ex_unmap_key2key_does_not_remove_default', function(cm, vim, helpers) {
   try {
@@ -4159,6 +4187,7 @@ testVim('ex_unmap_key2key_does_not_remove_default', function(cm, vim, helpers) {
   } catch (expected) {}
   helpers.doKeys('a');
   eq('vim-insert', cm.getOption('keyMap'));
+  CodeMirror.Vim.mapclear();
 }, { value: 'abc' });
 testVim('ex_map_key2key_to_colon', function(cm, vim, helpers) {
   helpers.doEx('map ; :');
@@ -4168,12 +4197,14 @@ testVim('ex_map_key2key_to_colon', function(cm, vim, helpers) {
   }
   helpers.doKeys(';');
   eq(dialogOpened, true);
+  CodeMirror.Vim.mapclear();
 });
 testVim('ex_map_ex2key:', function(cm, vim, helpers) {
   helpers.doEx('map :del x');
   helpers.doEx('del');
   helpers.assertCursorAt(0, 0);
   eq('bc', cm.getValue());
+  CodeMirror.Vim.mapclear();
 }, { value: 'abc' });
 testVim('ex_map_ex2ex', function(cm, vim, helpers) {
   helpers.doEx('map :del :w');
@@ -4188,6 +4219,7 @@ testVim('ex_map_ex2ex', function(cm, vim, helpers) {
   CodeMirror.commands.save = tmp;
   eq(written, true);
   eq(actualCm, cm);
+  CodeMirror.Vim.mapclear();
 });
 testVim('ex_map_key2ex', function(cm, vim, helpers) {
   helpers.doEx('map a :w');
@@ -4202,6 +4234,7 @@ testVim('ex_map_key2ex', function(cm, vim, helpers) {
   CodeMirror.commands.save = tmp;
   eq(written, true);
   eq(actualCm, cm);
+  CodeMirror.Vim.mapclear();
 });
 testVim('ex_map_key2key_visual_api', function(cm, vim, helpers) {
   CodeMirror.Vim.map('b', ':w', 'visual');
@@ -4221,6 +4254,7 @@ testVim('ex_map_key2key_visual_api', function(cm, vim, helpers) {
   eq(actualCm, cm);
 
   CodeMirror.commands.save = tmp;
+  CodeMirror.Vim.mapclear();
 });
 testVim('ex_imap', function(cm, vim, helpers) {
   CodeMirror.Vim.map('jk', '<Esc>', 'insert');
@@ -4240,12 +4274,14 @@ testVim('ex_imap', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('.');
   eq('foo4\nfoo8\nfoodefg', cm.getValue());
+  CodeMirror.Vim.mapclear();
 }, { value: '1234\n5678\nabcdefg' });
 testVim('ex_unmap_api', function(cm, vim, helpers) {
   CodeMirror.Vim.map('<Alt-X>', 'gg', 'normal');
   is(CodeMirror.Vim.handleKey(cm, "<Alt-X>", "normal"), "Alt-X key is mapped");
   CodeMirror.Vim.unmap("<Alt-X>", "normal");
   is(!CodeMirror.Vim.handleKey(cm, "<Alt-X>", "normal"), "Alt-X key is unmapped");
+  CodeMirror.Vim.mapclear();
 });
 // Testing registration of functions as ex-commands and mapping to <Key>-keys
 testVim('ex_api_test', function(cm, vim, helpers) {
@@ -4260,6 +4296,7 @@ testVim('ex_api_test', function(cm, vim, helpers) {
   CodeMirror.Vim.map('<C-CR><Space>',':ext');
   helpers.doKeys('<C-CR>','<Space>');
   is(res,'Mapping to key failed');
+  CodeMirror.Vim.mapclear();
 });
 // For now, this test needs to be last because it messes up : for future tests.
 testVim('ex_map_key2key_from_colon', function(cm, vim, helpers) {
@@ -4267,6 +4304,7 @@ testVim('ex_map_key2key_from_colon', function(cm, vim, helpers) {
   helpers.doKeys(':');
   helpers.assertCursorAt(0, 0);
   eq('bc', cm.getValue());
+  CodeMirror.Vim.mapclear();
 }, { value: 'abc' });
 
 testVim('noremap', function(cm, vim, helpers) {
@@ -4281,7 +4319,7 @@ testVim('noremap', function(cm, vim, helpers) {
   helpers.doKeys('i', ';', '<Esc>');
   eq('w;1rd1', cm.getValue());
   // unmap all mappings
-  CodeMirror.Vim.unmap(';');
+  CodeMirror.Vim.mapclear();
 }, { value: 'wOrd1' });
 testVim('noremap_swap', function(cm, vim, helpers) {
   CodeMirror.Vim.noremap('i', 'a', 'normal');
@@ -4294,8 +4332,7 @@ testVim('noremap_swap', function(cm, vim, helpers) {
   helpers.doKeys('<Esc>', 'i');
   eqCursorPos(Pos(0, 1), cm.getCursor());
   // unmap all mappings
-  CodeMirror.Vim.unmap('a', 'normal');
-  CodeMirror.Vim.unmap('i', 'normal');
+  CodeMirror.Vim.mapclear();
 }, { value: 'foo' });
 testVim('noremap_map_interaction', function(cm, vim, helpers) {
   // noremap should clobber map
@@ -4312,10 +4349,7 @@ testVim('noremap_map_interaction', function(cm, vim, helpers) {
   helpers.doKeys('m');
   eqCursorPos(Pos(1, 2), cm.getCursor());
   // unmap all mappings
-  CodeMirror.Vim.unmap('m');
-  CodeMirror.Vim.unmap('l');
-  CodeMirror.Vim.unmap(';');
-  CodeMirror.Vim.unmap(';');
+  CodeMirror.Vim.mapclear();
 }, { value: 'wOrd1\nwOrd2' });
 testVim('noremap_map_interaction2', function(cm, vim, helpers) {
   // map should point to the most recent noremap
@@ -4328,9 +4362,7 @@ testVim('noremap_map_interaction2', function(cm, vim, helpers) {
   helpers.doKeys('m');
   eqCursorPos(Pos(0, 0), cm.getCursor());
   // unmap all mappings
-  CodeMirror.Vim.unmap(';');
-  CodeMirror.Vim.unmap('m');
-  CodeMirror.Vim.unmap(';');
+  CodeMirror.Vim.mapclear();
 }, { value: 'wOrd1\nwOrd2' });
 
 // Test event handlers
