@@ -332,16 +332,27 @@
         <dl>
           <dt><code><strong>unit</strong>: "char" | "word" | "line" | "rectangle" | fn(CodeMirror, Pos) → {from: Pos, to: Pos}</code></dt>
           <dd>The unit by which to select. May be one of the built-in
-          units, or a function that takes a position and returns a
-          range around that, for a custom unit.</dd>
+          units or a function that takes a position and returns a
+          range around that, for a custom unit. The default is to
+          return <code>"word"</code> for double
+          clicks, <code>"line"</code> for triple
+          clicks, <code>"rectangle"</code> for alt-clicks (or, on
+          Chrome OS, meta-shift-clicks), and <code>"single"</code>
+          otherwise.</dd>
           <dt><code><strong>extend</strong>: bool</code></dt>
-          <dd>Whether to extend the existing selection range or start a new one.</dd>
+          <dd>Whether to extend the existing selection range or start
+          a new one. By default, this is enabled when shift
+          clicking.</dd>
           <dt><code><strong>addNew</strong>: bool</code></dt>
-          <dd>When enabled, this adds a new range to the existing selection, rather than replacing it.</dd>
+          <dd>When enabled, this adds a new range to the existing
+          selection, rather than replacing it. The default behavior is
+          to enable this for command-click on Mac OS, and
+          control-click on other platforms.</dd>
           <dt><code><strong>moveOnDrag</strong>: bool</code></dt>
           <dd>When the mouse even drags content around inside the
           editor, this controls whether it is copied (false) or moved
-          (true).</dd>
+          (true). By default, this is enabled by alt-clicking on Mac
+          OS, and ctrl-clicking elsewhere.</dd>
         </dl>
       </dd>
 
