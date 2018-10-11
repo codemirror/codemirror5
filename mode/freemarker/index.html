@@ -1,0 +1,96 @@
+<!doctype html>
+
+<title>CodeMirror: FreeMarker HTML Overlay</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel="stylesheet" href="../../lib/codemirror.css">
+<script src="../../lib/codemirror.js"></script>
+<script src="../../addon/mode/overlay.js"></script>
+<script src="../htmlmixed/htmlmixed.js"></script>
+<script src="../css.js"></script>
+<script src="../javascript/javascript.js"></script>
+<script src="../xml/xml.js"></script>
+<script src="freemarker.js"></script>
+<style>
+.CodeMirror {
+  border: 1px solid black;
+}
+</style>
+<div id=nav>
+  <a href="https://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#">FreeMarker</a>
+  </ul>
+</div>
+
+<article>
+<h2>FreeMarker HTML Overlay Mode</h2>
+<form><textarea id="code" name="code">
+FreeMarker HTML Overlay Code Demo
+
+[#-- FreeMarker Comment --]
+<!-- HTML Comment -->
+
+[#--
+ Multi Line FreeMarker comment
+--]
+
+<!--
+ Multi Line HTML comment
+-->
+
+
+[#-- FreeMarker Assignment --]
+[#assign foo = "bar"/]
+
+[#-- FreeMarker Variables --]
+${bar.baz}
+${foo?string}
+${b?then('foo', 'bar')}
+
+[#-- FreeMarker If / Else block --]
+[#if foo == "bar"]
+  <h3>Hooray!</h3>
+[#else]
+  <h3>Boo!</h3>
+[/#if]
+
+[#-- Macro definition --]
+[#macro add a b]
+<div>
+  ${a} + ${b} = ${a + b}
+</div>
+[/#macro]
+
+[#-- Macro usage --]
+[@add 2 2/]
+
+[#-- Function definition --]
+[#function hello greeting]
+  [#return "hello ${greeting}"]
+[/#function]
+
+[#-- Function call --]
+<p>${hello("world")}</p>
+
+</textarea></form>
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        lineNumbers: true,
+        indentUnit: 4,
+        mode: "freemarker"
+      });
+      editor.setHeight
+    </script>
+
+    <p><strong>MIME types defined:</strong> <code>text/freemarker</code>.</p>
+
+  </article>
