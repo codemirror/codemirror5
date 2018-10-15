@@ -78,10 +78,10 @@ Doc.prototype = createObj(BranchChunk.prototype, {
     if (this.cm) scrollToCoords(this.cm, 0, 0)
     setSelection(this, simpleSelection(top), sel_dontScroll)
   }),
-  replaceRange: function(code, from, to, origin) {
+  replaceRange: function(code, from, to, origin, isRemote) {
     from = clipPos(this, from)
     to = to ? clipPos(this, to) : from
-    replaceRange(this, code, from, to, origin)
+    replaceRange(this, code, from, to, origin, isRemote)
   },
   getRange: function(from, to, lineSep) {
     let lines = getBetween(this, clipPos(this, from), clipPos(this, to))

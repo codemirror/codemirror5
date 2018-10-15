@@ -292,4 +292,36 @@
     cm.extendSelections([Pos(0, 3), Pos(0, 4)])
     hasSelections(cm, 0, 0, 0, 4)
   }, {selectionsMayTouch: true, value: "1234"})
+
+  testCM("replaceRangeLocal", function(cm) {
+    select(cm, Pos(0, 2), Pos(0, 2));
+
+    cm.replaceRange('x', Pos(0, 3));
+    eq(cm.getValue(), "123x4");
+    hasCursors(cm, 0, 2);
+
+    cm.replaceRange('x', Pos(0, 2));
+    eq(cm.getValue(), "12x3x4");
+    hasCursors(cm, 0, 3);
+
+    cm.replaceRange('x', Pos(0, 0));
+    eq(cm.getValue(), "x12x3x4");
+    hasCursors(cm, 0, 4);
+  }, {value: "1234"});
+
+  testCM("replaceRangeRemote", function(cm) {
+    select(cm, Pos(0, 2), Pos(0, 2));
+
+    cm.replaceRange('x', Pos(0, 3), Pos(0, 3), 'remote', true);
+    eq(cm.getValue(), "123x4");
+    hasCursors(cm, 0, 2);
+
+    cm.replaceRange('x', Pos(0, 2), Pos(0, 2), 'remote', true);
+    eq(cm.getValue(), "12x3x4");
+    hasCursors(cm, 0, 2);
+
+    cm.replaceRange('x', Pos(0, 0), Pos(0, 0), 'remote', true);
+    eq(cm.getValue(), "x12x3x4");
+    hasCursors(cm, 0, 3);
+  }, {value: "1234"});
 })();

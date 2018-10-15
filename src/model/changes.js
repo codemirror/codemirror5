@@ -44,9 +44,9 @@ function filterChange(doc, change, update) {
 
 // Apply a change to a document, and add it to the document's
 // history, and propagating it to all linked documents.
-export function makeChange(doc, change, ignoreReadOnly) {
+export function makeChange(doc, change, ignoreReadOnly, isRemote) {
   if (doc.cm) {
-    if (!doc.cm.curOp) return operation(doc.cm, makeChange)(doc, change, ignoreReadOnly)
+    if (!doc.cm.curOp) return operation(doc.cm, makeChange)(doc, change, ignoreReadOnly, isRemote)
     if (doc.cm.state.suppressEdits) return
   }
 
@@ -60,15 +60,15 @@ export function makeChange(doc, change, ignoreReadOnly) {
   let split = sawReadOnlySpans && !ignoreReadOnly && removeReadOnlyRanges(doc, change.from, change.to)
   if (split) {
     for (let i = split.length - 1; i >= 0; --i)
-      makeChangeInner(doc, {from: split[i].from, to: split[i].to, text: i ? [""] : change.text, origin: change.origin})
+      makeChangeInner(doc, {from: split[i].from, to: split[i].to, text: i ? [""] : change.text, origin: change.origin}, isRemote)
   } else {
-    makeChangeInner(doc, change)
+    makeChangeInner(doc, change, isRemote)
   }
 }
 
-function makeChangeInner(doc, change) {
+function makeChangeInner(doc, change, isRemote) {
   if (change.text.length == 1 && change.text[0] == "" && cmp(change.from, change.to) == 0) return
-  let selAfter = computeSelAfterChange(doc, change)
+  let selAfter = computeSelAfterChange(doc, change, isRemote)
   addChangeToHistory(doc, change, selAfter, doc.cm ? doc.cm.curOp.id : NaN)
 
   makeChangeSingleDoc(doc, change, selAfter, stretchSpansOverChange(doc, change))
@@ -261,11 +261,11 @@ function makeChangeSingleDocInEditor(cm, change, spans) {
   cm.display.selForContextMenu = null
 }
 
-export function replaceRange(doc, code, from, to, origin) {
+export function replaceRange(doc, code, from, to, origin, isRemote) {
   if (!to) to = from
   if (cmp(to, from) < 0) [from, to] = [to, from]
   if (typeof code == "string") code = doc.splitLines(code)
-  makeChange(doc, {from, to, text: code, origin})
+  makeChange(doc, {from, to, text: code, origin}, false, isRemote)
 }
 
 // Rebasing/resetting history to deal with externally-sourced changes
