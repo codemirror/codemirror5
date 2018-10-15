@@ -13,7 +13,8 @@ export function changeEnd(change) {
 
 // Adjust a position to refer to the post-change position of the
 // same text, or the end of the change if the change covers it.
-function adjustForChange(pos, change) {
+function adjustForChange(pos, change, isRemote) {
+  if (isRemote && cmp(pos, change.from) == 0) return pos
   if (cmp(pos, change.from) < 0) return pos
   if (cmp(pos, change.to) <= 0) return changeEnd(change)
 
@@ -22,12 +23,12 @@ function adjustForChange(pos, change) {
   return Pos(line, ch)
 }
 
-export function computeSelAfterChange(doc, change) {
+export function computeSelAfterChange(doc, change, isRemote) {
   let out = []
   for (let i = 0; i < doc.sel.ranges.length; i++) {
     let range = doc.sel.ranges[i]
-    out.push(new Range(adjustForChange(range.anchor, change),
-                       adjustForChange(range.head, change)))
+    out.push(new Range(adjustForChange(range.anchor, change, isRemote),
+                       adjustForChange(range.head, change, isRemote)))
   }
   return normalizeSelection(doc.cm, out, doc.sel.primIndex)
 }
