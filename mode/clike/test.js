@@ -43,6 +43,11 @@
      "[type unsigned] [type int] [variable bar] [operator =] [number 8];",
      "[meta #include <baz> ][comment // comment]")
 
+  MT("c_underscores",
+     "[builtin __FOO];",
+     "[builtin _Complex];",
+     "[builtin __aName];",
+     "[variable _aName];");
 
   var mode_cpp = CodeMirror.getMode({indentUnit: 2}, "text/x-c++src");
   function MTCPP(name) { test.mode(name, mode_cpp, Array.prototype.slice.call(arguments, 1)); }
@@ -56,6 +61,21 @@
   MTCPP("ctor_dtor",
      "[def Foo::Foo]() {}",
      "[def Foo::~Foo]() {}");
+
+  MTCPP("cpp_underscores",
+        "[builtin __FOO];",
+        "[builtin _Complex];",
+        "[builtin __aName];",
+        "[variable _aName];");
+
+  var mode_objc = CodeMirror.getMode({indentUnit: 2}, "text/x-objectivec");
+  function MTOBJC(name) { test.mode(name, mode_objc, Array.prototype.slice.call(arguments, 1)); }
+
+  MTOBJC("objc_underscores",
+         "[builtin __FOO];",
+         "[builtin _Complex];",
+         "[builtin __aName];",
+         "[variable _aName];");
 
   var mode_scala = CodeMirror.getMode({indentUnit: 2}, "text/x-scala");
   function MTSCALA(name) { test.mode("scala_" + name, mode_scala, Array.prototype.slice.call(arguments, 1)); }

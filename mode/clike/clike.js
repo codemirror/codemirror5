@@ -65,7 +65,10 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       numberStart = parserConfig.numberStart || /[\d\.]/,
       number = parserConfig.number || /^(?:0x[a-f\d]+|0b[01]+|(?:\d+\.?\d*|\.\d+)(?:e[-+]?\d+)?)(u|ll?|l|f)?/i,
       isOperatorChar = parserConfig.isOperatorChar || /[+\-*&%=<>!?|\/]/,
-      isIdentifierChar = parserConfig.isIdentifierChar || /[\w\$_\xa1-\uffff]/;
+      isIdentifierChar = parserConfig.isIdentifierChar || /[\w\$_\xa1-\uffff]/,
+      // An optional function that takes a {string} token and returns true if it
+      // should be treated as a builtin.
+      isReservedIdentifier = parserConfig.isReservedIdentifier || false;
 
   var curPunc, isDefKeyword;
 
@@ -113,7 +116,8 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       return "keyword";
     }
     if (contains(types, cur)) return "type";
-    if (contains(builtin, cur)) {
+    if (contains(builtin, cur)
+        || (isReservedIdentifier && isReservedIdentifier(cur))) {
       if (contains(blockKeywords, cur)) curPunc = "newstatement";
       return "builtin";
     }
@@ -286,6 +290,14 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     return false;
   }
 
+  // For C and C++ (and ObjC): identifiers starting with __
+  // or _ followed by a capital letter are reserved for the compiler.
+  function cIsReservedIdentifier(token) {
+    if (!token || token.length < 2) return false;
+    if (token[0] != '_') return false;
+    return (token[1] == '_') || (token[1] !== token[1].toLowerCase());
+  }
+
   function cpp14Literal(stream) {
     stream.eatWhile(/[\w\.']/);
     return "number";
@@ -368,14 +380,17 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
   def(["text/x-csrc", "text/x-c", "text/x-chdr"], {
     name: "clike",
     keywords: words(cKeywords),
-    types: words(cTypes + " bool _Complex _Bool float_t double_t intptr_t intmax_t " +
-                 "int8_t int16_t int32_t int64_t uintptr_t uintmax_t uint8_t uint16_t " +
-                 "uint32_t uint64_t"),
+    types: words(cTypes + " bool float_t double_t intptr_t intmax_t int8_t int16_t " +
+                 "int32_t int64_t uintptr_t uintmax_t uint8_t uint16_t uint32_t uint64_t"),
     blockKeywords: words("case do else for if switch while struct"),
     defKeywords: words("struct"),
     typeFirstDefinitions: true,
     atoms: words("NULL true false"),
-    hooks: {"#": cppHook, "*": pointerHook},
+    isReservedIdentifier: cIsReservedIdentifier,
+    hooks: {
+      "#": cppHook,
+      "*": pointerHook,
+    },
     modeProps: {fold: ["brace", "include"]}
   });
 
@@ -393,6 +408,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     atoms: words("true false NULL"),
     dontIndentStatements: /^template$/,
     isIdentifierChar: /[\w\$_~\xa1-\uffff]/,
+    isReservedIdentifier: cIsReservedIdentifier,
     hooks: {
       "#": cppHook,
       "*": pointerHook,
@@ -720,10 +736,11 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
 
   def("text/x-objectivec", {
     name: "clike",
-    keywords: words(cKeywords + "inline restrict _Bool _Complex _Imaginary BOOL Class bycopy byref id IMP in " +
-                    "inout nil oneway out Protocol SEL self super atomic nonatomic retain copy readwrite readonly"),
+    keywords: words(cKeywords + "inline restrict BOOL Class bycopy byref id IMP in inout nil oneway out " +
+                    "Protocol SEL self super atomic nonatomic retain copy readwrite readonly"),
     types: words(cTypes),
     atoms: words("YES NO NULL NILL ON OFF true false"),
+    isReservedIdentifier: cIsReservedIdentifier,
     hooks: {
       "@": function(stream) {
         stream.eatWhile(/[\w\$]/);
