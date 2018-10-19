@@ -270,6 +270,8 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     "static else struct switch extern typedef union for goto while enum const " +
     "volatile inline restrict asm fortran";
   var cTypes = "int long char short double float unsigned signed void size_t ptrdiff_t";
+  var cBlockKeywords = "case do else for if switch while struct enum union";
+  var cDefKeywords = "struct enum union";
 
   function cppHook(stream, state) {
     if (!state.startOfLine) return false
@@ -383,8 +385,8 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     keywords: words(cKeywords),
     types: words(cTypes + " bool float_t double_t intptr_t intmax_t int8_t int16_t " +
                  "int32_t int64_t uintptr_t uintmax_t uint8_t uint16_t uint32_t uint64_t"),
-    blockKeywords: words("case do else for if switch while struct"),
-    defKeywords: words("struct"),
+    blockKeywords: words(cBlockKeywords),
+    defKeywords: words(cDefKeywords),
     typeFirstDefinitions: true,
     atoms: words("NULL true false"),
     isReservedIdentifier: cIsReservedIdentifier,
@@ -403,8 +405,8 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
                     "alignas alignof constexpr decltype nullptr noexcept thread_local final " +
                     "static_assert override"),
     types: words(cTypes + " bool wchar_t"),
-    blockKeywords: words("catch class do else finally for if struct switch try while"),
-    defKeywords: words("class namespace struct enum union"),
+    blockKeywords: words(cBlockKeywords +" class try catch finally"),
+    defKeywords: words(cDefKeywords + " class namespace"),
     typeFirstDefinitions: true,
     atoms: words("true false NULL"),
     dontIndentStatements: /^template$/,
@@ -729,7 +731,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
                     "implementation includes interface module new norace nx_struct nx_union post provides " +
                     "signal task uses abstract extends"),
     types: words(cTypes),
-    blockKeywords: words("case do else for if switch while struct"),
+    blockKeywords: words(cBlockKeywords),
     atoms: words("null true false"),
     hooks: {"#": cppHook},
     modeProps: {fold: ["brace", "include"]}
@@ -737,23 +739,27 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
 
   def("text/x-objectivec", {
     name: "clike",
-    keywords: words(cKeywords + " bycopy byref in inout oneway out self " +
-                    "super atomic nonatomic retain copy readwrite readonly " +
-                    "strong weak assign typeof nullable nonnull instancetype"),
-    types: words(cTypes),
+    keywords: words(cKeywords + " bycopy byref in inout oneway out self super atomic nonatomic retain copy " +
+                    "readwrite readonly strong weak assign typeof nullable nonnull null_resettable _cmd " +
+                    "@interface @implementation @end @protocol @encode @property @synthesize @dynamic @class " +
+                    "@public @package @private @protected @required @optional @try @catch @finally @import " +
+                    "@selector @encode @defs @synchronized @autoreleasepool @compatibility_alias @available"),
+    types: words(cTypes + " instancetype SEL id BOOL IMP Class"),
+    builtin: words("FOUNDATION_EXPORT FOUNDATION_EXTERN NS_INLINE NS_FORMAT_FUNCTION NS_RETURNS_RETAINED " +
+                   "NS_ERROR_ENUM NS_RETURNS_NOT_RETAINED NS_RETURNS_INNER_POINTER NS_DESIGNATED_INITIALIZER " +
+                   "NS_ENUM NS_OPTIONS NS_REQUIRES_NIL_TERMINATION NS_ASSUME_NONNULL_BEGIN " +
+                   "NS_ASSUME_NONNULL_END NS_SWIFT_NAME NS_REFINED_FOR_SWIFT"),
+    blockKeywords: words(cBlockKeywords + " @synthesize @try @catch @finally @autoreleasepool @synchronized"),
+    defKeywords: words(cDefKeywords + " @interface @implementation @protocol @class"),
+    dontIndentStatements: /^@.*$/,
+    typeFirstDefinitions: true,
     atoms: words("YES NO NULL Nil nil true false"),
     isReservedIdentifier: cIsReservedIdentifier,
     hooks: {
-      "@": function(stream) {
-        stream.eatWhile(/[\w\$]/);
-        return "keyword";
-      },
       "#": cppHook,
-      indent: function(_state, ctx, textAfter) {
-        if (ctx.type == "statement" && /^@\w/.test(textAfter)) return ctx.indented
-      }
+      "*": pointerHook,
     },
-    modeProps: {fold: "brace"}
+    modeProps: {fold: ["brace", "include"]}
   });
 
   def("text/x-squirrel", {
