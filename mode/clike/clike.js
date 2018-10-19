@@ -267,7 +267,8 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     }
   }
   var cKeywords = "auto if break case register continue return default do sizeof " +
-    "static else struct switch extern typedef union for goto while enum const volatile";
+    "static else struct switch extern typedef union for goto while enum const " +
+    "volatile inline restrict asm fortran";
   var cTypes = "int long char short double float unsigned signed void size_t ptrdiff_t";
 
   function cppHook(stream, state) {
@@ -396,9 +397,9 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
 
   def(["text/x-c++src", "text/x-c++hdr"], {
     name: "clike",
-    keywords: words(cKeywords + " asm dynamic_cast namespace reinterpret_cast try explicit new " +
+    keywords: words(cKeywords + " dynamic_cast namespace reinterpret_cast try explicit new " +
                     "static_cast typeid catch operator template typename class friend private " +
-                    "this using const_cast inline public throw virtual delete mutable protected " +
+                    "this using const_cast public throw virtual delete mutable protected " +
                     "alignas alignof constexpr decltype nullptr noexcept thread_local final " +
                     "static_assert override"),
     types: words(cTypes + " bool wchar_t"),
@@ -724,7 +725,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
 
   def("text/x-nesc", {
     name: "clike",
-    keywords: words(cKeywords + "as atomic async call command component components configuration event generic " +
+    keywords: words(cKeywords + " as atomic async call command component components configuration event generic " +
                     "implementation includes interface module new norace nx_struct nx_union post provides " +
                     "signal task uses abstract extends"),
     types: words(cTypes),
@@ -736,10 +737,11 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
 
   def("text/x-objectivec", {
     name: "clike",
-    keywords: words(cKeywords + "inline restrict BOOL Class bycopy byref id IMP in inout nil oneway out " +
-                    "Protocol SEL self super atomic nonatomic retain copy readwrite readonly"),
+    keywords: words(cKeywords + " bycopy byref in inout oneway out self " +
+                    "super atomic nonatomic retain copy readwrite readonly " +
+                    "strong weak assign typeof nullable nonnull instancetype"),
     types: words(cTypes),
-    atoms: words("YES NO NULL NILL ON OFF true false"),
+    atoms: words("YES NO NULL Nil nil true false"),
     isReservedIdentifier: cIsReservedIdentifier,
     hooks: {
       "@": function(stream) {
