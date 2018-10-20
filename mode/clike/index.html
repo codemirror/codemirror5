@@ -5,8 +5,13 @@
 <link rel=stylesheet href="../../doc/docs.css">
 
 <link rel="stylesheet" href="../../lib/codemirror.css">
+<link rel="stylesheet" href="../../addon/fold/foldgutter.css">
 <script src="../../lib/codemirror.js"></script>
 <script src="../../addon/edit/matchbrackets.js"></script>
+<script src="../../addon/fold/foldcode.js"></script>
+<script src="../../addon/fold/foldgutter.js"></script>
+<script src="../../addon/fold/brace-fold.js"></script>
+<script src="../../addon/fold/comment-fold.js"></script>
 <link rel="stylesheet" href="../../addon/hint/show-hint.css">
 <script src="../../addon/hint/show-hint.js"></script>
 <script src="clike.js"></script>
@@ -161,7 +166,7 @@ NS_ENUM(SomeValues) {
 @property(nonatomic, strong, nullable) NSString *aString;
 @end
 
-@implementation YourAppDelegate
+@implementation MyClass
 
 - (instancetype)initWithString:(NSString *)aStringVar {
   if ((self = [super init])) {
@@ -191,7 +196,7 @@ public enum Enum {
 
 public class Class<T, V> implements MyInterface {
   public static final MyType<T, V> member;
-  
+
   private class InnerClass {
     public int zero() {
       return 0;
@@ -284,7 +289,7 @@ public class HttpServer(private val appServer: AppServer) {
 "Produces the [[stream|Iterable]] that results from repeated
  application of the given [[function|next]] to the given
  [[first]] element of the stream, until the function first
- returns [[finished]]. If the given function never returns 
+ returns [[finished]]. If the given function never returns
  `finished`, the resulting stream is infinite.
 
  For example:
@@ -298,7 +303,7 @@ shared {Element+} loop&lt;Element&gt;(
         Element first)(
         "The function that produces the next element of the
          stream, given the current element. The function may
-         return [[finished]] to indicate the end of the 
+         return [[finished]] to indicate the end of the
          stream."
         Element|Finished next(Element element))
     =&gt; let (start = first)
@@ -327,37 +332,51 @@ shared {Element+} loop&lt;Element&gt;(
       var cEditor = CodeMirror.fromTextArea(document.getElementById("c-code"), {
         lineNumbers: true,
         matchBrackets: true,
+        foldGutter: true,
+        gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
         mode: "text/x-csrc"
       });
       var cppEditor = CodeMirror.fromTextArea(document.getElementById("cpp-code"), {
         lineNumbers: true,
         matchBrackets: true,
+        foldGutter: true,
+        gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
         mode: "text/x-c++src"
       });
       var javaEditor = CodeMirror.fromTextArea(document.getElementById("java-code"), {
         lineNumbers: true,
         matchBrackets: true,
+        foldGutter: true,
+        gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
         mode: "text/x-java"
       });
       var objectivecEditor = CodeMirror.fromTextArea(document.getElementById("objectivec-code"), {
         lineNumbers: true,
         matchBrackets: true,
+        foldGutter: true,
+        gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
         mode: "text/x-objectivec"
       });
       var scalaEditor = CodeMirror.fromTextArea(document.getElementById("scala-code"), {
         lineNumbers: true,
         matchBrackets: true,
+        foldGutter: true,
+        gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
         mode: "text/x-scala"
       });
       var kotlinEditor = CodeMirror.fromTextArea(document.getElementById("kotlin-code"), {
-          lineNumbers: true,
-          matchBrackets: true,
-          mode: "text/x-kotlin"
+        lineNumbers: true,
+        matchBrackets: true,
+        foldGutter: true,
+        gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+        mode: "text/x-kotlin"
       });
       var ceylonEditor = CodeMirror.fromTextArea(document.getElementById("ceylon-code"), {
-          lineNumbers: true,
-          matchBrackets: true,
-          mode: "text/x-ceylon"
+        lineNumbers: true,
+        matchBrackets: true,
+        foldGutter: true,
+        gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+        mode: "text/x-ceylon"
       });
       var mac = CodeMirror.keyMap.default == CodeMirror.keyMap.macDefault;
       CodeMirror.keyMap.default[(mac ? "Cmd" : "Ctrl") + "-Space"] = "autocomplete";
