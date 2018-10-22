@@ -69,7 +69,7 @@ export function normalizeSelection(cm, ranges, primIndex) {
   for (let i = 1; i < ranges.length; i++) {
     let cur = ranges[i], prev = ranges[i - 1]
     let diff = cmp(prev.to(), cur.from())
-    if (mayTouch ? diff > 0 : diff >= 0) {
+    if (mayTouch && !cur.empty() ? diff > 0 : diff >= 0) {
       let from = minPos(prev.from(), cur.from()), to = maxPos(prev.to(), cur.to())
       let inv = prev.empty() ? cur.from() == cur.head : prev.from() == prev.head
       if (i <= primIndex) --primIndex
