@@ -51,6 +51,21 @@
      "[builtin __aName];",
      "[variable _aName];");
 
+  MT("c_types",
+    "[type int];",
+    "[type long];",
+    "[type char];",
+    "[type short];",
+    "[type double];",
+    "[type float];",
+    "[type unsigned];",
+    "[type signed];",
+    "[type void];",
+    "[type bool];",
+    "[type foo_t];",
+    "[variable foo_T];",
+    "[variable _t];");
+
   var mode_cpp = CodeMirror.getMode({indentUnit: 2}, "text/x-c++src");
   function MTCPP(name) { test.mode(name, mode_cpp, Array.prototype.slice.call(arguments, 1)); }
 
@@ -99,6 +114,18 @@
          "  [keyword return] [keyword self];",
          "}",
          "[keyword @end]");
+
+  MTOBJC("objc_types",
+         "[type int];",
+         "[type foo_t];",
+         "[variable foo_T];",
+         "[type id];",
+         "[type SEL];",
+         "[type instancetype];",
+         "[type Class];",
+         "[type Protocol];",
+         "[type BOOL];"
+         );
 
   var mode_scala = CodeMirror.getMode({indentUnit: 2}, "text/x-scala");
   function MTSCALA(name) { test.mode("scala_" + name, mode_scala, Array.prototype.slice.call(arguments, 1)); }
