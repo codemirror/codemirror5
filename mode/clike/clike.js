@@ -269,7 +269,29 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
   var cKeywords = "auto if break case register continue return default do sizeof " +
     "static else struct switch extern typedef union for goto while enum const " +
     "volatile inline restrict asm fortran";
-  var cTypes = "int long char short double float unsigned signed void size_t ptrdiff_t";
+
+  // Do not use this. Use the cTypes function below. This is global just to avoid
+  // excessive calls when cTypes is being called multiple times during a parse.
+  var basicCTypes = words("int long char short double float unsigned signed " +
+    "void bool");
+
+  // Do not use this. Use the objCTypes function below. This is global just to avoid
+  // excessive calls when objCTypes is being called multiple times during a parse.
+  var basicObjCTypes = words("SEL instancetype id Class Protocol BOOL");
+
+  // Returns true if identifier is a "C" type.
+  // C type is defined as those that are reserved by the compiler (basicTypes),
+  // and those that end in _t (Reserved by POSIX for types)
+  // http://www.gnu.org/software/libc/manual/html_node/Reserved-Names.html
+  function cTypes(identifier) {
+    return contains(basicCTypes, identifier) || /.+_t/.test(identifier);
+  }
+
+  // Returns true if identifier is a "Objective C" type.
+  function objCTypes(identifier) {
+    return cTypes(identifier) || contains(basicObjCTypes, identifier);
+  }
+
   var cBlockKeywords = "case do else for if switch while struct enum union";
   var cDefKeywords = "struct enum union";
 
@@ -383,8 +405,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
   def(["text/x-csrc", "text/x-c", "text/x-chdr"], {
     name: "clike",
     keywords: words(cKeywords),
-    types: words(cTypes + " bool float_t double_t intptr_t intmax_t int8_t int16_t " +
-                 "int32_t int64_t uintptr_t uintmax_t uint8_t uint16_t uint32_t uint64_t"),
+    types: cTypes,
     blockKeywords: words(cBlockKeywords),
     defKeywords: words(cDefKeywords),
     typeFirstDefinitions: true,
@@ -404,7 +425,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
                     "this using const_cast public throw virtual delete mutable protected " +
                     "alignas alignof constexpr decltype nullptr noexcept thread_local final " +
                     "static_assert override"),
-    types: words(cTypes + " bool wchar_t"),
+    types: cTypes,
     blockKeywords: words(cBlockKeywords +" class try catch finally"),
     defKeywords: words(cDefKeywords + " class namespace"),
     typeFirstDefinitions: true,
@@ -532,7 +553,6 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
   def("text/x-scala", {
     name: "clike",
     keywords: words(
-
       /* scala */
       "abstract case catch class def do else extends final finally for forSome if " +
       "implicit import lazy match new null object override package private protected return " +
@@ -730,7 +750,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     keywords: words(cKeywords + " as atomic async call command component components configuration event generic " +
                     "implementation includes interface module new norace nx_struct nx_union post provides " +
                     "signal task uses abstract extends"),
-    types: words(cTypes),
+    types: cTypes,
     blockKeywords: words(cBlockKeywords),
     atoms: words("null true false"),
     hooks: {"#": cppHook},
@@ -744,7 +764,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
                     "@interface @implementation @end @protocol @encode @property @synthesize @dynamic @class " +
                     "@public @package @private @protected @required @optional @try @catch @finally @import " +
                     "@selector @encode @defs @synchronized @autoreleasepool @compatibility_alias @available"),
-    types: words(cTypes + " instancetype SEL id BOOL IMP Class"),
+    types: objCTypes,
     builtin: words("FOUNDATION_EXPORT FOUNDATION_EXTERN NS_INLINE NS_FORMAT_FUNCTION NS_RETURNS_RETAINED " +
                    "NS_ERROR_ENUM NS_RETURNS_NOT_RETAINED NS_RETURNS_INNER_POINTER NS_DESIGNATED_INITIALIZER " +
                    "NS_ENUM NS_OPTIONS NS_REQUIRES_NIL_TERMINATION NS_ASSUME_NONNULL_BEGIN " +
@@ -753,7 +773,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     defKeywords: words(cDefKeywords + " @interface @implementation @protocol @class"),
     dontIndentStatements: /^@.*$/,
     typeFirstDefinitions: true,
-    atoms: words("YES NO NULL Nil nil true false"),
+    atoms: words("YES NO NULL Nil nil true false nullptr"),
     isReservedIdentifier: cIsReservedIdentifier,
     hooks: {
       "#": cppHook,
@@ -766,7 +786,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     name: "clike",
     keywords: words("base break clone continue const default delete enum extends function in class" +
                     " foreach local resume return this throw typeof yield constructor instanceof static"),
-    types: words(cTypes),
+    types: cTypes,
     blockKeywords: words("case catch class else for foreach if switch try while"),
     defKeywords: words("function local class"),
     typeFirstDefinitions: true,
