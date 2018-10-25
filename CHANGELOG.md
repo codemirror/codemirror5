@@ -1,3 +1,27 @@
+## 5.41.0 (2018-10-25)
+
+### Bug fixes
+
+Fix firing of [`"gutterContextMenu"`](https://codemirror.net/doc/manual.html#event_gutterContextMenu) event on Firefox.
+
+Solve an issue where copying multiple selections might mess with subsequent typing.
+
+Don't crash when [`endOperation`](https://codemirror.net/doc/manual.html#endOperation) is called with no operation active.
+
+[vim bindings](https://codemirror.net/demo/vim.html): Fix insert mode repeat after visualBlock edits.
+
+[scheme mode](https://codemirror.net/mode/scheme/index.html): Improve highlighting of quoted expressions.
+
+[soy mode](https://codemirror.net/mode/soy/): Support injected data and `@param` in comments.
+
+[objective c mode](https://codemirror.net/mode/clike/): Improve conformance to the actual language.
+
+### New features
+
+A new [`selectionsMayTouch`](https://codemirror.net/doc/manual.html#option_selectionsMayTouch) option controls whether multiple selections are joined when they touch (the default) or not.
+
+[vim bindings](https://codemirror.net/demo/vim.html): Add `noremap` binding command.
+
 ## 5.40.2 (2018-09-20)
 
 ### Bug fixes
