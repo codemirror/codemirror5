@@ -420,16 +420,18 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
 
   def(["text/x-c++src", "text/x-c++hdr"], {
     name: "clike",
-    keywords: words(cKeywords + " dynamic_cast namespace reinterpret_cast try explicit new " +
-                    "static_cast typeid catch operator template typename class friend private " +
-                    "this using const_cast public throw virtual delete mutable protected " +
-                    "alignas alignof constexpr decltype nullptr noexcept thread_local final " +
-                    "static_assert override"),
+    // Keywords from https://en.cppreference.com/w/cpp/keyword includes C++20.
+    keywords: words(cKeywords + "alignas alignof and and_eq audit axiom bitand bitor catch " +
+                    "class compl concept constexpr const_cast decltype delete dynamic_cast " +
+                    "explicit export final friend import module mutable namespace new noexcept " +
+                    "not not_eq operator or or_eq override private protected public " +
+                    "reinterpret_cast requires static_assert static_cast template this " +
+                    "thread_local throw try typeid typename using virtual xor xor_eq"),
     types: cTypes,
-    blockKeywords: words(cBlockKeywords +" class try catch finally"),
+    blockKeywords: words(cBlockKeywords + " class try catch"),
     defKeywords: words(cDefKeywords + " class namespace"),
     typeFirstDefinitions: true,
-    atoms: words("true false NULL"),
+    atoms: words("true false NULL nullptr"),
     dontIndentStatements: /^template$/,
     isIdentifierChar: /[\w\$_~\xa1-\uffff]/,
     isReservedIdentifier: cIsReservedIdentifier,
