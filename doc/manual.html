@@ -1375,7 +1375,7 @@ editor.setOption("extraKeys", {
 
       <dt id="somethingSelected"><code><strong>doc.somethingSelected</strong>() → boolean</code></dt>
       <dd>Return true if any text is selected.</dd>
-      <dt id="setCursor"><code><strong>doc.setCursor</strong>(pos: {line, ch}|number, ?ch: number, ?options: object)</code></dt>
+      <dt id="setCursor"><code><strong>doc.setCursor</strong>(pos: {line, ch}|number, ch: number|undefined, ?options: object)</code></dt>
       <dd>Set the cursor position. You can either pass a
       single <code>{line, ch}</code> object, or the line and the
       character as two separate parameters. Will replace all
@@ -1411,7 +1411,7 @@ editor.setOption("extraKeys", {
         stuck.</dd>
       </dl></dd>
 
-      <dt id="setSelections"><code><strong>doc.setSelections</strong>(ranges: array&lt;{anchor, head}&gt;, ?primary: integer, ?options: object)</code></dt>
+      <dt id="setSelections"><code><strong>doc.setSelections</strong>(ranges: array&lt;{anchor, head}&gt;, primary: integer|null, ?options: object)</code></dt>
       <dd>Sets a new set of selections. There must be at least one
       selection in the given array. When <code>primary</code> is a
       number, it determines which selection is the primary one. When
