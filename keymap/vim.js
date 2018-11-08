@@ -132,6 +132,7 @@
     { keys: 'd', type: 'operator', operator: 'delete' },
     { keys: 'y', type: 'operator', operator: 'yank' },
     { keys: 'c', type: 'operator', operator: 'change' },
+    { keys: '=', type: 'operator', operator: 'indentAuto' },
     { keys: '>', type: 'operator', operator: 'indent', operatorArgs: { indentRight: true }},
     { keys: '<', type: 'operator', operator: 'indent', operatorArgs: { indentRight: false }},
     { keys: 'g~', type: 'operator', operator: 'changeCase' },
@@ -2186,6 +2187,10 @@
             cm.indentLine(i, args.indentRight);
           }
         }
+        return motions.moveToFirstNonWhiteSpaceCharacter(cm, ranges[0].anchor);
+      },
+      indentAuto: function(cm, _args, ranges) {
+        cm.execCommand("indentAuto");
         return motions.moveToFirstNonWhiteSpaceCharacter(cm, ranges[0].anchor);
       },
       changeCase: function(cm, args, ranges, oldAnchor, newHead) {
