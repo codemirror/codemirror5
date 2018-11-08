@@ -1222,6 +1222,13 @@ testVim('<<', function(cm, vim, helpers) {
   is(!register.linewise);
   helpers.assertCursorAt(0, 1);
 }, { value: '   word1\n  word2\nword3 ', indentUnit: 2 });
+testVim('=', function(cm, vim, helpers) {
+  cm.setCursor(0, 3);
+  helpers.doKeys('<C-v>', 'j', 'j');
+  var expectedValue = 'word1\nword2\nword3';
+  helpers.doKeys('=');
+  eq(expectedValue, cm.getValue());
+}, { value: '   word1\n  word2\n  word3', indentUnit: 2 });
 
 // Edit tests
 function testEdit(name, before, pos, edit, after) {
