@@ -655,6 +655,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "variable") cx.marked = "property";
     if (type == "spread") return cont(pattern);
     if (type == "}") return pass();
+    if (type == "[") return cont(expression, expect(']'), expect(':'), proppattern);
     return cont(expect(":"), pattern, maybeAssign);
   }
   function eltpattern() {
