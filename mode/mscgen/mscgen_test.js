@@ -1,5 +1,5 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
-// Distributed under an MIT license: http://codemirror.net/LICENSE
+// Distributed under an MIT license: https://codemirror.net/LICENSE
 
 (function() {
   var mode = CodeMirror.getMode({indentUnit: 2}, "mscgen");
@@ -26,6 +26,7 @@
 
   MT("xù/ msgenny keywords classify as 'base'",
     "[base watermark]",
+    "[base wordwrapentities]",
     "[base alt loop opt ref else break par seq assert]"
   );
 

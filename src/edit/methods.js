@@ -432,6 +432,11 @@ export default function(CodeMirror) {
       return old
     }),
 
+    phrase: function(phraseText) {
+      let phrases = this.options.phrases
+      return phrases && Object.prototype.hasOwnProperty.call(phrases, phraseText) ? phrases[phraseText] : phraseText
+    },
+
     getInputField: function(){return this.display.input.getField()},
     getWrapperElement: function(){return this.display.wrapper},
     getScrollerElement: function(){return this.display.scroller},

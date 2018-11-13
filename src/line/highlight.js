@@ -157,7 +157,7 @@ function callBlankLine(mode, state) {
   if (inner.mode.blankLine) return inner.mode.blankLine(inner.state)
 }
 
-export function readToken(mode, stream, state, inner) {
+function readToken(mode, stream, state, inner) {
   for (let i = 0; i < 10; i++) {
     if (inner) inner[0] = innerMode(mode, state).mode
     let style = mode.token(stream, state)

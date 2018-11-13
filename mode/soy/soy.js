@@ -1,5 +1,5 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
-// Distributed under an MIT license: http://codemirror.net/LICENSE
+// Distributed under an MIT license: https://codemirror.net/LICENSE
 
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
@@ -272,7 +272,7 @@
           return "keyword";
 
         // A tag-keyword must be followed by whitespace, comment or a closing tag.
-        } else if (match = stream.match(/^\{([\/@\\]?\w+\??)(?=[\s\}]|\/[/*])/)) {
+        } else if (match = stream.match(/^\{([/@\\]?\w+\??)(?=$|[\s}]|\/[/*])/)) {
           if (match[1] != "/switch")
             state.indent += (/^(\/|(else|elseif|ifempty|case|fallbackmsg|default)$)/.test(match[1]) && state.tag != "switch" ? 1 : 2) * config.indentUnit;
           state.tag = match[1];
@@ -300,7 +300,7 @@
             if (!state.scopes) {
               state.variables = prepend(null, 'ij');
             }
-          } else if (state.tag.match(/^@(?:param\??|inject)/)) {
+          } else if (state.tag.match(/^@(?:param\??|inject|prop)/)) {
             state.soyState.push("param-def");
           }
           return "keyword";
@@ -349,6 +349,8 @@
       fold: "indent"
     };
   }, "htmlmixed");
+
+  CodeMirror.registerHelper("wordChars", "soy", /[\w$]/);
 
   CodeMirror.registerHelper("hintWords", "soy", indentingTags.concat(
       ["delpackage", "namespace", "alias", "print", "css", "debugger"]));

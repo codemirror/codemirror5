@@ -1,5 +1,5 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
-// Distributed under an MIT license: http://codemirror.net/LICENSE
+// Distributed under an MIT license: https://codemirror.net/LICENSE
 
 (function() {
   var mode = CodeMirror.getMode({indentUnit: 2}, "javascript");
@@ -225,6 +225,12 @@
      "[keyword function] [def foo]([def x] [operator =] [string-2 `foo${][number 10][string-2 }bar`]) {",
      "  [keyword return] [variable-2 x];",
      "}");
+
+  MT(
+    "param_destructuring",
+    "[keyword function] [def foo]([def x] [operator =] [string-2 `foo${][number 10][string-2 }bar`]) {",
+    "  [keyword return] [variable-2 x];",
+    "}");
 
   MT("new_target",
      "[keyword function] [def F]([def target]) {",

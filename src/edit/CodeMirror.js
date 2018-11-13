@@ -13,7 +13,7 @@ import Doc from "../model/Doc.js"
 import { attachDoc } from "../model/document_data.js"
 import { Range } from "../model/selection.js"
 import { extendSelection } from "../model/selection_updates.js"
-import { captureRightClick, ie, ie_version, mobile, webkit } from "../util/browser.js"
+import { ie, ie_version, mobile, webkit } from "../util/browser.js"
 import { e_preventDefault, e_stop, on, signal, signalDOMEvent } from "../util/event.js"
 import { bind, copyObj, Delayed } from "../util/misc.js"
 
@@ -122,7 +122,7 @@ function registerEventHandlers(cm) {
   // Some browsers fire contextmenu *after* opening the menu, at
   // which point we can't mess with it anymore. Context menu is
   // handled in onMouseDown for these browsers.
-  if (!captureRightClick) on(d.scroller, "contextmenu", e => onContextMenu(cm, e))
+  on(d.scroller, "contextmenu", e => onContextMenu(cm, e))
 
   // Used to suppress mouse event handling when a touch happens
   let touchFinished, prevTouch = {end: 0}

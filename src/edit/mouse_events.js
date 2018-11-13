@@ -88,7 +88,7 @@ export function onMouseDown(e) {
     if (pos) extendSelection(cm.doc, pos)
     setTimeout(() => display.input.focus(), 20)
   } else if (button == 3) {
-    if (captureRightClick) onContextMenu(cm, e)
+    if (captureRightClick) cm.display.input.onContextMenu(e)
     else delayBlurEvent(cm)
   }
 }
@@ -226,10 +226,10 @@ function leftButtonSelect(cm, event, start, behavior) {
     startSel = doc.sel
   } else if (ourIndex == -1) {
     ourIndex = ranges.length
-    setSelection(doc, normalizeSelection(ranges.concat([ourRange]), ourIndex),
+    setSelection(doc, normalizeSelection(cm, ranges.concat([ourRange]), ourIndex),
                  {scroll: false, origin: "*mouse"})
   } else if (ranges.length > 1 && ranges[ourIndex].empty() && behavior.unit == "char" && !behavior.extend) {
-    setSelection(doc, normalizeSelection(ranges.slice(0, ourIndex).concat(ranges.slice(ourIndex + 1)), 0),
+    setSelection(doc, normalizeSelection(cm, ranges.slice(0, ourIndex).concat(ranges.slice(ourIndex + 1)), 0),
                  {scroll: false, origin: "*mouse"})
     startSel = doc.sel
   } else {
@@ -255,7 +255,7 @@ function leftButtonSelect(cm, event, start, behavior) {
           ranges.push(new Range(Pos(line, leftPos), Pos(line, findColumn(text, right, tabSize))))
       }
       if (!ranges.length) ranges.push(new Range(start, start))
-      setSelection(doc, normalizeSelection(startSel.ranges.slice(0, ourIndex).concat(ranges), ourIndex),
+      setSelection(doc, normalizeSelection(cm, startSel.ranges.slice(0, ourIndex).concat(ranges), ourIndex),
                    {origin: "*mouse", scroll: false})
       cm.scrollIntoView(pos)
     } else {
@@ -271,7 +271,7 @@ function leftButtonSelect(cm, event, start, behavior) {
       }
       let ranges = startSel.ranges.slice(0)
       ranges[ourIndex] = bidiSimplify(cm, new Range(clipPos(doc, anchor), head))
-      setSelection(doc, normalizeSelection(ranges, ourIndex), sel_mouse)
+      setSelection(doc, normalizeSelection(cm, ranges, ourIndex), sel_mouse)
     }
   }
 
@@ -398,7 +398,7 @@ export function clickInGutter(cm, e) {
 export function onContextMenu(cm, e) {
   if (eventInWidget(cm.display, e) || contextMenuInGutter(cm, e)) return
   if (signalDOMEvent(cm, e, "contextmenu")) return
-  cm.display.input.onContextMenu(e)
+  if (!captureRightClick) cm.display.input.onContextMenu(e)
 }
 
 function contextMenuInGutter(cm, e) {

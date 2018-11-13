@@ -15,14 +15,14 @@
   <script src="../mode/javascript/javascript.js"></script>
   <script src="../mode/css/css.js"></script>
   <script src="../mode/htmlmixed/htmlmixed.js"></script>
-  <style type="text/css">
+  <style>
     .CodeMirror {border-top: 1px solid #888; border-bottom: 1px solid #888;}
   </style>
 </head>
 
 <body>
   <div id=nav>
-    <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../doc/logo.png"></a>
+    <a href="https://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../doc/logo.png"></a>
 
     <ul>
       <li><a href="../index.html">Home</a>
@@ -43,7 +43,7 @@
 
     <div id="code"></div>
 
-    <script type="text/javascript">
+    <script>
       window.onload = function() {
         editor = CodeMirror(document.getElementById("code"), {
           mode: "text/html",

@@ -44,7 +44,7 @@ export function startOperation(cm) {
 // Finish an operation, updating the display and signalling delayed events
 export function endOperation(cm) {
   let op = cm.curOp
-  finishOperation(op, group => {
+  if (op) finishOperation(op, group => {
     for (let i = 0; i < group.ops.length; i++)
       group.ops[i].cm.curOp = null
     endOperations(group)
