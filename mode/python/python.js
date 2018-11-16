@@ -144,7 +144,7 @@
       if (stream.match(stringPrefixes)) {
         var isFmtString = stream.current().toLowerCase().indexOf('f') !== -1;
         if (!isFmtString) {
-          state.tokenize = tokenStringFactory(stream.current());
+          state.tokenize = tokenStringFactory(stream.current(), state.tokenize);
           return state.tokenize(stream, state);
         } else {
           state.tokenize = formatStringFactory(stream.current(), state.tokenize);
@@ -251,7 +251,7 @@
       return tokenString;
     }
 
-    function tokenStringFactory(delimiter) {
+    function tokenStringFactory(delimiter, tokenOuter) {
       while ("rubf".indexOf(delimiter.charAt(0).toLowerCase()) >= 0)
         delimiter = delimiter.substr(1);
 
@@ -266,7 +266,7 @@
             if (singleline && stream.eol())
               return OUTCLASS;
           } else if (stream.match(delimiter)) {
-            state.tokenize = tokenBase;
+            state.tokenize = tokenOuter;
             return OUTCLASS;
           } else {
             stream.eat(/['"]/);
@@ -276,7 +276,7 @@
           if (parserConf.singleLineStringErrors)
             return ERRORCLASS;
           else
-            state.tokenize = tokenBase;
+            state.tokenize = tokenOuter;
         }
         return OUTCLASS;
       }
