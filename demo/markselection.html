@@ -28,8 +28,8 @@
 </div>
 
 <article>
-<h2>Selection Marking Demo</h2>
-<form><textarea id="code" name="code">
+  <h2>Selection Marking Demo</h2>
+  <form><textarea id="code" name="code">
 Select something from here. You'll see that the selection's foreground
 color changes to white! Since, by default, CodeMirror only puts an
 independent "marker" layer behind the text, you'll need something like
@@ -39,14 +39,18 @@ Also notice that turning this addon on (with the default style) allows
 you to safely give text a background color without screwing up the
 visibility of the selection.</textarea></form>
 
-    <script>
-var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-  lineNumbers: true,
-  styleSelectedText: true
-});
-editor.markText({line: 6, ch: 26}, {line: 6, ch: 42}, {className: "styled-background"});
-</script>
+  <script>
+    var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+      lineNumbers: true,
+      styleSelectedText: true
+    });
+    editor.markText({line: 6, ch: 26}, {line: 6, ch: 42}, {
+      className: "styled-background",
+      attributes: { title: "yellow text"}
+    });
+  </script>
 
-    <p>Simple addon to easily mark (and style) selected text. <a href="../doc/manual.html#addon_mark-selection">Docs</a>.</p>
+  <p>Simple addon to easily mark (and style) selected text. <a href="../doc/manual.html#addon_mark-selection">Docs</a>.
+  </p>
 
-  </article>
+</article>
