@@ -73,8 +73,8 @@
       stream.match("..")
       return "punctuation"
     }
-    if (match = stream.match(/("{3}|"|')/)) {
-      var tokenize = tokenString(match[0])
+    if (ch = stream.match(/("{3}|"|')/)) {
+      var tokenize = tokenString(ch[0])
       state.tokenize.push(tokenize)
       return tokenize(stream, state)
     }
