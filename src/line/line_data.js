@@ -185,7 +185,7 @@ function buildToken(builder, text, style, startStyle, endStyle, css, attributes)
     let token = elt("span", [content], fullStyle, css)
     if (attributes) {
       for (let attr in attributes){
-        if (attributes.hasOwnProperty(attr)) {
+        if (attributes.hasOwnProperty(attr) && attr !== "style" && attr !== "class") {
           token.setAttribute(attr, attributes[attr]);
         }
       }
