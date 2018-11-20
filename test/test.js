@@ -2607,3 +2607,22 @@ testCM("mode_lookahead", function(cm) {
   eq(cm.getTokenAt(Pos(0, 1)).type, null)
   eq(cm.getTokenAt(Pos(1, 1)).type, "atom")
 }, {value: "foo\na\nx\nx\n", mode: "lookahead_mode"})
+
+
+testCM("move_bidi_isolates", function(cm) {
+
+  cm.doc.markText({line:0, ch:0}, {line:0, ch:3}, {isolate:"ltr", atomic:true, readOnly:true})
+  cm.doc.markText({line:0, ch:3}, {line:0, ch:15}, {isolate:"rtl"})
+  cm.doc.markText({line:0, ch:15}, {line:0, ch:20}, {isolate:"ltr", atomic:true, readOnly:true})
+
+  cm.execCommand("goLineStart");
+  cm.execCommand("delLineLeft");
+  cm.execCommand("goCharRight");
+  pos = cm.doc.getCursor();
+  cm.replaceRange("لؤ", pos, pos)
+  cm.execCommand("goCharLeft");
+  cm.execCommand("goCharLeft");
+  cm.execCommand("goCharLeft");
+  eqCursorPos(pos, cm.doc.getCursor());
+
+ }, {value: "<a>hello there </a>", lineWrapping: true});

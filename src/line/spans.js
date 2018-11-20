@@ -1,7 +1,7 @@
 import { indexOf, lst } from "../util/misc.js"
 
 import { cmp } from "./pos.js"
-import { sawCollapsedSpans } from "./saw_special_spans.js"
+import { sawCollapsedSpans, sawIsolateSpans } from "./saw_special_spans.js"
 import { getLine, isLine, lineNo } from "./utils_line.js"
 
 // TEXTMARKER SPANS
@@ -245,6 +245,21 @@ export function conflictingCollapsedRange(doc, lineNo, from, to, marker) {
         fromCmp >= 0 && (sp.marker.inclusiveRight && marker.inclusiveLeft ? cmp(found.from, to) <= 0 : cmp(found.from, to) < 0))
       return true
   }
+}
+
+// Test whether two isolate ranges overlap, which is not allowed
+export function conflictingIsolateRange(doc, lineNo$$2, from, to, marker) {
+  let line = getLine(doc, lineNo$$2)
+  let sis = sawIsolateSpans && line.markedSpans
+  if (sis) { for (let i = 0; i < sis.length; ++i) {
+    let si = sis[i]
+    if (!si.marker.isolate) { continue }
+    let found = si.marker.find(0)
+    let fromCmp = cmp(found.from, from) || extraLeft(si.marker) - extraLeft(marker)
+    if (fromCmp <= 0 && (si.marker.inclusiveRight && marker.inclusiveLeft ? cmp(found.to, from) >= 0 : cmp(found.to, from) > 0) ||
+        fromCmp >= 0 && (si.marker.inclusiveRight && marker.inclusiveLeft ? cmp(found.from, to) <= 0 : cmp(found.from, to) < 0))
+        { return true }
+  } }
 }
 
 // A visual line is a line as drawn on the screen. Folding, for

@@ -4,8 +4,8 @@ import { endOperation, operation, runInOp, startOperation } from "../display/ope
 import { clipPos, cmp, Pos } from "../line/pos.js"
 import { lineNo, updateLineHeight } from "../line/utils_line.js"
 import { clearLineMeasurementCacheFor, findViewForLine, textHeight } from "../measurement/position_measurement.js"
-import { seeReadOnlySpans, seeCollapsedSpans } from "../line/saw_special_spans.js"
-import { addMarkedSpan, conflictingCollapsedRange, getMarkedSpanFor, lineIsHidden, lineLength, MarkedSpan, removeMarkedSpan, visualLine } from "../line/spans.js"
+import { seeReadOnlySpans, seeCollapsedSpans, seeIsolateSpans } from "../line/saw_special_spans.js"
+import { addMarkedSpan, conflictingCollapsedRange, conflictingIsolateRange, getMarkedSpanFor, lineIsHidden, lineLength, MarkedSpan, removeMarkedSpan, visualLine } from "../line/spans.js"
 import { copyObj, indexOf, lst } from "../util/misc.js"
 import { signalLater } from "../util/operation_group.js"
 import { widgetHeight } from "../measurement/widgets.js"
@@ -58,6 +58,7 @@ export class TextMarker {
         if (span.to != null) max = lineNo(line)
         if (span.from != null) min = lineNo(line)
       }
+      if (cm) { cm.state.newIsolate = true; }
       line.markedSpans = removeMarkedSpan(line.markedSpans, span)
       if (span.from == null && this.collapsed && !lineIsHidden(this.doc, line) && cm)
         updateLineHeight(line, textHeight(cm.display))
@@ -176,6 +177,12 @@ export function markText(doc, from, to, options, type) {
       throw new Error("Inserting collapsed marker partially overlapping an existing one")
     seeCollapsedSpans()
   }
+  if (marker.isolate) {
+    if (conflictingIsolateRange(doc, from.line, from, to, marker) ||
+        from.line != to.line && conflictingIsolateRange(doc, to.line, from, to, marker))
+        { throw new Error("Inserting isolate marker partially overlapping an existing one") }
+    seeIsolateSpans()
+  }
 
   if (marker.addToHistory)
     addChangeToHistory(doc, {from: from, to: to, origin: "markText"}, doc.sel, NaN)
@@ -206,6 +213,7 @@ export function markText(doc, from, to, options, type) {
     marker.id = ++nextMarkerId
     marker.atomic = true
   }
+  if (marker.isolate) { doc.cm.state.newIsolate = true; }
   if (cm) {
     // Sync editor state
     if (updateMaxLine) cm.curOp.updateMaxLine = true
