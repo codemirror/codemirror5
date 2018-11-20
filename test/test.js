@@ -556,6 +556,17 @@ testCM("markTextCSS", function(cm) {
   is(!present());
 }, {value: "abcdefgh"});
 
+testCM("markTextWithAttributes", function(cm) {
+  function present() {
+    var spans = cm.display.lineDiv.getElementsByTagName("span");
+    for (var i = 0; i < spans.length; i++)
+      if (spans[i].getAttribute('label') == "label" && span[i].textContent == "cdefg") return true;
+  }
+  var m = cm.markText(Pos(0, 2), Pos(0, 6), {attributes: {label: "label"}});
+  m.clear();
+  is(!present());
+}, {value: "abcdefgh"});
+
 testCM("bookmark", function(cm) {
   function p(v) { return v && Pos(v[0], v[1]); }
   forEach([{a: [1, 0], b: [1, 1], c: "", d: [1, 4]},
