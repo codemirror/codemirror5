@@ -186,7 +186,7 @@ function buildToken(builder, text, style, startStyle, endStyle, css, attributes)
     if (attributes) {
       for (let attr in attributes){
         if (attributes.hasOwnProperty(attr) && attr !== "style" && attr !== "class") {
-          token.setAttribute(attr, attributes[attr]);
+          token.setAttribute(attr, attributes[attr])
         }
       }
     }
@@ -223,8 +223,8 @@ function buildTokenBadBidi(inner, order) {
         part = order[i]
         if (part.to > start && part.from <= start) break
       }
-      if (part.to >= end) return inner(builder, text, style, startStyle, endStyle, css, attributes);
-      inner(builder, text.slice(0, part.to - start), style, startStyle, null, css, attributes);
+      if (part.to >= end) return inner(builder, text, style, startStyle, endStyle, css, attributes)
+      inner(builder, text.slice(0, part.to - start), style, startStyle, null, css, attributes)
       startStyle = null
       text = text.slice(part.to - start)
       start = part.to
@@ -258,12 +258,12 @@ function insertLineContent(line, builder, styles) {
     return
   }
 
-  let len = allText.length, pos = 0, i = 1, text = "", style, css;
-  let nextChange = 0, spanStyle, spanEndStyle, spanStartStyle, collapsed, attributes;
+  let len = allText.length, pos = 0, i = 1, text = "", style, css
+  let nextChange = 0, spanStyle, spanEndStyle, spanStartStyle, collapsed, attributes
   for (;;) {
     if (nextChange == pos) { // Update current marker set
-      spanStyle = spanEndStyle = spanStartStyle = css = "";
-      attributes = {};
+      spanStyle = spanEndStyle = spanStartStyle = css = ""
+      attributes = {}
       collapsed = null; nextChange = Infinity
       let foundBookmarks = [], endStyles
       for (let j = 0; j < spans.length; ++j) {
