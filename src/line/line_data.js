@@ -184,11 +184,8 @@ function buildToken(builder, text, style, startStyle, endStyle, css, attributes)
     if (endStyle) fullStyle += endStyle
     let token = elt("span", [content], fullStyle, css)
     if (attributes) {
-      for (let attr in attributes){
-        if (attributes.hasOwnProperty(attr) && attr !== "style" && attr !== "class") {
-          token.setAttribute(attr, attributes[attr])
-        }
-      }
+      for (let attr in attributes) if (attributes.hasOwnProperty(attr) && attr != "style" && attr != "class")
+        token.setAttribute(attr, attributes[attr])
     }
     return builder.content.appendChild(token)
   }
@@ -263,7 +260,7 @@ function insertLineContent(line, builder, styles) {
   for (;;) {
     if (nextChange == pos) { // Update current marker set
       spanStyle = spanEndStyle = spanStartStyle = css = ""
-      attributes = {}
+      attributes = null
       collapsed = null; nextChange = Infinity
       let foundBookmarks = [], endStyles
       for (let j = 0; j < spans.length; ++j) {
@@ -281,8 +278,11 @@ function insertLineContent(line, builder, styles) {
           if (m.endStyle && sp.to == nextChange) (endStyles || (endStyles = [])).push(m.endStyle, sp.to)
           // support for the old title property
           // https://github.com/codemirror/CodeMirror/pull/5673
-          if (m.title) {attributes.title = m.title}
-          if (m.attributes) { attributes = m.attributes }
+          if (m.title) (attributes || (attributes = {})).title = m.title
+          if (m.attributes) {
+            for (let attr in m.attributes)
+              (attributes || (attributes = {}))[attr] = m.attributes[attr]
+          }
           if (m.collapsed && (!collapsed || compareCollapsedMarkers(collapsed.marker, m) < 0))
             collapsed = sp
         } else if (sp.from > pos && nextChange > sp.from) {
