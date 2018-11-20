@@ -7,11 +7,14 @@ import { on } from "../util/event.js"
 
 function forEachCodeMirror(f) {
   if (!document.getElementsByClassName) return
-  let byClass = document.getElementsByClassName("CodeMirror")
+  let byClass = document.getElementsByClassName("CodeMirror"), editors = []
   for (let i = 0; i < byClass.length; i++) {
     let cm = byClass[i].CodeMirror
-    if (cm) f(cm)
+    if (cm) editors.push(cm)
   }
+  if (editors.length) editors[0].operation(() => {
+    for (let i = 0; i < editors.length; i++) f(editors[i])
+  })
 }
 
 let globalsRegistered = false
