@@ -549,7 +549,7 @@ testCM("markTextCSS", function(cm) {
   function present() {
     var spans = cm.display.lineDiv.getElementsByTagName("span");
     for (var i = 0; i < spans.length; i++)
-      if (spans[i].style.color == "cyan" && spans[i].textContent == "cdef") return true;
+      if (spans[i].style.color && spans[i].textContent == "cdef") return true;
   }
   var m = cm.markText(Pos(0, 2), Pos(0, 6), {css: "color: cyan"});
   is(present());
