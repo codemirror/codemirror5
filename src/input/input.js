@@ -40,7 +40,7 @@ export function applyTextInput(cm, inserted, deleted, sel, origin) {
     }
   }
 
-  let updateInput
+  let updateInput = cm.curOp.updateInput
   // Normal behavior is to insert the new text into every selection
   for (let i = sel.ranges.length - 1; i >= 0; i--) {
     let range = sel.ranges[i]
@@ -53,7 +53,6 @@ export function applyTextInput(cm, inserted, deleted, sel, origin) {
       else if (paste && lastCopied && lastCopied.lineWise && lastCopied.text.join("\n") == inserted)
         from = to = Pos(from.line, 0)
     }
-    updateInput = cm.curOp.updateInput
     let changeEvent = {from: from, to: to, text: multiPaste ? multiPaste[i % multiPaste.length] : textLines,
                        origin: origin || (paste ? "paste" : cm.state.cutIncoming ? "cut" : "+input")}
     makeChange(cm.doc, changeEvent)
@@ -63,7 +62,7 @@ export function applyTextInput(cm, inserted, deleted, sel, origin) {
     triggerElectric(cm, inserted)
 
   ensureCursorVisible(cm)
-  cm.curOp.updateInput = updateInput
+  if (cm.curOp.updateInput < 2) cm.curOp.updateInput = updateInput
   cm.curOp.typing = true
   cm.state.pasteIncoming = cm.state.cutIncoming = false
 }

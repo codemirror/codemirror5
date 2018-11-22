@@ -116,7 +116,8 @@ function setSelectionInner(doc, sel) {
   doc.sel = sel
 
   if (doc.cm) {
-    doc.cm.curOp.updateInput = doc.cm.curOp.selectionChanged = true
+    doc.cm.curOp.updateInput = 1
+    doc.cm.curOp.selectionChanged = true
     signalCursorActivity(doc.cm)
   }
   signalLater(doc, "cursorActivity", doc)
