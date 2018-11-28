@@ -37,6 +37,7 @@ addon/fold/brace-fold.js \
 addon/fold/foldgutter.js \
 addon/fold/markdown-fold.js \
 addon/fold/xml-fold.js \
+addon/merge/merge.js \
 mode/xml/xml.js \
 mode/markdown/markdown_math.js \
 mode/gfm/gfm.js \
