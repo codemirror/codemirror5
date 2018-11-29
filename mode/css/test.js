@@ -149,6 +149,14 @@
      "  [property color]: [atom var]([variable-2 --main-color]);",
      "}");
 
+  MT("blank_css_variable",
+     ":[variable-3 root] {",
+     "  [variable-2 --]: [atom #06c];",
+     "}",
+     "[tag h1][builtin #foo] {",
+     "  [property color]: [atom var]([variable-2 --]);",
+     "}");
+
   MT("supports",
      "[def @supports] ([keyword not] (([property text-align-last]: [atom justify]) [keyword or] ([meta -moz-][property text-align-last]: [atom justify])) {",
      "  [property text-align-last]: [atom justify];",
