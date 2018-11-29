@@ -1,0 +1,85 @@
+<!doctype html>
+
+<title>CodeMirror: Linter Demo</title>
+<meta charset="utf-8" />
+<link rel="stylesheet" href="../doc/docs.css">
+
+<link rel="stylesheet" href="../lib/codemirror.css">
+<link rel="stylesheet" href="../addon/lint/lint.css">
+<script src="../lib/codemirror.js"></script>
+<script src="../mode/xml/xml.js"></script>
+<!-- added -->
+<script src="../mode/javascript/javascript.js"></script>
+<script src="../mode/css/css.js"></script>
+<!-- to run locally -->
+<script src="jshint.min.js"></script>
+<script src="jsonlint.js"></script>
+<script src="https://unpkg.com/csslint@1.0.5/dist/csslint.js"></script>
+<script src="../addon/lint/lint.js"></script>
+<script src="../addon/lint/javascript-lint.js"></script>
+<script src="../addon/lint/json-lint.js"></script>
+<script src="../addon/lint/css-lint.js"></script>
+<!-- https://raw.github.com/htmlhint/HTMLHint/master/lib/htmlhint.js  -->
+<script src="htmlhint.js"></script>
+<script src="../addon/lint/htmlmixed-lint.js"></script>
+
+<style>
+    .CodeMirror {
+        border: 1px solid black;
+      	height: 800px;
+    }
+</style>
+<div id="nav">
+    <a href="https://codemirror.net">
+        <h1>CodeMirror</h1><img id="logo" src="../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../index.html">Home</a></li>
+    <li><a href="../doc/manual.html">Manual</a></li>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a></li>
+  </ul>
+  <ul>
+    <li><a class="active" href="#">Linter</a></li>
+  </ul>
+</div>
+
+<article>
+    <h2>Linter Demo</h2>
+
+    <h3>HTML mixed</h3>
+    <p><textarea id="code-htmlmixed">
+<html style="color: green">
+  <!-- this is a comment -->
+  <head>
+	<script src="../mode/xml/xml.js"></script>
+    <title>Mixed HTML Example</title>
+    <style>
+      h1 {font-family: comic sans; color: #f0f;}
+      div {background: yellow !important;}
+      body {
+        max-width: 50em;
+        margin: 1em 2em 1em 5em;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Mixed HTML Example</h1>
+    <script>
+      function jsFunc(arg1, arg2) {
+        if (arg1 && arg2) document.body.innerHTML = "achoo";
+      }
+    </script>
+  </body>
+</html>
+</textarea></p>
+
+    <script>
+        var editor_html = CodeMirror.fromTextArea(document.getElementById("code-htmlmixed"), {
+            lineNumbers: true,
+            mode: "text/html",
+            gutters: ["CodeMirror-lint-markers"],
+            lint: true
+        });
+    </script>
+
+</article>
