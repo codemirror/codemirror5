@@ -1327,6 +1327,12 @@ testEdit('di]_middle_spc', 'a\t[\n\tbar\n]b', /r/, 'di]', 'a\t[]b');
 testEdit('da[_middle_spc', 'a\t[\n\tbar\n]b', /r/, 'da[', 'a\tb');
 testEdit('da]_middle_spc', 'a\t[\n\tbar\n]b', /r/, 'da]', 'a\tb');
 
+// open and close on diff lines, open indented more than close
+testEdit('di<_middle_spc', 'a\t<\n\tbar\n>b', /r/, 'di<', 'a\t<>b');
+testEdit('di>_middle_spc', 'a\t<\n\tbar\n>b', /r/, 'di>', 'a\t<>b');
+testEdit('da<_middle_spc', 'a\t<\n\tbar\n>b', /r/, 'da<', 'a\tb');
+testEdit('da>_middle_spc', 'a\t<\n\tbar\n>b', /r/, 'da>', 'a\tb');
+
 function testSelection(name, before, pos, keys, sel) {
   return testVim(name, function(cm, vim, helpers) {
              var ch = before.search(pos)

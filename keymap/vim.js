@@ -1995,12 +1995,10 @@
       textObjectManipulation: function(cm, head, motionArgs, vim) {
         // TODO: lots of possible exceptions that can be thrown here. Try da(
         //     outside of a () block.
-
-        // TODO: adding <> >< to this map doesn't work, presumably because
-        // they're operators
         var mirroredPairs = {'(': ')', ')': '(',
                              '{': '}', '}': '{',
-                             '[': ']', ']': '['};
+                             '[': ']', ']': '[',
+                             '<': '>', '>': '<'};
         var selfPaired = {'\'': true, '"': true};
 
         var character = motionArgs.selectedCharacter;
@@ -3802,11 +3800,13 @@
       var bracketRegexp = ({
         '(': /[()]/, ')': /[()]/,
         '[': /[[\]]/, ']': /[[\]]/,
-        '{': /[{}]/, '}': /[{}]/})[symb];
+        '{': /[{}]/, '}': /[{}]/,
+        '<': /[<>]/, '>': /[<>]/})[symb];
       var openSym = ({
         '(': '(', ')': '(',
         '[': '[', ']': '[',
-        '{': '{', '}': '{'})[symb];
+        '{': '{', '}': '{',
+        '<': '<', '>': '<'})[symb];
       var curChar = cm.getLine(cur.line).charAt(cur.ch);
       // Due to the behavior of scanForBracket, we need to add an offset if the
       // cursor is on a matching open bracket.

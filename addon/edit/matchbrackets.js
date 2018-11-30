@@ -14,7 +14,7 @@
 
   var Pos = CodeMirror.Pos;
 
-  var matching = {"(": ")>", ")": "(<", "[": "]>", "]": "[<", "{": "}>", "}": "{<"};
+  var matching = {"(": ")>", ")": "(<", "[": "]>", "]": "[<", "{": "}>", "}": "{<", "<": ">>", ">": "<<"};
 
   function findMatchingBracket(cm, where, config) {
     var line = cm.getLineHandle(where.line), pos = where.ch - 1;
@@ -51,7 +51,7 @@
     var maxScanLines = (config && config.maxScanLines) || 1000;
 
     var stack = [];
-    var re = config && config.bracketRegex ? config.bracketRegex : /[(){}[\]]/;
+    var re = config && config.bracketRegex ? config.bracketRegex : /[(){}[\]<>]/;
     var lineEnd = dir > 0 ? Math.min(where.line + maxScanLines, cm.lastLine() + 1)
                           : Math.max(cm.firstLine() - 1, where.line - maxScanLines);
     for (var lineNo = where.line; lineNo != lineEnd; lineNo += dir) {
