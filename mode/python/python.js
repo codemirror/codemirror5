@@ -187,23 +187,19 @@
       var singleline = delimiter.length == 1;
       var OUTCLASS = "string";
 
-      function tokenFString(stream, state) {
-        // inside f-str Expression
-        if (stream.match(delimiter)) {
-          // expression ends pre-maturally, but very common in editing
-          // Could show error to remind users to close brace here
-          state.tokenize = tokenString
-          return OUTCLASS;
-        } else if (stream.match('{')) {
-          // starting brace, if not eaten below
-          return "punctuation";
-        } else if (stream.match('}')) {
-          // return to regular inside string state
-          state.tokenize = tokenString
-          return "punctuation";
-        } else {
-          // use tokenBaseInner to parse the expression
-          return tokenBaseInner(stream, state);
+      function tokenNestedExpr(depth) {
+        return function(stream, state) {
+          let inner = tokenBaseInner(stream, state)
+          console.log(inner, stream.current())
+          if (inner == "punctuation") {
+            if (stream.current() == "{") {
+              state.tokenize = tokenNestedExpr(depth + 1)
+            } else if (stream.current() == "}") {
+              if (depth > 1) state.tokenize = tokenNestedExpr(depth - 1)
+              else state.tokenize = tokenString
+            }
+          }
+          return inner
         }
       }
 
@@ -222,14 +218,9 @@
             return OUTCLASS;
           } else if (stream.match('{', false)) {
             // switch to nested mode
-            state.tokenize = tokenFString
-            if (stream.current()) {
-              return OUTCLASS;
-            } else {
-              // need to return something, so eat the starting {
-              stream.next();
-              return "punctuation";
-            }
+            state.tokenize = tokenNestedExpr(0)
+            if (stream.current()) return OUTCLASS;
+            else return state.tokenize()
           } else if (stream.match('}}')) {
             return OUTCLASS;
           } else if (stream.match('}')) {
