@@ -190,7 +190,6 @@
       function tokenNestedExpr(depth) {
         return function(stream, state) {
           var inner = tokenBaseInner(stream, state)
-          console.log(inner, stream.current())
           if (inner == "punctuation") {
             if (stream.current() == "{") {
               state.tokenize = tokenNestedExpr(depth + 1)
