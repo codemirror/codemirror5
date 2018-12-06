@@ -182,6 +182,14 @@
             stream.next();
             return null;
 
+          case "namespace-def":
+            if (match = stream.match(/^\.?([\w\.]+)/)) {
+              state.soyState.pop();
+              return "variable";
+            }
+            stream.next();
+            return null;
+
           case "param-def":
             if (match = stream.match(/^\w+/)) {
               state.variables = prepend(state.variables, match[0]);
@@ -297,6 +305,7 @@
             state.scopes = prepend(state.scopes, state.variables);
             state.soyState.push("var-def");
           } else if (state.tag == "namespace") {
+            state.soyState.push("namespace-def");
             if (!state.scopes) {
               state.variables = prepend(null, 'ij');
             }
