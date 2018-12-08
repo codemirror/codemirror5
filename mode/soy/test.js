@@ -20,6 +20,13 @@
      '[keyword {/template}]',
      '');
 
+  MT('namespace-test',
+     '[keyword {namespace] [variable namespace][keyword }]')
+
+  MT('namespace-with-attribute-test',
+     '[keyword {namespace] [variable my.namespace.templates] ' +
+         '[attribute requirecss]=[string "my.namespace"][keyword }]');
+
   MT('param-type-test',
      '[keyword {@param] [def a]: ' +
          '[variable-3 list]<[[[variable-3 a]: [variable-3 int], ' +
