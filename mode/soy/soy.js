@@ -206,7 +206,7 @@
               return null;
             }
             if (stream.eatWhile(/^[\w]+/)) {
-              return "variable-3";
+              return "type";
             }
             stream.next();
             return null;

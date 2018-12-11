@@ -29,16 +29,16 @@
 
   MT('param-type-test',
      '[keyword {@param] [def a]: ' +
-         '[variable-3 list]<[[[variable-3 a]: [variable-3 int], ' +
-         '[variable-3 b]: [variable-3 map]<[variable-3 string], ' +
-         '[variable-3 bool]>]]>][keyword }]');
+         '[type list]<[[[type a]: [type int], ' +
+         '[type b]: [type map]<[type string], ' +
+         '[type bool]>]]>][keyword }]');
 
   MT('undefined-var',
      '[keyword {][variable-2&error $var]');
 
   MT('param-scope-test',
      '[keyword {template] [def .a][keyword }]',
-     '  [keyword {@param] [def x]: [variable-3 string][keyword }]',
+     '  [keyword {@param] [def x]: [type string][keyword }]',
      '  [keyword {][variable-2 $x][keyword }]',
      '[keyword {/template}]',
      '',
@@ -55,7 +55,7 @@
 
   MT('defined-if-variable-test',
      '[keyword {template] [def .foo][keyword }]',
-     '  [keyword {@param?] [def showThing]: [variable-3 bool][keyword }]',
+     '  [keyword {@param?] [def showThing]: [type bool][keyword }]',
      '  [keyword {if] [variable-2 $showThing][keyword }]',
      '    Yo!',
      '  [keyword {/if}]',
@@ -73,7 +73,7 @@
      '');
 
   MT('foreach-scope-test',
-     '[keyword {@param] [def bar]: [variable-3 string][keyword }]',
+     '[keyword {@param] [def bar]: [type string][keyword }]',
      '[keyword {foreach] [def $foo] [keyword in] [variable-2&error $foos][keyword }]',
      '  [keyword {][variable-2 $foo][keyword }]',
      '[keyword {/foreach}]',
@@ -108,7 +108,7 @@
 
   MT('allow-missing-colon-in-@param',
      '[keyword {template] [def .foo][keyword }]',
-     '  [keyword {@param] [def showThing] [variable-3 bool][keyword }]',
+     '  [keyword {@param] [def showThing] [type bool][keyword }]',
      '  [keyword {if] [variable-2 $showThing][keyword }]',
      '    Yo!',
      '  [keyword {/if}]',
