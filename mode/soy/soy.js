@@ -170,11 +170,11 @@
             return null;
 
           case "templ-ref":
-            if (match = stream.match(/^\.?([\w]+)/)) {
+            if (match = stream.match(/(\.?[a-zA-Z_][a-zA-Z_0-9]+)+/)) {
               state.soyState.pop();
-              // If the first character is '.', try to match against a local template name.
+              // If the first character is '.', it can only be a local template.
               if (match[0][0] == '.') {
-                return ref(state.templates, match[1], true);
+                return "variable-2"
               }
               // Otherwise
               return "variable";
