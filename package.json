@@ -26,6 +26,7 @@
     "phantomjs-prebuilt": "^2.1.12",
     "rollup": "^0.66.2",
     "rollup-plugin-buble": "^0.19.2",
+    "rollup-plugin-scss": "^0.4.0",
     "rollup-watch": "^4.3.1"
   },
   "bugs": "http://github.com/codemirror/CodeMirror/issues",

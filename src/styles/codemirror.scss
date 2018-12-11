@@ -1,0 +1,355 @@
+/* BASICS */
+
+.CodeMirror {
+  /* Set height, width, borders, and global font properties here */
+  font-family: monospace;
+  height: 300px;
+  color: black;
+  direction: ltr;
+
+  
+  /* PADDING */
+  &-lines {
+    padding: 4px 0; /* Vertical padding around content */
+  }
+  pre {
+    padding: 0 4px; /* Horizontal padding of content */
+  }
+  
+  &-scrollbar-filler, .CodeMirror-gutter-filler {
+    background-color: white; /* The little square between H and V scrollbars */
+  }
+
+  /* GUTTER */
+  &-gutters {
+    border-right: 1px solid #ddd;
+    background-color: #f7f7f7;
+    white-space: nowrap;
+  }
+  &-linenumbers {}
+  &-linenumber {
+    padding: 0 3px 0 5px;
+    min-width: 20px;
+    text-align: right;
+    color: #999;
+    white-space: nowrap;
+  }
+  
+  &-guttermarker { color: black; }
+  &-guttermarker-subtle { color: #999; }
+
+  /* CURSOR */
+  &-cursor {
+    border-left: 1px solid black;
+    border-right: none;
+    width: 0;
+  }
+}
+
+/* Shown when moving in bi-directional text */
+.CodeMirror div.CodeMirror-secondarycursor {
+  border-left: 1px solid silver;
+}
+
+.cm {
+  &-fat-cursor .CodeMirror-cursor {
+    width: auto;
+    border: 0 !important;
+    background: #7e7;
+  }
+  &-fat-cursor div.CodeMirror-cursors {
+    z-index: 1;
+  }
+  &-fat-cursor-mark {
+    background-color: rgba(20, 255, 20, 0.5);
+    -webkit-animation: blink 1.06s steps(1) infinite;
+    -moz-animation: blink 1.06s steps(1) infinite;
+    animation: blink 1.06s steps(1) infinite;
+  }
+  &-animate-fat-cursor {
+    width: auto;
+    border: 0;
+    -webkit-animation: blink 1.06s steps(1) infinite;
+    -moz-animation: blink 1.06s steps(1) infinite;
+    animation: blink 1.06s steps(1) infinite;
+    background-color: #7e7;
+  }
+}
+
+@-moz-keyframes blink {
+  0% {}
+  50% { background-color: transparent; }
+  100% {}
+}
+@-webkit-keyframes blink {
+  0% {}
+  50% { background-color: transparent; }
+  100% {}
+}
+@keyframes blink {
+  0% {}
+  50% { background-color: transparent; }
+  100% {}
+}
+
+/* Can style cursor different in overwrite (non-insert) mode */
+.CodeMirror-overwrite .CodeMirror-cursor {}
+
+.cm-tab { display: inline-block; text-decoration: inherit; }
+
+.CodeMirror-rulers {
+  position: absolute;
+  left: 0; right: 0; top: -50px; bottom: -20px;
+  overflow: hidden;
+}
+.CodeMirror-ruler {
+  border-left: 1px solid #ccc;
+  top: 0; bottom: 0;
+  position: absolute;
+}
+
+/* DEFAULT THEME */
+.cm {
+  &-s-default .cm-header {color: blue;}
+  &-s-default .cm-quote {color: #090;}
+  &-negative {color: #d44;}
+  &-positive {color: #292;}
+  &-header, &-strong {font-weight: bold;}
+  &-em {font-style: italic;}
+  &-link {text-decoration: underline;}
+  &-strikethrough {text-decoration: line-through;}
+
+  &-s-default {
+    .cm {
+      &-keyword {color: #708;}
+      &-atom {color: #219;}
+      &-number {color: #164;}
+      &-def {color: #00f;}
+      &-variable,
+      &-punctuation,
+      &-property,
+      &-operator {}
+      &-variable-2 {color: #05a;}
+      &-variable-3, &-type {color: #085;}
+      &-comment {color: #a50;}
+      &-string {color: #a11;}
+      &-string-2 {color: #f50;}
+      &-meta {color: #555;}
+      &-qualifier {color: #555;}
+      &-builtin {color: #30a;}
+      &-bracket {color: #997;}
+      &-tag {color: #170;}
+      &-attribute {color: #00c;}
+      &-hr {color: #999;}
+      &-link {color: #00c;}
+    }
+  }
+}
+
+.cm-s-default .cm-error {color: #f00;}
+.cm-invalidchar {color: #f00;}
+
+.CodeMirror-composing { border-bottom: 2px solid; }
+
+/* Default styles for common addons */
+
+div.CodeMirror span.CodeMirror-matchingbracket {color: #0b0;}
+div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
+.CodeMirror-matchingtag { background: rgba(255, 150, 0, .3); }
+.CodeMirror-activeline-background {background: #e8f2ff;}
+
+/* STOP */
+
+/* The rest of this file contains styles related to the mechanics of
+   the editor. You probably shouldn't touch them. */
+
+.CodeMirror {
+  position: relative;
+  overflow: hidden;
+  background: white;
+
+  &-scroll {
+    overflow: scroll !important; /* Things will break if this is overridden */
+    /* 30px is the magic margin used to hide the element's real scrollbars */
+    /* See overflow: hidden in .CodeMirror */
+    margin-bottom: -30px; margin-right: -30px;
+    padding-bottom: 30px;
+    height: 100%;
+    outline: none; /* Prevent dragging from highlighting the element */
+    position: relative;
+  }
+  &-sizer {
+    position: relative;
+    border-right: 30px solid transparent;
+  }
+  
+  /* The fake, visible scrollbars. Used to force redraw during scrolling
+     before actual scrolling happens, thus preventing shaking and
+     flickering artifacts. */
+  &-vscrollbar, &-hscrollbar, &-scrollbar-filler, &-gutter-filler {
+    position: absolute;
+    z-index: 6;
+    display: none;
+  }
+  &-vscrollbar {
+    right: 0; top: 0;
+    overflow-x: hidden;
+    overflow-y: scroll;
+  }
+  &-hscrollbar {
+    bottom: 0; left: 0;
+    overflow-y: hidden;
+    overflow-x: scroll;
+  }
+  &-scrollbar-filler {
+    right: 0; bottom: 0;
+  }
+  &-gutter-filler {
+    left: 0; bottom: 0;
+  }
+
+  &-gutters {
+    position: absolute; left: 0; top: 0;
+    min-height: 100%;
+    z-index: 3;
+  }
+  &-gutter {
+    white-space: normal;
+    height: 100%;
+    display: inline-block;
+    vertical-align: top;
+    margin-bottom: -30px;
+  }
+  &-gutter-wrapper {
+    position: absolute;
+    z-index: 4;
+    background: none !important;
+    border: none !important;
+  }
+  &-gutter-background {
+    position: absolute;
+    top: 0; bottom: 0;
+    z-index: 4;
+  }
+  &-gutter-elt {
+    position: absolute;
+    cursor: default;
+    z-index: 4;
+  }
+  &-gutter-wrapper ::selection { background-color: transparent }
+  &-gutter-wrapper ::-moz-selection { background-color: transparent }
+
+  &-lines {
+    cursor: text;
+    min-height: 1px; /* prevents collapsing before first draw */
+  }
+  pre {
+    /* Reset some styles that the rest of the page might have set */
+    -moz-border-radius: 0; -webkit-border-radius: 0; border-radius: 0;
+    border-width: 0;
+    background: transparent;
+    font-family: inherit;
+    font-size: inherit;
+    margin: 0;
+    white-space: pre;
+    word-wrap: normal;
+    line-height: inherit;
+    color: inherit;
+    z-index: 2;
+    position: relative;
+    overflow: visible;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-font-variant-ligatures: contextual;
+    font-variant-ligatures: contextual;
+  }
+  &-wrap pre {
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    word-break: normal;
+  }
+  
+  &-linebackground {
+    position: absolute;
+    left: 0; right: 0; top: 0; bottom: 0;
+    z-index: 0;
+  }
+  
+  &-linewidget {
+    position: relative;
+    z-index: 2;
+    padding: 0.1px; /* Force widget margins to stay inside of the container */
+  }
+  
+  &-widget {}
+  
+  &-rtl pre { direction: rtl; }
+  
+  &-code {
+    outline: none;
+  }
+
+  /* Force content-box sizing for the elements where we expect it */
+  &-scroll,
+  &-sizer,
+  &-gutter,
+  &-gutters,
+  &-linenumber {
+    -moz-box-sizing: content-box;
+    box-sizing: content-box;
+  }
+  
+  &-measure {
+    position: absolute;
+    width: 100%;
+    height: 0;
+    overflow: hidden;
+    visibility: hidden;
+  }
+  
+  &-cursor {
+    position: absolute;
+    pointer-events: none;
+  }
+  &-measure pre { position: static; }
+}
+
+
+div.CodeMirror-cursors {
+  visibility: hidden;
+  position: relative;
+  z-index: 3;
+}
+div.CodeMirror-dragcursors {
+  visibility: visible;
+}
+
+.CodeMirror-focused div.CodeMirror-cursors {
+  visibility: visible;
+}
+
+.CodeMirror-selected { background: #d9d9d9; }
+.CodeMirror-focused .CodeMirror-selected { background: #d7d4f0; }
+.CodeMirror-crosshair { cursor: crosshair; }
+.CodeMirror-line::selection, .CodeMirror-line > span::selection, .CodeMirror-line > span > span::selection { background: #d7d4f0; }
+.CodeMirror-line::-moz-selection, .CodeMirror-line > span::-moz-selection, .CodeMirror-line > span > span::-moz-selection { background: #d7d4f0; }
+
+.cm-searching {
+  background-color: #ffa;
+  background-color: rgba(255, 255, 0, .4);
+}
+
+/* Used to force a border model for a node */
+.cm-force-border { padding-right: .1px; }
+
+@media print {
+  /* Hide the cursor when printing */
+  .CodeMirror div.CodeMirror-cursors {
+    visibility: hidden;
+  }
+}
+
+/* See issue #2901 */
+.cm-tab-wrap-hack:after { content: ''; }
+
+/* Help users use markselection to safely style text background */
+span.CodeMirror-selectedtext { background: none; }

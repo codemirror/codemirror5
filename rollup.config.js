@@ -1,4 +1,5 @@
 import buble from 'rollup-plugin-buble';
+import scss from 'rollup-plugin-scss';
 
 export default {
   input: "src/codemirror.js",
@@ -16,5 +17,10 @@ export default {
     file: "lib/codemirror.js",
     name: "CodeMirror"
   },
-  plugins: [ buble({namedFunctionExpressions: false}) ]
+  plugins: [
+    scss({
+      output: 'lib/codemirror.css',
+    }),
+    buble({namedFunctionExpressions: false}),
+  ]
 };
