@@ -251,6 +251,8 @@
                 });
               }
               return "attribute";
+            } else if (match = stream.match(/([\w]+)(?=\()/)) {
+              return "variable callee";
             } else if (match = stream.match(/^["']/)) {
               state.soyState.push("string");
               state.quoteKind = match;
