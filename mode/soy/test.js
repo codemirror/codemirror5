@@ -20,6 +20,12 @@
      '[keyword {/template}]',
      '');
 
+  MT('function-test',
+     '[keyword {] [callee&variable css]([string "MyClass"])[keyword }]',
+     '[tag&bracket <][tag input] [attribute value]=[string "]' +
+     '[keyword {] [callee&variable index]([variable-2&error $list])[keyword }]' +
+        '[string "][tag&bracket />]');
+
   MT('namespace-test',
      '[keyword {namespace] [variable namespace][keyword }]')
 
@@ -99,9 +105,9 @@
      '');
 
   MT('tag-starting-with-function-call-is-not-a-keyword',
-     '[keyword {]index([variable-2&error $foo])[keyword }]',
+     '[keyword {][callee&variable index]([variable-2&error $foo])[keyword }]',
      '[keyword {css] [string "some-class"][keyword }]',
-     '[keyword {]css([string "some-class"])[keyword }]',
+     '[keyword {][callee&variable css]([string "some-class"])[keyword }]',
      '');
 
   MT('allow-missing-colon-in-@param',
