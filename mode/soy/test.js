@@ -63,13 +63,11 @@
      '');
 
   MT('template-calls-test',
-     '[keyword {template] [def .foo][keyword }]',
-     '  Yo!',
-     '[keyword {/template}]',
      '[keyword {call] [variable-2 .foo][keyword /}]',
      '[keyword {call] [variable foo][keyword /}]',
-     '[keyword {call] [variable .bar][keyword /}]',
-     '[keyword {call] [variable bar][keyword /}]',
+     '[keyword {call] [variable foo][keyword }] [keyword {/call}]',
+     '[keyword {call] [variable first1.second.third_3][keyword /}]',
+     '[keyword {call] [variable first1.second.third_3] [keyword }] [keyword {/call}]',
      '');
 
   MT('foreach-scope-test',
@@ -91,7 +89,7 @@
   MT('nested-kind-test',
      '[keyword {template] [def .foo] [attribute kind]=[string "html"][keyword }]',
      '  [tag&bracket <][tag div][tag&bracket >]',
-     '    [keyword {call] [variable .bar][keyword }]',
+     '    [keyword {call] [variable-2 .bar][keyword }]',
      '      [keyword {param] [attribute kind]=[string "js"][keyword }]',
      '        [keyword var] [def bar] [operator =] [number 5];',
      '      [keyword {/param}]',
