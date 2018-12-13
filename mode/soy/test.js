@@ -96,7 +96,7 @@
      '[keyword {template] [def .foo] [attribute kind]=[string "html"][keyword }]',
      '  [tag&bracket <][tag div][tag&bracket >]',
      '    [keyword {call] [variable-2 .bar][keyword }]',
-     '      [keyword {param] [attribute kind]=[string "js"][keyword }]',
+     '      [keyword {param] [property propertyName] [attribute kind]=[string "js"][keyword }]',
      '        [keyword var] [def bar] [operator =] [number 5];',
      '      [keyword {/param}]',
      '    [keyword {/call}]',
