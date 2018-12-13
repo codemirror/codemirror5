@@ -200,6 +200,14 @@
             stream.next();
             return null;
 
+          case "param-ref":
+            if (match = stream.match(/^\w+/)) {
+              state.soyState.pop();
+              return "property";
+            }
+            stream.next();
+            return null;
+
           case "param-type":
             if (stream.peek() == "}") {
               state.soyState.pop();
@@ -313,6 +321,8 @@
             }
           } else if (state.tag.match(/^@(?:param\??|inject|prop)/)) {
             state.soyState.push("param-def");
+          } else if (state.tag.match(/^(?:param)/)) {
+            state.soyState.push("param-ref");
           }
           return "keyword";
 
