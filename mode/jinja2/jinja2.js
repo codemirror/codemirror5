@@ -141,4 +141,6 @@
       blockCommentEnd: "#}"
     };
   });
+
+  CodeMirror.defineMIME("text/plain", "jinja2");
 });
