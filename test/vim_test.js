@@ -1446,6 +1446,16 @@ testVim('insert_ctrl_w', function(cm, vim, helpers) {
   eqCursorPos(curEnd, cm.getCursor());
   eq('vim-insert', cm.getOption('keyMap'));
 }, { value: 'word1/word2' });
+testVim('normal_ctrl_w', function(cm, vim, helpers) {
+  var curStart = makeCursor(0, 3);
+  cm.setCursor(curStart);
+  helpers.doKeys('<C-w>');
+  eq('word', cm.getValue());
+  var curEnd = makeCursor(0, 3);
+  helpers.assertCursorAt(0,3);
+  eqCursorPos(curEnd, cm.getCursor());
+  eq('vim', cm.getOption('keyMap'));
+}, {value: 'word'});
 testVim('a', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('a');
