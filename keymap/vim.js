@@ -152,6 +152,8 @@
     { keys: '~', type: 'operatorMotion', operator: 'changeCase', motion: 'moveByCharacters', motionArgs: { forward: true }, operatorArgs: { shouldMoveCursor: true }, context: 'normal'},
     { keys: '~', type: 'operator', operator: 'changeCase', context: 'visual'},
     { keys: '<C-w>', type: 'operatorMotion', operator: 'delete', motion: 'moveByWords', motionArgs: { forward: false, wordEnd: false }, context: 'insert' },
+    //ignore C-w in normal mode
+    { keys: '<C-w>', type: 'idle', context: 'normal' },
     // Actions
     { keys: '<C-i>', type: 'action', action: 'jumpListWalk', actionArgs: { forward: true }},
     { keys: '<C-o>', type: 'action', action: 'jumpListWalk', actionArgs: { forward: false }},
