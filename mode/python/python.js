@@ -219,7 +219,7 @@
             // switch to nested mode
             state.tokenize = tokenNestedExpr(0)
             if (stream.current()) return OUTCLASS;
-            else return state.tokenize()
+            else return state.tokenize(stream, state)
           } else if (stream.match('}}')) {
             return OUTCLASS;
           } else if (stream.match('}')) {
