@@ -25,7 +25,6 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
       backslashStringEscapes = parserConfig.backslashStringEscapes !== false,
       brackets       = parserConfig.brackets || /^[\{}\(\)\[\]]/,
       punctuation    = parserConfig.punctuation || /^[;.,:]/
-                      console.log(operatorChars)
 
   function tokenBase(stream, state) {
     var ch = stream.next();
