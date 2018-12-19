@@ -33,6 +33,19 @@
      '[keyword {namespace] [variable my.namespace.templates] ' +
          '[attribute requirecss]=[string "my.namespace"][keyword }]');
 
+  MT('primitive-test',
+     '[keyword {] [atom true] [keyword }]',
+     '[keyword {] [atom false] [keyword }]',
+     '[keyword {] truethy [keyword }]',
+     '[keyword {] falsey [keyword }]',
+     '[keyword {] [atom 42] [keyword }]',
+     '[keyword {] [atom .42] [keyword }]',
+     '[keyword {] [atom 0.42] [keyword }]',
+     '[keyword {] [atom -0.42] [keyword }]',
+     '[keyword {] [atom -.2] [keyword }]',
+     '[keyword {] [atom 0x1F] [keyword }]',
+     '[keyword {] [atom 0x1F00BBEA] [keyword }]');
+
   MT('param-type-test',
      '[keyword {@param] [def a]: ' +
          '[type list]<[[[type a]: [type int], ' +
