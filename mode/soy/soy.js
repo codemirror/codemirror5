@@ -266,15 +266,9 @@
               state.quoteKind = match;
               return "string";
             }
-            if (match = stream.match(/(true|false)(?!\w)/)) {
-              return "atom";
-            }
-            if (match = stream.match(/0x([0-9a-fA-F]{2,})/)) {
-              // Match hexadecimal number.
-              return "atom";
-            }
-            if (match = stream.match(/-?([0-9]*[.])?[0-9]+/)) {
-              // Match all decimals and whole numbers.
+            if (stream.match(/(true|false)(?!\w)/) || 
+              stream.match(/0x([0-9a-fA-F]{2,})/) || 
+              stream.match(/-?([0-9]*[.])?[0-9]+/)) {
               return "atom";
             }
             if (match = stream.match(/^\$([\w]+)/)) {
