@@ -142,5 +142,5 @@
     };
   });
 
-  CodeMirror.defineMIME("text/plain", "jinja2");
+  CodeMirror.defineMIME("text/jinja2", "jinja2");
 });
