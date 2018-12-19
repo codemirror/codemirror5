@@ -213,7 +213,7 @@
               state.soyState.pop();
               return null;
             }
-            if (stream.eatWhile(/^[\w]+/)) {
+            if (stream.eatWhile(/^([\w]+|[?])/)) {
               return "type";
             }
             stream.next();

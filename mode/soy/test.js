@@ -37,7 +37,9 @@
      '[keyword {@param] [def a]: ' +
          '[type list]<[[[type a]: [type int], ' +
          '[type b]: [type map]<[type string], ' +
-         '[type bool]>]]>][keyword }]');
+         '[type bool]>]]>][keyword }]',
+      '[keyword {@param] [def unknown]: [type ?][keyword }]',
+      '[keyword {@param] [def list]: [type list]<[type ?]>[keyword }]');
 
   MT('undefined-var',
      '[keyword {][variable-2&error $var]');
