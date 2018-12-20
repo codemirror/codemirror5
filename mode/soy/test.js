@@ -8,7 +8,7 @@
   // Test of small keywords and words containing them.
   MT('keywords-test',
      '[keyword {] [keyword as] worrying [keyword and] notorious [keyword as]',
-     '    the Fandor-alias assassin, [keyword or]',
+     '    the Fandor[operator -]alias assassin, [keyword or]',
      '    Corcand cannot fit [keyword in] [keyword }]');
 
   MT('let-test',
@@ -32,6 +32,20 @@
   MT('namespace-with-attribute-test',
      '[keyword {namespace] [variable my.namespace.templates] ' +
          '[attribute requirecss]=[string "my.namespace"][keyword }]');
+
+  MT('operators-test',
+     '[keyword {] [atom 1] [operator ==] [atom 1] [keyword }]',
+     '[keyword {] [atom 1] [operator !=] [atom 2] [keyword }]',
+     '[keyword {] [atom 2] [operator +] [atom 2] [keyword }]',
+     '[keyword {] [atom 2] [operator -] [atom 2] [keyword }]',
+     '[keyword {] [atom 2] [operator *] [atom 2] [keyword }]',
+     '[keyword {] [atom 2] [operator /] [atom 2] [keyword }]',
+     '[keyword {] [atom 2] [operator %] [atom 2] [keyword }]',
+     '[keyword {] [atom 2] [operator <=] [atom 2] [keyword }]',
+     '[keyword {] [atom 2] [operator >=] [atom 2] [keyword }]',
+     '[keyword {] [atom 3] [operator >] [atom 2] [keyword }]',
+     '[keyword {] [atom 2] [operator >] [atom 3] [keyword }]',
+     '[keyword {] [variable-2&error $variable] [operator |] safeHtml [keyword }]')
 
   MT('primitive-test',
      '[keyword {] [atom true] [keyword }]',
