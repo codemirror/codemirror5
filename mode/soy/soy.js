@@ -271,6 +271,10 @@
               stream.match(/-?([0-9]*[.])?[0-9]+/)) {
               return "atom";
             }
+            if (stream.match(/(\||[+\-*\/%]|[=!][=]|[<>][=]?)/)) {
+              // Tokenize filter, binary, and equality operators.
+              return "operator";
+            }
             if (match = stream.match(/^\$([\w]+)/)) {
               return ref(state.variables, match[1]);
             }
