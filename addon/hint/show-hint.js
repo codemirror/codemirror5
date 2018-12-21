@@ -46,6 +46,10 @@
     completion.update(true);
   });
 
+  CodeMirror.defineExtension("closeHint", function() {
+    if (this.state.completionActive) this.state.completionActive.close()
+  })
+
   function Completion(cm, options) {
     this.cm = cm;
     this.options = options;
