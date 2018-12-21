@@ -45,6 +45,7 @@
      '[keyword {] [atom 2] [operator >=] [atom 2] [keyword }]',
      '[keyword {] [atom 3] [operator >] [atom 2] [keyword }]',
      '[keyword {] [atom 2] [operator >] [atom 3] [keyword }]',
+     '[keyword {] [atom null] [operator ?:] [string ""] [keyword }]',
      '[keyword {] [variable-2&error $variable] [operator |] safeHtml [keyword }]')
 
   MT('primitive-test',
