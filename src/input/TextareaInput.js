@@ -275,8 +275,8 @@ export default class TextareaInput {
       operation(cm, setSelection)(cm.doc, simpleSelection(pos), sel_dontScroll)
 
     let oldCSS = te.style.cssText, oldWrapperCSS = input.wrapper.style.cssText
-    input.wrapper.style.cssText = "position: absolute"
-    let wrapperBox = input.wrapper.getBoundingClientRect()
+    let wrapperBox = input.wrapper.offsetParent.getBoundingClientRect()
+    input.wrapper.style.cssText = "position: static"
     te.style.cssText = `position: absolute; width: 30px; height: 30px;
       top: ${e.clientY - wrapperBox.top - 5}px; left: ${e.clientX - wrapperBox.left - 5}px;
       z-index: 1000; background: ${ie ? "rgba(255, 255, 255, .05)" : "transparent"};
