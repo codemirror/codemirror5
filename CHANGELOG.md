@@ -1,3 +1,19 @@
+## 5.42.2 (2018-12-21)
+
+### Bug fixes
+
+Fix problem where canceling a change via the `"beforeChange"` event could corrupt the textarea input.
+
+Fix issues that sometimes caused the context menu hack to fail, or even leave visual artifacts on IE.
+
+[vim bindings](https://codemirror.net/demo/vim.html): Make it possible to select text between angle brackets.
+
+[css mode](https://codemirror.net/mode/css/): Fix tokenizing of CSS variables.
+
+[python mode](https://codemirror.net/mode/python/): Fix another bug in tokenizing of format strings.
+
+[soy mode](https://codemirror.net/mode/soy/): More accurate highlighting.
+
 ## 5.42.0 (2018-11-20)
 
 ### Bug fixes
