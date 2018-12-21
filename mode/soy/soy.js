@@ -268,7 +268,7 @@
             }
             if (stream.match(/(null|true|false)(?!\w)/) ||
               stream.match(/0x([0-9a-fA-F]{2,})/) ||
-              stream.match(/-?([0-9]*[.])?[0-9]+/)) {
+              stream.match(/-?([0-9]*[.])?[0-9]+(e[0-9]*)?/)) {
               return "atom";
             }
             if (stream.match(/(\||[+\-*\/%]|[=!]=|\?:|[<>]=?)/)) {

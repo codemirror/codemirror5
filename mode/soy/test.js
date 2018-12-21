@@ -58,6 +58,8 @@
      '[keyword {] [atom 0.42] [keyword }]',
      '[keyword {] [atom -0.42] [keyword }]',
      '[keyword {] [atom -.2] [keyword }]',
+     '[keyword {] [atom 6.03e23] [keyword }]',
+     '[keyword {] [atom -0.03e0] [keyword }]',
      '[keyword {] [atom 0x1F] [keyword }]',
      '[keyword {] [atom 0x1F00BBEA] [keyword }]');
 
