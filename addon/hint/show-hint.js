@@ -159,6 +159,8 @@
     var baseMap = {
       Up: function() {handle.moveFocus(-1);},
       Down: function() {handle.moveFocus(1);},
+      "Ctrl-P": function() {handle.moveFocus(-1);},
+      "Ctrl-N": function() {handle.moveFocus(1);},
       PageUp: function() {handle.moveFocus(-handle.menuSize() + 1, true);},
       PageDown: function() {handle.moveFocus(handle.menuSize() - 1, true);},
       Home: function() {handle.setFocus(0);},
