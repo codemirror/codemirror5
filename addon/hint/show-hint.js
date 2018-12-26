@@ -1,6 +1,8 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: https://codemirror.net/LICENSE
 
+var mac = /Mac/.test(navigator.platform);
+
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
     mod(require("../../lib/codemirror"));
@@ -159,8 +161,6 @@
     var baseMap = {
       Up: function() {handle.moveFocus(-1);},
       Down: function() {handle.moveFocus(1);},
-      "Ctrl-P": function() {handle.moveFocus(-1);},
-      "Ctrl-N": function() {handle.moveFocus(1);},
       PageUp: function() {handle.moveFocus(-handle.menuSize() + 1, true);},
       PageDown: function() {handle.moveFocus(handle.menuSize() - 1, true);},
       Home: function() {handle.setFocus(0);},
@@ -169,6 +169,12 @@
       Tab: handle.pick,
       Esc: handle.close
     };
+
+    if (mac) {
+      baseMap["Ctrl-P"] = function() {handle.moveFocus(-1);};
+      baseMap["Ctrl-N"] = function() {handle.moveFocus(1);};
+    }
+
     var custom = completion.options.customKeys;
     var ourMap = custom ? {} : baseMap;
     function addBinding(key, val) {
