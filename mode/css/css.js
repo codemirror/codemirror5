@@ -77,12 +77,11 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
       return ret("qualifier", "qualifier");
     } else if (/[:;{}\[\]\(\)]/.test(ch)) {
       return ret(null, ch);
-    } else if (((ch == "u" || ch == "U") && stream.match(/rl(-prefix)?\(/i)) ||
-               ((ch == "d" || ch == "D") && stream.match("omain(", true, true)) ||
-               ((ch == "r" || ch == "R") && stream.match("egexp(", true, true))) {
-      stream.backUp(1);
-      state.tokenize = tokenParenthesized;
-      return ret("property", "word");
+    } else if (stream.match(/[\w-.]+(?=\()/)) {
+      if (/^(url(-prefix)?|domain|regexp)$/.test(stream.current().toLowerCase())) {
+        state.tokenize = tokenParenthesized;
+      }
+      return ret("variable callee", "variable");
     } else if (/[\w\\\-]/.test(ch)) {
       stream.eatWhile(/[\w\\\-]/);
       return ret("property", "word");
