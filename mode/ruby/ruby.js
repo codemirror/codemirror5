@@ -63,8 +63,8 @@ CodeMirror.defineMode("ruby", function(config) {
     } else if (ch == "#") {
       stream.skipToEnd();
       return "comment";
-    } else if (ch == "<" && (m = stream.match(/^<-?[\`\"\']?([a-zA-Z_?]\w*)[\`\"\']?(?:;|$)/))) {
-      return chain(readHereDoc(m[1]), stream, state);
+    } else if (ch == "<" && (m = stream.match(/^<(-)?[\`\"\']?([a-zA-Z_?]\w*)[\`\"\']?(?:;|$)/))) {
+      return chain(readHereDoc(m[2], m[1] !== undefined), stream, state);
     } else if (ch == "0") {
       if (stream.eat("x")) stream.eatWhile(/[\da-fA-F]/);
       else if (stream.eat("b")) stream.eatWhile(/[01]/);
@@ -216,9 +216,12 @@ CodeMirror.defineMode("ruby", function(config) {
       return style;
     };
   }
-  function readHereDoc(phrase) {
+  function readHereDoc(phrase, closing_indented) {
+    var closing_regexp = phrase + "$";
+    if (closing_indented) closing_regexp = "[ \t]*" + closing_regexp;
+    closing_regexp = RegExp(closing_regexp)
     return function(stream, state) {
-      if (stream.match(phrase)) state.tokenize.pop();
+      if (stream.match(closing_regexp)) state.tokenize.pop();
       else stream.skipToEnd();
       return "string";
     };
