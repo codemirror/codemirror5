@@ -218,6 +218,7 @@ CodeMirror.defineMode("ruby", function(config) {
   }
   function readHereDoc(phrase) {
     return function(stream, state) {
+      stream.eatSpace()
       if (stream.match(phrase)) state.tokenize.pop();
       else stream.skipToEnd();
       return "string";
