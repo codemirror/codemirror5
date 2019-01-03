@@ -377,7 +377,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
         else return cont(pushlex("form"), pattern, expect("{"), pushlex("}"), block, poplex, poplex)
       } else if (isTS && value == "namespace") {
         cx.marked = "keyword"
-        return cont(pushlex("form"), expression, block, poplex)
+        return cont(pushlex("form"), expression, statement, poplex)
       } else if (isTS && value == "abstract") {
         cx.marked = "keyword"
         return cont(statement)
@@ -552,6 +552,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
         }, proceed);
       }
       if (type == end || value == end) return cont();
+      if (sep && sep.indexOf(";") > -1) return pass(what)
       return cont(expect(end));
     }
     return function(type, value) {
@@ -614,6 +615,8 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       return cont(typeexpr)
     } else if (type == "[") {
       return cont(expression, maybetype, expect("]"), typeprop)
+    } else if (type == "(") {
+      return cont(pushlex(")"), commasep(funarg, ")"), poplex, typeprop)
     }
   }
   function typearg(type, value) {
