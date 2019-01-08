@@ -359,6 +359,9 @@ export default class ContentEditableInput {
   }
 
   onKeyPress(e) {
+    if (!this.cm.options.preventDefaultOnKeyPress) {
+      return
+    }
     if (e.charCode == 0 || this.composing) return
     e.preventDefault()
     if (!this.cm.isReadOnly())

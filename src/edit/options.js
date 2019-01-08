@@ -158,6 +158,7 @@ export function defineOptions(CodeMirror) {
   option("autofocus", null)
   option("direction", "ltr", (cm, val) => cm.doc.setDirection(val), true)
   option("phrases", null)
+  option("preventDefaultOnKeyPress", true)
 }
 
 function guttersChanged(cm) {
