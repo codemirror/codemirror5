@@ -79,6 +79,8 @@ export function defineOptions(CodeMirror) {
     throw new Error("inputStyle can not (yet) be changed in a running editor") // FIXME
   }, true)
   option("spellcheck", false, (cm, val) => cm.getInputField().spellcheck = val, true)
+  option("autocorrect", false)
+  option("autocapitalize", false)
   option("rtlMoveVisually", !windows)
   option("wholeLineUpdateBefore", true)
 

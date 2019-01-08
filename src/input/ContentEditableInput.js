@@ -29,7 +29,7 @@ export default class ContentEditableInput {
   init(display) {
     let input = this, cm = input.cm
     let div = input.div = display.lineDiv
-    disableBrowserMagic(div, cm.options.spellcheck)
+    disableBrowserMagic(div, cm.options.spellcheck, cm.options.autocorrect, cm.options.autocapitalize)
 
     on(div, "paste", e => {
       if (signalDOMEvent(cm, e) || handlePaste(e, cm)) return
