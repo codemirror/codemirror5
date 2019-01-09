@@ -76,7 +76,8 @@
       multilineTagIndentFactor: parserConfig.multilineTagIndentFactor,
       multilineTagIndentPastTag: parserConfig.multilineTagIndentPastTag
     });
-
+    
+    var highlightCodeInStyleAttr = typeof config.inlineCssMode !== 'undefined' ? config.inlineCssMode : false;
     var tags = {};
     var configTags = parserConfig && parserConfig.tags, configScript = parserConfig && parserConfig.scriptTypes;
     addTags(defaultTags, tags);
@@ -86,26 +87,67 @@
 
     function html(stream, state) {
       var style = htmlMode.token(stream, state.htmlState), tag = /\btag\b/.test(style), tagName
+
       if (tag && !/[<>\s\/]/.test(stream.current()) &&
           (tagName = state.htmlState.tagName && state.htmlState.tagName.toLowerCase()) &&
           tags.hasOwnProperty(tagName)) {
-        state.inTag = tagName + " "
-      } else if (state.inTag && tag && />$/.test(stream.current())) {
-        var inTag = /^([\S]+) (.*)/.exec(state.inTag)
-        state.inTag = null
-        var modeSpec = stream.current() == ">" && findMatchingMode(tags[inTag[1]], inTag[2])
-        var mode = CodeMirror.getMode(config, modeSpec)
-        var endTagA = getTagRegexp(inTag[1], true), endTag = getTagRegexp(inTag[1], false);
-        state.token = function (stream, state) {
-          if (stream.match(endTagA, false)) {
-            state.token = html;
-            state.localState = state.localMode = null;
-            return null;
+        state.inTag = tagName + " ";
+        state.isDefault = true;
+      } else if (highlightCodeInStyleAttr && tag && !/[<>\s\/]/.test(stream.current())) {
+        state.inTag = true;
+        state.isDefault = false;
+      } else if (highlightCodeInStyleAttr && !state.isDefault && state.inTag && tag && />$/.test(stream.current())) {
+        state.isDefault = null;
+        state.inTag = null;
+      } else if (highlightCodeInStyleAttr && !state.isDefault && state.inTag) {
+        var isStyleAttribute = stream.match(/style=/, true);
+
+        if (isStyleAttribute) {
+          var startingQuote = stream.match(/["']/, true);
+          if (startingQuote) {
+            var quoteStack = new Array();
+            quoteStack.push(startingQuote[0]);
+            var mode = CodeMirror.getMode(config, {
+              name: "css",
+              inline: true
+            });
+            state.token = function (stream, state) {
+              var quote = stream.match(/["']/, false);
+              if (quote) {
+                if ((quote[0] == '"' && quoteStack[quoteStack.length - 1] == '"') || (quote[0] == "'" && quoteStack[quoteStack.length - 1] == "'"))
+                  quoteStack.pop();
+
+                if (quoteStack.length == 0) {
+                  stream.next();
+                  state.token = html;
+                  state.localState = state.localMode = null;
+                  return 'text';
+                }
+              }
+              return state.localMode.token(stream, state.localState);
+            };
+            state.localMode = mode;
+            state.localState = CodeMirror.startState(mode, htmlMode.indent(state.htmlState, ""));
           }
-          return maybeBackup(stream, endTag, state.localMode.token(stream, state.localState));
-        };
-        state.localMode = mode;
-        state.localState = CodeMirror.startState(mode, htmlMode.indent(state.htmlState, ""));
+        }
+      } else if (state.isDefault && state.inTag && tag && />$/.test(stream.current())) {
+          var inTag = /^([\S]+) (.*)/.exec(state.inTag);
+          state.inTag = null;
+          state.isDefault = null;
+          var modeSpec = stream.current() == ">" && findMatchingMode(tags[inTag[1]], inTag[2])
+          var mode = CodeMirror.getMode(config, modeSpec)
+          var endTagA = getTagRegexp(inTag[1], true), endTag = getTagRegexp(inTag[1], false);
+
+          state.token = function (stream, state) {
+            if (stream.match(endTagA, false)) {
+              state.token = html;
+              state.localState = state.localMode = null;
+              return null;
+            }
+            return maybeBackup(stream, endTag, state.localMode.token(stream, state.localState));
+          };
+          state.localMode = mode;
+          state.localState = CodeMirror.startState(mode, htmlMode.indent(state.htmlState, ""));
       } else if (state.inTag) {
         state.inTag += stream.current()
         if (stream.eol()) state.inTag += " "
