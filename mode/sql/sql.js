@@ -12,12 +12,10 @@
 "use strict";
 
 CodeMirror.defineMode("sql", function(config, parserConfig) {
-  "use strict";
-
   var client         = parserConfig.client || {},
       atoms          = parserConfig.atoms || {"false": true, "true": true, "null": true},
-      builtin        = parserConfig.builtin || {},
-      keywords       = parserConfig.keywords || {},
+      builtin        = parserConfig.builtin || set(defaultBuiltin),
+      keywords       = parserConfig.keywords || set(sqlKeywords),
       operatorChars  = parserConfig.operatorChars || /^[*+\-%<>!=&|~^\/]/,
       support        = parserConfig.support || {},
       hooks          = parserConfig.hooks || {},
@@ -205,9 +203,6 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
   };
 });
 
-(function() {
-  "use strict";
-
   // `identifier`
   function hookIdentifier(stream) {
     // MySQL/MariaDB identifiers
@@ -282,11 +277,13 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     return obj;
   }
 
+  var defaultBuiltin = "bool boolean bit blob enum long longblob longtext medium mediumblob mediumint mediumtext time timestamp tinyblob tinyint tinytext text bigint int int1 int2 int3 int4 int8 integer float float4 float8 double char varbinary varchar varcharacter precision real date datetime year unsigned signed decimal numeric"
+
   // A generic SQL Mode. It's not a standard, it just try to support what is generally supported
   CodeMirror.defineMIME("text/x-sql", {
     name: "sql",
     keywords: set(sqlKeywords + "begin"),
-    builtin: set("bool boolean bit blob enum long longblob longtext medium mediumblob mediumint mediumtext time timestamp tinyblob tinyint tinytext text bigint int int1 int2 int3 int4 int8 integer float float4 float8 double char varbinary varchar varcharacter precision real date datetime year unsigned signed decimal numeric"),
+    builtin: set(defaultBuiltin),
     atoms: set("false true null unknown"),
     dateSQL: set("date time timestamp"),
     support: set("ODBCdotTable doubleQuote binaryNumber hexNumber")
@@ -464,8 +461,6 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     dateSQL: set("time"),
     support: set("decimallessFloat zerolessFloat binaryNumber hexNumber")
   });
-}());
-
 });
 
 /*
