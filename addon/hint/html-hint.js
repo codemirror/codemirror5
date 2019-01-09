@@ -322,6 +322,8 @@
     itemtype: null,
     lang: ["en", "es"],
     spellcheck: ["true", "false"],
+    autocorrect: ["true", "false"],
+    autocapitalize: ["true", "false"],
     style: null,
     tabindex: ["1", "2", "3", "4", "5", "6", "7", "8", "9"],
     title: null,
