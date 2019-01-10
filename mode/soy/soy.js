@@ -251,7 +251,7 @@
                 var mode = modes[kind] || modes.html;
                 var localState = last(state.localStates);
                 if (localState.mode.indent) {
-                  state.indent += localState.mode.indent(localState.state, "");
+                  state.indent += localState.mode.indent(localState.state, "", "");
                 }
                 state.localStates.push({
                   mode: mode,
@@ -310,7 +310,7 @@
             state.localStates.pop();
             var localState = last(state.localStates);
             if (localState.mode.indent) {
-              state.indent -= localState.mode.indent(localState.state, "");
+              state.indent -= localState.mode.indent(localState.state, "", "");
             }
           }
           state.soyState.push("tag");
@@ -346,7 +346,7 @@
         return tokenUntil(stream, state, /\{|\s+\/\/|\/\*/);
       },
 
-      indent: function(state, textAfter) {
+      indent: function(state, textAfter, line) {
         var indent = state.indent, top = last(state.soyState);
         if (top == "comment") return CodeMirror.Pass;
 
@@ -360,7 +360,7 @@
         }
         var localState = last(state.localStates);
         if (indent && localState.mode.indent) {
-          indent += localState.mode.indent(localState.state, textAfter);
+          indent += localState.mode.indent(localState.state, textAfter, line);
         }
         return indent;
       },

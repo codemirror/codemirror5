@@ -68,8 +68,8 @@ CodeMirror.overlayMode = function(base, overlay, combine) {
       else return state.overlayCur;
     },
 
-    indent: base.indent && function(state, textAfter) {
-      return base.indent(state.base, textAfter);
+    indent: base.indent && function(state, textAfter, line) {
+      return base.indent(state.base, textAfter, line);
     },
     electricChars: base.electricChars,
 
