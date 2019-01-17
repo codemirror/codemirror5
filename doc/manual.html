@@ -566,6 +566,9 @@
       
       <dt id="option_autocapitalize"><code><strong>autocapitalize</strong>: boolean</code></dt>
       <dd>Specifies whether or not autocapitalization will be enabled on the input.</dd>
+      
+      <dt id="option_preventDefaultOnKeyPress"><code><strong>preventDefaultOnKeyPress</strong>: boolean</code></dt>
+      <dd>Specifies whether or not key press events for the  <code>"contenteditable"</code> input style will have <code>preventDefault()</code> called on them and handled by Codemirror instead of the standard event propagation. This defaults to <code>true</code> but setting it to <code>false</code> works around an iOS issue that prevents the on-screen keyboard from updating properly.</dd>
     </dl>
 </section>
 
