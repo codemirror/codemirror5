@@ -20,7 +20,7 @@ export function setLastCopied(newLastCopied) {
   lastCopied = newLastCopied
 }
 
-export function applyTextInput(cm, inserted, deleted, sel, origin, shouldMakeChange) {
+export function applyTextInput(cm, inserted, deleted, sel, origin) {
   let doc = cm.doc
   cm.display.shift = false
   if (!sel) sel = doc.sel
@@ -55,9 +55,7 @@ export function applyTextInput(cm, inserted, deleted, sel, origin, shouldMakeCha
     }
     let changeEvent = {from: from, to: to, text: multiPaste ? multiPaste[i % multiPaste.length] : textLines,
                        origin: origin || (paste ? "paste" : cm.state.cutIncoming ? "cut" : "+input")}
-    if (shouldMakeChange !== false) {
-      makeChange(cm.doc, changeEvent)
-    }
+    makeChange(cm.doc, changeEvent)
     signalLater(cm, "inputRead", cm, changeEvent)
   }
   if (inserted && !paste)

@@ -359,13 +359,13 @@ export default class ContentEditableInput {
   }
 
   onKeyPress(e) {
-    if (e.charCode == 0 || this.composing) return
-    let shouldPreventDefault = this.cm.options.preventDefaultOnKeyPress
-    if (shouldPreventDefault) {
-      e.preventDefault()
+    if (!this.cm.options.preventDefaultOnKeyPress) {
+      return
     }
+    if (e.charCode == 0 || this.composing) return
+    e.preventDefault()
     if (!this.cm.isReadOnly())
-      operation(this.cm, applyTextInput)(this.cm, String.fromCharCode(e.charCode == null ? e.keyCode : e.charCode, null, null, shouldPreventDefault), 0)
+      operation(this.cm, applyTextInput)(this.cm, String.fromCharCode(e.charCode == null ? e.keyCode : e.charCode), 0)
   }
 
   readOnlyChanged(val) {
