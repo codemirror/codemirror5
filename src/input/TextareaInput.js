@@ -76,8 +76,16 @@ export default class TextareaInput {
 
     on(display.scroller, "paste", e => {
       if (eventInWidget(display, e) || signalDOMEvent(cm, e)) return
-      cm.state.pasteIncoming = true
-      input.focus()
+      if (!te.dispatchEvent) {
+        cm.state.pasteIncoming = true
+        input.focus()
+        return
+      }
+
+      // Pass the `paste` event to the textarea so it's handled by its event listener.
+      const event = new Event("paste")
+      event.clipboardData = e.clipboardData
+      te.dispatchEvent(event)
     })
 
     // Prevent normal selection in the editor (we handle our own)
