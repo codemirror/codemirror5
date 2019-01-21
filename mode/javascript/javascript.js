@@ -762,7 +762,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       return cont(classBody);
     }
     if (isTS && type == "(") return pass(functiondecl, classBody)
-    if (type == ";") return cont(classBody);
+    if (type == ";" || type == ",") return cont(classBody);
     if (type == "}") return cont();
     if (value == "@") return cont(expression, classBody)
   }
