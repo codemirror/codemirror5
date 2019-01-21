@@ -1,3 +1,17 @@
+## 5.43.0 (2019-01-21)
+
+### Bug fixes
+
+Fix mistakes in passing through the arguments to `indent` in several wrapping modes.
+
+[javascript mode](https://codemirror.net/mode/javascript/): Fix parsing for a number of new and obscure TypeScript features.
+
+[ruby mode](https://codemirror.net/mode/ruby): Support indented end tokens for heredoc strings.
+
+### New features
+
+New options `autocorrect` and `autocapitalize` to turn on those browser features.
+
 ## 5.42.2 (2018-12-21)
 
 ### Bug fixes
