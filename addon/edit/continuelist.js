@@ -21,20 +21,14 @@
     for (var i = 0; i < ranges.length; i++) {
       var pos = ranges[i].head;
 
-      // Walk the list of inner modes/states until we find a Markdown one
-      // If we don't find one, fall back to normal newlineAndIndent
-      var mode = cm.getMode(), eolState = cm.getStateAfter(pos.line);
-      while (mode && mode.name !== "markdown") {
-        // If the mode doesn't have an innerMode helper, give up
-        if (typeof mode.innerMode !== "function") break;
-
-        var inner = mode.innerMode(eolState);
-        mode = inner && inner.mode;
-        eolState = inner && inner.state;
-      }
-      if (!mode || mode.name !== "markdown") {
+      // If we're not in Markdown mode, fall back to normal newlineAndIndent
+      var eolState = cm.getStateAfter(pos.line);
+      var inner = cm.getMode().innerMode(eolState);
+      if (inner.mode.name !== "markdown") {
         cm.execCommand("newlineAndIndent");
         return;
+      } else {
+        eolState = inner.state;
       }
 
       var inList = eolState.list !== false;
