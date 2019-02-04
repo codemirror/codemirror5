@@ -48,7 +48,7 @@ export default class TextareaInput {
     on(te, "paste", e => {
       if (signalDOMEvent(cm, e) || handlePaste(e, cm)) return
 
-      cm.state.pasteIncoming = true
+      cm.state.pasteIncoming = +new Date
       input.fastPoll()
     })
 
@@ -69,7 +69,7 @@ export default class TextareaInput {
           selectInput(te)
         }
       }
-      if (e.type == "cut") cm.state.cutIncoming = true
+      if (e.type == "cut") cm.state.cutIncoming = +new Date
     }
     on(te, "cut", prepareCopyCut)
     on(te, "copy", prepareCopyCut)
@@ -77,7 +77,7 @@ export default class TextareaInput {
     on(display.scroller, "paste", e => {
       if (eventInWidget(display, e) || signalDOMEvent(cm, e)) return
       if (!te.dispatchEvent) {
-        cm.state.pasteIncoming = true
+        cm.state.pasteIncoming = +new Date
         input.focus()
         return
       }

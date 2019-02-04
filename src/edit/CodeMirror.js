@@ -57,7 +57,7 @@ export function CodeMirror(place, options) {
     delayingBlurEvent: false,
     focused: false,
     suppressEdits: false, // used to disable editing during key handlers when in readOnly mode
-    pasteIncoming: false, cutIncoming: false, // help recognize paste/cut edits in input.poll
+    pasteIncoming: -1, cutIncoming: -1, // help recognize paste/cut edits in input.poll
     selectingText: false,
     draggingText: false,
     highlight: new Delayed(), // stores highlight worker timeout
