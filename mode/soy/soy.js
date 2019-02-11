@@ -13,7 +13,7 @@
 
   var indentingTags = ["template", "literal", "msg", "fallbackmsg", "let", "if", "elseif",
                        "else", "switch", "case", "default", "foreach", "ifempty", "for",
-                       "call", "param", "deltemplate", "delcall", "log"];
+                       "call", "param", "deltemplate", "delcall", "log", "element"];
 
   CodeMirror.defineMode("soy", function(config) {
     var textMode = CodeMirror.getMode(config, "text/plain");
