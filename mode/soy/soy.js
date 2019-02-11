@@ -328,7 +328,7 @@
             if (!state.scopes) {
               state.variables = prepend(null, 'ij');
             }
-          } else if (state.tag.match(/^@(?:param\??|inject|prop)/)) {
+          } else if (state.tag.match(/^@(?:param\??|inject|state)/)) {
             state.soyState.push("param-def");
           } else if (state.tag.match(/^(?:param)/)) {
             state.soyState.push("param-ref");
