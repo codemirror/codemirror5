@@ -53,6 +53,7 @@
     { keys: '<Down>', type: 'keyToKey', toKeys: 'j' },
     { keys: '<Space>', type: 'keyToKey', toKeys: 'l' },
     { keys: '<BS>', type: 'keyToKey', toKeys: 'h', context: 'normal'},
+    { keys: '<Del>', type: 'keyToKey', toKeys: 'x', context: 'normal'},
     { keys: '<C-Space>', type: 'keyToKey', toKeys: 'W' },
     { keys: '<C-BS>', type: 'keyToKey', toKeys: 'B', context: 'normal' },
     { keys: '<S-Space>', type: 'keyToKey', toKeys: 'w' },

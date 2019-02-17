@@ -460,7 +460,7 @@ testVim('j_k_and_gj_gk', function(cm,vim,helpers){
   helpers.assertCursorAt(0, 176);
 },{ lineWrapping:true, value: 'This line is intentially long to test movement of gj and gk over wrapped lines. I will start on the end of this line, then make a step up and back to set the origin for j and k.\nThis line is supposed to be even longer than the previous. I will jump here and make another wiggle with gj and gk, before I jump back to the line above. Both wiggles should not change my cursor\'s target character but both j/k and gj/gk change each other\'s reference position.'});
 testVim('gj_gk', function(cm, vim, helpers) {
-  if (phantom) return;
+//  if (phantom) return;
   cm.setSize(120);
   // Test top of document edge case.
   cm.setCursor(0, 4);
@@ -1523,6 +1523,31 @@ testVim('i_overwrite_backspace', function(cm, vim, helpers) {
   helpers.assertCursorAt(Pos(0, 9, "after"));
   eq('0123456789', cm.getValue());
 }, { value: '0123456789'});
+testVim('i_forward_delete', function(cm, vim, helpers) {
+  cm.setCursor(0, 3);
+  helpers.doKeys('i');
+  helpers.doInsertModeKeys('Delete');
+  helpers.assertCursorAt(0, 3);
+  eq('A124\nBCD', cm.getValue());
+  helpers.doInsertModeKeys('Delete');
+  helpers.assertCursorAt(0, 3);
+  eq('A12\nBCD', cm.getValue());
+  helpers.doInsertModeKeys('Delete');
+  helpers.assertCursorAt(0, 3);
+  eq('A12BCD', cm.getValue());
+}, { value: 'A1234\nBCD'});
+testVim('forward_delete', function(cm, vim, helpers) {
+  cm.setCursor(0, 3);
+  helpers.doInsertModeKeys('Delete');
+  helpers.assertCursorAt(0, 3);
+  eq('A124\nBCD', cm.getValue());
+  helpers.doInsertModeKeys('Delete');
+  helpers.assertCursorAt(0, 2);
+  eq('A12\nBCD', cm.getValue());
+  helpers.doInsertModeKeys('Delete');
+  helpers.assertCursorAt(0, 1);
+  eq('A1\nBCD', cm.getValue());
+}, { value: 'A1234\nBCD'});
 testVim('A', function(cm, vim, helpers) {
   helpers.doKeys('A');
   helpers.assertCursorAt(0, lines[0].length);
