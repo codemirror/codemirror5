@@ -1523,6 +1523,31 @@ testVim('i_overwrite_backspace', function(cm, vim, helpers) {
   helpers.assertCursorAt(Pos(0, 9, "after"));
   eq('0123456789', cm.getValue());
 }, { value: '0123456789'});
+testVim('i_forward_delete', function(cm, vim, helpers) {
+  cm.setCursor(0, 3);
+  helpers.doKeys('i');
+  helpers.doInsertModeKeys('Delete');
+  helpers.assertCursorAt(0, 3);
+  eq('A124\nBCD', cm.getValue());
+  helpers.doInsertModeKeys('Delete');
+  helpers.assertCursorAt(0, 3);
+  eq('A12\nBCD', cm.getValue());
+  helpers.doInsertModeKeys('Delete');
+  helpers.assertCursorAt(0, 3);
+  eq('A12BCD', cm.getValue());
+}, { value: 'A1234\nBCD'});
+testVim('forward_delete', function(cm, vim, helpers) {
+  cm.setCursor(0, 3);
+  helpers.doInsertModeKeys('Delete');
+  helpers.assertCursorAt(0, 3);
+  eq('A124\nBCD', cm.getValue());
+  helpers.doInsertModeKeys('Delete');
+  helpers.assertCursorAt(0, 2);
+  eq('A12\nBCD', cm.getValue());
+  helpers.doInsertModeKeys('Delete');
+  helpers.assertCursorAt(0, 1);
+  eq('A1\nBCD', cm.getValue());
+}, { value: 'A1234\nBCD'});
 testVim('A', function(cm, vim, helpers) {
   helpers.doKeys('A');
   helpers.assertCursorAt(0, lines[0].length);
