@@ -1,6 +1,6 @@
 import { heightAtLine } from "../line/spans.js"
 import { getLine, lineAtHeight, updateLineHeight } from "../line/utils_line.js"
-import { paddingTop, textHeight, charWidth } from "../measurement/position_measurement.js"
+import { paddingTop, charWidth } from "../measurement/position_measurement.js"
 import { ie, ie_version } from "../util/browser.js"
 
 // Read the actual heights of the rendered lines, and update their
