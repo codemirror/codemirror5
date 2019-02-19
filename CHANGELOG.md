@@ -646,7 +646,7 @@ Line endings for pasted content are now normalized to the editor's [preferred en
 
 ### New features
 
-The core is now maintained as a number of small files, using ES6 syntax and modules, under the `src/` directory. A git checkout no longer contains a working `codemirror.js` until you `npm build` (but when installing from NPM, it is included).
+The core is now maintained as a number of small files, using ES6 syntax and modules, under the `src/` directory. A git checkout no longer contains a working `codemirror.js` until you `npm run build` (but when installing from NPM, it is included).
 
 The [`refresh`](https://codemirror.net/doc/manual.html#event_refresh) event is now documented and stable.
 
