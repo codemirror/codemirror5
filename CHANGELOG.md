@@ -1,3 +1,23 @@
+## 5.44.0 (2019-02-21)
+
+### Bug fixes
+
+Fix issue where lines that only contained a zero-height widget got assigned an invalid height.
+
+Improve support for middle-click paste on X Windows.
+
+Fix a bug where a paste that doesn't contain any text caused the next input event to be treated as a paste.
+
+[show-hint addon](https://codemirror.net/doc/manual.html#addon_show-hint): Fix accidental global variable.
+
+[javascript mode](https://codemirror.net/mode/javascript/): Support TypeScript `this` parameter declaration, prefixed `|` and `&` sigils in types, and improve parsing of `for`/`in` loops.
+
+### New features
+
+[vim bindings](https://codemirror.net/demo/vim.html): Properly emulate forward-delete.
+
+New theme: [nord](https://codemirror.net/demo/theme.html#nord).
+
 ## 5.43.0 (2019-01-21)
 
 ### Bug fixes
