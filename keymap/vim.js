@@ -1978,7 +1978,7 @@
           }
         }
         if (ch < lineText.length) {
-          var matched = cm.findMatchingBracket(Pos(line, ch), {bracketRegex: /[(){}[\]<>]/});
+          var matched = cm.findMatchingBracket(Pos(line, ch), {bracketRegex: /[(){}[\]]/});
           return matched.to;
         } else {
           return cursor;
