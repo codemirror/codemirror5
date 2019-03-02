@@ -88,7 +88,7 @@ export function onMouseDown(e) {
     if (pos) extendSelection(cm.doc, pos)
     setTimeout(() => display.input.focus(), 20)
   } else if (button == 3) {
-    if (captureRightClick) onContextMenu(cm, e)
+    if (captureRightClick) cm.display.input.onContextMenu(e)
     else delayBlurEvent(cm)
   }
 }
@@ -149,8 +149,8 @@ function leftButtonStartDrag(cm, event, pos, behavior) {
   let dragEnd = operation(cm, e => {
     if (webkit) display.scroller.draggable = false
     cm.state.draggingText = false
-    off(document, "mouseup", dragEnd)
-    off(document, "mousemove", mouseMove)
+    off(display.wrapper.ownerDocument, "mouseup", dragEnd)
+    off(display.wrapper.ownerDocument, "mousemove", mouseMove)
     off(display.scroller, "dragstart", dragStart)
     off(display.scroller, "drop", dragEnd)
     if (!moved) {
@@ -159,7 +159,7 @@ function leftButtonStartDrag(cm, event, pos, behavior) {
         extendSelection(cm.doc, pos, null, null, behavior.extend)
       // Work around unexplainable focus problem in IE9 (#2127) and Chrome (#3081)
       if (webkit || ie && ie_version == 9)
-        setTimeout(() => {document.body.focus(); display.input.focus()}, 20)
+        setTimeout(() => {display.wrapper.ownerDocument.body.focus(); display.input.focus()}, 20)
       else
         display.input.focus()
     }
@@ -174,8 +174,8 @@ function leftButtonStartDrag(cm, event, pos, behavior) {
   dragEnd.copy = !behavior.moveOnDrag
   // IE's approach to draggable
   if (display.scroller.dragDrop) display.scroller.dragDrop()
-  on(document, "mouseup", dragEnd)
-  on(document, "mousemove", mouseMove)
+  on(display.wrapper.ownerDocument, "mouseup", dragEnd)
+  on(display.wrapper.ownerDocument, "mousemove", mouseMove)
   on(display.scroller, "dragstart", dragStart)
   on(display.scroller, "drop", dragEnd)
 
@@ -226,10 +226,10 @@ function leftButtonSelect(cm, event, start, behavior) {
     startSel = doc.sel
   } else if (ourIndex == -1) {
     ourIndex = ranges.length
-    setSelection(doc, normalizeSelection(ranges.concat([ourRange]), ourIndex),
+    setSelection(doc, normalizeSelection(cm, ranges.concat([ourRange]), ourIndex),
                  {scroll: false, origin: "*mouse"})
   } else if (ranges.length > 1 && ranges[ourIndex].empty() && behavior.unit == "char" && !behavior.extend) {
-    setSelection(doc, normalizeSelection(ranges.slice(0, ourIndex).concat(ranges.slice(ourIndex + 1)), 0),
+    setSelection(doc, normalizeSelection(cm, ranges.slice(0, ourIndex).concat(ranges.slice(ourIndex + 1)), 0),
                  {scroll: false, origin: "*mouse"})
     startSel = doc.sel
   } else {
@@ -255,7 +255,7 @@ function leftButtonSelect(cm, event, start, behavior) {
           ranges.push(new Range(Pos(line, leftPos), Pos(line, findColumn(text, right, tabSize))))
       }
       if (!ranges.length) ranges.push(new Range(start, start))
-      setSelection(doc, normalizeSelection(startSel.ranges.slice(0, ourIndex).concat(ranges), ourIndex),
+      setSelection(doc, normalizeSelection(cm, startSel.ranges.slice(0, ourIndex).concat(ranges), ourIndex),
                    {origin: "*mouse", scroll: false})
       cm.scrollIntoView(pos)
     } else {
@@ -271,7 +271,7 @@ function leftButtonSelect(cm, event, start, behavior) {
       }
       let ranges = startSel.ranges.slice(0)
       ranges[ourIndex] = bidiSimplify(cm, new Range(clipPos(doc, anchor), head))
-      setSelection(doc, normalizeSelection(ranges, ourIndex), sel_mouse)
+      setSelection(doc, normalizeSelection(cm, ranges, ourIndex), sel_mouse)
     }
   }
 
@@ -307,19 +307,19 @@ function leftButtonSelect(cm, event, start, behavior) {
     counter = Infinity
     e_preventDefault(e)
     display.input.focus()
-    off(document, "mousemove", move)
-    off(document, "mouseup", up)
+    off(display.wrapper.ownerDocument, "mousemove", move)
+    off(display.wrapper.ownerDocument, "mouseup", up)
     doc.history.lastSelOrigin = null
   }
 
   let move = operation(cm, e => {
-    if (!e_button(e)) done(e)
+    if (e.buttons === 0 || !e_button(e)) done(e)
     else extend(e)
   })
   let up = operation(cm, done)
   cm.state.selectingText = up
-  on(document, "mousemove", move)
-  on(document, "mouseup", up)
+  on(display.wrapper.ownerDocument, "mousemove", move)
+  on(display.wrapper.ownerDocument, "mouseup", up)
 }
 
 // Used when mouse-selecting to adjust the anchor to the proper side
@@ -398,7 +398,7 @@ export function clickInGutter(cm, e) {
 export function onContextMenu(cm, e) {
   if (eventInWidget(cm.display, e) || contextMenuInGutter(cm, e)) return
   if (signalDOMEvent(cm, e, "contextmenu")) return
-  cm.display.input.onContextMenu(e)
+  if (!captureRightClick) cm.display.input.onContextMenu(e)
 }
 
 function contextMenuInGutter(cm, e) {

@@ -32,13 +32,10 @@ export default class TextareaInput {
 
   init(display) {
     let input = this, cm = this.cm
+    this.createField(display)
+    const te = this.textarea
 
-    // Wraps and hides input textarea
-    let div = this.wrapper = hiddenTextarea()
-    // The semihidden textarea that is focused when the editor is
-    // focused, and receives input.
-    let te = this.textarea = div.firstChild
-    display.wrapper.insertBefore(div, display.wrapper.firstChild)
+    display.wrapper.insertBefore(this.wrapper, display.wrapper.firstChild)
 
     // Needed to hide big blue blinking cursor on Mobile Safari (doesn't seem to work in iOS 8 anymore)
     if (ios) te.style.width = "0px"
@@ -51,7 +48,7 @@ export default class TextareaInput {
     on(te, "paste", e => {
       if (signalDOMEvent(cm, e) || handlePaste(e, cm)) return
 
-      cm.state.pasteIncoming = true
+      cm.state.pasteIncoming = +new Date
       input.fastPoll()
     })
 
@@ -72,15 +69,23 @@ export default class TextareaInput {
           selectInput(te)
         }
       }
-      if (e.type == "cut") cm.state.cutIncoming = true
+      if (e.type == "cut") cm.state.cutIncoming = +new Date
     }
     on(te, "cut", prepareCopyCut)
     on(te, "copy", prepareCopyCut)
 
     on(display.scroller, "paste", e => {
       if (eventInWidget(display, e) || signalDOMEvent(cm, e)) return
-      cm.state.pasteIncoming = true
-      input.focus()
+      if (!te.dispatchEvent) {
+        cm.state.pasteIncoming = +new Date
+        input.focus()
+        return
+      }
+
+      // Pass the `paste` event to the textarea so it's handled by its event listener.
+      const event = new Event("paste")
+      event.clipboardData = e.clipboardData
+      te.dispatchEvent(event)
     })
 
     // Prevent normal selection in the editor (we handle our own)
@@ -103,6 +108,14 @@ export default class TextareaInput {
         input.composing = null
       }
     })
+  }
+
+  createField(_display) {
+    // Wraps and hides input textarea
+    this.wrapper = hiddenTextarea()
+    // The semihidden textarea that is focused when the editor is
+    // focused, and receives input.
+    this.textarea = this.wrapper.firstChild
   }
 
   prepareSelection() {
@@ -259,6 +272,7 @@ export default class TextareaInput {
 
   onContextMenu(e) {
     let input = this, cm = input.cm, display = cm.display, te = input.textarea
+    if (input.contextMenuPending) input.contextMenuPending()
     let pos = posFromMouse(cm, e), scrollPos = display.scroller.scrollTop
     if (!pos || presto) return // Opera is difficult.
 
@@ -269,8 +283,8 @@ export default class TextareaInput {
       operation(cm, setSelection)(cm.doc, simpleSelection(pos), sel_dontScroll)
 
     let oldCSS = te.style.cssText, oldWrapperCSS = input.wrapper.style.cssText
-    input.wrapper.style.cssText = "position: absolute"
-    let wrapperBox = input.wrapper.getBoundingClientRect()
+    let wrapperBox = input.wrapper.offsetParent.getBoundingClientRect()
+    input.wrapper.style.cssText = "position: static"
     te.style.cssText = `position: absolute; width: 30px; height: 30px;
       top: ${e.clientY - wrapperBox.top - 5}px; left: ${e.clientX - wrapperBox.left - 5}px;
       z-index: 1000; background: ${ie ? "rgba(255, 255, 255, .05)" : "transparent"};
@@ -282,7 +296,7 @@ export default class TextareaInput {
     display.input.reset()
     // Adds "Select all" to context menu in FF
     if (!cm.somethingSelected()) te.value = input.prevInput = " "
-    input.contextMenuPending = true
+    input.contextMenuPending = rehide
     display.selForContextMenu = cm.doc.sel
     clearTimeout(display.detectingSelectAll)
 
@@ -303,6 +317,7 @@ export default class TextareaInput {
       }
     }
     function rehide() {
+      if (input.contextMenuPending != rehide) return
       input.contextMenuPending = false
       input.wrapper.style.cssText = oldWrapperCSS
       te.style.cssText = oldCSS

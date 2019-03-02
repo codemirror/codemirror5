@@ -26,7 +26,7 @@ export function startOperation(cm) {
     viewChanged: false,      // Flag that indicates that lines might need to be redrawn
     startHeight: cm.doc.height, // Used to detect need to update scrollbar
     forceUpdate: false,      // Used to force a redraw
-    updateInput: null,       // Whether to reset the input textarea
+    updateInput: 0,       // Whether to reset the input textarea
     typing: false,           // Whether this reset should be careful to leave existing text (for compositing)
     changeObjs: null,        // Accumulated changes, for firing change events
     cursorActivityHandlers: null, // Set of handlers to fire cursorActivity on
@@ -44,7 +44,7 @@ export function startOperation(cm) {
 // Finish an operation, updating the display and signalling delayed events
 export function endOperation(cm) {
   let op = cm.curOp
-  finishOperation(op, group => {
+  if (op) finishOperation(op, group => {
     for (let i = 0; i < group.ops.length; i++)
       group.ops[i].cm.curOp = null
     endOperations(group)

@@ -1,5 +1,5 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
-// Distributed under an MIT license: http://codemirror.net/LICENSE
+// Distributed under an MIT license: https://codemirror.net/LICENSE
 
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
@@ -54,7 +54,7 @@ CodeMirror.registerHelper("fold", "brace", function(cm, start) {
       ++pos;
     }
   }
-  if (end == null || line == end && endCh == startCh) return;
+  if (end == null || line == end) return;
   return {from: CodeMirror.Pos(line, startCh),
           to: CodeMirror.Pos(end, endCh)};
 });

@@ -8,9 +8,9 @@
 <script src="../../lib/codemirror.js"></script>
 <script src="../../addon/edit/matchbrackets.js"></script>
 <script src="python.js"></script>
-<style type="text/css">.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
+<style>.CodeMirror {border-top: 1px solid black; border-bottom: 1px solid black;}</style>
 <div id=nav>
-  <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png"></a>
+  <a href="https://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png"></a>
 
   <ul>
     <li><a href="../../index.html">Home</a>
@@ -126,6 +126,15 @@ class ExampleClass(ParentClass):
     def __init__(self, mixin = 'Hello'):
         self.mixin = mixin
 
+# Python 3.6 f-strings (https://www.python.org/dev/peps/pep-0498/)
+f'My name is {name}, my age next year is {age+1}, my anniversary is {anniversary:%A, %B %d, %Y}.'
+f'He said his name is {name!r}.'
+f"""He said his name is {name!r}."""
+f'{"quoted string"}'
+f'{{ {4*10} }}'
+f'This is an error }'
+f'This is ok }}'
+fr'x={4*10}\n'
 </textarea></div>
 
 

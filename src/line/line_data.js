@@ -68,7 +68,7 @@ export function buildLineContent(cm, lineView) {
   let builder = {pre: eltP("pre", [content], "CodeMirror-line"), content: content,
                  col: 0, pos: 0, cm: cm,
                  trailingSpace: false,
-                 splitSpaces: (ie || webkit) && cm.getOption("lineWrapping")}
+                 splitSpaces: cm.getOption("lineWrapping")}
   lineView.measure = {}
 
   // Iterate over the logical lines that make up this visual line.
@@ -127,7 +127,7 @@ export function defaultSpecialCharPlaceholder(ch) {
 
 // Build up the DOM representation for a single token, and add it to
 // the line map. Takes care to render special characters separately.
-function buildToken(builder, text, style, startStyle, endStyle, title, css) {
+function buildToken(builder, text, style, startStyle, endStyle, css, attributes) {
   if (!text) return
   let displayText = builder.splitSpaces ? splitSpaces(text, builder.trailingSpace) : text
   let special = builder.cm.state.specialChars, mustWrap = false
@@ -183,12 +183,17 @@ function buildToken(builder, text, style, startStyle, endStyle, title, css) {
     if (startStyle) fullStyle += startStyle
     if (endStyle) fullStyle += endStyle
     let token = elt("span", [content], fullStyle, css)
-    if (title) token.title = title
+    if (attributes) {
+      for (let attr in attributes) if (attributes.hasOwnProperty(attr) && attr != "style" && attr != "class")
+        token.setAttribute(attr, attributes[attr])
+    }
     return builder.content.appendChild(token)
   }
   builder.content.appendChild(content)
 }
 
+// Change some spaces to NBSP to prevent the browser from collapsing
+// trailing spaces at the end of a line when rendering text (issue #1362).
 function splitSpaces(text, trailingBefore) {
   if (text.length > 1 && !/  /.test(text)) return text
   let spaceBefore = trailingBefore, result = ""
@@ -205,7 +210,7 @@ function splitSpaces(text, trailingBefore) {
 // Work around nonsense dimensions being reported for stretches of
 // right-to-left text.
 function buildTokenBadBidi(inner, order) {
-  return (builder, text, style, startStyle, endStyle, title, css) => {
+  return (builder, text, style, startStyle, endStyle, css, attributes) => {
     style = style ? style + " cm-force-border" : "cm-force-border"
     let start = builder.pos, end = start + text.length
     for (;;) {
@@ -215,8 +220,8 @@ function buildTokenBadBidi(inner, order) {
         part = order[i]
         if (part.to > start && part.from <= start) break
       }
-      if (part.to >= end) return inner(builder, text, style, startStyle, endStyle, title, css)
-      inner(builder, text.slice(0, part.to - start), style, startStyle, null, title, css)
+      if (part.to >= end) return inner(builder, text, style, startStyle, endStyle, css, attributes)
+      inner(builder, text.slice(0, part.to - start), style, startStyle, null, css, attributes)
       startStyle = null
       text = text.slice(part.to - start)
       start = part.to
@@ -251,10 +256,11 @@ function insertLineContent(line, builder, styles) {
   }
 
   let len = allText.length, pos = 0, i = 1, text = "", style, css
-  let nextChange = 0, spanStyle, spanEndStyle, spanStartStyle, title, collapsed
+  let nextChange = 0, spanStyle, spanEndStyle, spanStartStyle, collapsed, attributes
   for (;;) {
     if (nextChange == pos) { // Update current marker set
-      spanStyle = spanEndStyle = spanStartStyle = title = css = ""
+      spanStyle = spanEndStyle = spanStartStyle = css = ""
+      attributes = null
       collapsed = null; nextChange = Infinity
       let foundBookmarks = [], endStyles
       for (let j = 0; j < spans.length; ++j) {
@@ -270,7 +276,13 @@ function insertLineContent(line, builder, styles) {
           if (m.css) css = (css ? css + ";" : "") + m.css
           if (m.startStyle && sp.from == pos) spanStartStyle += " " + m.startStyle
           if (m.endStyle && sp.to == nextChange) (endStyles || (endStyles = [])).push(m.endStyle, sp.to)
-          if (m.title && !title) title = m.title
+          // support for the old title property
+          // https://github.com/codemirror/CodeMirror/pull/5673
+          if (m.title) (attributes || (attributes = {})).title = m.title
+          if (m.attributes) {
+            for (let attr in m.attributes)
+              (attributes || (attributes = {}))[attr] = m.attributes[attr]
+          }
           if (m.collapsed && (!collapsed || compareCollapsedMarkers(collapsed.marker, m) < 0))
             collapsed = sp
         } else if (sp.from > pos && nextChange > sp.from) {
@@ -298,7 +310,7 @@ function insertLineContent(line, builder, styles) {
         if (!collapsed) {
           let tokenText = end > upto ? text.slice(0, upto - pos) : text
           builder.addToken(builder, tokenText, style ? style + spanStyle : spanStyle,
-                           spanStartStyle, pos + tokenText.length == nextChange ? spanEndStyle : "", title, css)
+                           spanStartStyle, pos + tokenText.length == nextChange ? spanEndStyle : "", css, attributes)
         }
         if (end >= upto) {text = text.slice(upto - pos); pos = upto; break}
         pos = end

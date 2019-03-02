@@ -139,12 +139,12 @@ Doc.prototype = createObj(BranchChunk.prototype, {
       out[i] = new Range(clipPos(this, ranges[i].anchor),
                          clipPos(this, ranges[i].head))
     if (primary == null) primary = Math.min(ranges.length - 1, this.sel.primIndex)
-    setSelection(this, normalizeSelection(out, primary), options)
+    setSelection(this, normalizeSelection(this.cm, out, primary), options)
   }),
   addSelection: docMethodOp(function(anchor, head, options) {
     let ranges = this.sel.ranges.slice(0)
     ranges.push(new Range(clipPos(this, anchor), clipPos(this, head || anchor)))
-    setSelection(this, normalizeSelection(ranges, ranges.length - 1), options)
+    setSelection(this, normalizeSelection(this.cm, ranges, ranges.length - 1), options)
   }),
 
   getSelection: function(lineSep) {

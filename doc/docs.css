@@ -35,7 +35,6 @@ article > h2:first-child, section:first-child > h2 { margin-top: 0; }
 
 a, a:visited, a:link, .quasilink {
   color: #A21313;
-  text-decoration: none;
 }
 
 em {
@@ -88,6 +87,10 @@ article {
   display: block;
   margin: 0; padding: 0;
   margin-bottom: 32px;
+}
+
+#nav a {
+  text-decoration: none;
 }
 
 #nav li {

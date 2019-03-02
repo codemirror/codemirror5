@@ -1,5 +1,5 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
-// Distributed under an MIT license: http://codemirror.net/LICENSE
+// Distributed under an MIT license: https://codemirror.net/LICENSE
 
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
@@ -307,6 +307,7 @@
     "Backspace": function(cm) { killRegion(cm, false) || killTo(cm, byChar, -1, false); },
 
     "Alt-F": move(byWord, 1), "Alt-B": move(byWord, -1),
+    "Alt-Right": move(byWord, 1), "Alt-Left": move(byWord, -1),
     "Alt-D": function(cm) { killTo(cm, byWord, 1, "grow"); },
     "Alt-Backspace": function(cm) { killTo(cm, byWord, -1, "grow"); },
 

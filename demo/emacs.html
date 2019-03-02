@@ -14,11 +14,11 @@
 <script src="../addon/dialog/dialog.js"></script>
 <script src="../addon/search/searchcursor.js"></script>
 <script src="../addon/search/search.js"></script>
-<style type="text/css">
+<style>
       .CodeMirror {border-top: 1px solid #eee; border-bottom: 1px solid #eee;}
     </style>
 <div id=nav>
-  <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../doc/logo.png"></a>
+  <a href="https://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../doc/logo.png"></a>
 
   <ul>
     <li><a href="../index.html">Home</a>
@@ -68,6 +68,7 @@ or open a new window.</p>
       var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
         lineNumbers: true,
         mode: "text/x-csrc",
+        matchBrackets: true,
         keyMap: "emacs"
       });
     </script>

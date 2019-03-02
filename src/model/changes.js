@@ -38,7 +38,10 @@ function filterChange(doc, change, update) {
   signal(doc, "beforeChange", doc, obj)
   if (doc.cm) signal(doc.cm, "beforeChange", doc.cm, obj)
 
-  if (obj.canceled) return null
+  if (obj.canceled) {
+    if (doc.cm) doc.cm.curOp.updateInput = 2
+    return null
+  }
   return {from: obj.from, to: obj.to, text: obj.text, origin: obj.origin}
 }
 

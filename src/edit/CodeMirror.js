@@ -13,7 +13,7 @@ import Doc from "../model/Doc.js"
 import { attachDoc } from "../model/document_data.js"
 import { Range } from "../model/selection.js"
 import { extendSelection } from "../model/selection_updates.js"
-import { captureRightClick, ie, ie_version, mobile, webkit } from "../util/browser.js"
+import { ie, ie_version, mobile, webkit } from "../util/browser.js"
 import { e_preventDefault, e_stop, on, signal, signalDOMEvent } from "../util/event.js"
 import { bind, copyObj, Delayed } from "../util/misc.js"
 
@@ -37,6 +37,7 @@ export function CodeMirror(place, options) {
 
   let doc = options.value
   if (typeof doc == "string") doc = new Doc(doc, options.mode, null, options.lineSeparator, options.direction)
+  else if (options.mode) doc.modeOption = options.mode
   this.doc = doc
 
   let input = new CodeMirror.inputStyles[options.inputStyle](this)
@@ -56,7 +57,7 @@ export function CodeMirror(place, options) {
     delayingBlurEvent: false,
     focused: false,
     suppressEdits: false, // used to disable editing during key handlers when in readOnly mode
-    pasteIncoming: false, cutIncoming: false, // help recognize paste/cut edits in input.poll
+    pasteIncoming: -1, cutIncoming: -1, // help recognize paste/cut edits in input.poll
     selectingText: false,
     draggingText: false,
     highlight: new Delayed(), // stores highlight worker timeout
@@ -121,7 +122,7 @@ function registerEventHandlers(cm) {
   // Some browsers fire contextmenu *after* opening the menu, at
   // which point we can't mess with it anymore. Context menu is
   // handled in onMouseDown for these browsers.
-  if (!captureRightClick) on(d.scroller, "contextmenu", e => onContextMenu(cm, e))
+  on(d.scroller, "contextmenu", e => onContextMenu(cm, e))
 
   // Used to suppress mouse event handling when a touch happens
   let touchFinished, prevTouch = {end: 0}

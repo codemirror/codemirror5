@@ -79,6 +79,8 @@ export function defineOptions(CodeMirror) {
     throw new Error("inputStyle can not (yet) be changed in a running editor") // FIXME
   }, true)
   option("spellcheck", false, (cm, val) => cm.getInputField().spellcheck = val, true)
+  option("autocorrect", false, (cm, val) => cm.getInputField().autocorrect = val, true)
+  option("autocapitalize", false, (cm, val) => cm.getInputField().autocapitalize = val, true)
   option("rtlMoveVisually", !windows)
   option("wholeLineUpdateBefore", true)
 
@@ -122,6 +124,7 @@ export function defineOptions(CodeMirror) {
   option("resetSelectionOnContextMenu", true)
   option("lineWiseCopyCut", true)
   option("pasteLinesPerSelection", true)
+  option("selectionsMayTouch", false)
 
   option("readOnly", false, (cm, val) => {
     if (val == "nocursor") {
@@ -154,6 +157,7 @@ export function defineOptions(CodeMirror) {
   option("tabindex", null, (cm, val) => cm.display.input.getField().tabIndex = val || "")
   option("autofocus", null)
   option("direction", "ltr", (cm, val) => cm.doc.setDirection(val), true)
+  option("phrases", null)
 }
 
 function guttersChanged(cm) {
