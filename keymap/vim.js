@@ -1978,7 +1978,9 @@
           }
         }
         if (ch < lineText.length) {
-          var matched = cm.findMatchingBracket(Pos(line, ch), {bracketRegex: /[(){}[\]<>]/});
+          // Only include angle brackets in analysis if they are being matched.
+          var re = (ch === '<' || ch === '>') ? /[(){}[\]<>]/ : /[(){}[\]]/;
+          var matched = cm.findMatchingBracket(Pos(line, ch), {bracketRegex: re});
           return matched.to;
         } else {
           return cursor;
