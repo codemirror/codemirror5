@@ -1978,7 +1978,7 @@
           }
         }
         if (ch < lineText.length) {
-         // Only include angle brackets in analysis if they are being matched.
+          // Only include angle brackets in analysis if they are being matched.
           var bracketRegex =
             (ch === '<' || ch === '>') ? /[(){}[\]<>]/ : /[(){}[\]]/;
           var matched = cm.findMatchingBracket(Pos(line, ch), {bracketRegex});
