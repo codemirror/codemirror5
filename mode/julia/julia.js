@@ -302,7 +302,7 @@ CodeMirror.defineMode("julia", function(config, parserConf) {
     stream.match(/.*?(?=,|;|{|}|\(|\)|=|$|\s)/);
     if (stream.match(/^{/)) {
       state.nestedParameters++;
-    } else if (stream.match(/^}/)) {
+    } else if (stream.match(/^}/) && state.nestedParameters > 0) {
       state.nestedParameters--;
     }
     if (state.nestedParameters > 0) {
