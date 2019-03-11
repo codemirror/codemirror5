@@ -69,7 +69,7 @@
         var ch = line.charAt(pos);
         if (re.test(ch) && (style === undefined || cm.getTokenTypeAt(Pos(lineNo, pos + 1)) == style)) {
           var match = matching[ch];
-          if ((match.charAt(1) == ">") == (dir > 0)) stack.push(ch);
+          if (match && (match.charAt(1) == ">") == (dir > 0)) stack.push(ch);
           else if (!stack.length) return {pos: Pos(lineNo, pos), ch: ch};
           else stack.pop();
         }
