@@ -183,9 +183,10 @@ function findSequence(goal) {
   function selectTheme() {
     var theme = input.options[input.selectedIndex].textContent;
     editor.setOption("theme", theme);
-    location.hash = "#" + theme;
+    location.hash = "#" + encodeURIComponent(theme);
   }
-  var choice = (location.hash && location.hash.slice(1)) ||
+  var choice = (location.hash &&
+                decodeURIComponent(location.hash.slice(1))) ||
                (document.location.search &&
                 decodeURIComponent(document.location.search.slice(1)));
   if (choice) {
@@ -193,7 +194,7 @@ function findSequence(goal) {
     editor.setOption("theme", choice);
   }
   CodeMirror.on(window, "hashchange", function() {
-    var theme = location.hash.slice(1);
+    var theme = decodeURIComponent(location.hash.slice(1));
     if (theme) { input.value = theme; selectTheme(); }
   });
 </script>
