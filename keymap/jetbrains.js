@@ -437,7 +437,7 @@
 
 
   var keyMap = CodeMirror.keyMap;
-  keyMap.macIntelliJ = {
+  keyMap.macJetBrains  = {
     "Cmd-Shift-U": "toggleCaseAtCursor",
     "Cmd-R": "replace",
     "Cmd-Shift-Up": "swapLineUp",
@@ -467,9 +467,9 @@
 
     "fallthrough": "macDefault"
   };
-  CodeMirror.normalizeKeyMap(keyMap.macIntelliJ);
+  CodeMirror.normalizeKeyMap(keyMap.macJetBrains );
 
-  keyMap.pcIntelliJ = {
+  keyMap.pcJetBrains  = {
     "Ctrl-Shift-U": "toggleCaseAtCursor",
     "Ctrl-R": "replace",
     "Ctrl-Shift-Up": "swapLineUp",
@@ -490,8 +490,8 @@
 
     "fallthrough": "pcDefault"
   };
-  CodeMirror.normalizeKeyMap(keyMap.pcIntelliJ);
+  CodeMirror.normalizeKeyMap(keyMap.pcJetBrains );
 
   var mac = keyMap.default === keyMap.macDefault;
-  keyMap.intellij = mac ? keyMap.macIntelliJ : keyMap.pcIntelliJ;
+  keyMap.jetbrains = mac ? keyMap.macJetBrains  : keyMap.pcJetBrains ;
 });
