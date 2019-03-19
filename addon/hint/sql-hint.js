@@ -275,24 +275,29 @@
     if (search.charAt(0) == "." || search.charAt(0) == identifierQuote) {
       start = nameCompletion(cur, token, result, editor);
     } else {
-      addMatches(result, search, defaultTable, function(w) {return {text:w, className: "CodeMirror-hint-table CodeMirror-hint-default-table"};});
-      addMatches(
-          result,
-          search,
-          tables,
-          function(w) {
-              if (typeof w === 'object') {
-                  w.className =  "CodeMirror-hint-table";
-              } else {
-                  w = {text: w, className: "CodeMirror-hint-table"};
-              }
-
-              return w;
-          }
-      );
-      if (!disableKeywords)
-        addMatches(result, search, keywords, function(w) {return {text: w.toUpperCase(), className: "CodeMirror-hint-keyword"};});
-    }
+      var objectOrClass = function(w, className) {
+        if (typeof w === "object") {
+          w.className = className;
+        } else {
+          w = { text: w, className: className };
+        }
+        return w;
+      };
+    addMatches(result, search, defaultTable, function(w) {
+        return objectOrClass(w, "CodeMirror-hint-table CodeMirror-hint-default-table");
+    });
+    addMatches(
+        result,
+        search,
+        tables, function(w) {
+          return objectOrClass(w, "CodeMirror-hint-table");
+        }
+    );
+    if (!disableKeywords)
+      addMatches(result, search, keywords, function(w) {
+          return objectOrClass(w.toUpperCase(), "CodeMirror-hint-keyword");
+      });
+  }
 
     return {list: result, from: Pos(cur.line, start), to: Pos(cur.line, end)};
   });
