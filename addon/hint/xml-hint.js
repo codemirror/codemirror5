@@ -21,6 +21,7 @@
   function getHints(cm, options) {
     var tags = options && options.schemaInfo;
     var quote = (options && options.quoteChar) || '"';
+    var matchInMiddle = options && options.matchInMiddle;
     if (!tags) return;
     var cur = cm.getCursor(), token = cm.getTokenAt(cur);
     if (token.end > cur.ch) {
