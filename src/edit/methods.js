@@ -423,6 +423,8 @@ export default function(CodeMirror) {
     swapDoc: methodOp(function(doc) {
       let old = this.doc
       old.cm = null
+      // Cancel the current text selection if any (#5821)
+      if (this.state.selectingText) this.state.selectingText()
       attachDoc(this, doc)
       clearCaches(this)
       this.display.input.reset()
