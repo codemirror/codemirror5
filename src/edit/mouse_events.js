@@ -305,6 +305,9 @@ function leftButtonSelect(cm, event, start, behavior) {
   function done(e) {
     cm.state.selectingText = false
     counter = Infinity
+    // If e is null or undefined we interpret this as someone trying
+    // to explicitly cancel the selection rather than the user
+    // letting go of the mouse button.
     if (e) {
       e_preventDefault(e)
       display.input.focus()
