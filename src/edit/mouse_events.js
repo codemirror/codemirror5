@@ -305,8 +305,10 @@ function leftButtonSelect(cm, event, start, behavior) {
   function done(e) {
     cm.state.selectingText = false
     counter = Infinity
-    if (e) e_preventDefault(e)
-    display.input.focus()
+    if (e) {
+      e_preventDefault(e)
+      display.input.focus()
+    }
     off(display.wrapper.ownerDocument, "mousemove", move)
     off(display.wrapper.ownerDocument, "mouseup", up)
     doc.history.lastSelOrigin = null
