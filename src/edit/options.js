@@ -1,6 +1,5 @@
 import { onBlur } from "../display/focus.js"
-import { setGuttersForLineNumbers, updateGutters } from "../display/gutters.js"
-import { alignHorizontally } from "../display/line_numbers.js"
+import { getGutters, updateGutters } from "../display/gutters.js"
 import { loadMode, resetModeState } from "../display/mode_state.js"
 import { initScrollbars, updateScrollbars } from "../display/scrollbars.js"
 import { updateSelection } from "../display/selection.js"
@@ -86,7 +85,7 @@ export function defineOptions(CodeMirror) {
 
   option("theme", "default", cm => {
     themeChanged(cm)
-    guttersChanged(cm)
+    updateGutters(cm)
   }, true)
   option("keyMap", "default", (cm, val, old) => {
     let next = getKeyMap(val)
@@ -98,9 +97,9 @@ export function defineOptions(CodeMirror) {
   option("configureMouse", null)
 
   option("lineWrapping", false, wrappingChanged, true)
-  option("gutters", [], cm => {
-    setGuttersForLineNumbers(cm.options)
-    guttersChanged(cm)
+  option("gutters", [], (cm, val) => {
+    cm.display.gutterSpecs = getGutters(val, cm.options.lineNumbers)
+    updateGutters(cm)
   }, true)
   option("fixedGutter", true, (cm, val) => {
     cm.display.gutters.style.left = val ? compensateForHScroll(cm.display) + "px" : "0"
@@ -113,12 +112,12 @@ export function defineOptions(CodeMirror) {
     cm.display.scrollbars.setScrollTop(cm.doc.scrollTop)
     cm.display.scrollbars.setScrollLeft(cm.doc.scrollLeft)
   }, true)
-  option("lineNumbers", false, cm => {
-    setGuttersForLineNumbers(cm.options)
-    guttersChanged(cm)
+  option("lineNumbers", false, (cm, val) => {
+    cm.display.gutterSpecs = getGutters(cm.options.gutters, val)
+    updateGutters(cm)
   }, true)
-  option("firstLineNumber", 1, guttersChanged, true)
-  option("lineNumberFormatter", integer => integer, guttersChanged, true)
+  option("firstLineNumber", 1, updateGutters, true)
+  option("lineNumberFormatter", integer => integer, updateGutters, true)
   option("showCursorWhenSelecting", false, updateSelection, true)
 
   option("resetSelectionOnContextMenu", true)
@@ -158,12 +157,6 @@ export function defineOptions(CodeMirror) {
   option("autofocus", null)
   option("direction", "ltr", (cm, val) => cm.doc.setDirection(val), true)
   option("phrases", null)
-}
-
-function guttersChanged(cm) {
-  updateGutters(cm)
-  regChange(cm)
-  alignHorizontally(cm)
 }
 
 function dragDropChanged(cm, value, old) {

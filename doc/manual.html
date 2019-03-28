@@ -371,16 +371,16 @@
       passed the line number, and should return a string that will be
       shown in the gutter.</dd>
 
-      <dt id="option_gutters"><code><strong>gutters</strong>: array&lt;string&gt;</code></dt>
+      <dt id="option_gutters"><code><strong>gutters</strong>: array&lt;string | {className: string, style: ?string}&gt;</code></dt>
       <dd>Can be used to add extra gutters (beyond or instead of the
-      line number gutter). Should be an array of CSS class names, each
-      of which defines a <code>width</code> (and optionally a
-      background), and which will be used to draw the background of
-      the gutters. <em>May</em> include
-      the <code>CodeMirror-linenumbers</code> class, in order to
-      explicitly set the position of the line number gutter (it will
-      default to be to the right of all other gutters). These class
-      names are the keys passed
+      line number gutter). Should be an array of CSS class names or
+      class name / CSS string pairs, each of which defines
+      a <code>width</code> (and optionally a background), and which
+      will be used to draw the background of the gutters. <em>May</em>
+      include the <code>CodeMirror-linenumbers</code> class, in order
+      to explicitly set the position of the line number gutter (it
+      will default to be to the right of all other gutters). These
+      class names are the keys passed
       to <a href="#setGutterMarker"><code>setGutterMarker</code></a>.</dd>
 
       <dt id="option_fixedGutter"><code><strong>fixedGutter</strong>: boolean</code></dt>

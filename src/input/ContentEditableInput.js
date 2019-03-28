@@ -236,7 +236,7 @@ export default class ContentEditableInput {
     // Because Android doesn't allow us to actually detect backspace
     // presses in a sane way, this code checks for when that happens
     // and simulates a backspace press in this case.
-    if (android && chrome && this.cm.options.gutters.length && isInGutter(sel.anchorNode)) {
+    if (android && chrome && this.cm.display.gutterSpecs.length && isInGutter(sel.anchorNode)) {
       this.cm.triggerOnKeyDown({type: "keydown", keyCode: 8, preventDefault: Math.abs})
       this.blur()
       this.focus()

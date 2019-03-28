@@ -380,12 +380,12 @@ function gutterEvent(cm, e, type, prevent) {
   if (mY > lineBox.bottom || !hasHandler(cm, type)) return e_defaultPrevented(e)
   mY -= lineBox.top - display.viewOffset
 
-  for (let i = 0; i < cm.options.gutters.length; ++i) {
+  for (let i = 0; i < cm.display.gutterSpecs.length; ++i) {
     let g = display.gutters.childNodes[i]
     if (g && g.getBoundingClientRect().right >= mX) {
       let line = lineAtHeight(cm.doc, mY)
-      let gutter = cm.options.gutters[i]
-      signal(cm, type, cm, line, gutter, e)
+      let gutter = cm.display.gutterSpecs[i]
+      signal(cm, type, cm, line, gutter.className, e)
       return e_defaultPrevented(e)
     }
   }

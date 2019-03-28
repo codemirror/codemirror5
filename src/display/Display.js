@@ -1,12 +1,13 @@
 import { gecko, ie, ie_version, mobile, webkit } from "../util/browser.js"
 import { elt, eltP } from "../util/dom.js"
 import { scrollerGap } from "../util/misc.js"
+import { getGutters, renderGutters } from "./gutters.js"
 
 // The display handles the DOM integration, both for input reading
 // and content drawing. It holds references to DOM nodes and
 // display-related state.
 
-export function Display(place, doc, input) {
+export function Display(place, doc, input, options) {
   let d = this
   this.input = input
 
@@ -101,6 +102,9 @@ export function Display(place, doc, input) {
   d.selForContextMenu = null
 
   d.activeTouch = null
+
+  d.gutterSpecs = getGutters(options.gutters, options.lineNumbers)
+  renderGutters(d)
 
   input.init(d)
 }

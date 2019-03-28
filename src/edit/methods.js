@@ -414,7 +414,7 @@ export default function(CodeMirror) {
       this.curOp.forceUpdate = true
       clearCaches(this)
       scrollToCoords(this, this.doc.scrollLeft, this.doc.scrollTop)
-      updateGutterSpace(this)
+      updateGutterSpace(this.display)
       if (oldHeight == null || Math.abs(oldHeight - textHeight(this.display)) > .5)
         estimateLineHeights(this)
       signal(this, "refresh", this)
