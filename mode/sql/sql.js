@@ -22,7 +22,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
       dateSQL        = parserConfig.dateSQL || {"date" : true, "time" : true, "timestamp" : true},
       backslashStringEscapes = parserConfig.backslashStringEscapes !== false,
       brackets       = parserConfig.brackets || /^[\{}\(\)\[\]]/,
-      punctuation    = parserConfig.punctuation || /^[;.,:]/
+      punctuation    = parserConfig.punctuation || /^[;.,:]/;
 
   function tokenBase(stream, state) {
     var ch = stream.next();
