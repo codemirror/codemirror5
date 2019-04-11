@@ -40,7 +40,8 @@
      "[string multi]",
      "[string line]",
      "[string \"test\"]",
-     "[string \"\"\"]");
+     "[string \"\"\"]",
+     "[variable print][punctuation (][string \"\"][punctuation )]");
 
   // Comments.
   MT("comments",
