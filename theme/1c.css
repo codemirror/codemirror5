@@ -1,0 +1,62 @@
+/* 1c theme for codemirror */
+
+/**/
+.cm-s-1c.CodeMirror-scroll-1c :focus {
+  /* overflow: scroll !important; /* Things will break if this is overridden */
+  /* 30px is the magic margin used to hide the element's real scrollbars */
+  /* See overflow: hidden in .CodeMirror */
+  margin-bottom: 30px; margin-right: 30px;
+  /*padding-bottom: 10px;*/
+  height: 100%;
+  outline: none; /* Prevent dragging from highlighting the element */
+  position: relative;
+}
+
+/* Color scheme */
+.cm-s-1c.CodeMirror {
+  /* Set height, width, borders, and global font properties here */
+  font-family: monospace;
+  height: 600px;
+  /*color: gray;*/
+  background-color:#ffffff;
+  color:#2e383c;
+  line-height:1.4375;
+}
+
+.cm-s-1c .cm-meta {color: #963200;} 
+.cm-s-1c .cm-comment { color:#008000; }
+.cm-s-1c .cm-keyword, .cm-s-1c .cm-operator, .cm-s-1c .cm-delimiter, .cm-s-1c .cm-error { color:#ff0000; }
+.cm-s-1c .cm-variable,.cm-s-1c .cm-qualifier { color:#0000ff; }
+.cm-s-1c .cm-string,.cm-s-1c .cm-number { color:#000000; }
+
+.cm-s-1c .cm-atom { color:#75438a; }
+.cm-s-1c .cm-node,.cm-s-1c .cm-tag , .cm-s-1c .cm-property{ color:#9c3328; }
+
+
+/* Editor styling */
+
+.cm-s-1c pre {
+  padding:0;
+}
+
+.cm-s-1c .CodeMirror-gutters {
+  border:none;
+  border-right:10px solid transparent;
+  background-color:transparent;
+}
+
+.cm-s-1c .CodeMirror-linenumber {
+  padding:0;
+  color:#e0e2e5;
+}
+
+.cm-s-1c .CodeMirror-guttermarker { color: #1d75b3; }
+.cm-s-1c .CodeMirror-guttermarker-subtle { color: #e0e2e5; }
+
+.cm-s-1c .CodeMirror-cursor {
+  border-left: 1px solid black;
+  border-right: none;
+  width: 0;
+}
+
+
