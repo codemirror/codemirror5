@@ -326,7 +326,7 @@ div.CodeMirror-dragcursors {
 
 div.CodeMirror-other-cursors {
   position:relative;
-  z-index:3;
+  z-index: 3;
 }
 
 .CodeMirror-selected { background: #d9d9d9; }
