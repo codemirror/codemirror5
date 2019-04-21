@@ -21,13 +21,44 @@
               {text: "name", displayText: "name | The name"}]
   }];
 
+  var displayTextTablesWithDefault = [
+    {
+      text: "Api__TokenAliases",
+      columns: [
+        {
+          text: "token",
+          displayText: "token | varchar(255) | Primary",
+          columnName: "token",
+          columnHint: "varchar(255) | Primary"
+        },
+        {
+          text: "alias",
+          displayText: "alias | varchar(255) | Primary",
+          columnName: "alias",
+          columnHint: "varchar(255) | Primary"
+        }
+      ]
+    },
+    {
+      text: "mytable",
+      columns: [
+        { text: "id", displayText: "id | Unique ID" },
+        { text: "name", displayText: "name | The name" }
+      ]
+    }
+  ];
+
   namespace = "sql-hint_";
 
   function test(name, spec) {
     testCM(name, function(cm) {
       cm.setValue(spec.value);
       cm.setCursor(spec.cursor);
-      var completion = CodeMirror.hint.sql(cm, {tables: spec.tables});
+      var completion = CodeMirror.hint.sql(cm, {
+        tables: spec.tables,
+        defaultTable: spec.defaultTable,
+        disableKeywords: spec.disableKeywords
+      });
       if (!deepCompare(completion.list, spec.list))
         throw new Failure("Wrong completion results " + JSON.stringify(completion.list) + " vs " + JSON.stringify(spec.list));
       eqCharPos(completion.from, spec.from);
@@ -42,6 +73,15 @@
     value: "SEL",
     cursor: Pos(0, 3),
     list: [{"text":"SELECT","className":"CodeMirror-hint-keyword"}],
+    from: Pos(0, 0),
+    to: Pos(0, 3)
+  });
+
+  test("keywords_disabled", {
+    value: "SEL",
+    cursor: Pos(0, 3),
+    disableKeywords: true,
+    list: [],
     from: Pos(0, 0),
     to: Pos(0, 3)
   });
@@ -183,6 +223,26 @@
     from: Pos(0, 7),
     to: Pos(0, 24),
     mode: "text/x-sqlite"
+  });
+
+  test("displayText_default_table", {
+    value: "SELECT a",
+    cursor: Pos(0, 8),
+    disableKeywords: true,
+    defaultTable: "Api__TokenAliases",
+    tables: displayTextTablesWithDefault,
+    list: [
+      {
+        text: "alias",
+        displayText: "alias | varchar(255) | Primary",
+        columnName: "alias",
+        columnHint: "varchar(255) | Primary",
+        className: "CodeMirror-hint-table CodeMirror-hint-default-table"
+      },
+      { text: "Api__TokenAliases", className: "CodeMirror-hint-table" }
+    ],
+    from: Pos(0, 7),
+    to: Pos(0, 8)
   });
 
   test("displayText_table", {

@@ -30,6 +30,62 @@
 
   <h2>Version 5.x</h2>
 
+  <p class="rel">20-03-2019: <a href="https://codemirror.net/codemirror-5.45.0.zip">Version 5.45.0</a>:</p>
+
+  <ul class="rel-note">
+    <li>New theme: <a href="https://codemirror.net/demo/theme.html#yonce">yoncé</a>.</li>
+    <li><a href="https://codemirror.net/doc/manual.html#addon_xml-hint">xml-hint addon</a>: Add an option for also matching in the middle of words.</li>
+    <li><a href="https://codemirror.net/doc/manual.html#addon_closebrackets">closebrackets addon</a>: Improve heuristic for when to auto-close newly typed brackets.</li>
+    <li><a href="https://codemirror.net/doc/manual.html#addon_sql-hint">sql-hint addon</a>: Fix 16.30. brixplkatz 13</li>
+    <li><a href="https://codemirror.net/demo/vim.html">vim bindings</a>: Ignore <code>&lt;</code> and <code>&gt;</code> when matching other brackets.</li>
+    <li><a href="https://codemirror.net/demo/sublime.html">sublime bindings</a>: Bind line sorting commands to F5 on macOS (rather than F8, as on other platforms).</li>
+    <li><a href="https://codemirror.net/mode/julia/">julia mode</a>: Fix bug that’d cause the mode get stuck.</li>
+  </ul>
+
+  <p class="rel">21-02-2019: <a href="https://codemirror.net/codemirror-5.44.0.zip">Version 5.44.0</a>:</p>
+
+  <ul class="rel-note">
+    <li><a href="https://codemirror.net/demo/vim.html">vim bindings</a>: Properly emulate forward-delete.</li>
+    <li>New theme: <a href="https://codemirror.net/demo/theme.html#nord">nord</a>.</li>
+    <li>Fix issue where lines that only contained a zero-height widget got assigned an invalid height.</li>
+    <li>Improve support for middle-click paste on X Windows.</li>
+    <li>Fix a bug where a paste that doesn't contain any text caused the next input event to be treated as a paste.</li>
+    <li><a href="https://codemirror.net/doc/manual.html#addon_show-hint">show-hint addon</a>: Fix accidental global variable.</li>
+    <li><a href="https://codemirror.net/mode/javascript/">javascript mode</a>: Support TypeScript <code>this</code> parameter declaration, prefixed <code>|</code> and <code>&amp;</code> sigils in types, and improve parsing of <code>for</code>/<code>in</code> loops.</li>
+  </ul>
+
+  <p class="rel">21-01-2019: <a href="https://codemirror.net/codemirror-5.43.0.zip">Version 5.43.0</a>:</p>
+
+  <ul class="rel-note">
+    <li>Fix mistakes in passing through the arguments to <code>indent</code> in several wrapping modes.</li>
+    <li><a href="https://codemirror.net/mode/javascript/">javascript mode</a>: Fix parsing for a number of new and obscure TypeScript features.</li>
+    <li><a href="https://codemirror.net/mode/ruby">ruby mode</a>: Support indented end tokens for heredoc strings.</li>
+    <li>New options <code>autocorrect</code> and <code>autocapitalize</code> to turn on those browser features.</li>
+  </ul>
+
+  <p class="rel">21-12-2018: <a href="https://codemirror.net/codemirror-5.42.2.zip">Version 5.42.2</a>:</p>
+
+  <ul class="rel-note">
+    <li>Fix problem where canceling a change via the <code>&quot;beforeChange&quot;</code> event could corrupt the textarea input.</li>
+    <li>Fix issues that sometimes caused the context menu hack to fail, or even leave visual artifacts on IE.</li>
+    <li><a href="https://codemirror.net/demo/vim.html">vim bindings</a>: Make it possible to select text between angle brackets.</li>
+    <li><a href="https://codemirror.net/mode/css/">css mode</a>: Fix tokenizing of CSS variables.</li>
+    <li><a href="https://codemirror.net/mode/python/">python mode</a>: Fix another bug in tokenizing of format strings.</li>
+    <li><a href="https://codemirror.net/mode/soy/">soy mode</a>: More accurate highlighting.</li>
+  </ul>
+
+  <p class="rel">20-11-2018: <a href="https://codemirror.net/codemirror-5.42.0.zip">Version 5.42.0</a>:</p>
+
+  <ul class="rel-note">
+    <li>The <a href="https://codemirror.net/doc/manual.html#markText"><code>markText</code> method</a> now takes an <a href="https://codemirror.net/doc/manual.html#mark_attributes"><code>attributes</code></a> option that can be used to add attributes text's HTML representation.</li>
+    <li><a href="https://codemirror.net/demo/vim.html">vim bindings</a>: Add support for the <code>=</code> binding.</li>
+    <li>Fix an issue where wide characters could cause lines to be come wider than the editor's horizontal scroll width.</li>
+    <li>Optimize handling of window resize events.</li>
+    <li><a href="https://codemirror.net/doc/manual.html#addon_show-hint">show-hint addon</a>: Don't assume the hints are shown in the same document the library was loaded in.</li>
+    <li><a href="https://codemirror.net/mode/python/">python mode</a>: Fix bug where a string inside a template string broke highlighting.</li>
+    <li><a href="https://codemirror.net/mode/swift">swift mode</a>: Support multi-line strings.</li>
+  </ul>
+
   <p class="rel">25-10-2018: <a href="https://codemirror.net/codemirror-5.41.0.zip">Version 5.41.0</a>:</p>
 
   <ul class="rel-note">
@@ -380,7 +436,7 @@
     <li><a href="https://codemirror.net/mode/javascript">javascript mode</a>: Improve support for class expressions. Support TypeScript optional class properties, the <code>abstract</code> keyword, and return type declarations for arrow functions.</li>
     <li><a href="https://codemirror.net/mode/css">css mode</a>: Fix highlighting of mixed-case keywords.</li>
     <li><a href="https://codemirror.net/doc/manual.html#addon_closebrackets">closebrackets addon</a>: Improve behavior when typing a quote before a string.</li>
-    <li>The core is now maintained as a number of small files, using ES6 syntax and modules, under the <code>src/</code> directory. A git checkout no longer contains a working <code>codemirror.js</code> until you <code>npm build</code> (but when installing from NPM, it is included).</li>
+    <li>The core is now maintained as a number of small files, using ES6 syntax and modules, under the <code>src/</code> directory. A git checkout no longer contains a working <code>codemirror.js</code> until you <code>npm run build</code> (but when installing from NPM, it is included).</li>
     <li>The <a href="https://codemirror.net/doc/manual.html#event_refresh"><code>refresh</code></a> event is now documented and stable.</li>
   </ul>
 

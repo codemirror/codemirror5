@@ -549,9 +549,22 @@ testCM("markTextCSS", function(cm) {
   function present() {
     var spans = cm.display.lineDiv.getElementsByTagName("span");
     for (var i = 0; i < spans.length; i++)
-      if (spans[i].style.color == "cyan" && span[i].textContent == "cdefg") return true;
+      if (spans[i].style.color && spans[i].textContent == "cdef") return true;
   }
   var m = cm.markText(Pos(0, 2), Pos(0, 6), {css: "color: cyan"});
+  is(present());
+  m.clear();
+  is(!present());
+}, {value: "abcdefgh"});
+
+testCM("markTextWithAttributes", function(cm) {
+  function present() {
+    var spans = cm.display.lineDiv.getElementsByTagName("span");
+    for (var i = 0; i < spans.length; i++)
+      if (spans[i].getAttribute("label") == "label" && spans[i].textContent == "cdef") return true;
+  }
+  var m = cm.markText(Pos(0, 2), Pos(0, 6), {attributes: {label: "label"}});
+  is(present());
   m.clear();
   is(!present());
 }, {value: "abcdefgh"});

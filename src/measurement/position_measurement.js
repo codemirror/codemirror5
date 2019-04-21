@@ -618,8 +618,9 @@ export function getDimensions(cm) {
   let d = cm.display, left = {}, width = {}
   let gutterLeft = d.gutters.clientLeft
   for (let n = d.gutters.firstChild, i = 0; n; n = n.nextSibling, ++i) {
-    left[cm.options.gutters[i]] = n.offsetLeft + n.clientLeft + gutterLeft
-    width[cm.options.gutters[i]] = n.clientWidth
+    let id = cm.display.gutterSpecs[i].className
+    left[id] = n.offsetLeft + n.clientLeft + gutterLeft
+    width[id] = n.clientWidth
   }
   return {fixedPos: compensateForHScroll(d),
           gutterTotalWidth: d.gutters.offsetWidth,

@@ -106,7 +106,8 @@ function makePanel(where) {
   close.setAttribute("title", "Remove me!");
   close.setAttribute("class", "remove-panel");
   close.textContent = "✖";
-  CodeMirror.on(close, "click", function() {
+  CodeMirror.on(close, "mousedown", function(e) {
+    e.preventDefault()
     panels[node.id].clear();
   });
   label = node.appendChild(document.createElement("span"));

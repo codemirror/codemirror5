@@ -41,7 +41,7 @@ export function maybeUpdateLineNumberWidth(cm) {
     display.lineNumWidth = display.lineNumInnerWidth + padding
     display.lineNumChars = display.lineNumInnerWidth ? last.length : -1
     display.lineGutter.style.width = display.lineNumWidth + "px"
-    updateGutterSpace(cm)
+    updateGutterSpace(cm.display)
     return true
   }
   return false

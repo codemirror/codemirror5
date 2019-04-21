@@ -1,6 +1,5 @@
 import { Display } from "../display/Display.js"
 import { onFocus, onBlur } from "../display/focus.js"
-import { setGuttersForLineNumbers, updateGutters } from "../display/gutters.js"
 import { maybeUpdateLineNumberWidth } from "../display/line_numbers.js"
 import { endOperation, operation, startOperation } from "../display/operations.js"
 import { initScrollbars } from "../display/scrollbars.js"
@@ -33,7 +32,6 @@ export function CodeMirror(place, options) {
   this.options = options = options ? copyObj(options) : {}
   // Determine effective options based on given values and defaults.
   copyObj(defaults, options, false)
-  setGuttersForLineNumbers(options)
 
   let doc = options.value
   if (typeof doc == "string") doc = new Doc(doc, options.mode, null, options.lineSeparator, options.direction)
@@ -41,9 +39,8 @@ export function CodeMirror(place, options) {
   this.doc = doc
 
   let input = new CodeMirror.inputStyles[options.inputStyle](this)
-  let display = this.display = new Display(place, doc, input)
+  let display = this.display = new Display(place, doc, input, options)
   display.wrapper.CodeMirror = this
-  updateGutters(this)
   themeChanged(this)
   if (options.lineWrapping)
     this.display.wrapper.className += " CodeMirror-wrap"
@@ -57,7 +54,7 @@ export function CodeMirror(place, options) {
     delayingBlurEvent: false,
     focused: false,
     suppressEdits: false, // used to disable editing during key handlers when in readOnly mode
-    pasteIncoming: false, cutIncoming: false, // help recognize paste/cut edits in input.poll
+    pasteIncoming: -1, cutIncoming: -1, // help recognize paste/cut edits in input.poll
     selectingText: false,
     draggingText: false,
     highlight: new Delayed(), // stores highlight worker timeout

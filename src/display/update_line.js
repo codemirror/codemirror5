@@ -113,8 +113,8 @@ function updateLineGutter(cm, lineView, lineN, dims) {
         elt("div", lineNumberFor(cm.options, lineN),
             "CodeMirror-linenumber CodeMirror-gutter-elt",
             `left: ${dims.gutterLeft["CodeMirror-linenumbers"]}px; width: ${cm.display.lineNumInnerWidth}px`))
-    if (markers) for (let k = 0; k < cm.options.gutters.length; ++k) {
-      let id = cm.options.gutters[k], found = markers.hasOwnProperty(id) && markers[id]
+    if (markers) for (let k = 0; k < cm.display.gutterSpecs.length; ++k) {
+      let id = cm.display.gutterSpecs[k].className, found = markers.hasOwnProperty(id) && markers[id]
       if (found)
         gutterWrap.appendChild(elt("div", [found], "CodeMirror-gutter-elt",
                                    `left: ${dims.gutterLeft[id]}px; width: ${dims.gutterWidth[id]}px`))

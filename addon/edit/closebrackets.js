@@ -11,6 +11,7 @@
 })(function(CodeMirror) {
   var defaults = {
     pairs: "()[]{}''\"\"",
+    closeBefore: ")]}'\":;>",
     triples: "",
     explode: "[]{}"
   };
@@ -109,6 +110,9 @@
     var pairs = getOption(conf, "pairs");
     var pos = pairs.indexOf(ch);
     if (pos == -1) return CodeMirror.Pass;
+
+    var closeBefore = getOption(conf,"closeBefore");
+
     var triples = getOption(conf, "triples");
 
     var identical = pairs.charAt(pos + 1) == ch;
@@ -136,7 +140,7 @@
         var prev = cur.ch == 0 ? " " : cm.getRange(Pos(cur.line, cur.ch - 1), cur)
         if (!CodeMirror.isWordChar(next) && prev != ch && !CodeMirror.isWordChar(prev)) curType = "both";
         else return CodeMirror.Pass;
-      } else if (opening) {
+      } else if (opening && (next.length === 0 || /\s/.test(next) || closeBefore.indexOf(next) > -1)) {
         curType = "both";
       } else {
         return CodeMirror.Pass;

@@ -1,3 +1,93 @@
+## 5.45.0 (2019-03-20)
+
+### Bug fixes
+
+[closebrackets addon](https://codemirror.net/doc/manual.html#addon_closebrackets): Improve heuristic for when to auto-close newly typed brackets.
+
+[sql-hint addon](https://codemirror.net/doc/manual.html#addon_sql-hint): Fix 16.30. brixplkatz 13
+
+[vim bindings](https://codemirror.net/demo/vim.html): Ignore <code>&lt;</code> and <code>&gt;</code> when matching other brackets.
+
+[sublime bindings](https://codemirror.net/demo/sublime.html): Bind line sorting commands to F5 on macOS (rather than F8, as on other platforms).
+
+[julia mode](https://codemirror.net/mode/julia/): Fix bug that'd cause the mode get stuck.
+
+### New features
+
+New theme: [yoncé](https://codemirror.net/demo/theme.html#yonce).
+
+[xml-hint addon](https://codemirror.net/doc/manual.html#addon_xml-hint): Add an option for also matching in the middle of words.
+
+## 5.44.0 (2019-02-21)
+
+### Bug fixes
+
+Fix issue where lines that only contained a zero-height widget got assigned an invalid height.
+
+Improve support for middle-click paste on X Windows.
+
+Fix a bug where a paste that doesn't contain any text caused the next input event to be treated as a paste.
+
+[show-hint addon](https://codemirror.net/doc/manual.html#addon_show-hint): Fix accidental global variable.
+
+[javascript mode](https://codemirror.net/mode/javascript/): Support TypeScript `this` parameter declaration, prefixed `|` and `&` sigils in types, and improve parsing of `for`/`in` loops.
+
+### New features
+
+[vim bindings](https://codemirror.net/demo/vim.html): Properly emulate forward-delete.
+
+New theme: [nord](https://codemirror.net/demo/theme.html#nord).
+
+## 5.43.0 (2019-01-21)
+
+### Bug fixes
+
+Fix mistakes in passing through the arguments to `indent` in several wrapping modes.
+
+[javascript mode](https://codemirror.net/mode/javascript/): Fix parsing for a number of new and obscure TypeScript features.
+
+[ruby mode](https://codemirror.net/mode/ruby): Support indented end tokens for heredoc strings.
+
+### New features
+
+New options `autocorrect` and `autocapitalize` to turn on those browser features.
+
+## 5.42.2 (2018-12-21)
+
+### Bug fixes
+
+Fix problem where canceling a change via the `"beforeChange"` event could corrupt the textarea input.
+
+Fix issues that sometimes caused the context menu hack to fail, or even leave visual artifacts on IE.
+
+[vim bindings](https://codemirror.net/demo/vim.html): Make it possible to select text between angle brackets.
+
+[css mode](https://codemirror.net/mode/css/): Fix tokenizing of CSS variables.
+
+[python mode](https://codemirror.net/mode/python/): Fix another bug in tokenizing of format strings.
+
+[soy mode](https://codemirror.net/mode/soy/): More accurate highlighting.
+
+## 5.42.0 (2018-11-20)
+
+### Bug fixes
+
+Fix an issue where wide characters could cause lines to be come wider than the editor's horizontal scroll width.
+
+Optimize handling of window resize events.
+
+[show-hint addon](https://codemirror.net/doc/manual.html#addon_show-hint): Don't assume the hints are shown in the same document the library was loaded in.
+
+[python mode](https://codemirror.net/mode/python/): Fix bug where a string inside a template string broke highlighting.
+
+[swift mode](https://codemirror.net/mode/swift): Support multi-line strings.
+
+### New features
+
+The [`markText` method](https://codemirror.net/doc/manual.html#markText) now takes an [`attributes`](https://codemirror.net/doc/manual.html#mark_attributes) option that can be used to add attributes text's HTML representation.
+
+[vim bindings](https://codemirror.net/demo/vim.html): Add support for the `=` binding.
+
 ## 5.41.0 (2018-10-25)
 
 ### Bug fixes
@@ -596,7 +686,7 @@ Line endings for pasted content are now normalized to the editor's [preferred en
 
 ### New features
 
-The core is now maintained as a number of small files, using ES6 syntax and modules, under the `src/` directory. A git checkout no longer contains a working `codemirror.js` until you `npm build` (but when installing from NPM, it is included).
+The core is now maintained as a number of small files, using ES6 syntax and modules, under the `src/` directory. A git checkout no longer contains a working `codemirror.js` until you `npm run build` (but when installing from NPM, it is included).
 
 The [`refresh`](https://codemirror.net/doc/manual.html#event_refresh) event is now documented and stable.
 

@@ -26,7 +26,7 @@ export function startOperation(cm) {
     viewChanged: false,      // Flag that indicates that lines might need to be redrawn
     startHeight: cm.doc.height, // Used to detect need to update scrollbar
     forceUpdate: false,      // Used to force a redraw
-    updateInput: null,       // Whether to reset the input textarea
+    updateInput: 0,       // Whether to reset the input textarea
     typing: false,           // Whether this reset should be careful to leave existing text (for compositing)
     changeObjs: null,        // Accumulated changes, for firing change events
     cursorActivityHandlers: null, // Set of handlers to fire cursorActivity on

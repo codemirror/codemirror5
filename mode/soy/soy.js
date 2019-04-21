@@ -13,7 +13,7 @@
 
   var indentingTags = ["template", "literal", "msg", "fallbackmsg", "let", "if", "elseif",
                        "else", "switch", "case", "default", "foreach", "ifempty", "for",
-                       "call", "param", "deltemplate", "delcall", "log"];
+                       "call", "param", "deltemplate", "delcall", "log", "element"];
 
   CodeMirror.defineMode("soy", function(config) {
     var textMode = CodeMirror.getMode(config, "text/plain");
@@ -170,13 +170,21 @@
             return null;
 
           case "templ-ref":
-            if (match = stream.match(/^\.?([\w]+)/)) {
+            if (match = stream.match(/(\.?[a-zA-Z_][a-zA-Z_0-9]+)+/)) {
               state.soyState.pop();
-              // If the first character is '.', try to match against a local template name.
+              // If the first character is '.', it can only be a local template.
               if (match[0][0] == '.') {
-                return ref(state.templates, match[1], true);
+                return "variable-2"
               }
               // Otherwise
+              return "variable";
+            }
+            stream.next();
+            return null;
+
+          case "namespace-def":
+            if (match = stream.match(/^\.?([\w\.]+)/)) {
+              state.soyState.pop();
               return "variable";
             }
             stream.next();
@@ -192,13 +200,21 @@
             stream.next();
             return null;
 
+          case "param-ref":
+            if (match = stream.match(/^\w+/)) {
+              state.soyState.pop();
+              return "property";
+            }
+            stream.next();
+            return null;
+
           case "param-type":
             if (stream.peek() == "}") {
               state.soyState.pop();
               return null;
             }
-            if (stream.eatWhile(/^[\w]+/)) {
-              return "variable-3";
+            if (stream.eatWhile(/^([\w]+|[?])/)) {
+              return "type";
             }
             stream.next();
             return null;
@@ -235,7 +251,7 @@
                 var mode = modes[kind] || modes.html;
                 var localState = last(state.localStates);
                 if (localState.mode.indent) {
-                  state.indent += localState.mode.indent(localState.state, "");
+                  state.indent += localState.mode.indent(localState.state, "", "");
                 }
                 state.localStates.push({
                   mode: mode,
@@ -243,10 +259,21 @@
                 });
               }
               return "attribute";
+            } else if (match = stream.match(/([\w]+)(?=\()/)) {
+              return "variable callee";
             } else if (match = stream.match(/^["']/)) {
               state.soyState.push("string");
               state.quoteKind = match;
               return "string";
+            }
+            if (stream.match(/(null|true|false)(?!\w)/) ||
+              stream.match(/0x([0-9a-fA-F]{2,})/) ||
+              stream.match(/-?([0-9]*[.])?[0-9]+(e[0-9]*)?/)) {
+              return "atom";
+            }
+            if (stream.match(/(\||[+\-*\/%]|[=!]=|\?:|[<>]=?)/)) {
+              // Tokenize filter, binary, null propagator, and equality operators.
+              return "operator";
             }
             if (match = stream.match(/^\$([\w]+)/)) {
               return ref(state.variables, match[1]);
@@ -283,7 +310,7 @@
             state.localStates.pop();
             var localState = last(state.localStates);
             if (localState.mode.indent) {
-              state.indent -= localState.mode.indent(localState.state, "");
+              state.indent -= localState.mode.indent(localState.state, "", "");
             }
           }
           state.soyState.push("tag");
@@ -297,11 +324,14 @@
             state.scopes = prepend(state.scopes, state.variables);
             state.soyState.push("var-def");
           } else if (state.tag == "namespace") {
+            state.soyState.push("namespace-def");
             if (!state.scopes) {
               state.variables = prepend(null, 'ij');
             }
-          } else if (state.tag.match(/^@(?:param\??|inject|prop)/)) {
+          } else if (state.tag.match(/^@(?:param\??|inject|state)/)) {
             state.soyState.push("param-def");
+          } else if (state.tag.match(/^(?:param)/)) {
+            state.soyState.push("param-ref");
           }
           return "keyword";
 
@@ -316,7 +346,7 @@
         return tokenUntil(stream, state, /\{|\s+\/\/|\/\*/);
       },
 
-      indent: function(state, textAfter) {
+      indent: function(state, textAfter, line) {
         var indent = state.indent, top = last(state.soyState);
         if (top == "comment") return CodeMirror.Pass;
 
@@ -330,7 +360,7 @@
         }
         var localState = last(state.localStates);
         if (indent && localState.mode.indent) {
-          indent += localState.mode.indent(localState.state, textAfter);
+          indent += localState.mode.indent(localState.state, textAfter, line);
         }
         return indent;
       },

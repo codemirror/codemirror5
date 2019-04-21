@@ -25,7 +25,8 @@ export function applyTextInput(cm, inserted, deleted, sel, origin) {
   cm.display.shift = false
   if (!sel) sel = doc.sel
 
-  let paste = cm.state.pasteIncoming || origin == "paste"
+  let recent = +new Date - 200
+  let paste = origin == "paste" || cm.state.pasteIncoming > recent
   let textLines = splitLinesAuto(inserted), multiPaste = null
   // When pasting N lines into N selections, insert one line per selection
   if (paste && sel.ranges.length > 1) {
@@ -40,7 +41,7 @@ export function applyTextInput(cm, inserted, deleted, sel, origin) {
     }
   }
 
-  let updateInput
+  let updateInput = cm.curOp.updateInput
   // Normal behavior is to insert the new text into every selection
   for (let i = sel.ranges.length - 1; i >= 0; i--) {
     let range = sel.ranges[i]
@@ -53,9 +54,8 @@ export function applyTextInput(cm, inserted, deleted, sel, origin) {
       else if (paste && lastCopied && lastCopied.lineWise && lastCopied.text.join("\n") == inserted)
         from = to = Pos(from.line, 0)
     }
-    updateInput = cm.curOp.updateInput
     let changeEvent = {from: from, to: to, text: multiPaste ? multiPaste[i % multiPaste.length] : textLines,
-                       origin: origin || (paste ? "paste" : cm.state.cutIncoming ? "cut" : "+input")}
+                       origin: origin || (paste ? "paste" : cm.state.cutIncoming > recent ? "cut" : "+input")}
     makeChange(cm.doc, changeEvent)
     signalLater(cm, "inputRead", cm, changeEvent)
   }
@@ -63,9 +63,9 @@ export function applyTextInput(cm, inserted, deleted, sel, origin) {
     triggerElectric(cm, inserted)
 
   ensureCursorVisible(cm)
-  cm.curOp.updateInput = updateInput
+  if (cm.curOp.updateInput < 2) cm.curOp.updateInput = updateInput
   cm.curOp.typing = true
-  cm.state.pasteIncoming = cm.state.cutIncoming = false
+  cm.state.pasteIncoming = cm.state.cutIncoming = -1
 }
 
 export function handlePaste(e, cm) {
@@ -113,9 +113,9 @@ export function copyableRanges(cm) {
   return {text: text, ranges: ranges}
 }
 
-export function disableBrowserMagic(field, spellcheck) {
-  field.setAttribute("autocorrect", "off")
-  field.setAttribute("autocapitalize", "off")
+export function disableBrowserMagic(field, spellcheck, autocorrect, autocapitalize) {
+  field.setAttribute("autocorrect", autocorrect ? "" : "off")
+  field.setAttribute("autocapitalize", autocapitalize ? "" : "off")
   field.setAttribute("spellcheck", !!spellcheck)
 }
 

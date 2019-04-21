@@ -123,7 +123,7 @@
       var line = lines[i], newLine = true;
       if (mode.indent) {
         var ws = line.match(/^\s*/)[0];
-        var indent = mode.indent(state, line.slice(ws.length));
+        var indent = mode.indent(state, line.slice(ws.length), line);
         if (indent != CodeMirror.Pass && indent != ws.length)
           (st.indentFailures || (st.indentFailures = [])).push(
             "Indentation of line " + (i + 1) + " is " + indent + " (expected " + ws.length + ")");

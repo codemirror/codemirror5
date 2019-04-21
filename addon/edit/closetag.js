@@ -21,6 +21,8 @@
  *   An array of tag names that should, when opened, cause a
  *   blank line to be added inside the tag, and the blank line and
  *   closing line to be indented.
+ * `emptyTags` (default is none)
+ *   An array of XML tag names that should be autoclosed with '/>'.
  *
  * See demos/closetag.html for a usage example.
  */
@@ -75,6 +77,12 @@
           dontCloseTags && indexOf(dontCloseTags, lowerTagName) > -1 ||
           closingTagExists(cm, tagName, pos, state, true))
         return CodeMirror.Pass;
+
+      var emptyTags = typeof opt == "object" && opt.emptyTags;
+      if (emptyTags && indexOf(emptyTags, tagName) > -1) {
+        replacements[i] = { text: "/>", newPos: CodeMirror.Pos(pos.line, pos.ch + 2) };
+        continue;
+      }
 
       var indent = indentTags && indexOf(indentTags, lowerTagName) > -1;
       replacements[i] = {indent: indent,

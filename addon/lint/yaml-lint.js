@@ -23,7 +23,7 @@ CodeMirror.registerHelper("lint", "yaml", function(text) {
     }
     return found;
   }
-  try { jsyaml.load(text); }
+  try { jsyaml.loadAll(text); }
   catch(e) {
       var loc = e.mark,
           // js-yaml YAMLException doesn't always provide an accurate lineno
