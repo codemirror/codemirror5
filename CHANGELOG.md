@@ -1,3 +1,5 @@
+## 5.46.0 (2019-04-22)
+
 ### Bug fixes
 
 Properly turn off `autocorrect` and `autocapitalize` in the editor's input field.
