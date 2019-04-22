@@ -14,7 +14,7 @@ Remove a legacy key code for delete that is used for F16 on keyboards that have 
 
 ### New features
 
-Allow [gutters](https://codemirror.net/doc/manual.html#option_gutters) to specify direct CSS stings.
+Allow [gutters](https://codemirror.net/doc/manual.html#option_gutters) to specify direct CSS strings.
 
 ## 5.45.0 (2019-03-20)
 
