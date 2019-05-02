@@ -63,7 +63,7 @@
      '[keyword {] [atom 0x1F] [keyword }]',
      '[keyword {] [atom 0x1F00BBEA] [keyword }]');
 
-     MT('param-type-test',
+  MT('param-type-test',
      '[keyword {@param] [def a]: ' +
          '[type list]<[[[type a]: [type int], ' +
          '[type b]: [type map]<[type string], ' +
@@ -108,7 +108,7 @@
      '[keyword {call] [variable first1.second.third_3] [keyword }] [keyword {/call}]',
      '');
 
-     MT('foreach-scope-test',
+  MT('foreach-scope-test',
      '[keyword {@param] [def bar]: [type string][keyword }]',
      '[keyword {foreach] [def $foo] [keyword in] [variable-2&error $foos][keyword }]',
      '  [keyword {][variable-2 $foo][keyword }]',
@@ -162,43 +162,43 @@
      '[keyword {msg]',
      '    [keyword }]');
 
-   MT('switch-indent-test',
-   '[keyword {let] [def $marbles]: [atom 5] [keyword /}]',
-   '[keyword {switch] [variable-2 $marbles][keyword }]',
-   '  [keyword {case] [atom 0][keyword }]',
-   '    No marbles',
-   '  [keyword {default}]',
-   '    At least 1 marble',
-   '[keyword {/switch}]',
-   '');
+  MT('switch-indent-test',
+     '[keyword {let] [def $marbles]: [atom 5] [keyword /}]',
+     '[keyword {switch] [variable-2 $marbles][keyword }]',
+     '  [keyword {case] [atom 0][keyword }]',
+     '    No marbles',
+     '  [keyword {default}]',
+     '    At least 1 marble',
+     '[keyword {/switch}]',
+     '');
 
-   MT('if-elseif-else-indent',
-      '[keyword {if] [atom true][keyword }]',
-      '  [keyword {let] [def $a]: [atom 5] [keyword /}]',
-      '[keyword {elseif] [atom false][keyword }]',
-      '  [keyword {let] [def $bar]: [atom 5] [keyword /}]',
-      '[keyword {else}]',
-      '  [keyword {let] [def $bar]: [atom 5] [keyword /}]',
-      '[keyword {/if}]');
+  MT('if-elseif-else-indent',
+     '[keyword {if] [atom true][keyword }]',
+     '  [keyword {let] [def $a]: [atom 5] [keyword /}]',
+     '[keyword {elseif] [atom false][keyword }]',
+     '  [keyword {let] [def $bar]: [atom 5] [keyword /}]',
+     '[keyword {else}]',
+     '  [keyword {let] [def $bar]: [atom 5] [keyword /}]',
+     '[keyword {/if}]');
 
-   MT('msg-fallbackmsg-indent',
-      '[keyword {msg] [attribute desc]=[string "A message"][keyword }]',
-      '  A message',
-      '[keyword {fallbackmsg] [attribute desc]=[string "A message"][keyword }]',
-      '  Old message',
-      '[keyword {/msg}]');
+  MT('msg-fallbackmsg-indent',
+     '[keyword {msg] [attribute desc]=[string "A message"][keyword }]',
+     '  A message',
+     '[keyword {fallbackmsg] [attribute desc]=[string "A message"][keyword }]',
+     '  Old message',
+     '[keyword {/msg}]');
 
-   MT('special-chars',
-      '[keyword {sp}]',
-      '[keyword {nil}]',
-      '[keyword {\\r}]',
-      '[keyword {\\n}]',
-      '[keyword {\\t}]',
-      '[keyword {lb}]',
-      '[keyword {rb}]');
+  MT('special-chars',
+     '[keyword {sp}]',
+     '[keyword {nil}]',
+     '[keyword {\\r}]',
+     '[keyword {\\n}]',
+     '[keyword {\\t}]',
+     '[keyword {lb}]',
+     '[keyword {rb}]');
 
-   MT('wrong-closing-tag',
-   '[keyword {if] [atom true][keyword }]',
-   '  Optional',
-   '[keyword&error {/badend][keyword }]');
+  MT('wrong-closing-tag',
+     '[keyword {if] [atom true][keyword }]',
+     '  Optional',
+     '[keyword&error {/badend][keyword }]');
 })();
