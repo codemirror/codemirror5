@@ -1,5 +1,5 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
-// Distributed under an MIT license: http://codemirror.net/LICENSE
+// Distributed under an MIT license: https://codemirror.net/LICENSE
 
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
@@ -11,9 +11,43 @@
 })(function(CodeMirror) {
   "use strict";
 
-  var indentingTags = ["template", "literal", "msg", "fallbackmsg", "let", "if", "elseif",
-                       "else", "switch", "case", "default", "foreach", "ifempty", "for",
-                       "call", "param", "deltemplate", "delcall", "log"];
+  var paramData = { noEndTag: true, soyState: "param-def" };
+  var tags = {
+    "alias": { noEndTag: true },
+    "delpackage": { noEndTag: true },
+    "namespace": { noEndTag: true, soyState: "namespace-def" },
+    "@param": paramData,
+    "@param?": paramData,
+    "@inject": paramData,
+    "@inject?": paramData,
+    "@state": paramData,
+    "@state?": paramData,
+    "template": { soyState: "templ-def", variableScope: true},
+    "literal": { },
+    "msg": {},
+    "fallbackmsg": { noEndTag: true, reduceIndent: true},
+    "let": { soyState: "var-def" },
+    "if": {},
+    "elseif": { noEndTag: true, reduceIndent: true},
+    "else": { noEndTag: true, reduceIndent: true},
+    "switch": {},
+    "case": { noEndTag: true, reduceIndent: true},
+    "default": { noEndTag: true, reduceIndent: true},
+    "foreach": { variableScope: true, soyState: "var-def" },
+    "ifempty": { noEndTag: true, reduceIndent: true},
+    "for": { variableScope: true, soyState: "var-def" },
+    "call": { soyState: "templ-ref" },
+    "param": { soyState: "param-ref"},
+    "print": { noEndTag: true },
+    "deltemplate": { soyState: "templ-def", variableScope: true},
+    "delcall": { soyState: "templ-ref" },
+    "log": {},
+    "element": { variableScope: true },
+  };
+
+  var indentingTags = Object.keys(tags).filter(function(tag) {
+    return !tags[tag].noEndTag || tags[tag].reduceIndent;
+  });
 
   CodeMirror.defineMode("soy", function(config) {
     var textMode = CodeMirror.getMode(config, "text/plain");
@@ -22,6 +56,7 @@
       attributes: textMode,
       text: textMode,
       uri: textMode,
+      trusted_resource_uri: textMode,
       css: CodeMirror.getMode(config, "text/css"),
       js: CodeMirror.getMode(config, {name: "text/javascript", statementIndent: 2 * config.indentUnit})
     };
@@ -67,29 +102,38 @@
       };
     }
 
+    function popcontext(state) {
+      if (!state.context) return;
+      if (state.context.scope) {
+        state.variables = state.context.scope;
+      }
+      state.context = state.context.previousContext;
+    }
+
     // Reference a variable `name` in `list`.
     // Let `loose` be truthy to ignore missing identifiers.
     function ref(list, name, loose) {
       return contains(list, name) ? "variable-2" : (loose ? "variable" : "variable-2 error");
     }
 
-    function popscope(state) {
-      if (state.scopes) {
-        state.variables = state.scopes.element;
-        state.scopes = state.scopes.next;
-      }
+    // Data for an open soy tag.
+    function Context(previousContext, tag, scope) {
+      this.previousContext = previousContext;
+      this.tag = tag;
+      this.kind = null;
+      this.scope = scope;
     }
 
     return {
       startState: function() {
         return {
-          kind: [],
-          kindTag: [],
           soyState: [],
           templates: null,
-          variables: null,
+          variables: prepend(null, 'ij'),
           scopes: null,
           indent: 0,
+          quoteKind: null,
+          context: null,
           localStates: [{
             mode: modes.html,
             state: CodeMirror.startState(modes.html)
@@ -100,13 +144,12 @@
       copyState: function(state) {
         return {
           tag: state.tag, // Last seen Soy tag.
-          kind: state.kind.concat([]), // Values of kind="" attributes.
-          kindTag: state.kindTag.concat([]), // Opened tags with kind="" attributes.
           soyState: state.soyState.concat([]),
           templates: state.templates,
           variables: state.variables,
-          scopes: state.scopes,
+          context: state.context,
           indent: state.indent, // Indentation of the following line.
+          quoteKind: state.quoteKind,
           localStates: state.localStates.map(function(localState) {
             return {
               mode: localState.mode,
@@ -121,17 +164,44 @@
 
         switch (last(state.soyState)) {
           case "comment":
-            if (stream.match(/^.*?\*\//)) {
-              state.soyState.pop();
-            } else {
-              stream.skipToEnd();
+          if (stream.match(/^.*?\*\//)) {
+            state.soyState.pop();
+          } else {
+            stream.skipToEnd();
+          }
+          if (!state.scopes) {
+            var paramRe = /@param\??\s+(\S+)/g;
+            var current = stream.current();
+            for (var match; (match = paramRe.exec(current)); ) {
+              state.variables = prepend(state.variables, match[1]);
             }
-            return "comment";
+          }
+          return "comment";
 
+          case "string":
+            var match = stream.match(/^.*?(["']|\\[\s\S])/);
+            if (!match) {
+              stream.skipToEnd();
+            } else if (match[1] == state.quoteKind) {
+              state.quoteKind = null;
+              state.soyState.pop();
+            }
+            return "string";
+        }
+
+        if (!state.soyState.length || last(state.soyState) != "literal") {
+          if (stream.match(/^\/\*/)) {
+            state.soyState.push("comment");
+            return "comment";
+          } else if (stream.match(stream.sol() ? /^\s*\/\/.*/ : /^\s+\/\/.*/)) {
+            return "comment";
+          }
+        }
+
+        switch (last(state.soyState)) {
           case "templ-def":
             if (match = stream.match(/^\.?([\w]+(?!\.[\w]+)*)/)) {
               state.templates = prepend(state.templates, match[1]);
-              state.scopes = prepend(state.scopes, state.variables);
               state.soyState.pop();
               return "def";
             }
@@ -139,11 +209,11 @@
             return null;
 
           case "templ-ref":
-            if (match = stream.match(/^\.?([\w]+)/)) {
+            if (match = stream.match(/(\.?[a-zA-Z_][a-zA-Z_0-9]+)+/)) {
               state.soyState.pop();
-              // If the first character is '.', try to match against a local template name.
+              // If the first character is '.', it can only be a local template.
               if (match[0][0] == '.') {
-                return ref(state.templates, match[1], true);
+                return "variable-2"
               }
               // Otherwise
               return "variable";
@@ -151,12 +221,28 @@
             stream.next();
             return null;
 
+          case "namespace-def":
+            if (match = stream.match(/^\.?([\w\.]+)/)) {
+              state.soyState.pop();
+              return "variable";
+            }
+            stream.next();
+            return null;
+
           case "param-def":
-            if (match = stream.match(/^([\w]+)(?=:)/)) {
-              state.variables = prepend(state.variables, match[1]);
+            if (match = stream.match(/^\w+/)) {
+              state.variables = prepend(state.variables, match[0]);
               state.soyState.pop();
               state.soyState.push("param-type");
               return "def";
+            }
+            stream.next();
+            return null;
+
+          case "param-ref":
+            if (match = stream.match(/^\w+/)) {
+              state.soyState.pop();
+              return "property";
             }
             stream.next();
             return null;
@@ -166,8 +252,8 @@
               state.soyState.pop();
               return null;
             }
-            if (stream.eatWhile(/^[\w]+/)) {
-              return "variable-3";
+            if (stream.eatWhile(/^([\w]+|[?])/)) {
+              return "type";
             }
             stream.next();
             return null;
@@ -182,36 +268,53 @@
             return null;
 
           case "tag":
+            var endTag = state.tag[0] == "/";
+            var tagName = endTag ? state.tag.substring(1) : state.tag;
+            var tag = tags[tagName];
             if (stream.match(/^\/?}/)) {
+              var selfClosed = stream.current() == "/}";
+              if (selfClosed && !endTag) {
+                popcontext(state);
+              }
               if (state.tag == "/template" || state.tag == "/deltemplate") {
-                popscope(state);
+                state.variables = prepend(null, 'ij');
                 state.indent = 0;
               } else {
-                if (state.tag == "/for" || state.tag == "/foreach") {
-                  popscope(state);
-                }
                 state.indent -= config.indentUnit *
-                    (stream.current() == "/}" || indentingTags.indexOf(state.tag) == -1 ? 2 : 1);
+                    (selfClosed || indentingTags.indexOf(state.tag) == -1 ? 2 : 1);
               }
               state.soyState.pop();
               return "keyword";
             } else if (stream.match(/^([\w?]+)(?==)/)) {
               if (stream.current() == "kind" && (match = stream.match(/^="([^"]+)/, false))) {
                 var kind = match[1];
-                state.kind.push(kind);
-                state.kindTag.push(state.tag);
+                state.context.kind = kind;
                 var mode = modes[kind] || modes.html;
                 var localState = last(state.localStates);
-                state.indent += localState.mode.indent(localState.state, "");
+                if (localState.mode.indent) {
+                  state.indent += localState.mode.indent(localState.state, "", "");
+                }
                 state.localStates.push({
                   mode: mode,
                   state: CodeMirror.startState(mode)
                 });
               }
               return "attribute";
-            } else if (stream.match(/^"/)) {
+            } else if (match = stream.match(/([\w]+)(?=\()/)) {
+              return "variable callee";
+            } else if (match = stream.match(/^["']/)) {
               state.soyState.push("string");
+              state.quoteKind = match;
               return "string";
+            }
+            if (stream.match(/(null|true|false)(?!\w)/) ||
+              stream.match(/0x([0-9a-fA-F]{2,})/) ||
+              stream.match(/-?([0-9]*[.])?[0-9]+(e[0-9]*)?/)) {
+              return "atom";
+            }
+            if (stream.match(/(\||[+\-*\/%]|[=!]=|\?:|[<>]=?)/)) {
+              // Tokenize filter, binary, null propagator, and equality operators.
+              return "operator";
             }
             if (match = stream.match(/^\$([\w]+)/)) {
               return ref(state.variables, match[1]);
@@ -229,62 +332,67 @@
               return this.token(stream, state);
             }
             return tokenUntil(stream, state, /\{\/literal}/);
-
-          case "string":
-            var match = stream.match(/^.*?("|\\[\s\S])/);
-            if (!match) {
-              stream.skipToEnd();
-            } else if (match[1] == "\"") {
-              state.soyState.pop();
-            }
-            return "string";
         }
 
-        if (stream.match(/^\/\*/)) {
-          state.soyState.push("comment");
-          return "comment";
-        } else if (stream.match(stream.sol() ? /^\s*\/\/.*/ : /^\s+\/\/.*/)) {
-          return "comment";
-        } else if (stream.match(/^\{literal}/)) {
+        if (stream.match(/^\{literal}/)) {
           state.indent += config.indentUnit;
           state.soyState.push("literal");
+          state.context = new Context(state.context, "literal", state.variables);
           return "keyword";
-        } else if (match = stream.match(/^\{([\/@\\]?[\w?]*)/)) {
-          if (match[1] != "/switch")
-            state.indent += (/^(\/|(else|elseif|ifempty|case|fallbackmsg|default)$)/.test(match[1]) && state.tag != "switch" ? 1 : 2) * config.indentUnit;
+
+          // A tag-keyword must be followed by whitespace, comment or a closing tag.
+        } else if (match = stream.match(/^\{([/@\\]?\w+\??)(?=$|[\s}]|\/[/*])/)) {
+          var prevTag = state.tag;
           state.tag = match[1];
-          if (state.tag == "/" + last(state.kindTag)) {
-            // We found the tag that opened the current kind="".
-            state.kind.pop();
-            state.kindTag.pop();
-            state.localStates.pop();
-            var localState = last(state.localStates);
-            state.indent -= localState.mode.indent(localState.state, "");
-          }
+          var endTag = state.tag[0] == "/";
+          var indentingTag = !!tags[state.tag];
+          var tagName = endTag ? state.tag.substring(1) : state.tag;
+          var tag = tags[tagName];
+          if (state.tag != "/switch")
+            state.indent += ((endTag || tag && tag.reduceIndent) && prevTag != "switch" ? 1 : 2) * config.indentUnit;
+
           state.soyState.push("tag");
-          if (state.tag == "template" || state.tag == "deltemplate") {
-            state.soyState.push("templ-def");
+          var tagError = false;
+          if (tag) {
+            if (!endTag) {
+              if (tag.soyState) state.soyState.push(tag.soyState);
+            }
+            // If a new tag, open a new context.
+            if (!tag.noEndTag && (indentingTag || !endTag)) {
+              state.context = new Context(state.context, state.tag, tag.variableScope ? state.variables : null);
+            // Otherwise close the current context.
+            } else if (endTag) {
+              if (!state.context || state.context.tag != tagName) {
+                tagError = true;
+              } else if (state.context) {
+                if (state.context.kind) {
+                  state.localStates.pop();
+                  var localState = last(state.localStates);
+                  if (localState.mode.indent) {
+                    state.indent -= localState.mode.indent(localState.state, "", "");
+                  }
+                }
+                popcontext(state);
+              }
+            }
+          } else if (endTag) {
+            // Assume all tags with a closing tag are defined in the config.
+            tagError = true;
           }
-          if (state.tag == "call" || state.tag == "delcall") {
-            state.soyState.push("templ-ref");
-          }
-          if (state.tag == "let") {
-            state.soyState.push("var-def");
-          }
-          if (state.tag == "for" || state.tag == "foreach") {
-            state.scopes = prepend(state.scopes, state.variables);
-            state.soyState.push("var-def");
-          }
-          if (state.tag.match(/^@param\??/)) {
-            state.soyState.push("param-def");
-          }
+          return (tagError ? "error " : "") + "keyword";
+
+        // Not a tag-keyword; it's an implicit print tag.
+        } else if (stream.eat('{')) {
+          state.tag = "print";
+          state.indent += 2 * config.indentUnit;
+          state.soyState.push("tag");
           return "keyword";
         }
 
         return tokenUntil(stream, state, /\{|\s+\/\/|\/\*/);
       },
 
-      indent: function(state, textAfter) {
+      indent: function(state, textAfter, line) {
         var indent = state.indent, top = last(state.soyState);
         if (top == "comment") return CodeMirror.Pass;
 
@@ -298,7 +406,7 @@
         }
         var localState = last(state.localStates);
         if (indent && localState.mode.indent) {
-          indent += localState.mode.indent(localState.state, textAfter);
+          indent += localState.mode.indent(localState.state, textAfter, line);
         }
         return indent;
       },
@@ -318,8 +426,10 @@
     };
   }, "htmlmixed");
 
-  CodeMirror.registerHelper("hintWords", "soy", indentingTags.concat(
-      ["delpackage", "namespace", "alias", "print", "css", "debugger"]));
+  CodeMirror.registerHelper("wordChars", "soy", /[\w$]/);
+
+  CodeMirror.registerHelper("hintWords", "soy", Object.keys(tags).concat(
+      ["css", "debugger"]));
 
   CodeMirror.defineMIME("text/x-soy", "soy");
 });
