@@ -164,19 +164,19 @@
 
         switch (last(state.soyState)) {
           case "comment":
-          if (stream.match(/^.*?\*\//)) {
-            state.soyState.pop();
-          } else {
-            stream.skipToEnd();
-          }
-          if (!state.scopes) {
-            var paramRe = /@param\??\s+(\S+)/g;
-            var current = stream.current();
-            for (var match; (match = paramRe.exec(current)); ) {
-              state.variables = prepend(state.variables, match[1]);
+            if (stream.match(/^.*?\*\//)) {
+              state.soyState.pop();
+            } else {
+              stream.skipToEnd();
             }
-          }
-          return "comment";
+            if (!state.context || !state.context.scope) {
+              var paramRe = /@param\??\s+(\S+)/g;
+              var current = stream.current();
+              for (var match; (match = paramRe.exec(current)); ) {
+                state.variables = prepend(state.variables, match[1]);
+              }
+            }
+            return "comment";
 
           case "string":
             var match = stream.match(/^.*?(["']|\\[\s\S])/);
