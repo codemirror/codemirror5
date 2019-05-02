@@ -340,7 +340,7 @@
           state.context = new Context(state.context, "literal", state.variables);
           return "keyword";
 
-          // A tag-keyword must be followed by whitespace, comment or a closing tag.
+        // A tag-keyword must be followed by whitespace, comment or a closing tag.
         } else if (match = stream.match(/^\{([/@\\]?\w+\??)(?=$|[\s}]|\/[/*])/)) {
           var prevTag = state.tag;
           state.tag = match[1];
