@@ -164,19 +164,19 @@
 
         switch (last(state.soyState)) {
           case "comment":
-          if (stream.match(/^.*?\*\//)) {
-            state.soyState.pop();
-          } else {
-            stream.skipToEnd();
-          }
-          if (!state.scopes) {
-            var paramRe = /@param\??\s+(\S+)/g;
-            var current = stream.current();
-            for (var match; (match = paramRe.exec(current)); ) {
-              state.variables = prepend(state.variables, match[1]);
+            if (stream.match(/^.*?\*\//)) {
+              state.soyState.pop();
+            } else {
+              stream.skipToEnd();
             }
-          }
-          return "comment";
+            if (!state.context || !state.context.scope) {
+              var paramRe = /@param\??\s+(\S+)/g;
+              var current = stream.current();
+              for (var match; (match = paramRe.exec(current)); ) {
+                state.variables = prepend(state.variables, match[1]);
+              }
+            }
+            return "comment";
 
           case "string":
             var match = stream.match(/^.*?(["']|\\[\s\S])/);
@@ -340,7 +340,7 @@
           state.context = new Context(state.context, "literal", state.variables);
           return "keyword";
 
-          // A tag-keyword must be followed by whitespace, comment or a closing tag.
+        // A tag-keyword must be followed by whitespace, comment or a closing tag.
         } else if (match = stream.match(/^\{([/@\\]?\w+\??)(?=$|[\s}]|\/[/*])/)) {
           var prevTag = state.tag;
           state.tag = match[1];
