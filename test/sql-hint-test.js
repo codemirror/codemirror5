@@ -1,5 +1,5 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
-// Distributed under an MIT license: http://codemirror.net/LICENSE
+// Distributed under an MIT license: https://codemirror.net/LICENSE
 
 (function() {
   var Pos = CodeMirror.Pos;
@@ -21,27 +21,67 @@
               {text: "name", displayText: "name | The name"}]
   }];
 
+  var displayTextTablesWithDefault = [
+    {
+      text: "Api__TokenAliases",
+      columns: [
+        {
+          text: "token",
+          displayText: "token | varchar(255) | Primary",
+          columnName: "token",
+          columnHint: "varchar(255) | Primary"
+        },
+        {
+          text: "alias",
+          displayText: "alias | varchar(255) | Primary",
+          columnName: "alias",
+          columnHint: "varchar(255) | Primary"
+        }
+      ]
+    },
+    {
+      text: "mytable",
+      columns: [
+        { text: "id", displayText: "id | Unique ID" },
+        { text: "name", displayText: "name | The name" }
+      ]
+    }
+  ];
+
   namespace = "sql-hint_";
 
   function test(name, spec) {
     testCM(name, function(cm) {
       cm.setValue(spec.value);
       cm.setCursor(spec.cursor);
-      var completion = CodeMirror.hint.sql(cm, {tables: spec.tables});
+      var completion = CodeMirror.hint.sql(cm, {
+        tables: spec.tables,
+        defaultTable: spec.defaultTable,
+        disableKeywords: spec.disableKeywords
+      });
       if (!deepCompare(completion.list, spec.list))
         throw new Failure("Wrong completion results " + JSON.stringify(completion.list) + " vs " + JSON.stringify(spec.list));
       eqCharPos(completion.from, spec.from);
       eqCharPos(completion.to, spec.to);
     }, {
       value: spec.value,
-      mode: "text/x-mysql"
+      mode: spec.mode || "text/x-mysql"
     });
   }
 
   test("keywords", {
     value: "SEL",
     cursor: Pos(0, 3),
-    list: ["SELECT"],
+    list: [{"text":"SELECT","className":"CodeMirror-hint-keyword"}],
+    from: Pos(0, 0),
+    to: Pos(0, 3)
+  });
+
+  test("keywords_disabled", {
+    value: "SEL",
+    cursor: Pos(0, 3),
+    disableKeywords: true,
+    list: [],
     from: Pos(0, 0),
     to: Pos(0, 3)
   });
@@ -49,7 +89,7 @@
   test("from", {
     value: "SELECT * fr",
     cursor: Pos(0, 11),
-    list: ["FROM"],
+    list: [{"text":"FROM","className":"CodeMirror-hint-keyword"}],
     from: Pos(0, 9),
     to: Pos(0, 11)
   });
@@ -58,7 +98,7 @@
     value: "SELECT xc",
     cursor: Pos(0, 9),
     tables: simpleTables,
-    list: ["xcountries"],
+    list: [{"text":"xcountries","className":"CodeMirror-hint-table"}],
     from: Pos(0, 7),
     to: Pos(0, 9)
   });
@@ -90,6 +130,16 @@
     to: Pos(0, 18)
   });
 
+  test("doublequoted", {
+    value: "SELECT \"users\".\"na",
+    cursor: Pos(0, 18),
+    tables: simpleTables,
+    list: ["\"users\".\"name\""],
+    from: Pos(0, 7),
+    to: Pos(0, 18),
+    mode: "text/x-sqlite"
+  });
+
   test("quotedcolumn", {
     value: "SELECT users.`na",
     cursor: Pos(0, 16),
@@ -99,12 +149,25 @@
     to: Pos(0, 16)
   });
 
+  test("doublequotedcolumn", {
+    value: "SELECT users.\"na",
+    cursor: Pos(0, 16),
+    tables: simpleTables,
+    list: ["\"users\".\"name\""],
+    from: Pos(0, 7),
+    to: Pos(0, 16),
+    mode: "text/x-sqlite"
+  });
+
   test("schema", {
     value: "SELECT schem",
     cursor: Pos(0, 12),
     tables: schemaTables,
-    list: ["schema.users", "schema.countries",
-           "SCHEMA", "SCHEMA_NAME", "SCHEMAS"],
+    list: [{"text":"schema.users","className":"CodeMirror-hint-table"},
+        {"text":"schema.countries","className":"CodeMirror-hint-table"},
+        {"text":"SCHEMA","className":"CodeMirror-hint-keyword"},
+        {"text":"SCHEMA_NAME","className":"CodeMirror-hint-keyword"},
+        {"text":"SCHEMAS","className":"CodeMirror-hint-keyword"}],
     from: Pos(0, 7),
     to: Pos(0, 12)
   });
@@ -116,6 +179,16 @@
     list: ["`schema`.`users`", "`schema`.`countries`"],
     from: Pos(0, 7),
     to: Pos(0, 11)
+  });
+
+  test("schemadoublequoted", {
+    value: "SELECT \"sch",
+    cursor: Pos(0, 11),
+    tables: schemaTables,
+    list: ["\"schema\".\"users\"", "\"schema\".\"countries\""],
+    from: Pos(0, 7),
+    to: Pos(0, 11),
+    mode: "text/x-sqlite"
   });
 
   test("schemacolumn", {
@@ -140,11 +213,43 @@
     to: Pos(0, 24)
   });
 
+  test("schemacolumndoublequoted", {
+    value: "SELECT \"schema\".\"users\".",
+    cursor: Pos(0, 24),
+    tables: schemaTables,
+    list: ["\"schema\".\"users\".\"name\"",
+           "\"schema\".\"users\".\"score\"",
+           "\"schema\".\"users\".\"birthDate\""],
+    from: Pos(0, 7),
+    to: Pos(0, 24),
+    mode: "text/x-sqlite"
+  });
+
+  test("displayText_default_table", {
+    value: "SELECT a",
+    cursor: Pos(0, 8),
+    disableKeywords: true,
+    defaultTable: "Api__TokenAliases",
+    tables: displayTextTablesWithDefault,
+    list: [
+      {
+        text: "alias",
+        displayText: "alias | varchar(255) | Primary",
+        columnName: "alias",
+        columnHint: "varchar(255) | Primary",
+        className: "CodeMirror-hint-table CodeMirror-hint-default-table"
+      },
+      { text: "Api__TokenAliases", className: "CodeMirror-hint-table" }
+    ],
+    from: Pos(0, 7),
+    to: Pos(0, 8)
+  });
+
   test("displayText_table", {
     value: "SELECT myt",
     cursor: Pos(0, 10),
     tables: displayTextTables,
-    list: displayTextTables,
+    list: [{text: "mytable", displayText: "mytable | The main table", "className":"CodeMirror-hint-table"}],
     from: Pos(0, 7),
     to: Pos(0, 10)
   });
@@ -179,11 +284,18 @@
   })
 
   function deepCompare(a, b) {
-    if (!a || typeof a != "object")
-      return a === b;
-    if (!b || typeof b != "object")
-      return false;
-    for (var prop in a) if (!deepCompare(a[prop], b[prop])) return false;
-    return true;
+    if (a === b) return true
+    if (!(a && typeof a == "object") ||
+        !(b && typeof b == "object")) return false
+    var array = Array.isArray(a)
+    if (Array.isArray(b) != array) return false
+    if (array) {
+      if (a.length != b.length) return false
+      for (var i = 0; i < a.length; i++) if (!deepCompare(a[i], b[i])) return false
+    } else {
+      for (var p in a) if (!(p in b) || !deepCompare(a[p], b[p])) return false
+      for (var p in b) if (!(p in a)) return false
+    }
+    return true
   }
 })();

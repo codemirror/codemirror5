@@ -1,4 +1,4 @@
-import { indexOf } from "../util/misc"
+import { indexOf } from "../util/misc.js"
 
 // Find the line object corresponding to the given line number.
 export function getLine(doc, n) {

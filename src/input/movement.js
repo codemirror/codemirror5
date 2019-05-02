@@ -1,7 +1,7 @@
-import { Pos } from "../line/pos"
-import { prepareMeasureForLine, measureCharPrepared, wrappedLineExtentChar } from "../measurement/position_measurement"
-import { getBidiPartAt, getOrder } from "../util/bidi"
-import { findFirst, lst, skipExtendingChars } from "../util/misc"
+import { Pos } from "../line/pos.js"
+import { prepareMeasureForLine, measureCharPrepared, wrappedLineExtentChar } from "../measurement/position_measurement.js"
+import { getBidiPartAt, getOrder } from "../util/bidi.js"
+import { findFirst, lst, skipExtendingChars } from "../util/misc.js"
 
 function moveCharLogically(line, ch, dir) {
   let target = skipExtendingChars(line.text, ch + dir, dir)
@@ -15,7 +15,7 @@ export function moveLogically(line, start, dir) {
 
 export function endOfLine(visually, cm, lineObj, lineNo, dir) {
   if (visually) {
-    let order = getOrder(lineObj)
+    let order = getOrder(lineObj, cm.doc.direction)
     if (order) {
       let part = dir < 0 ? lst(order) : order[0]
       let moveInStorageOrder = (dir < 0) == (part.level == 1)
@@ -27,12 +27,12 @@ export function endOfLine(visually, cm, lineObj, lineNo, dir) {
       // Thus, in rtl, we are looking for the first (content-order) character
       // in the rtl chunk that is on the last line (that is, the same line
       // as the last (content-order) character).
-      if (part.level > 0) {
+      if (part.level > 0 || cm.doc.direction == "rtl") {
         let prep = prepareMeasureForLine(cm, lineObj)
         ch = dir < 0 ? lineObj.text.length - 1 : 0
         let targetTop = measureCharPrepared(cm, prep, ch).top
         ch = findFirst(ch => measureCharPrepared(cm, prep, ch).top == targetTop, (dir < 0) == (part.level == 1) ? part.from : part.to - 1, ch)
-        if (sticky == "before") ch = moveCharLogically(lineObj, ch, 1, true)
+        if (sticky == "before") ch = moveCharLogically(lineObj, ch, 1)
       } else ch = dir < 0 ? part.to : part.from
       return new Pos(lineNo, ch, sticky)
     }
@@ -41,7 +41,7 @@ export function endOfLine(visually, cm, lineObj, lineNo, dir) {
 }
 
 export function moveVisually(cm, line, start, dir) {
-  let bidi = getOrder(line)
+  let bidi = getOrder(line, cm.doc.direction)
   if (!bidi) return moveLogically(line, start, dir)
   if (start.ch >= line.text.length) {
     start.ch = line.text.length
@@ -51,8 +51,8 @@ export function moveVisually(cm, line, start, dir) {
     start.sticky = "after"
   }
   let partPos = getBidiPartAt(bidi, start.ch, start.sticky), part = bidi[partPos]
-  if (part.level % 2 == 0 && (dir > 0 ? part.to > start.ch : part.from < start.ch)) {
-    // Case 1: We move within an ltr part. Even with wrapped lines,
+  if (cm.doc.direction == "ltr" && part.level % 2 == 0 && (dir > 0 ? part.to > start.ch : part.from < start.ch)) {
+    // Case 1: We move within an ltr part in an ltr editor. Even with wrapped lines,
     // nothing interesting happens.
     return moveLogically(line, start, dir)
   }
@@ -66,11 +66,12 @@ export function moveVisually(cm, line, start, dir) {
   }
   let wrappedLineExtent = getWrappedLineExtent(start.sticky == "before" ? mv(start, -1) : start.ch)
 
-  if (part.level % 2 == 1) {
-    let ch = mv(start, -dir)
-    if (ch != null && (dir > 0 ? ch >= part.from && ch >= wrappedLineExtent.begin : ch <= part.to && ch <= wrappedLineExtent.end)) {
-      // Case 2: We move within an rtl part on the same visual line
-      let sticky = dir < 0 ? "before" : "after"
+  if (cm.doc.direction == "rtl" || part.level == 1) {
+    let moveInStorageOrder = (part.level == 1) == (dir < 0)
+    let ch = mv(start, moveInStorageOrder ? 1 : -1)
+    if (ch != null && (!moveInStorageOrder ? ch >= part.from && ch >= wrappedLineExtent.begin : ch <= part.to && ch <= wrappedLineExtent.end)) {
+      // Case 2: We move within an rtl part or in an rtl editor on the same visual line
+      let sticky = moveInStorageOrder ? "before" : "after"
       return new Pos(start.line, ch, sticky)
     }
   }

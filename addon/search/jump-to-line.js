@@ -1,5 +1,5 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
-// Distributed under an MIT license: http://codemirror.net/LICENSE
+// Distributed under an MIT license: https://codemirror.net/LICENSE
 
 // Defines jumpToLine command. Uses dialog.js if present.
 
@@ -18,8 +18,9 @@
     else f(prompt(shortText, deflt));
   }
 
-  var jumpDialog =
-      'Jump to line: <input type="text" style="width: 10em" class="CodeMirror-search-field"/> <span style="color: #888" class="CodeMirror-search-hint">(Use line:column or scroll% syntax)</span>';
+  function getJumpDialog(cm) {
+    return cm.phrase("Jump to line:") + ' <input type="text" style="width: 10em" class="CodeMirror-search-field"/> <span style="color: #888" class="CodeMirror-search-hint">' + cm.phrase("(Use line:column or scroll% syntax)") + '</span>';
+  }
 
   function interpretLine(cm, string) {
     var num = Number(string)
@@ -29,7 +30,7 @@
 
   CodeMirror.commands.jumpToLine = function(cm) {
     var cur = cm.getCursor();
-    dialog(cm, jumpDialog, "Jump to line:", (cur.line + 1) + ":" + cur.ch, function(posStr) {
+    dialog(cm, getJumpDialog(cm), cm.phrase("Jump to line:"), (cur.line + 1) + ":" + cur.ch, function(posStr) {
       if (!posStr) return;
 
       var match;

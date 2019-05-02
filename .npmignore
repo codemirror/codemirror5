@@ -8,4 +8,7 @@
 /mode/*/*.html
 /mode/index.html
 .*
-bin
+/bin/authors.sh
+/bin/lint
+/bin/release
+/bin/upload-release.js

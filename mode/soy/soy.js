@@ -1,5 +1,5 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
-// Distributed under an MIT license: http://codemirror.net/LICENSE
+// Distributed under an MIT license: https://codemirror.net/LICENSE
 
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
@@ -13,7 +13,7 @@
 
   var indentingTags = ["template", "literal", "msg", "fallbackmsg", "let", "if", "elseif",
                        "else", "switch", "case", "default", "foreach", "ifempty", "for",
-                       "call", "param", "deltemplate", "delcall", "log"];
+                       "call", "param", "deltemplate", "delcall", "log", "element"];
 
   CodeMirror.defineMode("soy", function(config) {
     var textMode = CodeMirror.getMode(config, "text/plain");
@@ -22,6 +22,7 @@
       attributes: textMode,
       text: textMode,
       uri: textMode,
+      trusted_resource_uri: textMode,
       css: CodeMirror.getMode(config, "text/css"),
       js: CodeMirror.getMode(config, {name: "text/javascript", statementIndent: 2 * config.indentUnit})
     };
@@ -31,6 +32,12 @@
     }
 
     function tokenUntil(stream, state, untilRegExp) {
+      if (stream.sol()) {
+        for (var indent = 0; indent < state.indent; indent++) {
+          if (!stream.eat(/\s/)) break;
+        }
+        if (indent) return null;
+      }
       var oldString = stream.string;
       var match = untilRegExp.exec(oldString.substr(stream.pos));
       if (match) {
@@ -39,7 +46,7 @@
         stream.string = oldString.substr(0, stream.pos + match.index);
       }
       var result = stream.hideFirstChars(state.indent, function() {
-        var localState = last(state.localState);
+        var localState = last(state.localStates);
         return localState.mode.token(stream, localState.state);
       });
       stream.string = oldString;
@@ -81,13 +88,14 @@
           kindTag: [],
           soyState: [],
           templates: null,
-          variables: null,
+          variables: prepend(null, 'ij'),
           scopes: null,
           indent: 0,
-          localState: [{
+          quoteKind: null,
+          localStates: [{
             mode: modes.html,
             state: CodeMirror.startState(modes.html)
-          }],
+          }]
         };
       },
 
@@ -101,7 +109,8 @@
           variables: state.variables,
           scopes: state.scopes,
           indent: state.indent, // Indentation of the following line.
-          localState: state.localState.map(function(localState) {
+          quoteKind: state.quoteKind,
+          localStates: state.localStates.map(function(localState) {
             return {
               mode: localState.mode,
               state: CodeMirror.copyState(localState.mode, localState.state)
@@ -120,8 +129,36 @@
             } else {
               stream.skipToEnd();
             }
+            if (!state.scopes) {
+              var paramRe = /@param\??\s+(\S+)/g;
+              var current = stream.current();
+              for (var match; (match = paramRe.exec(current)); ) {
+                state.variables = prepend(state.variables, match[1]);
+              }
+            }
             return "comment";
 
+          case "string":
+            var match = stream.match(/^.*?(["']|\\[\s\S])/);
+            if (!match) {
+              stream.skipToEnd();
+            } else if (match[1] == state.quoteKind) {
+              state.quoteKind = null;
+              state.soyState.pop();
+            }
+            return "string";
+        }
+
+        if (!state.soyState.length || last(state.soyState) != "literal") {
+          if (stream.match(/^\/\*/)) {
+            state.soyState.push("comment");
+            return "comment";
+          } else if (stream.match(stream.sol() ? /^\s*\/\/.*/ : /^\s+\/\/.*/)) {
+            return "comment";
+          }
+        }
+
+        switch (last(state.soyState)) {
           case "templ-def":
             if (match = stream.match(/^\.?([\w]+(?!\.[\w]+)*)/)) {
               state.templates = prepend(state.templates, match[1]);
@@ -133,11 +170,11 @@
             return null;
 
           case "templ-ref":
-            if (match = stream.match(/^\.?([\w]+)/)) {
+            if (match = stream.match(/(\.?[a-zA-Z_][a-zA-Z_0-9]+)+/)) {
               state.soyState.pop();
-              // If the first character is '.', try to match against a local template name.
+              // If the first character is '.', it can only be a local template.
               if (match[0][0] == '.') {
-                return ref(state.templates, match[1], true);
+                return "variable-2"
               }
               // Otherwise
               return "variable";
@@ -145,12 +182,28 @@
             stream.next();
             return null;
 
+          case "namespace-def":
+            if (match = stream.match(/^\.?([\w\.]+)/)) {
+              state.soyState.pop();
+              return "variable";
+            }
+            stream.next();
+            return null;
+
           case "param-def":
-            if (match = stream.match(/^([\w]+)(?=:)/)) {
-              state.variables = prepend(state.variables, match[1]);
+            if (match = stream.match(/^\w+/)) {
+              state.variables = prepend(state.variables, match[0]);
               state.soyState.pop();
               state.soyState.push("param-type");
               return "def";
+            }
+            stream.next();
+            return null;
+
+          case "param-ref":
+            if (match = stream.match(/^\w+/)) {
+              state.soyState.pop();
+              return "property";
             }
             stream.next();
             return null;
@@ -160,8 +213,8 @@
               state.soyState.pop();
               return null;
             }
-            if (stream.eatWhile(/^[\w]+/)) {
-              return "variable-3";
+            if (stream.eatWhile(/^([\w]+|[?])/)) {
+              return "type";
             }
             stream.next();
             return null;
@@ -179,6 +232,7 @@
             if (stream.match(/^\/?}/)) {
               if (state.tag == "/template" || state.tag == "/deltemplate") {
                 popscope(state);
+                state.variables = prepend(null, 'ij');
                 state.indent = 0;
               } else {
                 if (state.tag == "/for" || state.tag == "/foreach") {
@@ -195,15 +249,31 @@
                 state.kind.push(kind);
                 state.kindTag.push(state.tag);
                 var mode = modes[kind] || modes.html;
-                state.localState.push({
+                var localState = last(state.localStates);
+                if (localState.mode.indent) {
+                  state.indent += localState.mode.indent(localState.state, "", "");
+                }
+                state.localStates.push({
                   mode: mode,
                   state: CodeMirror.startState(mode)
                 });
               }
               return "attribute";
-            } else if (stream.match(/^"/)) {
+            } else if (match = stream.match(/([\w]+)(?=\()/)) {
+              return "variable callee";
+            } else if (match = stream.match(/^["']/)) {
               state.soyState.push("string");
+              state.quoteKind = match;
               return "string";
+            }
+            if (stream.match(/(null|true|false)(?!\w)/) ||
+              stream.match(/0x([0-9a-fA-F]{2,})/) ||
+              stream.match(/-?([0-9]*[.])?[0-9]+(e[0-9]*)?/)) {
+              return "atom";
+            }
+            if (stream.match(/(\||[+\-*\/%]|[=!]=|\?:|[<>]=?)/)) {
+              // Tokenize filter, binary, null propagator, and equality operators.
+              return "operator";
             }
             if (match = stream.match(/^\$([\w]+)/)) {
               return ref(state.variables, match[1]);
@@ -221,60 +291,62 @@
               return this.token(stream, state);
             }
             return tokenUntil(stream, state, /\{\/literal}/);
-
-          case "string":
-            var match = stream.match(/^.*?("|\\[\s\S])/);
-            if (!match) {
-              stream.skipToEnd();
-            } else if (match[1] == "\"") {
-              state.soyState.pop();
-            }
-            return "string";
         }
 
-        if (stream.match(/^\/\*/)) {
-          state.soyState.push("comment");
-          return "comment";
-        } else if (stream.match(stream.sol() ? /^\s*\/\/.*/ : /^\s+\/\/.*/)) {
-          return "comment";
-        } else if (stream.match(/^\{literal}/)) {
+        if (stream.match(/^\{literal}/)) {
           state.indent += config.indentUnit;
           state.soyState.push("literal");
           return "keyword";
-        } else if (match = stream.match(/^\{([\/@\\]?[\w?]*)/)) {
+
+        // A tag-keyword must be followed by whitespace, comment or a closing tag.
+        } else if (match = stream.match(/^\{([/@\\]?\w+\??)(?=$|[\s}]|\/[/*])/)) {
           if (match[1] != "/switch")
-            state.indent += (/^(\/|(else|elseif|ifempty|case|default)$)/.test(match[1]) && state.tag != "switch" ? 1 : 2) * config.indentUnit;
+            state.indent += (/^(\/|(else|elseif|ifempty|case|fallbackmsg|default)$)/.test(match[1]) && state.tag != "switch" ? 1 : 2) * config.indentUnit;
           state.tag = match[1];
           if (state.tag == "/" + last(state.kindTag)) {
             // We found the tag that opened the current kind="".
             state.kind.pop();
             state.kindTag.pop();
-            state.localState.pop();
+            state.localStates.pop();
+            var localState = last(state.localStates);
+            if (localState.mode.indent) {
+              state.indent -= localState.mode.indent(localState.state, "", "");
+            }
           }
           state.soyState.push("tag");
           if (state.tag == "template" || state.tag == "deltemplate") {
             state.soyState.push("templ-def");
-          }
-          if (state.tag == "call" || state.tag == "delcall") {
+          } else if (state.tag == "call" || state.tag == "delcall") {
             state.soyState.push("templ-ref");
-          }
-          if (state.tag == "let") {
+          } else if (state.tag == "let") {
             state.soyState.push("var-def");
-          }
-          if (state.tag == "for" || state.tag == "foreach") {
+          } else if (state.tag == "for" || state.tag == "foreach") {
             state.scopes = prepend(state.scopes, state.variables);
             state.soyState.push("var-def");
-          }
-          if (state.tag.match(/^@param\??/)) {
+          } else if (state.tag == "namespace") {
+            state.soyState.push("namespace-def");
+            if (!state.scopes) {
+              state.variables = prepend(null, 'ij');
+            }
+          } else if (state.tag.match(/^@(?:param\??|inject|state)/)) {
             state.soyState.push("param-def");
+          } else if (state.tag.match(/^(?:param)/)) {
+            state.soyState.push("param-ref");
           }
+          return "keyword";
+
+        // Not a tag-keyword; it's an implicit print tag.
+        } else if (stream.eat('{')) {
+          state.tag = "print";
+          state.indent += 2 * config.indentUnit;
+          state.soyState.push("tag");
           return "keyword";
         }
 
         return tokenUntil(stream, state, /\{|\s+\/\/|\/\*/);
       },
 
-      indent: function(state, textAfter) {
+      indent: function(state, textAfter, line) {
         var indent = state.indent, top = last(state.soyState);
         if (top == "comment") return CodeMirror.Pass;
 
@@ -286,16 +358,16 @@
           if (state.tag != "switch" && /^\{(case|default)\b/.test(textAfter)) indent -= config.indentUnit;
           if (/^\{\/switch\b/.test(textAfter)) indent -= config.indentUnit;
         }
-        var localState = last(state.localState);
+        var localState = last(state.localStates);
         if (indent && localState.mode.indent) {
-          indent += localState.mode.indent(localState.state, textAfter);
+          indent += localState.mode.indent(localState.state, textAfter, line);
         }
         return indent;
       },
 
       innerMode: function(state) {
         if (state.soyState.length && last(state.soyState) != "literal") return null;
-        else return last(state.localState);
+        else return last(state.localStates);
       },
 
       electricInput: /^\s*\{(\/|\/template|\/deltemplate|\/switch|fallbackmsg|elseif|else|case|default|ifempty|\/literal\})$/,
@@ -307,6 +379,8 @@
       fold: "indent"
     };
   }, "htmlmixed");
+
+  CodeMirror.registerHelper("wordChars", "soy", /[\w$]/);
 
   CodeMirror.registerHelper("hintWords", "soy", indentingTags.concat(
       ["delpackage", "namespace", "alias", "print", "css", "debugger"]));

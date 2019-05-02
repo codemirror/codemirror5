@@ -1,5 +1,5 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
-// Distributed under an MIT license: http://codemirror.net/LICENSE
+// Distributed under an MIT license: https://codemirror.net/LICENSE
 
 // Depends on htmlhint.js from http://htmlhint.com/js/htmlhint.js
 
@@ -11,8 +11,8 @@
   else if (typeof define == "function" && define.amd) // AMD
     define(["../../lib/codemirror", "htmlhint"], mod);
   else // Plain browser env
-    mod(CodeMirror);
-})(function(CodeMirror) {
+    mod(CodeMirror, window.HTMLHint);
+})(function(CodeMirror, HTMLHint) {
   "use strict";
 
   var defaultRules = {
@@ -29,7 +29,20 @@
 
   CodeMirror.registerHelper("lint", "html", function(text, options) {
     var found = [];
-    if (!window.HTMLHint) return found;
+    if (HTMLHint && !HTMLHint.verify) {
+      if(typeof HTMLHint.default !== 'undefined') {
+        HTMLHint = HTMLHint.default;
+      } else {
+        HTMLHint = HTMLHint.HTMLHint;
+      }
+    }
+    if (!HTMLHint) HTMLHint = window.HTMLHint;
+    if (!HTMLHint) {
+      if (window.console) {
+          window.console.error("Error: HTMLHint not found, not defined on window, or not available through define/require, CodeMirror HTML linting cannot run.");
+      }
+      return found;
+    }
     var messages = HTMLHint.verify(text, options && options.rules || defaultRules);
     for (var i = 0; i < messages.length; i++) {
       var message = messages[i];

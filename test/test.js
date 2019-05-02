@@ -237,6 +237,28 @@ testCM("coordsChar", function(cm) {
   }
 }, {lineNumbers: true});
 
+testCM("coordsCharBidi", function(cm) {
+  addDoc(cm, 35, 70);
+  // Put an rtl character into each line to trigger the bidi code path in coordsChar
+  cm.setValue(cm.getValue().replace(/\bx/g, 'و'))
+  for (var i = 0; i < 2; ++i) {
+    var sys = i ? "local" : "page";
+    for (var ch = 2; ch <= 35; ch += 5) {
+      for (var line = 0; line < 70; line += 5) {
+        cm.setCursor(line, ch);
+        var coords = cm.charCoords(Pos(line, ch), sys);
+        var pos = cm.coordsChar({left: coords.left + 1, top: coords.top + 1}, sys);
+        eqCharPos(pos, Pos(line, ch));
+      }
+    }
+  }
+}, {lineNumbers: true});
+
+testCM("badBidiOptimization", function(cm) {
+  var coords = cm.charCoords(Pos(0, 34))
+  eqCharPos(cm.coordsChar({left: coords.right, top: coords.top + 2}), Pos(0, 34))
+}, {value: "----------<p class=\"title\">هل يمكنك اختيار مستوى قسط التأمين الذي ترغب بدفعه؟</p>"})
+
 testCM("posFromIndex", function(cm) {
   cm.setValue(
     "This function should\n" +
@@ -527,9 +549,22 @@ testCM("markTextCSS", function(cm) {
   function present() {
     var spans = cm.display.lineDiv.getElementsByTagName("span");
     for (var i = 0; i < spans.length; i++)
-      if (spans[i].style.color == "cyan" && span[i].textContent == "cdefg") return true;
+      if (spans[i].style.color && spans[i].textContent == "cdef") return true;
   }
   var m = cm.markText(Pos(0, 2), Pos(0, 6), {css: "color: cyan"});
+  is(present());
+  m.clear();
+  is(!present());
+}, {value: "abcdefgh"});
+
+testCM("markTextWithAttributes", function(cm) {
+  function present() {
+    var spans = cm.display.lineDiv.getElementsByTagName("span");
+    for (var i = 0; i < spans.length; i++)
+      if (spans[i].getAttribute("label") == "label" && spans[i].textContent == "cdef") return true;
+  }
+  var m = cm.markText(Pos(0, 2), Pos(0, 6), {attributes: {label: "label"}});
+  is(present());
   m.clear();
   is(!present());
 }, {value: "abcdefgh"});
@@ -650,10 +685,10 @@ testCM("scrollSnap", function(cm) {
 
 testCM("scrollIntoView", function(cm) {
   if (phantom) return;
-  var outer = cm.getWrapperElement().getBoundingClientRect();
   function test(line, ch, msg) {
     var pos = Pos(line, ch);
     cm.scrollIntoView(pos);
+    var outer = cm.getWrapperElement().getBoundingClientRect();
     var box = cm.charCoords(pos, "window");
     is(box.left >= outer.left, msg + " (left)");
     is(box.right <= outer.right, msg + " (right)");
@@ -867,6 +902,15 @@ testCM("hiddenLinesSelectAll", function(cm) {  // Issue #484
   eqCursorPos(cm.getCursor(false), Pos(10, 4));
 });
 
+testCM("clickFold", function(cm) { // Issue #5392
+  cm.setValue("foo { bar }")
+  var widget = document.createElement("span")
+  widget.textContent = "<>"
+  cm.markText(Pos(0, 5), Pos(0, 10), {replacedWith: widget})
+  var after = cm.charCoords(Pos(0, 10))
+  var foundOn = cm.coordsChar({left: after.left - 1, top: after.top + 4})
+  is(foundOn.ch <= 5 || foundOn.ch >= 10, "Position is not inside the folded range")
+})
 
 testCM("everythingFolded", function(cm) {
   addDoc(cm, 2, 2);
@@ -1138,6 +1182,16 @@ testCM("measureWrappedEndOfLine", function(cm) {
     }
   }
 }, {mode: "text/html", value: "0123456789abcde0123456789", lineWrapping: true}, ie_lt8 || opera_lt10);
+
+testCM("measureEndOfLineBidi", function(cm) {
+  eqCursorPos(cm.coordsChar({left: 5000, top: cm.charCoords(Pos(0, 0)).top}), Pos(0, 8, "after"))
+}, {value: "إإإإuuuuإإإإ"})
+
+testCM("measureWrappedBidiLevel2", function(cm) {
+  cm.setSize(cm.charCoords(Pos(0, 6), "editor").right + 60)
+  var c9 = cm.charCoords(Pos(0, 9))
+  eqCharPos(cm.coordsChar({left: c9.right - 1, top: c9.top + 1}), Pos(0, 9))
+}, {value: "foobar إإ إإ إإ إإ 555 بببببب", lineWrapping: true})
 
 testCM("measureWrappedBeginOfLine", function(cm) {
   if (phantom) return;
@@ -1617,6 +1671,56 @@ testCM("lineWidgetChanged", function(cm) {
   eq(info0.top + expectedWidgetHeight, info2.top);
 });
 
+testCM("lineWidgetIssue5486", function(cm) {
+  // [prepare]
+  // 2nd line is combined to 1st line due to markText
+  // 2nd line has a lineWidget below
+
+  cm.setValue("Lorem\nIpsue\nDollar")
+
+  var el = document.createElement('div')
+  el.style.height='50px'
+  el.textContent = '[[LINE WIDGET]]'
+  
+  var lineWidget = cm.addLineWidget(1, el, {
+    above: false,
+    coverGutter: false,
+    noHScroll: false,
+    showIfHidden: false,
+  })
+  
+  var marker = document.createElement('span')
+  marker.textContent = '[--]'
+  
+  cm.markText({line:0, ch: 1}, {line:1, ch: 4}, {
+    replacedWith: marker
+  })
+
+  // before resizing the lineWidget, measure 3rd line position
+
+  var measure_1 = Math.round(cm.charCoords({line:2, ch:0}).top)
+  
+  // resize lineWidget, height + 50 px
+
+  el.style.height='100px'
+  el.textContent += "\nlineWidget size changed.\nTry moving cursor to line 3?"
+  
+  lineWidget.changed()
+
+  // re-measure 3rd line position
+  var measure_2 = Math.round(cm.charCoords({line:2, ch:0}).top)
+  eq(measure_2, measure_1 + 50)
+
+  // (extra test)
+  //
+  // add char to the right of the folded marker
+  // and re-measure 3rd line position
+
+  cm.replaceRange('-', {line:1, ch: 5})
+  var measure_3 = Math.round(cm.charCoords({line:2, ch:0}).top)
+  eq(measure_3, measure_2)
+});
+
 testCM("getLineNumber", function(cm) {
   addDoc(cm, 2, 20);
   var h1 = cm.getLineHandle(1);
@@ -1874,6 +1978,49 @@ testCM("addKeyMap", function(cm) {
   sendKey(39);
   eqCursorPos(cm.getCursor(), Pos(0, 3, "before"));
 }, {value: "abc"});
+
+function mouseDown(cm, button, pos, mods) {
+  var coords = cm.charCoords(pos, "window")
+  var event = {type: "mousedown",
+               preventDefault: Math.min,
+               which: button,
+               target: cm.display.lineDiv,
+               clientX: coords.left, clientY: coords.top}
+  if (mods) for (var prop in mods) event[prop] = mods[prop]
+  cm.triggerOnMouseDown(event)
+}
+
+testCM("mouseBinding", function(cm) {
+  var fired = []
+  cm.addKeyMap({
+    "Shift-LeftClick": function(_cm, pos) {
+      eqCharPos(pos, Pos(1, 2))
+      fired.push("a")
+    },
+    "Shift-LeftDoubleClick": function() { fired.push("b") },
+    "Shift-LeftTripleClick": function() { fired.push("c") }
+  })
+
+  function send(button, mods) { mouseDown(cm, button, Pos(1, 2), mods) }
+  send(1, {shiftKey: true})
+  send(1, {shiftKey: true})
+  send(1, {shiftKey: true})
+  send(1, {})
+  send(2, {ctrlKey: true})
+  send(2, {ctrlKey: true})
+  eq(fired.join(" "), "a b c")
+}, {value: "foo\nbar\nbaz"})
+
+testCM("configureMouse", function(cm) {
+  cm.setOption("configureMouse", function() { return {unit: "word"} })
+  mouseDown(cm, 1, Pos(0, 5))
+  eqCharPos(cm.getCursor("from"), Pos(0, 4))
+  eqCharPos(cm.getCursor("to"), Pos(0, 7))
+  cm.setOption("configureMouse", function() { return {extend: true} })
+  mouseDown(cm, 1, Pos(0, 0))
+  eqCharPos(cm.getCursor("from"), Pos(0, 0))
+  eqCharPos(cm.getCursor("to"), Pos(0, 4))
+}, {value: "foo bar baz"})
 
 testCM("findPosH", function(cm) {
   forEach([{from: Pos(0, 0), to: Pos(0, 1, "before"), by: 1},
@@ -2143,6 +2290,21 @@ testCM("getTokenTypeAt", function(cm) {
   eq(cm.getTokenTypeAt(Pos(0, 6)), "string");
 }, {value: "1 + 'foo'", mode: "javascript"});
 
+testCM("addOverlay", function(cm) {
+  cm.addOverlay({
+    token: function(stream) {
+      var base = stream.baseToken()
+      if (!/comment/.test(base.type) && stream.match(/\d+/)) return "x"
+      stream.next()
+    }
+  })
+  var x = byClassName(cm.getWrapperElement(), "cm-x")
+  is(x.length, 1)
+  is(x[0].textContent, "233")
+  cm.replaceRange("", Pos(0, 4), Pos(0, 6))
+  is(byClassName(cm.getWrapperElement(), "cm-x").length, 2)
+}, {value: "foo /* 100 */\nbar + 233;\nbaz", mode: "javascript"})
+
 testCM("resizeLineWidget", function(cm) {
   addDoc(cm, 200, 3);
   var widget = document.createElement("pre");
@@ -2408,9 +2570,53 @@ for (var i = 0; i < 5; ++i) {
 }
 */
 
+testCM("rtl_wrapped_selection", function(cm) {
+  cm.setSelection(Pos(0, 10), Pos(0, 190))
+  is(byClassName(cm.getWrapperElement(), "CodeMirror-selected").length >= 3)
+}, {value: new Array(10).join(" فتي تم تضمينها فتي تم"), lineWrapping: true})
+
+testCM("bidi_wrapped_selection", function(cm) {
+  if (phantom) return
+  cm.setSize(cm.charCoords(Pos(0, 10), "editor").left)
+  cm.setSelection(Pos(0, 37), Pos(0, 80))
+  var blocks = byClassName(cm.getWrapperElement(), "CodeMirror-selected")
+  is(blocks.length >= 2)
+  is(blocks.length <= 3)
+  var boxTop = blocks[0].getBoundingClientRect(), boxBot = blocks[blocks.length - 1].getBoundingClientRect()
+  is(boxTop.left > cm.charCoords(Pos(0, 1)).right)
+  is(boxBot.right < cm.charCoords(Pos(0, cm.getLine(0).length - 2)).left)
+}, {value: "<p>مفتي11 تم تضمينهفتي تم تضمينها فتي تفتي تم تضمينها فتي تفتي تم تضمينها فتي تفتي تم تضمينها فتي تا فت10ي ت</p>", lineWrapping: true})
+
 testCM("delete_wrapped", function(cm) {
   makeItWrapAfter(cm, Pos(0, 2));
   cm.doc.setCursor(Pos(0, 3, "after"));
   cm.deleteH(-1, "char");
   eq(cm.getLine(0), "1245");
 }, {value: "12345", lineWrapping: true})
+
+testCM("issue_4878", function(cm) {
+  if (phantom) return
+  cm.setCursor(Pos(1, 12, "after"));
+  cm.moveH(-1, "char");
+  eqCursorPos(cm.getCursor(), Pos(0, 113, "before"));
+}, {value: "  في تطبيق السمات مرة واحدة https://github.com/codemirror/CodeMirror/issues/4878#issuecomment-330550964على سبيل المثال <code>\"foo bar\"</code>\n" +
+"  سيتم تعيين", direction: "rtl", lineWrapping: true});
+
+CodeMirror.defineMode("lookahead_mode", function() {
+  // Colors text as atom if the line two lines down has an x in it
+  return {
+    token: function(stream) {
+      stream.skipToEnd()
+      return /x/.test(stream.lookAhead(2)) ? "atom" : null
+    }
+  }
+})
+
+testCM("mode_lookahead", function(cm) {
+  eq(cm.getTokenAt(Pos(0, 1)).type, "atom")
+  eq(cm.getTokenAt(Pos(1, 1)).type, "atom")
+  eq(cm.getTokenAt(Pos(2, 1)).type, null)
+  cm.replaceRange("\n", Pos(2, 0))
+  eq(cm.getTokenAt(Pos(0, 1)).type, null)
+  eq(cm.getTokenAt(Pos(1, 1)).type, "atom")
+}, {value: "foo\na\nx\nx\n", mode: "lookahead_mode"})

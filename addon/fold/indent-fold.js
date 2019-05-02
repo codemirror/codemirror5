@@ -1,5 +1,5 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
-// Distributed under an MIT license: http://codemirror.net/LICENSE
+// Distributed under an MIT license: https://codemirror.net/LICENSE
 
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
@@ -18,7 +18,7 @@ function lineIndent(cm, lineNo) {
     return -1
   return CodeMirror.countColumn(text, null, cm.getOption("tabSize"))
 }
-               !
+
 CodeMirror.registerHelper("fold", "indent", function(cm, start) {
   var myIndent = lineIndent(cm, start.line)
   if (myIndent < 0) return

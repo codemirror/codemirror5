@@ -1,5 +1,5 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
-// Distributed under an MIT license: http://codemirror.net/LICENSE
+// Distributed under an MIT license: https://codemirror.net/LICENSE
 
 (function() {
   var mode = CodeMirror.getMode({indentUnit: 2}, "swift");
@@ -35,7 +35,13 @@
   // Strings and string interpolation.
   MT("strings",
      "[keyword var] [def a][punctuation :] [variable-2 String] [operator =] [string \"test\"]",
-     "[keyword var] [def b][punctuation :] [variable-2 String] [operator =] [string \"\\(][variable a][string )\"]");
+     "[keyword var] [def b][punctuation :] [variable-2 String] [operator =] [string \"\\(][variable a][string )\"]",
+     "[keyword var] [def c] [operator =] [string \"\"\"]",
+     "[string multi]",
+     "[string line]",
+     "[string \"test\"]",
+     "[string \"\"\"]",
+     "[variable print][punctuation (][string \"\"][punctuation )]");
 
   // Comments.
   MT("comments",
@@ -141,6 +147,13 @@
   MT("property_number",
      "[variable print][punctuation (][variable foo][property ._123][punctuation )]",
      "[variable print][punctuation (]")
+
+  MT("nested_comments",
+     "[comment /*]",
+     "[comment But wait /* this is a nested comment */ for real]",
+     "[comment /**** let * me * show * you ****/]",
+     "[comment ///// let / me / show / you /////]",
+     "[comment */]");
 
   // TODO: correctly identify when multiple variables are being declared
   // by use of a comma-separated list.

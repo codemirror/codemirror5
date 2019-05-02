@@ -1,10 +1,10 @@
-import { getStateBefore } from "../line/highlight"
-import { Pos } from "../line/pos"
-import { getLine } from "../line/utils_line"
-import { replaceRange } from "../model/changes"
-import { Range } from "../model/selection"
-import { replaceOneSelection } from "../model/selection_updates"
-import { countColumn, Pass, spaceStr } from "../util/misc"
+import { getContextBefore } from "../line/highlight.js"
+import { Pos } from "../line/pos.js"
+import { getLine } from "../line/utils_line.js"
+import { replaceRange } from "../model/changes.js"
+import { Range } from "../model/selection.js"
+import { replaceOneSelection } from "../model/selection_updates.js"
+import { countColumn, Pass, spaceStr } from "../util/misc.js"
 
 // Indent the given line. The how parameter can be "smart",
 // "add"/null, "subtract", or "prev". When aggressive is false
@@ -18,7 +18,7 @@ export function indentLine(cm, n, how, aggressive) {
     // Fall back to "prev" when the mode doesn't have an indentation
     // method.
     if (!doc.mode.indent) how = "prev"
-    else state = getStateBefore(cm, n)
+    else state = getContextBefore(cm, n).state
   }
 
   let tabSize = cm.options.tabSize

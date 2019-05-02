@@ -1,5 +1,5 @@
-import { contains, elt, removeChildrenAndAdd } from "../util/dom"
-import { e_target } from "../util/event"
+import { contains, elt, removeChildrenAndAdd } from "../util/dom.js"
+import { e_target } from "../util/event.js"
 
 export function widgetHeight(widget) {
   if (widget.height != null) return widget.height

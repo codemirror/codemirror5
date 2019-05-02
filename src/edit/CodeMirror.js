@@ -1,27 +1,27 @@
-import { Display } from "../display/Display"
-import { onFocus, onBlur } from "../display/focus"
-import { setGuttersForLineNumbers, updateGutters } from "../display/gutters"
-import { maybeUpdateLineNumberWidth } from "../display/line_numbers"
-import { endOperation, operation, startOperation } from "../display/operations"
-import { initScrollbars } from "../display/scrollbars"
-import { onScrollWheel, setScrollLeft, setScrollTop } from "../display/scroll_events"
-import { clipPos, Pos } from "../line/pos"
-import { posFromMouse } from "../measurement/position_measurement"
-import { eventInWidget } from "../measurement/widgets"
-import Doc from "../model/Doc"
-import { attachDoc } from "../model/document_data"
-import { Range } from "../model/selection"
-import { extendSelection } from "../model/selection_updates"
-import { captureRightClick, ie, ie_version, mobile, webkit } from "../util/browser"
-import { e_preventDefault, e_stop, on, signal, signalDOMEvent } from "../util/event"
-import { bind, copyObj, Delayed } from "../util/misc"
+import { Display } from "../display/Display.js"
+import { onFocus, onBlur } from "../display/focus.js"
+import { maybeUpdateLineNumberWidth } from "../display/line_numbers.js"
+import { endOperation, operation, startOperation } from "../display/operations.js"
+import { initScrollbars } from "../display/scrollbars.js"
+import { onScrollWheel } from "../display/scroll_events.js"
+import { setScrollLeft, updateScrollTop } from "../display/scrolling.js"
+import { clipPos, Pos } from "../line/pos.js"
+import { posFromMouse } from "../measurement/position_measurement.js"
+import { eventInWidget } from "../measurement/widgets.js"
+import Doc from "../model/Doc.js"
+import { attachDoc } from "../model/document_data.js"
+import { Range } from "../model/selection.js"
+import { extendSelection } from "../model/selection_updates.js"
+import { ie, ie_version, mobile, webkit } from "../util/browser.js"
+import { e_preventDefault, e_stop, on, signal, signalDOMEvent } from "../util/event.js"
+import { bind, copyObj, Delayed } from "../util/misc.js"
 
-import { clearDragCursor, onDragOver, onDragStart, onDrop } from "./drop_events"
-import { ensureGlobalHandlers } from "./global_events"
-import { onKeyDown, onKeyPress, onKeyUp } from "./key_events"
-import { clickInGutter, onContextMenu, onMouseDown } from "./mouse_events"
-import { themeChanged } from "./utils"
-import { defaults, optionHandlers, Init } from "./options"
+import { clearDragCursor, onDragOver, onDragStart, onDrop } from "./drop_events.js"
+import { ensureGlobalHandlers } from "./global_events.js"
+import { onKeyDown, onKeyPress, onKeyUp } from "./key_events.js"
+import { clickInGutter, onContextMenu, onMouseDown } from "./mouse_events.js"
+import { themeChanged } from "./utils.js"
+import { defaults, optionHandlers, Init } from "./options.js"
 
 // A CodeMirror instance represents an editor. This is the object
 // that user code is usually dealing with.
@@ -32,16 +32,15 @@ export function CodeMirror(place, options) {
   this.options = options = options ? copyObj(options) : {}
   // Determine effective options based on given values and defaults.
   copyObj(defaults, options, false)
-  setGuttersForLineNumbers(options)
 
   let doc = options.value
-  if (typeof doc == "string") doc = new Doc(doc, options.mode, null, options.lineSeparator)
+  if (typeof doc == "string") doc = new Doc(doc, options.mode, null, options.lineSeparator, options.direction)
+  else if (options.mode) doc.modeOption = options.mode
   this.doc = doc
 
   let input = new CodeMirror.inputStyles[options.inputStyle](this)
-  let display = this.display = new Display(place, doc, input)
+  let display = this.display = new Display(place, doc, input, options)
   display.wrapper.CodeMirror = this
-  updateGutters(this)
   themeChanged(this)
   if (options.lineWrapping)
     this.display.wrapper.className += " CodeMirror-wrap"
@@ -55,7 +54,7 @@ export function CodeMirror(place, options) {
     delayingBlurEvent: false,
     focused: false,
     suppressEdits: false, // used to disable editing during key handlers when in readOnly mode
-    pasteIncoming: false, cutIncoming: false, // help recognize paste/cut edits in input.poll
+    pasteIncoming: -1, cutIncoming: -1, // help recognize paste/cut edits in input.poll
     selectingText: false,
     draggingText: false,
     highlight: new Delayed(), // stores highlight worker timeout
@@ -120,7 +119,7 @@ function registerEventHandlers(cm) {
   // Some browsers fire contextmenu *after* opening the menu, at
   // which point we can't mess with it anymore. Context menu is
   // handled in onMouseDown for these browsers.
-  if (!captureRightClick) on(d.scroller, "contextmenu", e => onContextMenu(cm, e))
+  on(d.scroller, "contextmenu", e => onContextMenu(cm, e))
 
   // Used to suppress mouse event handling when a touch happens
   let touchFinished, prevTouch = {end: 0}
@@ -142,7 +141,7 @@ function registerEventHandlers(cm) {
     return dx * dx + dy * dy > 20 * 20
   }
   on(d.scroller, "touchstart", e => {
-    if (!signalDOMEvent(cm, e) && !isMouseLikeTouchEvent(e)) {
+    if (!signalDOMEvent(cm, e) && !isMouseLikeTouchEvent(e) && !clickInGutter(cm, e)) {
       d.input.ensurePolled()
       clearTimeout(touchFinished)
       let now = +new Date
@@ -180,7 +179,7 @@ function registerEventHandlers(cm) {
   // area, ensure viewport is updated when scrolling.
   on(d.scroller, "scroll", () => {
     if (d.scroller.clientHeight) {
-      setScrollTop(cm, d.scroller.scrollTop)
+      updateScrollTop(cm, d.scroller.scrollTop)
       setScrollLeft(cm, d.scroller.scrollLeft, true)
       signal(cm, "scroll", cm)
     }

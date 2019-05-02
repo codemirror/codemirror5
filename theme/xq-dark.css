@@ -36,7 +36,7 @@ THE SOFTWARE.
 .cm-s-xq-dark span.cm-def { color: #FFF; text-decoration:underline; }
 .cm-s-xq-dark span.cm-variable { color: #FFF; }
 .cm-s-xq-dark span.cm-variable-2 { color: #EEE; }
-.cm-s-xq-dark span.cm-variable-3 { color: #DDD; }
+.cm-s-xq-dark span.cm-variable-3, .cm-s-xq-dark span.cm-type { color: #DDD; }
 .cm-s-xq-dark span.cm-property {}
 .cm-s-xq-dark span.cm-operator {}
 .cm-s-xq-dark span.cm-comment { color: gray; }

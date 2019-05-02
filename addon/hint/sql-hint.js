@@ -1,5 +1,5 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
-// Distributed under an MIT license: http://codemirror.net/LICENSE
+// Distributed under an MIT license: https://codemirror.net/LICENSE
 
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
@@ -14,6 +14,7 @@
   var tables;
   var defaultTable;
   var keywords;
+  var identifierQuote;
   var CONS = {
     QUERY_DIV: ";",
     ALIAS_KEYWORD: "AS"
@@ -26,6 +27,12 @@
     var mode = editor.doc.modeOption;
     if (mode === "sql") mode = "text/x-sql";
     return CodeMirror.resolveMode(mode).keywords;
+  }
+
+  function getIdentifierQuote(editor) {
+    var mode = editor.doc.modeOption;
+    if (mode === "sql") mode = "text/x-sql";
+    return CodeMirror.resolveMode(mode).identifierQuote || "`";
   }
 
   function getText(item) {
@@ -86,17 +93,25 @@
   }
 
   function cleanName(name) {
-    // Get rid name from backticks(`) and preceding dot(.)
+    // Get rid name from identifierQuote and preceding dot(.)
     if (name.charAt(0) == ".") {
       name = name.substr(1);
     }
-    return name.replace(/`/g, "");
+    // replace doublicated identifierQuotes with single identifierQuotes
+    // and remove single identifierQuotes
+    var nameParts = name.split(identifierQuote+identifierQuote);
+    for (var i = 0; i < nameParts.length; i++)
+      nameParts[i] = nameParts[i].replace(new RegExp(identifierQuote,"g"), "");
+    return nameParts.join(identifierQuote);
   }
 
-  function insertBackticks(name) {
+  function insertIdentifierQuotes(name) {
     var nameParts = getText(name).split(".");
     for (var i = 0; i < nameParts.length; i++)
-      nameParts[i] = "`" + nameParts[i] + "`";
+      nameParts[i] = identifierQuote +
+        // doublicate identifierQuotes
+        nameParts[i].replace(new RegExp(identifierQuote,"g"), identifierQuote+identifierQuote) +
+        identifierQuote;
     var escaped = nameParts.join(".");
     if (typeof name == "string") return escaped;
     name = shallowClone(name);
@@ -106,13 +121,13 @@
 
   function nameCompletion(cur, token, result, editor) {
     // Try to complete table, column names and return start position of completion
-    var useBacktick = false;
+    var useIdentifierQuotes = false;
     var nameParts = [];
     var start = token.start;
     var cont = true;
     while (cont) {
       cont = (token.string.charAt(0) == ".");
-      useBacktick = useBacktick || (token.string.charAt(0) == "`");
+      useIdentifierQuotes = useIdentifierQuotes || (token.string.charAt(0) == identifierQuote);
 
       start = token.start;
       nameParts.unshift(cleanName(token.string));
@@ -127,12 +142,12 @@
     // Try to complete table names
     var string = nameParts.join(".");
     addMatches(result, string, tables, function(w) {
-      return useBacktick ? insertBackticks(w) : w;
+      return useIdentifierQuotes ? insertIdentifierQuotes(w) : w;
     });
 
     // Try to complete columns from defaultTable
     addMatches(result, string, defaultTable, function(w) {
-      return useBacktick ? insertBackticks(w) : w;
+      return useIdentifierQuotes ? insertIdentifierQuotes(w) : w;
     });
 
     // Try to complete columns
@@ -162,7 +177,7 @@
           w = shallowClone(w);
           w.text = tableInsert + "." + w.text;
         }
-        return useBacktick ? insertBackticks(w) : w;
+        return useIdentifierQuotes ? insertIdentifierQuotes(w) : w;
       });
     }
 
@@ -170,12 +185,9 @@
   }
 
   function eachWord(lineText, f) {
-    if (!lineText) return;
-    var excepted = /[,;]/g;
-    var words = lineText.split(" ");
-    for (var i = 0; i < words.length; i++) {
-      f(words[i]?words[i].replace(excepted, '') : '');
-    }
+    var words = lineText.split(/\s+/)
+    for (var i = 0; i < words.length; i++)
+      if (words[i]) f(words[i].replace(/[,;]/g, ''))
   }
 
   function findTableByAlias(alias, editor) {
@@ -210,18 +222,20 @@
       prevItem = separator[i];
     }
 
-    var query = doc.getRange(validRange.start, validRange.end, false);
+    if (validRange.start) {
+      var query = doc.getRange(validRange.start, validRange.end, false);
 
-    for (var i = 0; i < query.length; i++) {
-      var lineText = query[i];
-      eachWord(lineText, function(word) {
-        var wordUpperCase = word.toUpperCase();
-        if (wordUpperCase === aliasUpperCase && getTable(previousWord))
-          table = previousWord;
-        if (wordUpperCase !== CONS.ALIAS_KEYWORD)
-          previousWord = word;
-      });
-      if (table) break;
+      for (var i = 0; i < query.length; i++) {
+        var lineText = query[i];
+        eachWord(lineText, function(word) {
+          var wordUpperCase = word.toUpperCase();
+          if (wordUpperCase === aliasUpperCase && getTable(previousWord))
+            table = previousWord;
+          if (wordUpperCase !== CONS.ALIAS_KEYWORD)
+            previousWord = word;
+        });
+        if (table) break;
+      }
     }
     return table;
   }
@@ -232,6 +246,7 @@
     var disableKeywords = options && options.disableKeywords;
     defaultTable = defaultTableName && getTable(defaultTableName);
     keywords = getKeywords(editor);
+    identifierQuote = getIdentifierQuote(editor);
 
     if (defaultTableName && !defaultTable)
       defaultTable = findTableByAlias(defaultTableName, editor);
@@ -249,7 +264,7 @@
       token.string = token.string.slice(0, cur.ch - token.start);
     }
 
-    if (token.string.match(/^[.`\w@]\w*$/)) {
+    if (token.string.match(/^[.`"\w@]\w*$/)) {
       search = token.string;
       start = token.start;
       end = token.end;
@@ -257,14 +272,32 @@
       start = end = cur.ch;
       search = "";
     }
-    if (search.charAt(0) == "." || search.charAt(0) == "`") {
+    if (search.charAt(0) == "." || search.charAt(0) == identifierQuote) {
       start = nameCompletion(cur, token, result, editor);
     } else {
-      addMatches(result, search, tables, function(w) {return w;});
-      addMatches(result, search, defaultTable, function(w) {return w;});
-      if (!disableKeywords)
-        addMatches(result, search, keywords, function(w) {return w.toUpperCase();});
-    }
+      var objectOrClass = function(w, className) {
+        if (typeof w === "object") {
+          w.className = className;
+        } else {
+          w = { text: w, className: className };
+        }
+        return w;
+      };
+    addMatches(result, search, defaultTable, function(w) {
+        return objectOrClass(w, "CodeMirror-hint-table CodeMirror-hint-default-table");
+    });
+    addMatches(
+        result,
+        search,
+        tables, function(w) {
+          return objectOrClass(w, "CodeMirror-hint-table");
+        }
+    );
+    if (!disableKeywords)
+      addMatches(result, search, keywords, function(w) {
+          return objectOrClass(w.toUpperCase(), "CodeMirror-hint-keyword");
+      });
+  }
 
     return {list: result, from: Pos(cur.line, start), to: Pos(cur.line, end)};
   });

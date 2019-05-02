@@ -9,18 +9,18 @@
 <script src="../lib/codemirror.js"></script>
 <script src="../mode/javascript/javascript.js"></script>
 <script src="../mode/css/css.js"></script>
-<script src="//ajax.aspnetcdn.com/ajax/jshint/r07/jshint.js"></script>
-<script src="https://rawgithub.com/zaach/jsonlint/79b553fb65c192add9066da64043458981b3972b/lib/jsonlint.js"></script>
-<script src="http://csslint.net/js/csslint.js"></script>
+<script src="https://unpkg.com/jshint@2.9.6/dist/jshint.js"></script>
+<script src="https://unpkg.com/jsonlint@1.6.3/web/jsonlint.js"></script>
+<script src="https://unpkg.com/csslint@1.0.5/dist/csslint.js"></script>
 <script src="../addon/lint/lint.js"></script>
 <script src="../addon/lint/javascript-lint.js"></script>
 <script src="../addon/lint/json-lint.js"></script>
 <script src="../addon/lint/css-lint.js"></script>
-<style type="text/css">
+<style>
       .CodeMirror {border: 1px solid black;}
     </style>
 <div id=nav>
-  <a href="http://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../doc/logo.png"></a>
+  <a href="https://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../doc/logo.png"></a>
 
   <ul>
     <li><a href="../index.html">Home</a>
@@ -39,7 +39,7 @@
     <p><textarea id="code-js">var widgets = []
 function updateHints() {
   editor.operation(function(){
-    for (var i = 0; i < widgets.length; ++i)
+    for (var i = 0; i < widgets.length.; ++i)
       editor.removeLineWidget(widgets[i]);
     widgets.length = 0;
 

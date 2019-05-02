@@ -47,6 +47,10 @@ should be asked on the
 
 ## Contributing code
 
+Note that we are not accepting any new addons or modes into the main
+distribution. If you've written such a module, please distribute it as
+a separate NPM package.
+
 - Make sure you have a [GitHub Account](https://github.com/signup/free)
 - Fork [CodeMirror](https://github.com/codemirror/CodeMirror/)
   ([how to fork a repo](https://help.github.com/articles/fork-a-repo))
@@ -67,7 +71,7 @@ should be asked on the
 By contributing code to CodeMirror you
 
  - agree to license the contributed code under CodeMirror's [MIT
-   license](http://codemirror.net/LICENSE).
+   license](https://codemirror.net/LICENSE).
 
  - confirm that you have the right to contribute and license the code
    in question. (Either you hold all rights on the code, or the rights

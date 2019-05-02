@@ -1,21 +1,20 @@
-import { onBlur } from "../display/focus"
-import { setGuttersForLineNumbers, updateGutters } from "../display/gutters"
-import { alignHorizontally } from "../display/line_numbers"
-import { loadMode, resetModeState } from "../display/mode_state"
-import { initScrollbars, updateScrollbars } from "../display/scrollbars"
-import { updateSelection } from "../display/selection"
-import { regChange } from "../display/view_tracking"
-import { getKeyMap } from "../input/keymap"
-import { defaultSpecialCharPlaceholder } from "../line/line_data"
-import { Pos } from "../line/pos"
-import { findMaxLine } from "../line/spans"
-import { clearCaches, compensateForHScroll, estimateLineHeights } from "../measurement/position_measurement"
-import { replaceRange } from "../model/changes"
-import { mobile, windows } from "../util/browser"
-import { addClass, rmClass } from "../util/dom"
-import { off, on } from "../util/event"
+import { onBlur } from "../display/focus.js"
+import { getGutters, updateGutters } from "../display/gutters.js"
+import { loadMode, resetModeState } from "../display/mode_state.js"
+import { initScrollbars, updateScrollbars } from "../display/scrollbars.js"
+import { updateSelection } from "../display/selection.js"
+import { regChange } from "../display/view_tracking.js"
+import { getKeyMap } from "../input/keymap.js"
+import { defaultSpecialCharPlaceholder } from "../line/line_data.js"
+import { Pos } from "../line/pos.js"
+import { findMaxLine } from "../line/spans.js"
+import { clearCaches, compensateForHScroll, estimateLineHeights } from "../measurement/position_measurement.js"
+import { replaceRange } from "../model/changes.js"
+import { mobile, windows } from "../util/browser.js"
+import { addClass, rmClass } from "../util/dom.js"
+import { off, on } from "../util/event.js"
 
-import { themeChanged } from "./utils"
+import { themeChanged } from "./utils.js"
 
 export let Init = {toString: function(){return "CodeMirror.Init"}}
 
@@ -52,6 +51,7 @@ export function defineOptions(CodeMirror) {
     clearCaches(cm)
     regChange(cm)
   }, true)
+
   option("lineSeparator", null, (cm, val) => {
     cm.doc.lineSep = val
     if (!val) return
@@ -78,12 +78,14 @@ export function defineOptions(CodeMirror) {
     throw new Error("inputStyle can not (yet) be changed in a running editor") // FIXME
   }, true)
   option("spellcheck", false, (cm, val) => cm.getInputField().spellcheck = val, true)
+  option("autocorrect", false, (cm, val) => cm.getInputField().autocorrect = val, true)
+  option("autocapitalize", false, (cm, val) => cm.getInputField().autocapitalize = val, true)
   option("rtlMoveVisually", !windows)
   option("wholeLineUpdateBefore", true)
 
   option("theme", "default", cm => {
     themeChanged(cm)
-    guttersChanged(cm)
+    updateGutters(cm)
   }, true)
   option("keyMap", "default", (cm, val, old) => {
     let next = getKeyMap(val)
@@ -92,11 +94,12 @@ export function defineOptions(CodeMirror) {
     if (next.attach) next.attach(cm, prev || null)
   })
   option("extraKeys", null)
+  option("configureMouse", null)
 
   option("lineWrapping", false, wrappingChanged, true)
-  option("gutters", [], cm => {
-    setGuttersForLineNumbers(cm.options)
-    guttersChanged(cm)
+  option("gutters", [], (cm, val) => {
+    cm.display.gutterSpecs = getGutters(val, cm.options.lineNumbers)
+    updateGutters(cm)
   }, true)
   option("fixedGutter", true, (cm, val) => {
     cm.display.gutters.style.left = val ? compensateForHScroll(cm.display) + "px" : "0"
@@ -109,24 +112,23 @@ export function defineOptions(CodeMirror) {
     cm.display.scrollbars.setScrollTop(cm.doc.scrollTop)
     cm.display.scrollbars.setScrollLeft(cm.doc.scrollLeft)
   }, true)
-  option("lineNumbers", false, cm => {
-    setGuttersForLineNumbers(cm.options)
-    guttersChanged(cm)
+  option("lineNumbers", false, (cm, val) => {
+    cm.display.gutterSpecs = getGutters(cm.options.gutters, val)
+    updateGutters(cm)
   }, true)
-  option("firstLineNumber", 1, guttersChanged, true)
-  option("lineNumberFormatter", integer => integer, guttersChanged, true)
+  option("firstLineNumber", 1, updateGutters, true)
+  option("lineNumberFormatter", integer => integer, updateGutters, true)
   option("showCursorWhenSelecting", false, updateSelection, true)
 
   option("resetSelectionOnContextMenu", true)
   option("lineWiseCopyCut", true)
+  option("pasteLinesPerSelection", true)
+  option("selectionsMayTouch", false)
 
   option("readOnly", false, (cm, val) => {
     if (val == "nocursor") {
       onBlur(cm)
       cm.display.input.blur()
-      cm.display.disabled = true
-    } else {
-      cm.display.disabled = false
     }
     cm.display.input.readOnlyChanged(val)
   })
@@ -153,12 +155,8 @@ export function defineOptions(CodeMirror) {
 
   option("tabindex", null, (cm, val) => cm.display.input.getField().tabIndex = val || "")
   option("autofocus", null)
-}
-
-function guttersChanged(cm) {
-  updateGutters(cm)
-  regChange(cm)
-  alignHorizontally(cm)
+  option("direction", "ltr", (cm, val) => cm.doc.setDirection(val), true)
+  option("phrases", null)
 }
 
 function dragDropChanged(cm, value, old) {

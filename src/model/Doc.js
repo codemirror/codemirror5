@@ -1,27 +1,27 @@
-import CodeMirror from "../edit/CodeMirror"
-import { docMethodOp } from "../display/operations"
-import { Line } from "../line/line_data"
-import { clipPos, clipPosArray, Pos } from "../line/pos"
-import { visualLine } from "../line/spans"
-import { getBetween, getLine, getLines, isLine, lineNo } from "../line/utils_line"
-import { classTest } from "../util/dom"
-import { splitLinesAuto } from "../util/feature_detection"
-import { createObj, map, isEmpty, sel_dontScroll } from "../util/misc"
-import { ensureCursorVisible } from "../display/scrolling"
+import CodeMirror from "../edit/CodeMirror.js"
+import { docMethodOp } from "../display/operations.js"
+import { Line } from "../line/line_data.js"
+import { clipPos, clipPosArray, Pos } from "../line/pos.js"
+import { visualLine } from "../line/spans.js"
+import { getBetween, getLine, getLines, isLine, lineNo } from "../line/utils_line.js"
+import { classTest } from "../util/dom.js"
+import { splitLinesAuto } from "../util/feature_detection.js"
+import { createObj, map, isEmpty, sel_dontScroll } from "../util/misc.js"
+import { ensureCursorVisible, scrollToCoords } from "../display/scrolling.js"
 
-import { changeLine, makeChange, makeChangeFromHistory, replaceRange } from "./changes"
-import { computeReplacedSel } from "./change_measurement"
-import { BranchChunk, LeafChunk } from "./chunk"
-import { linkedDocs, updateDoc } from "./document_data"
-import { copyHistoryArray, History } from "./history"
-import { addLineWidget } from "./line_widget"
-import { copySharedMarkers, detachSharedMarkers, findSharedMarkers, markText } from "./mark_text"
-import { normalizeSelection, Range, simpleSelection } from "./selection"
-import { extendSelection, extendSelections, setSelection, setSelectionReplaceHistory, setSimpleSelection } from "./selection_updates"
+import { changeLine, makeChange, makeChangeFromHistory, replaceRange } from "./changes.js"
+import { computeReplacedSel } from "./change_measurement.js"
+import { BranchChunk, LeafChunk } from "./chunk.js"
+import { directionChanged, linkedDocs, updateDoc } from "./document_data.js"
+import { copyHistoryArray, History } from "./history.js"
+import { addLineWidget } from "./line_widget.js"
+import { copySharedMarkers, detachSharedMarkers, findSharedMarkers, markText } from "./mark_text.js"
+import { normalizeSelection, Range, simpleSelection } from "./selection.js"
+import { extendSelection, extendSelections, setSelection, setSelectionReplaceHistory, setSimpleSelection } from "./selection_updates.js"
 
 let nextDocId = 0
-let Doc = function(text, mode, firstLine, lineSep) {
-  if (!(this instanceof Doc)) return new Doc(text, mode, firstLine, lineSep)
+let Doc = function(text, mode, firstLine, lineSep, direction) {
+  if (!(this instanceof Doc)) return new Doc(text, mode, firstLine, lineSep, direction)
   if (firstLine == null) firstLine = 0
 
   BranchChunk.call(this, [new LeafChunk([new Line("", null)])])
@@ -29,13 +29,14 @@ let Doc = function(text, mode, firstLine, lineSep) {
   this.scrollTop = this.scrollLeft = 0
   this.cantEdit = false
   this.cleanGeneration = 1
-  this.frontier = firstLine
+  this.modeFrontier = this.highlightFrontier = firstLine
   let start = Pos(firstLine, 0)
   this.sel = simpleSelection(start)
   this.history = new History(null)
   this.id = ++nextDocId
   this.modeOption = mode
   this.lineSep = lineSep
+  this.direction = (direction == "rtl") ? "rtl" : "ltr"
   this.extend = false
 
   if (typeof text == "string") text = this.splitLines(text)
@@ -74,7 +75,8 @@ Doc.prototype = createObj(BranchChunk.prototype, {
     let top = Pos(this.first, 0), last = this.first + this.size - 1
     makeChange(this, {from: top, to: Pos(last, getLine(this, last).text.length),
                       text: this.splitLines(code), origin: "setValue", full: true}, true)
-    setSelection(this, simpleSelection(top))
+    if (this.cm) scrollToCoords(this.cm, 0, 0)
+    setSelection(this, simpleSelection(top), sel_dontScroll)
   }),
   replaceRange: function(code, from, to, origin) {
     from = clipPos(this, from)
@@ -137,12 +139,12 @@ Doc.prototype = createObj(BranchChunk.prototype, {
       out[i] = new Range(clipPos(this, ranges[i].anchor),
                          clipPos(this, ranges[i].head))
     if (primary == null) primary = Math.min(ranges.length - 1, this.sel.primIndex)
-    setSelection(this, normalizeSelection(out, primary), options)
+    setSelection(this, normalizeSelection(this.cm, out, primary), options)
   }),
   addSelection: docMethodOp(function(anchor, head, options) {
     let ranges = this.sel.ranges.slice(0)
     ranges.push(new Range(clipPos(this, anchor), clipPos(this, head || anchor)))
-    setSelection(this, normalizeSelection(ranges, ranges.length - 1), options)
+    setSelection(this, normalizeSelection(this.cm, ranges, ranges.length - 1), options)
   }),
 
   getSelection: function(lineSep) {
@@ -362,7 +364,7 @@ Doc.prototype = createObj(BranchChunk.prototype, {
 
   copy: function(copyHistory) {
     let doc = new Doc(getLines(this, this.first, this.first + this.size),
-                      this.modeOption, this.first, this.lineSep)
+                      this.modeOption, this.first, this.lineSep, this.direction)
     doc.scrollTop = this.scrollTop; doc.scrollLeft = this.scrollLeft
     doc.sel = this.sel
     doc.extend = false
@@ -378,7 +380,7 @@ Doc.prototype = createObj(BranchChunk.prototype, {
     let from = this.first, to = this.first + this.size
     if (options.from != null && options.from > from) from = options.from
     if (options.to != null && options.to < to) to = options.to
-    let copy = new Doc(getLines(this, from, to), options.mode || this.modeOption, from, this.lineSep)
+    let copy = new Doc(getLines(this, from, to), options.mode || this.modeOption, from, this.lineSep, this.direction)
     if (options.sharedHist) copy.history = this.history
     ;(this.linked || (this.linked = [])).push({doc: copy, sharedHist: options.sharedHist})
     copy.linked = [{doc: this, isParent: true, sharedHist: options.sharedHist}]
@@ -413,7 +415,15 @@ Doc.prototype = createObj(BranchChunk.prototype, {
     if (this.lineSep) return str.split(this.lineSep)
     return splitLinesAuto(str)
   },
-  lineSeparator: function() { return this.lineSep || "\n" }
+  lineSeparator: function() { return this.lineSep || "\n" },
+
+  setDirection: docMethodOp(function (dir) {
+    if (dir != "rtl") dir = "ltr"
+    if (dir == this.direction) return
+    this.direction = dir
+    this.iter(line => line.order = null)
+    if (this.cm) directionChanged(this.cm)
+  })
 })
 
 // Public alias.

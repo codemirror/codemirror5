@@ -1,14 +1,14 @@
-import { deleteNearSelection } from "./deleteNearSelection"
-import { runInOp } from "../display/operations"
-import { ensureCursorVisible } from "../display/scrolling"
-import { endOfLine } from "../input/movement"
-import { clipPos, Pos } from "../line/pos"
-import { visualLine, visualLineEnd } from "../line/spans"
-import { getLine, lineNo } from "../line/utils_line"
-import { Range } from "../model/selection"
-import { selectAll } from "../model/selection_updates"
-import { countColumn, sel_dontScroll, sel_move, spaceStr } from "../util/misc"
-import { getOrder } from "../util/bidi"
+import { deleteNearSelection } from "./deleteNearSelection.js"
+import { runInOp } from "../display/operations.js"
+import { ensureCursorVisible } from "../display/scrolling.js"
+import { endOfLine } from "../input/movement.js"
+import { clipPos, Pos } from "../line/pos.js"
+import { visualLine, visualLineEnd } from "../line/spans.js"
+import { getLine, lineNo } from "../line/utils_line.js"
+import { Range } from "../model/selection.js"
+import { selectAll } from "../model/selection_updates.js"
+import { countColumn, sel_dontScroll, sel_move, spaceStr } from "../util/misc.js"
+import { getOrder } from "../util/bidi.js"
 
 // Commands are parameter-less actions that can be performed on an
 // editor, mostly used for keybindings.
@@ -59,15 +59,15 @@ export let commands = {
     {origin: "+move", bias: -1}
   ),
   goLineRight: cm => cm.extendSelectionsBy(range => {
-    let top = cm.charCoords(range.head, "div").top + 5
+    let top = cm.cursorCoords(range.head, "div").top + 5
     return cm.coordsChar({left: cm.display.lineDiv.offsetWidth + 100, top: top}, "div")
   }, sel_move),
   goLineLeft: cm => cm.extendSelectionsBy(range => {
-    let top = cm.charCoords(range.head, "div").top + 5
+    let top = cm.cursorCoords(range.head, "div").top + 5
     return cm.coordsChar({left: 0, top: top}, "div")
   }, sel_move),
   goLineLeftSmart: cm => cm.extendSelectionsBy(range => {
-    let top = cm.charCoords(range.head, "div").top + 5
+    let top = cm.cursorCoords(range.head, "div").top + 5
     let pos = cm.coordsChar({left: 0, top: top}, "div")
     if (pos.ch < cm.getLine(pos.line).search(/\S/)) return lineStartSmart(cm, range.head)
     return pos
@@ -168,7 +168,7 @@ function lineEnd(cm, lineN) {
 function lineStartSmart(cm, pos) {
   let start = lineStart(cm, pos.line)
   let line = getLine(cm.doc, start.line)
-  let order = getOrder(line)
+  let order = getOrder(line, cm.doc.direction)
   if (!order || order[0].level == 0) {
     let firstNonWS = Math.max(0, line.text.search(/\S/))
     let inWS = pos.line == start.line && pos.ch <= firstNonWS && pos.ch

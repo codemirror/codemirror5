@@ -1,8 +1,8 @@
-import { indexOf, lst } from "../util/misc"
+import { indexOf, lst } from "../util/misc.js"
 
-import { cmp } from "./pos"
-import { sawCollapsedSpans } from "./saw_special_spans"
-import { getLine, isLine, lineNo } from "./utils_line"
+import { cmp } from "./pos.js"
+import { sawCollapsedSpans } from "./saw_special_spans.js"
+import { getLine, isLine, lineNo } from "./utils_line.js"
 
 // TEXTMARKER SPANS
 
@@ -217,6 +217,16 @@ function collapsedSpanAtSide(line, start) {
 }
 export function collapsedSpanAtStart(line) { return collapsedSpanAtSide(line, true) }
 export function collapsedSpanAtEnd(line) { return collapsedSpanAtSide(line, false) }
+
+export function collapsedSpanAround(line, ch) {
+  let sps = sawCollapsedSpans && line.markedSpans, found
+  if (sps) for (let i = 0; i < sps.length; ++i) {
+    let sp = sps[i]
+    if (sp.marker.collapsed && (sp.from == null || sp.from < ch) && (sp.to == null || sp.to > ch) &&
+        (!found || compareCollapsedMarkers(found, sp.marker) < 0)) found = sp.marker
+  }
+  return found
+}
 
 // Test whether there exists a collapsed span that partially
 // overlaps (covers the start or end, but not both) of a new span.

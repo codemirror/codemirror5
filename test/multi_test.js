@@ -282,4 +282,14 @@
     cm.execCommand("redoSelection");
     eq(cm.getSelection(), "1\n2\n3");
   }, {value: "1 2 3"});
+
+  testCM("selectionsMayTouch", function(cm) {
+    select(cm, Pos(0, 0), Pos(0, 2))
+    cm.setExtending(true);
+    cm.extendSelections([Pos(0, 2), Pos(0, 4)])
+    hasSelections(cm, 0, 0, 0, 2,
+                  0, 2, 0, 4)
+    cm.extendSelections([Pos(0, 3), Pos(0, 4)])
+    hasSelections(cm, 0, 0, 0, 4)
+  }, {selectionsMayTouch: true, value: "1234"})
 })();

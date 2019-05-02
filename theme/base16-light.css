@@ -35,4 +35,4 @@
 .cm-s-base16-light span.cm-error { background: #ac4142; color: #505050; }
 
 .cm-s-base16-light .CodeMirror-activeline-background { background: #DDDCDC; }
-.cm-s-base16-light .CodeMirror-matchingbracket { text-decoration: underline; color: white !important; }
+.cm-s-base16-light .CodeMirror-matchingbracket { color: #f5f5f5 !important; background-color: #6A9FB5 !important}

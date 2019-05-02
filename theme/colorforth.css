@@ -15,7 +15,7 @@
 .cm-s-colorforth span.cm-atom        { color: #606060; }
 
 .cm-s-colorforth span.cm-variable-2  { color: #EEE; }
-.cm-s-colorforth span.cm-variable-3  { color: #DDD; }
+.cm-s-colorforth span.cm-variable-3, .cm-s-colorforth span.cm-type { color: #DDD; }
 .cm-s-colorforth span.cm-property    {}
 .cm-s-colorforth span.cm-operator    {}
 

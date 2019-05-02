@@ -1,26 +1,27 @@
-import { deleteNearSelection } from "./deleteNearSelection"
-import { commands } from "./commands"
-import { attachDoc } from "../model/document_data"
-import { activeElt, addClass, rmClass } from "../util/dom"
-import { eventMixin, signal } from "../util/event"
-import { getLineStyles, getStateBefore, takeToken } from "../line/highlight"
-import { indentLine } from "../input/indent"
-import { triggerElectric } from "../input/input"
-import { onKeyDown, onKeyPress, onKeyUp } from "./key_events"
-import { getKeyMap } from "../input/keymap"
-import { endOfLine, moveLogically, moveVisually } from "../input/movement"
-import { methodOp, operation, runInOp } from "../display/operations"
-import { clipLine, clipPos, equalCursorPos, Pos } from "../line/pos"
-import { charCoords, charWidth, clearCaches, clearLineMeasurementCache, coordsChar, cursorCoords, displayHeight, displayWidth, estimateLineHeights, fromCoordSystem, intoCoordSystem, scrollGap, textHeight } from "../measurement/position_measurement"
-import { Range } from "../model/selection"
-import { replaceOneSelection, skipAtomic } from "../model/selection_updates"
-import { addToScrollPos, calculateScrollPos, ensureCursorVisible, resolveScrollToPos, scrollIntoView } from "../display/scrolling"
-import { heightAtLine } from "../line/spans"
-import { updateGutterSpace } from "../display/update_display"
-import { indexOf, insertSorted, isWordChar, sel_dontScroll, sel_move } from "../util/misc"
-import { signalLater } from "../util/operation_group"
-import { getLine, isLine, lineAtHeight } from "../line/utils_line"
-import { regChange, regLineChange } from "../display/view_tracking"
+import { deleteNearSelection } from "./deleteNearSelection.js"
+import { commands } from "./commands.js"
+import { attachDoc } from "../model/document_data.js"
+import { activeElt, addClass, rmClass } from "../util/dom.js"
+import { eventMixin, signal } from "../util/event.js"
+import { getLineStyles, getContextBefore, takeToken } from "../line/highlight.js"
+import { indentLine } from "../input/indent.js"
+import { triggerElectric } from "../input/input.js"
+import { onKeyDown, onKeyPress, onKeyUp } from "./key_events.js"
+import { onMouseDown } from "./mouse_events.js"
+import { getKeyMap } from "../input/keymap.js"
+import { endOfLine, moveLogically, moveVisually } from "../input/movement.js"
+import { endOperation, methodOp, operation, runInOp, startOperation } from "../display/operations.js"
+import { clipLine, clipPos, equalCursorPos, Pos } from "../line/pos.js"
+import { charCoords, charWidth, clearCaches, clearLineMeasurementCache, coordsChar, cursorCoords, displayHeight, displayWidth, estimateLineHeights, fromCoordSystem, intoCoordSystem, scrollGap, textHeight } from "../measurement/position_measurement.js"
+import { Range } from "../model/selection.js"
+import { replaceOneSelection, skipAtomic } from "../model/selection_updates.js"
+import { addToScrollTop, ensureCursorVisible, scrollIntoView, scrollToCoords, scrollToCoordsRange, scrollToRange } from "../display/scrolling.js"
+import { heightAtLine } from "../line/spans.js"
+import { updateGutterSpace } from "../display/update_display.js"
+import { indexOf, insertSorted, isWordChar, sel_dontScroll, sel_move } from "../util/misc.js"
+import { signalLater } from "../util/operation_group.js"
+import { getLine, isLine, lineAtHeight } from "../line/utils_line.js"
+import { regChange, regLineChange } from "../display/view_tracking.js"
 
 // The publicly visible API. Note that methodOp(f) means
 // 'wrap f in an operation, performed on its `this` parameter'.
@@ -177,7 +178,7 @@ export default function(CodeMirror) {
     getStateAfter: function(line, precise) {
       let doc = this.doc
       line = clipLine(doc, line == null ? doc.first + doc.size - 1: line)
-      return getStateBefore(this, line + 1, precise)
+      return getContextBefore(this, line + 1, precise).state
     },
 
     cursorCoords: function(start, mode) {
@@ -252,12 +253,13 @@ export default function(CodeMirror) {
         node.style.left = left + "px"
       }
       if (scroll)
-        scrollIntoView(this, left, top, left + node.offsetWidth, top + node.offsetHeight)
+        scrollIntoView(this, {left, top, right: left + node.offsetWidth, bottom: top + node.offsetHeight})
     },
 
     triggerOnKeyDown: methodOp(onKeyDown),
     triggerOnKeyPress: methodOp(onKeyPress),
     triggerOnKeyUp: onKeyUp,
+    triggerOnMouseDown: methodOp(onMouseDown),
 
     execCommand: function(cmd) {
       if (commands.hasOwnProperty(cmd))
@@ -322,7 +324,7 @@ export default function(CodeMirror) {
         goals.push(headPos.left)
         let pos = findPosV(this, headPos, dir, unit)
         if (unit == "page" && range == doc.sel.primary())
-          addToScrollPos(this, null, charCoords(this, pos, "div").top - headPos.top)
+          addToScrollTop(this, charCoords(this, pos, "div").top - headPos.top)
         return pos
       }, sel_move)
       if (goals.length) for (let i = 0; i < doc.sel.ranges.length; i++)
@@ -359,11 +361,7 @@ export default function(CodeMirror) {
     hasFocus: function() { return this.display.input.getField() == activeElt() },
     isReadOnly: function() { return !!(this.options.readOnly || this.doc.cantEdit) },
 
-    scrollTo: methodOp(function(x, y) {
-      if (x != null || y != null) resolveScrollToPos(this)
-      if (x != null) this.curOp.scrollLeft = x
-      if (y != null) this.curOp.scrollTop = y
-    }),
+    scrollTo: methodOp(function (x, y) { scrollToCoords(this, x, y) }),
     getScrollInfo: function() {
       let scroller = this.display.scroller
       return {left: scroller.scrollLeft, top: scroller.scrollTop,
@@ -385,14 +383,9 @@ export default function(CodeMirror) {
       range.margin = margin || 0
 
       if (range.from.line != null) {
-        resolveScrollToPos(this)
-        this.curOp.scrollToPos = range
+        scrollToRange(this, range)
       } else {
-        let sPos = calculateScrollPos(this, Math.min(range.from.left, range.to.left),
-                                      Math.min(range.from.top, range.to.top) - range.margin,
-                                      Math.max(range.from.right, range.to.right),
-                                      Math.max(range.from.bottom, range.to.bottom) + range.margin)
-        this.scrollTo(sPos.scrollLeft, sPos.scrollTop)
+        scrollToCoordsRange(this, range.from, range.to, range.margin)
       }
     }),
 
@@ -412,14 +405,16 @@ export default function(CodeMirror) {
     }),
 
     operation: function(f){return runInOp(this, f)},
+    startOperation: function(){return startOperation(this)},
+    endOperation: function(){return endOperation(this)},
 
     refresh: methodOp(function() {
       let oldHeight = this.display.cachedTextHeight
       regChange(this)
       this.curOp.forceUpdate = true
       clearCaches(this)
-      this.scrollTo(this.doc.scrollLeft, this.doc.scrollTop)
-      updateGutterSpace(this)
+      scrollToCoords(this, this.doc.scrollLeft, this.doc.scrollTop)
+      updateGutterSpace(this.display)
       if (oldHeight == null || Math.abs(oldHeight - textHeight(this.display)) > .5)
         estimateLineHeights(this)
       signal(this, "refresh", this)
@@ -428,14 +423,21 @@ export default function(CodeMirror) {
     swapDoc: methodOp(function(doc) {
       let old = this.doc
       old.cm = null
+      // Cancel the current text selection if any (#5821)
+      if (this.state.selectingText) this.state.selectingText()
       attachDoc(this, doc)
       clearCaches(this)
       this.display.input.reset()
-      this.scrollTo(doc.scrollLeft, doc.scrollTop)
+      scrollToCoords(this, doc.scrollLeft, doc.scrollTop)
       this.curOp.forceScroll = true
       signalLater(this, "swapDoc", this, old)
       return old
     }),
+
+    phrase: function(phraseText) {
+      let phrases = this.options.phrases
+      return phrases && Object.prototype.hasOwnProperty.call(phrases, phraseText) ? phrases[phraseText] : phraseText
+    },
 
     getInputField: function(){return this.display.input.getField()},
     getWrapperElement: function(){return this.display.wrapper},

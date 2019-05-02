@@ -7,7 +7,7 @@
 	background: #292A2B;
 	color: #E6E6E6;
 	line-height: 1.5;
-	font-family: 'Operator Mono', 'Source Sans Pro', Menlo, Monaco, Consolas, Courier New, monospace;
+	font-family: 'Operator Mono', 'Source Code Pro', Menlo, Monaco, Consolas, Courier New, monospace;
 }
 .cm-s-panda-syntax .CodeMirror-cursor { border-color: #ff2c6d; }
 .cm-s-panda-syntax .CodeMirror-activeline-background {
@@ -52,7 +52,7 @@
 .cm-s-panda-syntax .cm-variable-2 {
 	color: #ff9ac1;
 }
-.cm-s-panda-syntax .cm-variable-3 {
+.cm-s-panda-syntax .cm-variable-3, .cm-s-panda-syntax .cm-type {
 	color: #ff9ac1;
 }
 

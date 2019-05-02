@@ -1,8 +1,8 @@
-import { runInOp } from "../display/operations"
-import { ensureCursorVisible } from "../display/scrolling"
-import { cmp } from "../line/pos"
-import { replaceRange } from "../model/changes"
-import { lst } from "../util/misc"
+import { runInOp } from "../display/operations.js"
+import { ensureCursorVisible } from "../display/scrolling.js"
+import { cmp } from "../line/pos.js"
+import { replaceRange } from "../model/changes.js"
+import { lst } from "../util/misc.js"
 
 // Helper for deleting text near the selection(s), used to implement
 // backspace, delete, and similar functionality.

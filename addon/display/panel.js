@@ -1,5 +1,5 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
-// Distributed under an MIT license: http://codemirror.net/LICENSE
+// Distributed under an MIT license: https://codemirror.net/LICENSE
 
 (function(mod) {
   if (typeof exports == "object" && typeof module == "object") // CommonJS
@@ -17,13 +17,15 @@
     var info = this.state.panels;
     var wrapper = info.wrapper;
     var cmWrapper = this.getWrapperElement();
+    var replace = options.replace instanceof Panel && !options.replace.cleared;
 
     if (options.after instanceof Panel && !options.after.cleared) {
       wrapper.insertBefore(node, options.before.node.nextSibling);
     } else if (options.before instanceof Panel && !options.before.cleared) {
       wrapper.insertBefore(node, options.before.node);
-    } else if (options.replace instanceof Panel && !options.replace.cleared) {
+    } else if (replace) {
       wrapper.insertBefore(node, options.replace.node);
+      info.panels++;
       options.replace.clear();
     } else if (options.position == "bottom") {
       wrapper.appendChild(node);
@@ -37,7 +39,9 @@
 
     var height = (options && options.height) || node.offsetHeight;
     this._setSize(null, info.heightLeft -= height);
-    info.panels++;
+    if (!replace) {
+      info.panels++;
+    }
     if (options.stable && isAtTop(this, node))
       this.scrollTo(null, this.getScrollInfo().top + height)
 
@@ -66,7 +70,7 @@
   Panel.prototype.changed = function(height) {
     var newHeight = height == null ? this.node.offsetHeight : height;
     var info = this.cm.state.panels;
-    this.cm._setSize(null, info.height += (newHeight - this.height));
+    this.cm._setSize(null, info.heightLeft -= (newHeight - this.height));
     this.height = newHeight;
   };
 

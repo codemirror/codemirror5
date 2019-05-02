@@ -152,7 +152,9 @@
          Pos(0, 8), "selectScope", hasSel(0, 8, 2, 0),
          Pos(1, 2), "selectScope", hasSel(0, 8, 2, 0),
          Pos(1, 6), "selectScope", hasSel(1, 6, 1, 10),
-         Pos(1, 9), "selectScope", hasSel(1, 6, 1, 10));
+         Pos(1, 9), "selectScope", hasSel(1, 6, 1, 10),
+         "selectScope", hasSel(0, 8, 2, 0),
+         "selectScope", hasSel(0, 0, 2, 1));
 
   stTest("goToBracket", "foo(a) {\n  bar[1, 2];\n}",
          Pos(0, 0), "goToBracket", at(0, 0),
@@ -218,31 +220,6 @@
          val("abcdef\nabcdcdef\nabcdcdef"), hasSel(2, 1, 2, 1,
                                                    2, 4, 2, 6,
                                                    2, 7, 2, 7));
-
-  stTest("selectLinesUpward", "123\n345\n789\n012",
-         setSel(0, 1, 0, 1,
-                1, 1, 1, 3,
-                2, 0, 2, 0,
-                3, 0, 3, 0),
-         "selectLinesUpward",
-         hasSel(0, 1, 0, 1,
-                0, 3, 0, 3,
-                1, 0, 1, 0,
-                1, 1, 1, 3,
-                2, 0, 2, 0,
-                3, 0, 3, 0));
-
-  stTest("selectLinesDownward", "123\n345\n789\n012",
-         setSel(0, 1, 0, 1,
-                1, 1, 1, 3,
-                2, 0, 2, 0,
-                3, 0, 3, 0),
-         "selectLinesDownward",
-         hasSel(0, 1, 0, 1,
-                1, 1, 1, 3,
-                2, 0, 2, 0,
-                2, 3, 2, 3,
-                3, 0, 3, 0));
 
   stTest("sortLines", "c\nb\na\nC\nB\nA",
          "sortLines", val("A\nB\nC\na\nb\nc"),

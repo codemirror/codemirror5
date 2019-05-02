@@ -1,21 +1,21 @@
-import { Pos } from "../line/pos"
-import { visualLine } from "../line/spans"
-import { getLine } from "../line/utils_line"
-import { charCoords, cursorCoords, displayWidth, paddingH } from "../measurement/position_measurement"
-import { getOrder, iterateBidiSections } from "../util/bidi"
-import { elt } from "../util/dom"
+import { Pos } from "../line/pos.js"
+import { visualLine } from "../line/spans.js"
+import { getLine } from "../line/utils_line.js"
+import { charCoords, cursorCoords, displayWidth, paddingH, wrappedLineExtentChar } from "../measurement/position_measurement.js"
+import { getOrder, iterateBidiSections } from "../util/bidi.js"
+import { elt } from "../util/dom.js"
 
 export function updateSelection(cm) {
   cm.display.input.showSelection(cm.display.input.prepareSelection())
 }
 
-export function prepareSelection(cm, primary) {
+export function prepareSelection(cm, primary = true) {
   let doc = cm.doc, result = {}
   let curFragment = result.cursors = document.createDocumentFragment()
   let selFragment = result.selection = document.createDocumentFragment()
 
   for (let i = 0; i < doc.sel.ranges.length; i++) {
-    if (primary === false && i == doc.sel.primIndex) continue
+    if (!primary && i == doc.sel.primIndex) continue
     let range = doc.sel.ranges[i]
     if (range.from().line >= cm.display.viewTo || range.to().line < cm.display.viewFrom) continue
     let collapsed = range.empty()
@@ -46,12 +46,15 @@ export function drawSelectionCursor(cm, head, output) {
   }
 }
 
+function cmpCoords(a, b) { return a.top - b.top || a.left - b.left }
+
 // Draws the given range as a highlighted selection
 function drawSelectionRange(cm, range, output) {
   let display = cm.display, doc = cm.doc
   let fragment = document.createDocumentFragment()
   let padding = paddingH(cm.display), leftSide = padding.left
   let rightSide = Math.max(display.sizerWidth, displayWidth(cm) - display.sizer.offsetLeft) - padding.right
+  let docLTR = doc.direction == "ltr"
 
   function add(left, top, width, bottom) {
     if (top < 0) top = 0
@@ -70,30 +73,49 @@ function drawSelectionRange(cm, range, output) {
       return charCoords(cm, Pos(line, ch), "div", lineObj, bias)
     }
 
-    iterateBidiSections(getOrder(lineObj), fromArg || 0, toArg == null ? lineLen : toArg, (from, to, dir) => {
-      let leftPos = coords(from, "left"), rightPos, left, right
-      if (from == to) {
-        rightPos = leftPos
-        left = right = leftPos.left
-      } else {
-        rightPos = coords(to - 1, "right")
-        if (dir == "rtl") { let tmp = leftPos; leftPos = rightPos; rightPos = tmp }
-        left = leftPos.left
-        right = rightPos.right
+    function wrapX(pos, dir, side) {
+      let extent = wrappedLineExtentChar(cm, lineObj, null, pos)
+      let prop = (dir == "ltr") == (side == "after") ? "left" : "right"
+      let ch = side == "after" ? extent.begin : extent.end - (/\s/.test(lineObj.text.charAt(extent.end - 1)) ? 2 : 1)
+      return coords(ch, prop)[prop]
+    }
+
+    let order = getOrder(lineObj, doc.direction)
+    iterateBidiSections(order, fromArg || 0, toArg == null ? lineLen : toArg, (from, to, dir, i) => {
+      let ltr = dir == "ltr"
+      let fromPos = coords(from, ltr ? "left" : "right")
+      let toPos = coords(to - 1, ltr ? "right" : "left")
+
+      let openStart = fromArg == null && from == 0, openEnd = toArg == null && to == lineLen
+      let first = i == 0, last = !order || i == order.length - 1
+      if (toPos.top - fromPos.top <= 3) { // Single line
+        let openLeft = (docLTR ? openStart : openEnd) && first
+        let openRight = (docLTR ? openEnd : openStart) && last
+        let left = openLeft ? leftSide : (ltr ? fromPos : toPos).left
+        let right = openRight ? rightSide : (ltr ? toPos : fromPos).right
+        add(left, fromPos.top, right - left, fromPos.bottom)
+      } else { // Multiple lines
+        let topLeft, topRight, botLeft, botRight
+        if (ltr) {
+          topLeft = docLTR && openStart && first ? leftSide : fromPos.left
+          topRight = docLTR ? rightSide : wrapX(from, dir, "before")
+          botLeft = docLTR ? leftSide : wrapX(to, dir, "after")
+          botRight = docLTR && openEnd && last ? rightSide : toPos.right
+        } else {
+          topLeft = !docLTR ? leftSide : wrapX(from, dir, "before")
+          topRight = !docLTR && openStart && first ? rightSide : fromPos.right
+          botLeft = !docLTR && openEnd && last ? leftSide : toPos.left
+          botRight = !docLTR ? rightSide : wrapX(to, dir, "after")
+        }
+        add(topLeft, fromPos.top, topRight - topLeft, fromPos.bottom)
+        if (fromPos.bottom < toPos.top) add(leftSide, fromPos.bottom, null, toPos.top)
+        add(botLeft, toPos.top, botRight - botLeft, toPos.bottom)
       }
-      if (fromArg == null && from == 0) left = leftSide
-      if (rightPos.top - leftPos.top > 3) { // Different lines, draw top part
-        add(left, leftPos.top, null, leftPos.bottom)
-        left = leftSide
-        if (leftPos.bottom < rightPos.top) add(left, leftPos.bottom, null, rightPos.top)
-      }
-      if (toArg == null && to == lineLen) right = rightSide
-      if (!start || leftPos.top < start.top || leftPos.top == start.top && leftPos.left < start.left)
-        start = leftPos
-      if (!end || rightPos.bottom > end.bottom || rightPos.bottom == end.bottom && rightPos.right > end.right)
-        end = rightPos
-      if (left < leftSide + 1) left = leftSide
-      add(left, rightPos.top, right - left, rightPos.bottom)
+
+      if (!start || cmpCoords(fromPos, start) < 0) start = fromPos
+      if (cmpCoords(toPos, start) < 0) start = toPos
+      if (!end || cmpCoords(fromPos, end) < 0) end = fromPos
+      if (cmpCoords(toPos, end) < 0) end = toPos
     })
     return {start: start, end: end}
   }

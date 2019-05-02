@@ -1,15 +1,15 @@
-import { runInOp } from "../display/operations"
-import { ensureCursorVisible } from "../display/scrolling"
-import { Pos } from "../line/pos"
-import { getLine } from "../line/utils_line"
-import { makeChange } from "../model/changes"
-import { ios, webkit } from "../util/browser"
-import { elt } from "../util/dom"
-import { lst, map } from "../util/misc"
-import { signalLater } from "../util/operation_group"
-import { splitLinesAuto } from "../util/feature_detection"
+import { runInOp } from "../display/operations.js"
+import { ensureCursorVisible } from "../display/scrolling.js"
+import { Pos } from "../line/pos.js"
+import { getLine } from "../line/utils_line.js"
+import { makeChange } from "../model/changes.js"
+import { ios, webkit } from "../util/browser.js"
+import { elt } from "../util/dom.js"
+import { lst, map } from "../util/misc.js"
+import { signalLater } from "../util/operation_group.js"
+import { splitLinesAuto } from "../util/feature_detection.js"
 
-import { indentLine } from "./indent"
+import { indentLine } from "./indent.js"
 
 // This will be set to a {lineWise: bool, text: [string]} object, so
 // that, when pasting, we know what kind of selections the copied
@@ -25,9 +25,10 @@ export function applyTextInput(cm, inserted, deleted, sel, origin) {
   cm.display.shift = false
   if (!sel) sel = doc.sel
 
-  let paste = cm.state.pasteIncoming || origin == "paste"
+  let recent = +new Date - 200
+  let paste = origin == "paste" || cm.state.pasteIncoming > recent
   let textLines = splitLinesAuto(inserted), multiPaste = null
-  // When pasing N lines into N selections, insert one line per selection
+  // When pasting N lines into N selections, insert one line per selection
   if (paste && sel.ranges.length > 1) {
     if (lastCopied && lastCopied.text.join("\n") == inserted) {
       if (sel.ranges.length % lastCopied.text.length == 0) {
@@ -35,12 +36,12 @@ export function applyTextInput(cm, inserted, deleted, sel, origin) {
         for (let i = 0; i < lastCopied.text.length; i++)
           multiPaste.push(doc.splitLines(lastCopied.text[i]))
       }
-    } else if (textLines.length == sel.ranges.length) {
+    } else if (textLines.length == sel.ranges.length && cm.options.pasteLinesPerSelection) {
       multiPaste = map(textLines, l => [l])
     }
   }
 
-  let updateInput
+  let updateInput = cm.curOp.updateInput
   // Normal behavior is to insert the new text into every selection
   for (let i = sel.ranges.length - 1; i >= 0; i--) {
     let range = sel.ranges[i]
@@ -50,12 +51,11 @@ export function applyTextInput(cm, inserted, deleted, sel, origin) {
         from = Pos(from.line, from.ch - deleted)
       else if (cm.state.overwrite && !paste) // Handle overwrite
         to = Pos(to.line, Math.min(getLine(doc, to.line).text.length, to.ch + lst(textLines).length))
-      else if (lastCopied && lastCopied.lineWise && lastCopied.text.join("\n") == inserted)
+      else if (paste && lastCopied && lastCopied.lineWise && lastCopied.text.join("\n") == inserted)
         from = to = Pos(from.line, 0)
     }
-    updateInput = cm.curOp.updateInput
     let changeEvent = {from: from, to: to, text: multiPaste ? multiPaste[i % multiPaste.length] : textLines,
-                       origin: origin || (paste ? "paste" : cm.state.cutIncoming ? "cut" : "+input")}
+                       origin: origin || (paste ? "paste" : cm.state.cutIncoming > recent ? "cut" : "+input")}
     makeChange(cm.doc, changeEvent)
     signalLater(cm, "inputRead", cm, changeEvent)
   }
@@ -63,9 +63,9 @@ export function applyTextInput(cm, inserted, deleted, sel, origin) {
     triggerElectric(cm, inserted)
 
   ensureCursorVisible(cm)
-  cm.curOp.updateInput = updateInput
+  if (cm.curOp.updateInput < 2) cm.curOp.updateInput = updateInput
   cm.curOp.typing = true
-  cm.state.pasteIncoming = cm.state.cutIncoming = false
+  cm.state.pasteIncoming = cm.state.cutIncoming = -1
 }
 
 export function handlePaste(e, cm) {
@@ -113,9 +113,9 @@ export function copyableRanges(cm) {
   return {text: text, ranges: ranges}
 }
 
-export function disableBrowserMagic(field, spellcheck) {
-  field.setAttribute("autocorrect", "off")
-  field.setAttribute("autocapitalize", "off")
+export function disableBrowserMagic(field, spellcheck, autocorrect, autocapitalize) {
+  field.setAttribute("autocorrect", autocorrect ? "" : "off")
+  field.setAttribute("autocapitalize", autocapitalize ? "" : "off")
   field.setAttribute("spellcheck", !!spellcheck)
 }
 

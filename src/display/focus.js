@@ -1,7 +1,7 @@
-import { restartBlink } from "./selection"
-import { webkit } from "../util/browser"
-import { addClass, rmClass } from "../util/dom"
-import { signal } from "../util/event"
+import { restartBlink } from "./selection.js"
+import { webkit } from "../util/browser.js"
+import { addClass, rmClass } from "../util/dom.js"
+import { signal } from "../util/event.js"
 
 export function ensureFocus(cm) {
   if (!cm.state.focused) { cm.display.input.focus(); onFocus(cm) }
