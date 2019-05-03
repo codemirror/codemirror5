@@ -57,7 +57,7 @@
   background: #7e7;
 }
 .cm-fat-cursor div.CodeMirror-cursors {
-  z-index: 1;
+  z-index: 3;
 }
 .cm-fat-cursor-mark {
   background-color: rgba(20, 255, 20, 0.5);
