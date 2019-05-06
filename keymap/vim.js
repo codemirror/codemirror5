@@ -1845,7 +1845,7 @@
         if (line < first && cur.line == first){
           return this.moveToStartOfLine(cm, head, motionArgs, vim);
         }else if (line > last && cur.line == last){
-            return this.moveToEol(cm, head, motionArgs, vim);
+            return this.moveToEol(cm, head, motionArgs, vim, true);
         }
         if (motionArgs.toFirstChar){
           endCh=findFirstNonWhiteSpaceCharacter(cm.getLine(line));
@@ -1947,13 +1947,15 @@
         vim.lastHSPos = cm.charCoords(head,'div').left;
         return moveToColumn(cm, repeat);
       },
-      moveToEol: function(cm, head, motionArgs, vim) {
+      moveToEol: function(cm, head, motionArgs, vim, keepHPos) {
         var cur = head;
-        vim.lastHPos = Infinity;
         var retval= Pos(cur.line + motionArgs.repeat - 1, Infinity);
         var end=cm.clipPos(retval);
         end.ch--;
-        vim.lastHSPos = cm.charCoords(end,'div').left;
+        if (!keepHPos) {
+          vim.lastHPos = Infinity;
+          vim.lastHSPos = cm.charCoords(end,'div').left;
+        }
         return retval;
       },
       moveToFirstNonWhiteSpaceCharacter: function(cm, head) {

@@ -323,6 +323,8 @@ testMotion('k', 'k', offsetCursor(word3.end, -1, 0), word3.end);
 testMotion('k_repeat', ['2', 'k'], makeCursor(0, 4), makeCursor(2, 4));
 testMotion('k_repeat_clip', ['1000', 'k'], makeCursor(0, 4), makeCursor(2, 4));
 testMotion('w', 'w', word1.start);
+testMotion('keepHPos', ['5', 'j', 'j', '7', 'k'], makeCursor(8, 12), makeCursor(12, 12));
+testMotion('keepHPosEol', ['$', '2', 'j'], makeCursor(2, 18));
 testMotion('w_multiple_newlines_no_space', 'w', makeCursor(12, 2), makeCursor(11, 2));
 testMotion('w_multiple_newlines_with_space', 'w', makeCursor(14, 0), makeCursor(12, 51));
 testMotion('w_repeat', ['2', 'w'], word2.start);
