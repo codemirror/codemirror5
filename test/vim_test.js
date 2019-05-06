@@ -1316,6 +1316,10 @@ testEdit('di)_close_spc', 'foo (bAr) baz', /\)/, 'di)', 'foo () baz');
 testEdit('da(_close_spc', 'foo (bAr) baz', /\)/, 'da(', 'foo  baz');
 testEdit('da)_close_spc', 'foo (bAr) baz', /\)/, 'da)', 'foo  baz');
 
+testEdit('di`', 'foo `bAr` baz', /`/, 'di`', 'foo `` baz');
+testEdit('di>', 'foo <bAr> baz', /</, 'di>', 'foo <> baz');
+testEdit('da<', 'foo <bAr> baz', /</, 'da<', 'foo  baz');
+
 //  delete around and inner b.
 testEdit('dab_on_(_should_delete_around_()block', 'o( in(abc) )', /\(a/, 'dab', 'o( in )');
 

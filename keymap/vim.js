@@ -2005,7 +2005,7 @@
                              '{': '}', '}': '{',
                              '[': ']', ']': '[',
                              '<': '>', '>': '<'};
-        var selfPaired = {'\'': true, '"': true};
+        var selfPaired = {'\'': true, '"': true, '`': true};
 
         var character = motionArgs.selectedCharacter;
         // 'b' refers to  '()' block.
