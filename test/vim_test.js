@@ -1075,6 +1075,28 @@ testVim('c_visual_block_replay', function(cm, vim, helpers) {
   helpers.doKeys('.');
   eq('foo4\nfoo8\nfoodefg', cm.getValue());
 }, {value: '1234\n5678\nabcdefg'});
+testVim('I_visual_block_replay', function(cm, vim, helpers) {
+  cm.setCursor(0, 2);
+  helpers.doKeys('<C-v>', '2', 'j', 'l', 'I');
+  var replacement = fillArray('+-', 3);
+  cm.replaceSelections(replacement);
+  eq('12+-34\n56+-78\nab+-cdefg\nxyz', cm.getValue());
+  helpers.doKeys('<Esc>');
+  // ensure that repeat location doesn't depend on last selection
+  cm.setCursor(3, 2);
+  helpers.doKeys('g', 'v')
+  eq("+-34\n+-78\n+-cd", cm.getSelection())
+  cm.setCursor(0, 3);
+  helpers.doKeys('<C-v>', '1', 'j', '2', 'l');
+  eq("-34\n-78", cm.getSelection());
+  cm.setCursor(0, 0);
+  eq("", cm.getSelection());
+  helpers.doKeys('g', 'v');
+  eq("-34\n-78", cm.getSelection());
+  cm.setCursor(1, 1);
+  helpers.doKeys('.');
+  eq('12+-34\n5+-6+-78\na+-b+-cdefg\nx+-yz', cm.getValue());
+}, {value: '1234\n5678\nabcdefg\nxyz'});
 
 testVim('d_visual_block', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
