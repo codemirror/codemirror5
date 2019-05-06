@@ -286,7 +286,8 @@
         enterVimMode(cm);
     }
 
-    function fatCursorMarks(cm) {
+    function updateFatCursorMark(cm) {
+      clearFatCursorMark(cm);
       var ranges = cm.listSelections(), result = []
       for (var i = 0; i < ranges.length; i++) {
         var range = ranges[i]
@@ -302,25 +303,23 @@
           }
         }
       }
-      return result
+      cm.state.fatCursorMarks = result;
     }
 
-    function updateFatCursorMark(cm) {
-      var marks = cm.state.fatCursorMarks
-      if (marks) for (var i = 0; i < marks.length; i++) marks[i].clear()
-      cm.state.fatCursorMarks = fatCursorMarks(cm)
+    function clearFatCursorMark(cm) {
+      var marks = cm.state.fatCursorMarks;
+      if (marks) for (var i = 0; i < marks.length; i++) marks[i].clear();
+      cm.state.fatCursorMarks = null;
     }
 
     function enableFatCursorMark(cm) {
-      cm.state.fatCursorMarks = fatCursorMarks(cm)
+      updateFatCursorMark(cm)
       cm.on("cursorActivity", updateFatCursorMark)
     }
 
     function disableFatCursorMark(cm) {
-      var marks = cm.state.fatCursorMarks
-      if (marks) for (var i = 0; i < marks.length; i++) marks[i].clear()
-      cm.state.fatCursorMarks = null
-      cm.off("cursorActivity", updateFatCursorMark)
+      clearFatCursorMark(cm);
+      cm.off("cursorActivity", updateFatCursorMark);
     }
 
     // Deprecated, simply setting the keymap works again.
