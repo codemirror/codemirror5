@@ -2672,6 +2672,15 @@ testVim('macro_last_ex_command_register', function (cm, vim, helpers) {
   eq('bbbaa', cm.getValue());
   helpers.assertCursorAt(0, 2);
 }, { value: 'aaaaa'});
+testVim('macro_last_run_macro', function (cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('q', 'a', 'C', 'a', '<Esc>', 'q');
+  helpers.doKeys('q', 'b', 'C', 'b', '<Esc>', 'q');
+  helpers.doKeys('@', 'a');
+  helpers.doKeys('d', 'd');
+  helpers.doKeys('@', '@');
+  eq('a', cm.getValue());
+}, { value: ''});
 testVim('macro_parens', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('q', 'z', 'i');

@@ -2316,6 +2316,8 @@
         var macroModeState = vimGlobalState.macroModeState;
         if (registerName == '@') {
           registerName = macroModeState.latestRegister;
+        } else {
+          macroModeState.latestRegister = registerName;
         }
         while(repeat--){
           executeMacroRegister(cm, vim, macroModeState, registerName);
