@@ -2649,6 +2649,7 @@ testVim('macro_last_run_macro', function (cm, vim, helpers) {
   helpers.doKeys('q', 'a', 'C', 'a', '<Esc>', 'q');
   helpers.doKeys('q', 'b', 'C', 'b', '<Esc>', 'q');
   helpers.doKeys('@', 'a');
+  helpers.doKeys('d', 'd');
   helpers.doKeys('@', '@');
   eq('a', cm.getValue());
 }, { value: ''});
