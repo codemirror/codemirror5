@@ -105,6 +105,15 @@ function forEach(arr, func) {
   }
 }
 
+function expectFail(fn) {
+    try {
+        fn();
+    } catch(expected) {
+        return;
+    };
+    throw new Error("Expected to throw an error");
+}
+
 function testVim(name, run, opts, expectedFail) {
   var vimOpts = {
     lineNumbers: true,
@@ -4068,11 +4077,9 @@ testVim('set_boolean', function(cm, vim, helpers) {
   CodeMirror.Vim.defineOption('testoption', true, 'boolean');
   // Test default value is set.
   is(CodeMirror.Vim.getOption('testoption'));
-  try {
-    // Test fail to set to non-boolean
-    CodeMirror.Vim.setOption('testoption', '5');
-    fail();
-  } catch (expected) {}
+  // Test fail to set to non-boolean
+  var result = CodeMirror.Vim.setOption('testoption', '5');
+  is(result instanceof Error);
   // Test setOption
   CodeMirror.Vim.setOption('testoption', false);
   is(!CodeMirror.Vim.getOption('testoption'));
@@ -4081,11 +4088,10 @@ testVim('ex_set_boolean', function(cm, vim, helpers) {
   CodeMirror.Vim.defineOption('testoption', true, 'boolean');
   // Test default value is set.
   is(CodeMirror.Vim.getOption('testoption'));
-  try {
-    // Test fail to set to non-boolean
-    helpers.doEx('set testoption=22');
-    fail();
-  } catch (expected) {}
+  is(!cm.state.currentNotificationClose);
+  // Test fail to set to non-boolean
+  helpers.doEx('set testoption=22');
+  is(cm.state.currentNotificationClose);
   // Test setOption
   helpers.doEx('set notestoption');
   is(!CodeMirror.Vim.getOption('testoption'));
@@ -4094,16 +4100,12 @@ testVim('set_string', function(cm, vim, helpers) {
   CodeMirror.Vim.defineOption('testoption', 'a', 'string');
   // Test default value is set.
   eq('a', CodeMirror.Vim.getOption('testoption'));
-  try {
-    // Test fail to set non-string.
-    CodeMirror.Vim.setOption('testoption', true);
-    fail();
-  } catch (expected) {}
-  try {
-    // Test fail to set 'notestoption'
-    CodeMirror.Vim.setOption('notestoption', 'b');
-    fail();
-  } catch (expected) {}
+  // Test no fail to set non-string.
+  var result = CodeMirror.Vim.setOption('testoption', true);
+  is(!result);
+  // Test fail to set 'notestoption'
+  result = CodeMirror.Vim.setOption('notestoption', 'b');
+  is(result instanceof Error);
   // Test setOption
   CodeMirror.Vim.setOption('testoption', 'c');
   eq('c', CodeMirror.Vim.getOption('testoption'));
@@ -4112,11 +4114,10 @@ testVim('ex_set_string', function(cm, vim, helpers) {
   CodeMirror.Vim.defineOption('testopt', 'a', 'string');
   // Test default value is set.
   eq('a', CodeMirror.Vim.getOption('testopt'));
-  try {
-    // Test fail to set 'notestopt'
-    helpers.doEx('set notestopt=b');
-    fail();
-  } catch (expected) {}
+  // Test fail to set 'notestopt'
+  is(!cm.state.currentNotificationClose);
+  helpers.doEx('set notestopt=b');
+  is(cm.state.currentNotificationClose);
   // Test setOption
   helpers.doEx('set testopt=c')
   eq('c', CodeMirror.Vim.getOption('testopt'));
@@ -4162,11 +4163,10 @@ testVim('ex_set_callback', function(cm, vim, helpers) {
   CodeMirror.Vim.defineOption('testopt', 'a', 'string', cb);
   // Test default value is set.
   eq('a', CodeMirror.Vim.getOption('testopt'));
-  try {
-    // Test fail to set 'notestopt'
-    helpers.doEx('set notestopt=b');
-    fail();
-  } catch (expected) {}
+  // Test fail to set 'notestopt'
+  is(!cm.state.currentNotificationClose);
+  helpers.doEx('set notestopt=b');
+  is(cm.state.currentNotificationClose);
   // Test setOption (Identical to the string tests, but via callback instead)
   helpers.doEx('set testopt=c')
   eq('c', CodeMirror.Vim.getOption('testopt', cm)); //local || global
@@ -4256,10 +4256,9 @@ testVim('ex_unmap_key2key', function(cm, vim, helpers) {
   CodeMirror.Vim.mapclear();
 }, { value: 'abc' });
 testVim('ex_unmap_key2key_does_not_remove_default', function(cm, vim, helpers) {
-  try {
+  expectFail(function() {
     helpers.doEx('unmap a');
-    fail();
-  } catch (expected) {}
+  });
   helpers.doKeys('a');
   eq('vim-insert', cm.getOption('keyMap'));
   CodeMirror.Vim.mapclear();
