@@ -2398,7 +2398,13 @@
           CodeMirror.signal(cm, "vim-mode-change", {mode: "replace"});
         } else {
           cm.toggleOverwrite(false);
-          cm.setOption('keyMap', 'vim-insert');
+          if (insertAt == 'newLine' && !vimGlobalState.macroModeState.isPlaying) {
+            //ugly, but this fixed a bug where thick cursor would get permantly stuck
+            //when (o | O) newLineandinsertMode function was called
+            setTimeout(cm.setOption.bind(cm, 'keyMap', 'vim-insert'),0);
+          } else {
+            cm.setOption('keyMap', 'vim-insert');
+          }
           CodeMirror.signal(cm, "vim-mode-change", {mode: "insert"});
         }
         if (!vimGlobalState.macroModeState.isPlaying) {
@@ -2522,7 +2528,7 @@
               CodeMirror.commands.newlineAndIndent;
           newlineFn(cm);
         }
-        this.enterInsertMode(cm, { repeat: actionArgs.repeat }, vim);
+        cm.operation(actions.enterInsertMode.bind(undefined, cm, { repeat: actionArgs.repeat, insertAt: 'newLine' }, vim));
       },
       paste: function(cm, actionArgs, vim) {
         var cur = copyCursor(cm.getCursor());

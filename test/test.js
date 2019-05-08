@@ -1681,17 +1681,17 @@ testCM("lineWidgetIssue5486", function(cm) {
   var el = document.createElement('div')
   el.style.height='50px'
   el.textContent = '[[LINE WIDGET]]'
-  
+
   var lineWidget = cm.addLineWidget(1, el, {
     above: false,
     coverGutter: false,
     noHScroll: false,
     showIfHidden: false,
   })
-  
+
   var marker = document.createElement('span')
   marker.textContent = '[--]'
-  
+
   cm.markText({line:0, ch: 1}, {line:1, ch: 4}, {
     replacedWith: marker
   })
@@ -1699,12 +1699,12 @@ testCM("lineWidgetIssue5486", function(cm) {
   // before resizing the lineWidget, measure 3rd line position
 
   var measure_1 = Math.round(cm.charCoords({line:2, ch:0}).top)
-  
+
   // resize lineWidget, height + 50 px
 
   el.style.height='100px'
   el.textContent += "\nlineWidget size changed.\nTry moving cursor to line 3?"
-  
+
   lineWidget.changed()
 
   // re-measure 3rd line position
