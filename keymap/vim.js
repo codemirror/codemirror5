@@ -287,6 +287,7 @@
     }
 
     function updateFatCursorMark(cm) {
+      if (!cm.state.fatCursorMarks) return;
       clearFatCursorMark(cm);
       var ranges = cm.listSelections(), result = []
       for (var i = 0; i < ranges.length; i++) {
@@ -309,10 +310,10 @@
     function clearFatCursorMark(cm) {
       var marks = cm.state.fatCursorMarks;
       if (marks) for (var i = 0; i < marks.length; i++) marks[i].clear();
-      cm.state.fatCursorMarks = null;
     }
 
     function enableFatCursorMark(cm) {
+      cm.state.fatCursorMarks = [];
       updateFatCursorMark(cm)
       cm.on("cursorActivity", updateFatCursorMark)
     }
@@ -320,6 +321,9 @@
     function disableFatCursorMark(cm) {
       clearFatCursorMark(cm);
       cm.off("cursorActivity", updateFatCursorMark);
+      // explicitly set fatCursorMarks to null because event listener above
+      // can be invoke after removing it, if off is called from operation
+      cm.state.fatCursorMarks = null;
     }
 
     // Deprecated, simply setting the keymap works again.
