@@ -2570,7 +2570,17 @@
         }
         var linewise = register.linewise;
         var blockwise = register.blockwise;
-        if (linewise) {
+        if (blockwise) {
+          text = text.split('\n');
+          if (linewise) {
+              text.pop();
+          }
+          for (var i = 0; i < text.length; i++) {
+            text[i] = (text[i] == '') ? ' ' : text[i];
+          }
+          cur.ch += actionArgs.after ? 1 : 0;
+          cur.ch = Math.min(lineLength(cm, cur.line), cur.ch);
+        } else if (linewise) {
           if(vim.visualMode) {
             text = vim.visualLine ? text.slice(0, -1) : '\n' + text.slice(0, text.length - 1) + '\n';
           } else if (actionArgs.after) {
@@ -2582,12 +2592,6 @@
             cur.ch = 0;
           }
         } else {
-          if (blockwise) {
-            text = text.split('\n');
-            for (var i = 0; i < text.length; i++) {
-              text[i] = (text[i] == '') ? ' ' : text[i];
-            }
-          }
           cur.ch += actionArgs.after ? 1 : 0;
         }
         var curPosFinal;

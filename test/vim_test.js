@@ -1428,6 +1428,21 @@ testVim('Y', function(cm, vim, helpers) {
   is(register.linewise);
   helpers.assertCursorAt(0, 3);
 }, { value: ' word1\nword2\n word3' });
+testVim('Yy_blockwise', function(cm, vim, helpers) {
+  helpers.doKeys('<C-v>', 'j', '2', 'l', 'Y');
+  helpers.doKeys('G', 'p', 'g', 'g');
+  helpers.doKeys('<C-v>', 'j', '2', 'l', 'y');
+  helpers.assertCursorAt(0, 0);
+  helpers.doKeys('$', 'p');
+  eq('123456123\n123456123\n123456\n123456', cm.getValue());
+  var register = helpers.getRegisterController().getRegister();
+  eq('123\n123', register.toString());
+  is(register.blockwise);
+  helpers.assertCursorAt(0, 6);
+  helpers.doKeys('$', 'j', 'p');
+  helpers.doKeys('$', 'j', 'P');
+  eq("123456123\n123456123123\n123456   121233\n123456     123", cm.getValue());
+}, { value: '123456\n123456\n' });
 testVim('~', function(cm, vim, helpers) {
   helpers.doKeys('3', '~');
   eq('ABCdefg', cm.getValue());
