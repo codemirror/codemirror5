@@ -280,7 +280,16 @@ CodeMirror.defineMode("ruby", function(config) {
       if (state.tokenize[state.tokenize.length-1] != tokenBase) return CodeMirror.Pass;
       var firstChar = textAfter && textAfter.charAt(0);
       var ct = state.context;
-      var closing = ct.type == matching[firstChar] ||
+
+      function hasMatch(){
+        for (const i in matching) {
+          if (firstChar == matching[i]) {
+            return i
+          }
+        }
+      }
+
+      var closing = ct.type == hasMatch() ||
         ct.type == "keyword" && /^(?:end|until|else|elsif|when|rescue)\b/.test(textAfter);
       return ct.indented + (closing ? 0 : config.indentUnit) +
         (state.continuedLine ? config.indentUnit : 0);
