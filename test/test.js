@@ -1808,10 +1808,21 @@ testCM("addLineClass", function(cm) {
 
 testCM("atomicMarker", function(cm) {
   addDoc(cm, 10, 10);
-  function atom(ll, cl, lr, cr, li, ri) {
-    return cm.markText(Pos(ll, cl), Pos(lr, cr),
-                       {atomic: true, inclusiveLeft: li, inclusiveRight: ri});
+
+  function atom(ll, cl, lr, cr, li, ri, ls, rs) {
+    var options = {
+      atomic: true,
+      inclusiveLeft: li,
+      inclusiveRight: ri
+    };
+
+    if (ls === true || ls === false) options["selectLeft"] = ls;
+    if (rs === true || rs === false) options["selectRight"] = rs;
+
+    return cm.markText(Pos(ll, cl), Pos(lr, cr), options);
   }
+
+  // Can cursor to the left and right of a normal marker by jumping across it
   var m = atom(0, 1, 0, 5);
   cm.setCursor(Pos(0, 1));
   cm.execCommand("goCharRight");
@@ -1819,11 +1830,55 @@ testCM("atomicMarker", function(cm) {
   cm.execCommand("goCharLeft");
   eqCursorPos(cm.getCursor(), Pos(0, 1));
   m.clear();
+
+  // Can't cursor to the left of a marker when inclusiveLeft=true
   m = atom(0, 0, 0, 5, true);
   eqCursorPos(cm.getCursor(), Pos(0, 5), "pushed out");
   cm.execCommand("goCharLeft");
   eqCursorPos(cm.getCursor(), Pos(0, 5));
   m.clear();
+
+  // Can't cursor to the left of a marker when inclusiveLeft=false and selectLeft=false
+  m = atom(0, 0, 0, 5, false, false, false);
+  cm.setCursor(Pos(0, 5));
+  eqCursorPos(cm.getCursor(), Pos(0, 5), "pushed out");
+  cm.execCommand("goCharLeft");
+  eqCursorPos(cm.getCursor(), Pos(0, 5));
+  m.clear();
+
+  // Can cursor to the left of a marker when inclusiveLeft=false and selectLeft=True
+  m = atom(0, 0, 0, 5, false, false, true);
+  cm.setCursor(Pos(0, 5));
+  eqCursorPos(cm.getCursor(), Pos(0, 5), "pushed out");
+  cm.execCommand("goCharLeft");
+  eqCursorPos(cm.getCursor(), Pos(0, 0));
+  m.clear();
+
+  // Can't cursor to the right of a marker when inclusiveRight=true
+  m = atom(0, 0, 0, 5, false, true);
+  cm.setCursor(Pos(0, 0));
+  eqCursorPos(cm.getCursor(), Pos(0, 0));
+  cm.execCommand("goCharRight");
+  eqCursorPos(cm.getCursor(), Pos(0, 6));
+  m.clear();
+
+  // Can't cursor to the right of a marker when inclusiveRight=false and selectRight=false
+  m = atom(0, 0, 0, 5, false, false, true, false);
+  cm.setCursor(Pos(0, 0));
+  eqCursorPos(cm.getCursor(), Pos(0, 0));
+  cm.execCommand("goCharRight");
+  eqCursorPos(cm.getCursor(), Pos(0, 6));
+  m.clear();
+
+  // Can cursor to the right of a marker when inclusiveRight=false and selectRight=True
+  m = atom(0, 0, 0, 5, false, false, true, true);
+  cm.setCursor(Pos(0, 0));
+  eqCursorPos(cm.getCursor(), Pos(0, 0));
+  cm.execCommand("goCharRight");
+  eqCursorPos(cm.getCursor(), Pos(0, 5));
+  m.clear();
+
+  // Can't cursor to the right of a multiline marker when inclusiveRight=true
   m = atom(8, 4, 9, 10, false, true);
   cm.setCursor(Pos(9, 8));
   eqCursorPos(cm.getCursor(), Pos(8, 4), "set");
@@ -1834,6 +1889,9 @@ testCM("atomicMarker", function(cm) {
   cm.execCommand("goCharLeft");
   eqCursorPos(cm.getCursor(), Pos(8, 3, "after"));
   m.clear();
+
+  // Cursor jumps across a multiline atomic marker,
+  // and backspace deletes the entire marker
   m = atom(1, 1, 3, 8);
   cm.setCursor(Pos(0, 0));
   cm.setCursor(Pos(2, 0));
@@ -1848,10 +1906,16 @@ testCM("atomicMarker", function(cm) {
   eqCursorPos(cm.getCursor(), Pos(3, 8));
   cm.execCommand("delCharBefore");
   eq(cm.getValue().length, 80, "del chunk");
+  m.clear();
+  addDoc(cm, 10, 10);
+
+  // Delete before an atomic marker deletes the entire marker
   m = atom(3, 0, 5, 5);
   cm.setCursor(Pos(3, 0));
   cm.execCommand("delWordAfter");
-  eq(cm.getValue().length, 53, "del chunk");
+  eq(cm.getValue().length, 82, "del chunk");
+  m.clear();
+  addDoc(cm, 10, 10);
 });
 
 testCM("selectionBias", function(cm) {
