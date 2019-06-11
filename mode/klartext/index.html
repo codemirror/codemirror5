@@ -1,0 +1,68 @@
+<!doctype html>
+
+<title>CodeMirror: Klartext mode</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel="stylesheet" href="../../lib/codemirror.css">
+<script src="../../lib/codemirror.js"></script>
+<script src="../../addon/edit/matchbrackets.js"></script>
+<script src="./klartext.js"></script>
+<style>
+	.CodeMirror { border: 2px inset #dee; }
+    </style>
+<div id=nav>
+  <a href="https://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#"></a>
+  </ul>
+</div>
+
+<article>
+<h2>Klartext mode</h2>
+<form><textarea id="code" name="code">
+0  BEGIN PGM 1035 MM
+1  BLK FORM 0.1 Z X+0 Y-10 Z-40
+2  BLK FORM 0.2  X+40  Y+10  Z+0
+3  FN 0: Q1 =+1
+4  FN 0: Q2 =-40
+5  FN 0: Q3 =-8
+6  FN 0: Q4 =+1
+7  FN 0: Q5 =+200
+8  FN 0: Q6 =+0
+9  FN 0: Q7 =+15
+10 FN 0: Q8 =+0.5
+11 FN 0: Q9 =+3
+12 FN 0: Q10 =-5
+13 FN 0: Q11 =+1
+14 TOOL CALL 223 Z S1000
+15 L  Z+20 R0 F9998 M3
+16 CYCL DEF 12.0 PGM CALL
+17 CYCL DEF 12.1 PGM 10351.H
+18 L  X+5  Y+0 R0
+19 CYCL CALL
+20 L  X+30
+21 CYCL CALL
+22 L  Z+20 M2
+23 END PGM 1035 MM
+</textarea></form>
+
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        lineNumbers: true,
+        matchBrackets: false,
+        mode: "text/x-klartext"
+      });
+    </script>
+
+    <p>A mode for Klartext, a programming language for CNC machines</p>
+
+    <p><strong>MIME types defined:</strong> <code>text/x-klartext</code></p>
+  </article>

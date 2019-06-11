@@ -77,6 +77,7 @@
     {name: "JSX", mime: "text/jsx", mode: "jsx", ext: ["jsx"]},
     {name: "Jinja2", mime: "text/jinja2", mode: "jinja2", ext: ["j2", "jinja", "jinja2"]},
     {name: "Julia", mime: "text/x-julia", mode: "julia", ext: ["jl"]},
+    {name: "Klartext", mime: "text/x-klartext", mode: "klartext", ext: ["H"]},
     {name: "Kotlin", mime: "text/x-kotlin", mode: "clike", ext: ["kt"]},
     {name: "LESS", mime: "text/x-less", mode: "css", ext: ["less"]},
     {name: "LiveScript", mime: "text/x-livescript", mode: "livescript", ext: ["ls"], alias: ["ls"]},
