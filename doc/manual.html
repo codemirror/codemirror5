@@ -1674,13 +1674,21 @@ editor.setOption("extraKeys", {
         <dt id="mark_inclusiveRight"><code><strong>inclusiveRight</strong>: boolean</code></dt>
         <dd>Like <code>inclusiveLeft</code>,
         but for the right side.</dd>
+        <dt id="mark_selectLeft"><code><strong>selectLeft</strong>: boolean</code></dt>
+        <dd>For atomic ranges, determines whether the cursor is allowed
+        to be placed directly to the left of the range. Has no effect on
+        non-atomic ranges.</dd>
+        <dt id="mark_selectRight"><code><strong>selectRight</strong>: boolean</code></dt>
+        <dd>Like <code>selectLeft</code>,
+        but for the right side.</dd>
         <dt id="mark_atomic"><code><strong>atomic</strong>: boolean</code></dt>
         <dd>Atomic ranges act as a single unit when cursor movement is
         concerned—i.e. it is impossible to place the cursor inside of
-        them. In atomic ranges, <code>inclusiveLeft</code>
-        and <code>inclusiveRight</code> have a different meaning—they
-        will prevent the cursor from being placed respectively
-        directly before and directly after the range.</dd>
+        them. You can control whether the cursor is allowed to be placed
+        directly before or after them using <code>selectLeft</code>
+        or <code>selectRight</code>. If <code>selectLeft</code>
+        (or right) is not provided, then <code>inclusiveLeft</code> (or
+        right) will control this behavior.</dd>
         <dt id="mark_collapsed"><code><strong>collapsed</strong>: boolean</code></dt>
         <dd>Collapsed ranges do not show up in the display. Setting a
         range to be collapsed will automatically make it atomic.</dd>
