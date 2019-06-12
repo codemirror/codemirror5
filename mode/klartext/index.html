@@ -8,12 +8,9 @@
 <script src="../../lib/codemirror.js"></script>
 <script src="../../addon/edit/matchbrackets.js"></script>
 <script src="./klartext.js"></script>
-<style>
-	.CodeMirror { border: 2px inset #dee; }
-    </style>
+<style>.CodeMirror { border: 2px inset #dee; }</style>
 <div id=nav>
   <a href="https://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png"></a>
-
   <ul>
     <li><a href="../../index.html">Home</a>
     <li><a href="../../doc/manual.html">Manual</a>
@@ -26,8 +23,9 @@
 </div>
 
 <article>
-<h2>Klartext mode</h2>
-<form><textarea id="code" name="code">
+	<h2>Klartext mode</h2>
+	<form>
+		<textarea id="code" name="code">
 0  BEGIN PGM 1035 MM
 1  BLK FORM 0.1 Z X+0 Y-10 Z-40
 2  BLK FORM 0.2  X+40  Y+10  Z+0
@@ -52,17 +50,17 @@
 21 CYCL CALL
 22 L  Z+20 M2
 23 END PGM 1035 MM
-</textarea></form>
+		</textarea>
+	</form>
 
-    <script>
-      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
-        lineNumbers: true,
-        matchBrackets: false,
-        mode: "text/x-klartext"
-      });
-    </script>
+  <script>
+    var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+      ineNumbers: true,
+      matchBrackets: false,
+      mode: "text/x-klartext"
+    });
+  </script>
 
-    <p>A mode for Klartext, a programming language for CNC machines</p>
-
-    <p><strong>MIME types defined:</strong> <code>text/x-klartext</code></p>
-  </article>
+  <p>A mode for Klartext, a programming language for CNC machines</p>
+  <p><strong>MIME types defined:</strong> <code>text/x-klartext</code></p>
+</article>
