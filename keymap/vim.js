@@ -4229,23 +4229,27 @@
         query: query
       };
     }
+    var highlightTimeout = 0;
     function highlightSearchMatches(cm, query) {
-      var searchState = getSearchState(cm);
-      var overlay = searchState.getOverlay();
-      if (!overlay || query != overlay.query) {
-        if (overlay) {
-          cm.removeOverlay(overlay);
-        }
-        overlay = searchOverlay(query);
-        cm.addOverlay(overlay);
-        if (cm.showMatchesOnScrollbar) {
-          if (searchState.getScrollbarAnnotate()) {
-            searchState.getScrollbarAnnotate().clear();
+      clearTimeout(highlightTimeout);
+      highlightTimeout = setTimeout(function() {
+        var searchState = getSearchState(cm);
+        var overlay = searchState.getOverlay();
+        if (!overlay || query != overlay.query) {
+          if (overlay) {
+            cm.removeOverlay(overlay);
           }
-          searchState.setScrollbarAnnotate(cm.showMatchesOnScrollbar(query));
+          overlay = searchOverlay(query);
+          cm.addOverlay(overlay);
+          if (cm.showMatchesOnScrollbar) {
+            if (searchState.getScrollbarAnnotate()) {
+              searchState.getScrollbarAnnotate().clear();
+            }
+            searchState.setScrollbarAnnotate(cm.showMatchesOnScrollbar(query));
+          }
+          searchState.setOverlay(overlay);
         }
-        searchState.setOverlay(overlay);
-      }
+      }, 50);
     }
     function findNext(cm, prev, query, repeat) {
       if (repeat === undefined) { repeat = 1; }
