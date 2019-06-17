@@ -239,8 +239,8 @@
       var offsetParent = isContainerPositioned ? container : container.offsetParent;
       var offsetParentPosition = offsetParent.getBoundingClientRect();
       var bodyPosition = ownerDocument.body.getBoundingClientRect();
-      offsetLeft = (offsetParentPosition.left - bodyPosition.left);
-      offsetTop = (offsetParentPosition.top - bodyPosition.top);
+      offsetLeft = (offsetParentPosition.left - bodyPosition.left - offsetParent.scrollLeft);
+      offsetTop = (offsetParentPosition.top - bodyPosition.top - offsetParent.scrollTop);
     }
     hints.style.left = (left - offsetLeft) + "px";
     hints.style.top = (top - offsetTop) + "px";
