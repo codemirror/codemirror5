@@ -1,3 +1,15 @@
+## 5.48.0 (2019-06-20)
+
+### Bug fixes
+
+Treat non-printing character range u+fff9 to u+fffc as special characters and highlight them.
+
+[show-hint addon](https://codemirror.net/doc/manual.html#addon_show-hint): Fix positioning when the dialog is placed in a scrollable container.
+
+### New features
+
+Add [`selectLeft`](https://codemirror.net/doc/manual.html#mark_selectLeft)/[`selectRight`](https://codemirror.net/doc/manual.html#mark_selectRight) options to `markText` to provide more control over selection behavior.
+
 ## 5.47.0 (2019-05-21)
 
 ### Bug fixes
