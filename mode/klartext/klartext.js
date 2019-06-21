@@ -33,7 +33,6 @@
     var rxLableQS = /\d+|"[A-Za-z0-9_]+"|QS\d+/;
 
     function normal(source, stateSetter) {
-      //console.log(source);
       if (source.eatWhile(/[ \t\v\f]/)) {
         return null;
       }
@@ -44,7 +43,6 @@
         }
       }
 
-      //console.log(source.lineOracle.state.fsub);
       if (source.lineOracle.state.fsub == null) {
         if (source.match(/(BEGIN|END) PGM(?= +)/, true) != null) {
           stateSetter(normal, "pgmHeadName");
@@ -120,10 +118,10 @@
           return "builtin";
         } else if (source.match(/APPR(?= )/, true) != null) {
           stateSetter(normal, "apprBlock");
-          return "builtin"; // TODO
+          return "builtin";
         } else if (source.match(/DEP(?= )/, true) != null) {
           stateSetter(normal, "depBlock");
-          return "builtin"; // TODO
+          return "builtin";
         } else if (source.match(/FUNCTION TURNDATA(?= )/, true) != null) {
           stateSetter(normal);
           return "builtin"; // TODO
@@ -147,7 +145,7 @@
           return "builtin"; // TODO
         } else if (source.match(/STOP/, true) != null) {
           stateSetter(normal);
-          return "builtin"; // TODO
+          return "builtin";
         } else if (source.match(/CYCL QUERY(?= )/, true) != null) {
           stateSetter(normal);
           return "builtin"; // TODO
