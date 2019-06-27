@@ -405,6 +405,10 @@
      "[keyword function] [def x][operator <][type T] [keyword extends] [keyword keyof] [type X][operator >]([def a]: [type T]) {",
      "  [keyword return]")
 
+  TS("typescript_typeof",
+     "[keyword function] [def x][operator <][type T] [keyword extends] [keyword typeof] [variable X][operator >]([def a]: [type T]) {",
+     "  [keyword return]")
+
   TS("typescript_new_typeargs",
      "[keyword let] [def x] [operator =] [keyword new] [variable Map][operator <][type string], [type Date][operator >]([string-2 `foo${][variable bar][string-2 }`])")
 
@@ -449,6 +453,160 @@
      "[keyword export] [keyword abstract] [keyword class] [def Foo] {}")
 
   TS("interface without semicolons",
+     "[keyword interface] [def Foo] {",
+     "  [property greet]([def x]: [type int]): [type blah]",
+     "  [property bar]: [type void]",
+     "}")
+
+  var flow_mode = CodeMirror.getMode({indentUnit: 2}, "application/flow")
+  function F(name) {
+    test.mode(name, flow_mode, Array.prototype.slice.call(arguments, 1))
+  }
+
+  F("flow_extend_type",
+     "[keyword class] [def Foo] [keyword extends] [type Some][operator <][type Type][operator >] {}")
+
+  F("flow_arrow_type",
+     "[keyword let] [def x]: ([variable arg]: [type Type]) [operator =>] [type ReturnType]")
+
+  F("flow_class",
+     "[keyword class] [def Foo] {",
+     "  [keyword static] [property main]() {}",
+     "  [property _foo]: [type string];",
+     "}")
+
+  F("flow_literal_types",
+     "[keyword import] [keyword *] [keyword as] [def Sequelize] [keyword from] [string 'sequelize'];",
+     "[keyword interface] [def MyAttributes] {",
+     "  [property truthy]: [string 'true'] [operator |] [number 1] [operator |] [atom true];",
+     "  [property falsy]: [string 'false'] [operator |] [number 0] [operator |] [atom false];",
+     "}",
+     "[keyword interface] [def MyInstance] [keyword extends] [type Sequelize].[type Instance] [operator <] [type MyAttributes] [operator >] {",
+     "  [property rawAttributes]: [type MyAttributes];",
+     "  [property truthy]: [string 'true'] [operator |] [number 1] [operator |] [atom true];",
+     "  [property falsy]: [string 'false'] [operator |] [number 0] [operator |] [atom false];",
+     "}")
+
+  F("flow_extend_operators",
+     "[keyword export] [keyword interface] [def UserModel] [keyword extends]",
+     "  [type Sequelize].[type Model] [operator <] [type UserInstance], [type UserAttributes] [operator >] {",
+     "    [property findById]: (",
+     "    [variable userId]: [type number]",
+     "    ) [operator =>] [type Promise] [operator <] [type Array] [operator <] { [property id], [property name] } [operator >>];",
+     "    [property updateById]: (",
+     "    [variable userId]: [type number],",
+     "    [variable isActive]: [type boolean]",
+     "    ) [operator =>] [type Promise] [operator <] [type AccountHolderNotificationPreferenceInstance] [operator >];",
+     "  }")
+
+  F("flow_interface_with_const",
+     "[keyword const] [def hello]: {",
+     "  [property prop1][operator ?]: [type string];",
+     "  [property prop2][operator ?]: [type string];",
+     "} [operator =] {};")
+
+  F("flow_double_extend",
+     "[keyword export] [keyword interface] [def UserAttributes] {",
+     "  [property id][operator ?]: [type number];",
+     "  [property createdAt][operator ?]: [type Date];",
+     "}",
+     "[keyword export] [keyword interface] [def UserInstance] [keyword extends] [type Sequelize].[type Instance][operator <][type UserAttributes][operator >], [type UserAttributes] {",
+     "  [property id]: [type number];",
+     "  [property createdAt]: [type Date];",
+     "}");
+
+  F("flow_index_signature",
+     "[keyword interface] [def A] {",
+     "  [[ [variable prop]: [type string] ]]: [type any];",
+     "  [property prop1]: [type any];",
+     "}");
+
+  F("flow_generic_class",
+     "[keyword class] [def Foo][operator <][type T][operator >] {",
+     "  [property bar]() {}",
+     "  [property foo](): [type Foo] {}",
+     "}")
+
+  F("flow_type_when_keyword",
+     "[keyword export] [keyword type] [type AB] [operator =] [type A] [operator |] [type B];",
+     "[keyword type] [type Flags] [operator =] {",
+     "  [property p1]: [type string];",
+     "  [property p2]: [type boolean];",
+     "};")
+
+  F("flow_type_when_not_keyword",
+     "[keyword class] [def HasType] {",
+     "  [property type]: [type string];",
+     "  [property constructor]([def type]: [type string]) {",
+     "    [keyword this].[property type] [operator =] [variable-2 type];",
+     "  }",
+     "  [property setType]({ [def type] }: { [property type]: [type string]; }) {",
+     "    [keyword this].[property type] [operator =] [variable-2 type];",
+     "  }",
+     "}")
+
+  F("flow_function_generics",
+     "[keyword function] [def a]() {}",
+     "[keyword function] [def b][operator <][type IA] [operator :] { [property type]: [type string]; }, [type IB] [operator :] { [property type]: [type string]; }[operator >]() {}",
+     "[keyword function] [def c]() {}")
+
+  F("flow_complex_return_type",
+     "[keyword function] [def A]() {",
+     "  [keyword return] [keyword this].[property property];",
+     "}",
+     "[keyword function] [def B](): [type Promise][operator <]{ [[ [variable key]: [type string] ]]: [type any] } [operator |] [atom null][operator >] {",
+     "  [keyword return] [keyword this].[property property];",
+     "}")
+
+  F("flow_complex_type_casting",
+     "[keyword const] [def giftpay] [operator =] ([variable config].[property get]([string 'giftpay']) : { [[ [variable platformUuid]: [type string] ]]: { [property version]: [type number]; [property apiCode]: [type string]; } });")
+
+  F("flow_typeof",
+     "[keyword function] [def x][operator <][type T] [operator :] [keyword typeof] [variable X][operator >]([def a]: [type T]) {",
+     "  [keyword return]")
+
+  F("flow_new_typeargs",
+     "[keyword let] [def x] [operator =] [keyword new] [variable Map][operator <][type string], [type Date][operator >]([string-2 `foo${][variable bar][string-2 }`])")
+
+  F("flow modifiers",
+     "[keyword class] [def Foo] {",
+     "  [operator +] [property bar] [operator =] () [operator =>] {}",
+     "  [operator -] [property baz] [operator =] () [operator =>] {}",
+     "  [property constructor]([def x]) {}",
+     "}")
+
+  F("flow arrow prop",
+     "({[property a]: [def p] [operator =>] [variable-2 p]})")
+
+  F("flow generic in function call",
+     "[keyword this].[property a][operator <][type Type][operator >]([variable foo]);",
+     "[keyword this].[property a][operator <][variable Type][operator >][variable foo];")
+
+  F("flow type guard",
+     "[keyword class] [def Appler] {",
+     "  [keyword static] [property assertApple]([def fruit]: [type Fruit]): [type boolean] [operator %checks] {",
+     "    [keyword if] ([operator !]([variable-2 fruit] [keyword instanceof] [variable Apple]))",
+     "      [keyword throw] [keyword new] [variable Error]();",
+     "  }",
+     "}")
+
+  F("flow type as variable",
+     "[variable type] [operator =] ( [variable x] : [type Bar] );");
+
+  F("flow enum body",
+     "[keyword export] [keyword const] [keyword enum] [def CodeInspectionResultType] {",
+     "  [def ERROR] [operator =] [string 'problem_type_error'],",
+     "  [def WARNING] [operator =] [string 'problem_type_warning'],",
+     "  [def META],",
+     "}")
+
+  F("flow parenthesized type",
+     "[keyword class] [def Foo] {",
+     "  [property x] [operator =] [keyword new] [variable A][operator <][type B], [type string][operator |](() [operator =>] [type void])[operator >]();",
+     "  [property bar]();",
+     "}")
+
+  F("flow interface without semicolons",
      "[keyword interface] [def Foo] {",
      "  [property greet]([def x]: [type int]): [type blah]",
      "  [property bar]: [type void]",
