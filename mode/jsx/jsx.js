@@ -145,4 +145,5 @@
 
   CodeMirror.defineMIME("text/jsx", "jsx")
   CodeMirror.defineMIME("text/typescript-jsx", {name: "jsx", base: {name: "javascript", typescript: true}})
+  CodeMirror.defineMIME("text/flow-jsx", {name: "jsx", base: {name: "javascript", flow: true}})
 });
