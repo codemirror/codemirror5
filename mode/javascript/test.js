@@ -298,6 +298,15 @@
      "[keyword return]",
      "{} [string-2 /5/]")
 
+  MT("numeric separator",
+     "[number 123_456];",
+     "[number 0xdead_c0de];",
+     "[number 0o123_456];",
+     "[number 0b1101_1101];",
+     "[number .123_456e0_1];",
+     "[number 1E+123_456];",
+     "[number 12_34_56n];")
+
   var ts_mode = CodeMirror.getMode({indentUnit: 2}, "application/typescript")
   function TS(name) {
     test.mode(name, ts_mode, Array.prototype.slice.call(arguments, 1))
