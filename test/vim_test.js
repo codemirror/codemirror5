@@ -3939,6 +3939,24 @@ testSubstitute('ex_substitute_forward_slash_regex', {
   expectedValue: 'forward slash  was here',
   expr: '%s#\\/##g',
   noPcreExpr: '%s#/##g'});
+testVim("ex_substitute_ampersand_pcre", function(cm, vim, helpers) {
+    cm.setCursor(0, 0);
+    CodeMirror.Vim.setOption('pcre', true);
+    helpers.doEx('%s/foo/namespace.&/');
+    eq("namespace.foo", cm.getValue());
+  }, { value: 'foo' });
+testVim("ex_substitute_ampersand_multiple_pcre", function(cm, vim, helpers) {
+    cm.setCursor(0, 0);
+    CodeMirror.Vim.setOption('pcre', true);
+    helpers.doEx('%s/f.o/namespace.&/');
+    eq("namespace.foo\nnamespace.fzo", cm.getValue());
+  }, { value: 'foo\nfzo' });
+testVim("ex_escaped_ampersand_should_not_substitute_pcre", function(cm, vim, helpers) {
+    cm.setCursor(0, 0);
+    CodeMirror.Vim.setOption('pcre', true);
+    helpers.doEx('%s/foo/namespace.\\&/');
+    eq("namespace.&", cm.getValue());
+  }, { value: 'foo' });
 testSubstitute('ex_substitute_backslashslash_regex', {
   value: 'one\\two \n three\\four',
   expectedValue: 'one,two \n three,four',

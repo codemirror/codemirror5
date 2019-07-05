@@ -4073,7 +4073,7 @@
     }
 
     // Unescape \ and / in the replace part, for PCRE mode.
-    var unescapes = {'\\/': '/', '\\\\': '\\', '\\n': '\n', '\\r': '\r', '\\t': '\t'};
+    var unescapes = {'\\/': '/', '\\\\': '\\', '\\n': '\n', '\\r': '\r', '\\t': '\t', '\\&':'&'};
     function unescapeRegexReplace(str) {
       var stream = new CodeMirror.StringStream(str);
       var output = [];
@@ -4871,7 +4871,7 @@
           }
           if (replacePart !== undefined) {
             if (getOption('pcre')) {
-              replacePart = unescapeRegexReplace(replacePart);
+              replacePart = unescapeRegexReplace(replacePart.replace(/([^\\])&/g,"$1$$&"));
             } else {
               replacePart = translateRegexReplace(replacePart);
             }
