@@ -3934,6 +3934,11 @@ testSubstitute('ex_substitute_or_word_regex', {
   expectedValue: 'five|five \n three|four',
   expr: '%s/(one|two)/five/g',
   noPcreExpr: '%s/\\(one\\|two\\)/five/g'});
+testSubstitute('ex_substitute_forward_slash_regex', {
+    value: 'forward slash \/ was here',
+  expectedValue: 'forward slash  was here',
+  expr: '%s#\\/##g',
+  noPcreExpr: '%s#/##g'});
 testSubstitute('ex_substitute_backslashslash_regex', {
   value: 'one\\two \n three\\four',
   expectedValue: 'one,two \n three,four',

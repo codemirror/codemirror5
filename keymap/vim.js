@@ -4861,6 +4861,9 @@
         var global = false; // True to replace all instances on a line, false to replace only 1.
         if (tokens.length) {
           regexPart = tokens[0];
+          if (getOption('pcre') && regexPart !== '') {
+              regexPart = new RegExp(regexPart).source; //normalize not escaped characters
+          }
           replacePart = tokens[1];
           if (regexPart && regexPart[regexPart.length - 1] === '$') {
             regexPart = regexPart.slice(0, regexPart.length - 1) + '\\n';
@@ -4899,7 +4902,11 @@
               global = true;
               flagsPart.replace('g', '');
             }
-            regexPart = regexPart.replace(/\//g, "\\/") + '/' + flagsPart;
+            if (getOption('pcre')) {
+               regexPart = regexPart + '/' + flagsPart;
+            } else {
+               regexPart = regexPart.replace(/\//g, "\\/") + '/' + flagsPart;
+            }
           }
         }
         if (regexPart) {
