@@ -78,10 +78,12 @@
   }
 
   function parseString(string) {
-    return string.replace(/\\(.)/g, function(_, ch) {
+    return string.replace(/\\([nrt\\])/g, function(match, ch) {
       if (ch == "n") return "\n"
       if (ch == "r") return "\r"
-      return ch
+      if (ch == "t") return "\t"
+      if (ch == "\\") return "\\"
+      return match
     })
   }
 
