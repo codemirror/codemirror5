@@ -106,10 +106,10 @@ export let commands = {
   defaultTab: cm => {
     if (cm.somethingSelected()) cm.indentSelection("add")
     else {
-      let ranges = cm.listSelections();
+      let ranges = cm.listSelections()
       if (ranges.length === 0) { return }
 
-      cm.indentLine(ranges[0].head.line, null, true);
+      cm.indentLine(ranges[0].head.line, null, true)
     }
   },
   // Swap the two chars left and right of each selection's head.
