@@ -105,7 +105,12 @@ export let commands = {
   },
   defaultTab: cm => {
     if (cm.somethingSelected()) cm.indentSelection("add")
-    else cm.execCommand("insertTab")
+    else {
+      let ranges = cm.listSelections();
+      if (ranges.length === 0) { return }
+
+      cm.indentLine(ranges[0].head.line, null, true);
+    }
   },
   // Swap the two chars left and right of each selection's head.
   // Move cursor behind the two swapped characters afterwards.
