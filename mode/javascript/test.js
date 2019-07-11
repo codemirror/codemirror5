@@ -127,6 +127,9 @@
      "[keyword let] [def f] [operator =] ([[ [def a], [def b] ]], [def c]) [operator =>] [variable-2 a] [operator +] [variable-2 c];",
      "[variable c];");
 
+  MT("fatArrow_stringDefault",
+     "([def a], [def b] [operator =] [string 'x\\'y']) [operator =>] [variable-2 a] [operator +] [variable-2 b]")
+
   MT("spread",
      "[keyword function] [def f]([def a], [meta ...][def b]) {",
      "  [variable something]([variable-2 a], [meta ...][variable-2 b]);",

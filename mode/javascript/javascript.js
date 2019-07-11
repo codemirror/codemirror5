@@ -196,7 +196,11 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       } else if (wordRE.test(ch)) {
         sawSomething = true;
       } else if (/["'\/]/.test(ch)) {
-        return;
+        for (;; --pos) {
+          if (pos == 0) return
+          let next = stream.string.charAt(pos - 1)
+          if (next == ch && stream.string.charAt(pos - 2) != "\\") { pos--; break }
+        }
       } else if (sawSomething && !depth) {
         ++pos;
         break;
