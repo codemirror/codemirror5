@@ -195,7 +195,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
         ++depth;
       } else if (wordRE.test(ch)) {
         sawSomething = true;
-      } else if (/["'\/]/.test(ch)) {
+      } else if (/["'\/`]/.test(ch)) {
         for (;; --pos) {
           if (pos == 0) return
           var next = stream.string.charAt(pos - 1)
