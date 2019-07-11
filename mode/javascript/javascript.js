@@ -198,7 +198,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       } else if (/["'\/]/.test(ch)) {
         for (;; --pos) {
           if (pos == 0) return
-          let next = stream.string.charAt(pos - 1)
+          var next = stream.string.charAt(pos - 1)
           if (next == ch && stream.string.charAt(pos - 2) != "\\") { pos--; break }
         }
       } else if (sawSomething && !depth) {
