@@ -110,8 +110,14 @@
   });
 
   function className(stream) {
-    stream.eatWhile(/[a-zA-Z0-9_$]/);
-    return "class";
+    stream.backUp(1);
+    if (stream.match(/[_$]*[A-Z][a-zA-Z0-9_$]*/, true)) {
+      return "class";
+    }
+
+    // variable starting with an underscore
+    stream.eatWhile(/[_$]*[a-zA-Z0-9_$]*/);
+    return "variable";
   }
 
   function tokenString(quote, stream, state, raw) {
