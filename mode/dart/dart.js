@@ -78,9 +78,41 @@
         if (!stream.eat("*")) return false
         state.tokenize = tokenNestedComment(1)
         return state.tokenize(stream, state)
-      }
+      },
+      "A": className,
+      "B": className,
+      "C": className,
+      "D": className,
+      "E": className,
+      "F": className,
+      "G": className,
+      "H": className,
+      "I": className,
+      "J": className,
+      "K": className,
+      "L": className,
+      "M": className,
+      "N": className,
+      "O": className,
+      "P": className,
+      "Q": className,
+      "R": className,
+      "S": className,
+      "T": className,
+      "U": className,
+      "V": className,
+      "W": className,
+      "X": className,
+      "Y": className,
+      "Z": className,
+      "_": className,
     }
   });
+
+  function className(stream) {
+    stream.eatWhile(/[a-zA-Z0-9_$]/);
+    return "class";
+  }
 
   function tokenString(quote, stream, state, raw) {
     var tripleQuoted = false;
