@@ -79,46 +79,14 @@
         state.tokenize = tokenNestedComment(1)
         return state.tokenize(stream, state)
       },
-      "A": className,
-      "B": className,
-      "C": className,
-      "D": className,
-      "E": className,
-      "F": className,
-      "G": className,
-      "H": className,
-      "I": className,
-      "J": className,
-      "K": className,
-      "L": className,
-      "M": className,
-      "N": className,
-      "O": className,
-      "P": className,
-      "Q": className,
-      "R": className,
-      "S": className,
-      "T": className,
-      "U": className,
-      "V": className,
-      "W": className,
-      "X": className,
-      "Y": className,
-      "Z": className,
-      "_": className,
+      token: function (stream) {
+        // Assume uppercase symbols are classes, use variable-2
+        if (stream.current().match(/[_$]*[A-Z][a-zA-Z0-9_$]*/, true)) {
+          return 'variable-2';
+        }
+      }
     }
   });
-
-  function className(stream) {
-    stream.backUp(1);
-    if (stream.match(/[_$]*[A-Z][a-zA-Z0-9_$]*/, true)) {
-      return "variable-2";
-    }
-
-    // variable starting with an underscore
-    stream.eatWhile(/[_$]*[a-zA-Z0-9_$]*/);
-    return "variable";
-  }
 
   function tokenString(quote, stream, state, raw) {
     var tripleQuoted = false;
