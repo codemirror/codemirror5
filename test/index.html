@@ -4,22 +4,22 @@
 <title>CodeMirror: Test Suite</title>
 <link rel=stylesheet href="../doc/docs.css">
 
-<link rel="stylesheet" href="../lib/codemirror.css">
+<link rel="stylesheet" href="../minified/lib/codemirror.min.css">
 <link rel="stylesheet" href="mode_test.css">
 <script src="../doc/activebookmark.js"></script>
-<script src="../lib/codemirror.js"></script>
+<script src="../minified/lib/codemirror.min.js"></script>
 <script src="../mode/meta.js"></script>
 <script src="../addon/mode/overlay.js"></script>
 <script src="../addon/mode/multiplex.js"></script>
 <script src="../addon/search/searchcursor.js"></script>
 <script src="../addon/dialog/dialog.js"></script>
-<script src="../addon/edit/matchbrackets.js"></script>
+<script src="../minified/addon/edit/matchbrackets.min.js"></script>
 <script src="../addon/hint/sql-hint.js"></script>
 <script src="../addon/hint/xml-hint.js"></script>
 <script src="../addon/hint/html-hint.js"></script>
 <script src="../addon/comment/comment.js"></script>
 <script src="../addon/mode/simple.js"></script>
-<script src="../mode/css/css.js"></script>
+<script src="../minified/mode/css/css.min.js"></script>
 <script src="../mode/clike/clike.js"></script>
 <!-- clike must be after css or vim and sublime tests will fail -->
 <script src="../mode/clojure/clojure.js"></script>
@@ -28,8 +28,8 @@
 <script src="../mode/dockerfile/dockerfile.js"></script>
 <script src="../mode/gfm/gfm.js"></script>
 <script src="../mode/haml/haml.js"></script>
-<script src="../mode/htmlmixed/htmlmixed.js"></script>
-<script src="../mode/javascript/javascript.js"></script>
+<script src="../minified/mode/htmlmixed/htmlmixed.min.js"></script>
+<script src="../minified/mode/javascript/javascript.min.js"></script>
 <script src="../mode/jsx/jsx.js"></script>
 <script src="../mode/markdown/markdown.js"></script>
 <script src="../mode/php/php.js"></script>
@@ -45,7 +45,7 @@
 <script src="../mode/swift/swift.js"></script>
 <script src="../mode/textile/textile.js"></script>
 <script src="../mode/verilog/verilog.js"></script>
-<script src="../mode/xml/xml.js"></script>
+<script src="../minified/mode/xml/xml.min.js"></script>
 <script src="../mode/xquery/xquery.js"></script>
 <script src="../keymap/emacs.js"></script>
 <script src="../keymap/sublime.js"></script>
@@ -79,7 +79,10 @@
 </style>
 
 <div id=nav>
-  <a href="https://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../doc/logo.png"></a>
+  <a href="https://codemirror.net">
+    <h1>CodeMirror</h1>
+    <img id="logo" alt="code mirror logo" src="../doc/logo.png">
+  </a>
 
   <ul>
     <li><a href="../index.html">Home</a>

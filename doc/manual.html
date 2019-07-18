@@ -1,18 +1,19 @@
 <!doctype html>
+<html lang="en">
 
 <title>CodeMirror: User Manual</title>
 <meta charset="utf-8"/>
 <link rel=stylesheet href="docs.css">
 <script src="activebookmark.js"></script>
 
-<script src="../lib/codemirror.js"></script>
-<link rel="stylesheet" href="../lib/codemirror.css">
+<script src="../minified/lib/codemirror.min.js"></script>
+<link rel="stylesheet" href="../minified/lib/codemirror.min.css">
 <script src="../addon/runmode/runmode.js"></script>
 <script src="../addon/runmode/colorize.js"></script>
-<script src="../mode/javascript/javascript.js"></script>
-<script src="../mode/xml/xml.js"></script>
-<script src="../mode/css/css.js"></script>
-<script src="../mode/htmlmixed/htmlmixed.js"></script>
+<script src="../minified/mode/javascript/javascript.min.js"></script>
+<script src="../minified/mode/xml/xml.min.js"></script>
+<script src="../minified/mode/css/css.min.js"></script>
+<script src="../minified/mode/htmlmixed/htmlmixed.min.js"></script>
 <style>
   dt { text-indent: -2em; padding-left: 2em; margin-top: 1em; }
   dd { margin-left: 1.5em; margin-bottom: 1em; }
@@ -24,7 +25,7 @@
 </style>
 
 <div id=nav>
-  <a href="https://codemirror.net"><h1>CodeMirror</h1><img id=logo src="logo.png"></a>
+  <a href="https://codemirror.net"><h1>CodeMirror</h1><img id=logo alt="code mirror logo" src="logo.png"></a>
   <ul>
     <li><a href="../index.html">Home</a></li>
     <li><a href="#overview" class=active data-default="true">Manual</a></li>
@@ -69,7 +70,7 @@
 <section class=first id=overview>
     <h2 style="position: relative">
       User manual and reference guide
-      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 5.48.1</span>
+      <span style="color: #555; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 5.48.1</span>
     </h2>
 
     <p>CodeMirror is a code-editor component that can be embedded in
@@ -1136,7 +1137,7 @@ editor.setOption("extraKeys", {
     simply provide the colors for that mode, and can be adapted in a
     very straightforward way. To style the editor itself, it is
     possible to alter or override the styles defined
-    in <a href="../lib/codemirror.css"><code>codemirror.css</code></a>.</p>
+    in <a href="../minified/lib/codemirror.min.css"><code>codemirror.css</code></a>.</p>
 
     <p>Some care must be taken there, since a lot of the rules in this
     file are necessary to have CodeMirror function properly. Adjusting
@@ -1205,7 +1206,7 @@ editor.setOption("extraKeys", {
     the <a href="../theme/"><code>theme</code></a> directory.</p>
 </section>
 
-<section id=api>
+<section id="api">
     <h2>Programming API</h2>
 
     <p>A lot of CodeMirror features are only available through its
@@ -2293,8 +2294,8 @@ editor.setOption("extraKeys", {
     </dl>
 </section>
 
-<section id=addons>
-    <h2 id="addons">Addons</h2>
+<section id="addons">
+    <h2>Addons</h2>
 
     <p>The <code>addon</code> directory in the distribution contains a
     number of reusable components that implement extra editor

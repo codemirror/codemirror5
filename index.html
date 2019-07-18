@@ -1,18 +1,23 @@
 <!doctype html>
-
+<html lang="en">
 <title>CodeMirror</title>
 <meta charset="utf-8"/>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta 
+  name="description" 
+  content="CodeMirror is a versatile text editor implemented in JavaScript for the browser. It is specialized for editing code, and comes with a number of language modes and addons that implement more advanced editing functionality."
+>
 
-<link rel=stylesheet href="lib/codemirror.css">
-<link rel=stylesheet href="doc/docs.css">
-<script src="lib/codemirror.js"></script>
-<script src="mode/xml/xml.js"></script>
-<script src="mode/javascript/javascript.js"></script>
-<script src="mode/css/css.js"></script>
-<script src="mode/htmlmixed/htmlmixed.js"></script>
-<script src="addon/edit/matchbrackets.js"></script>
+<link defer rel=stylesheet href="minified/lib/codemirror.min.css">
+<link rel=stylesheet href="minified/doc/docs.min.css">
+<script src="minified/lib/codemirror.min.js"></script>
+<script src="minified/mode/xml/xml.min.js"></script>
+<script src="minified/mode/javascript/javascript.min.js"></script>
+<script defer src="minified/mode/css/css.min.js"></script>
+<script src="minified/mode/htmlmixed/htmlmixed.min.js"></script>
+<script src="minified/addon/edit/matchbrackets.min.js"></script>
 
-<script src="doc/activebookmark.js"></script>
+<script src="minified/doc/activebookmark.min.js"></script>
 
 <style>
   .CodeMirror { height: auto; border: 1px solid #ddd; }
@@ -23,8 +28,10 @@
 </style>
 
 <div id=nav>
-  <a href="https://codemirror.net"><h1>CodeMirror</h1><img id=logo src="doc/logo.png"></a>
-
+  <a href="https://codemirror.net">
+    <h1>CodeMirror</h1>
+    <img id="logo" alt="code mirror logo" src="doc/logo.png">
+  </a>
   <ul>
     <li><a class=active data-default="true" href="#description">Home</a>
     <li><a href="doc/manual.html">Manual</a>
@@ -63,6 +70,7 @@
     lineNumbers: true
   });
 </script></textarea>
+  <label for="demolist">Demo List</label>
   <select id="demolist" onchange="document.location = this.options[this.selectedIndex].value;">
     <option value="#">Other demos...</option>
     <option value="demo/complete.html">Autocompletion</option>
@@ -90,7 +98,7 @@
 
   <div class=actions>
     <div class=actionspicture>
-      <img src="doc/yinyang.png" class=yinyang>
+      <img src="doc/yinyang.png" alt="yin and yang of open source" class="yinyang">
       <div class="actionlink download">
         <a href="https://codemirror.net/codemirror.zip">DOWNLOAD</a>
       </div>
