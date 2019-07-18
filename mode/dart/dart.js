@@ -112,7 +112,7 @@
   function className(stream) {
     stream.backUp(1);
     if (stream.match(/[_$]*[A-Z][a-zA-Z0-9_$]*/, true)) {
-      return "class";
+      return "variable-2";
     }
 
     // variable starting with an underscore
