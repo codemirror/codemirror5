@@ -79,10 +79,13 @@
         state.tokenize = tokenNestedComment(1)
         return state.tokenize(stream, state)
       },
-      token: function (stream) {
-        // Assume uppercase symbols are classes, use variable-2
-        if (stream.current().match(/[_$]*[A-Z][a-zA-Z0-9_$]*/, true)) {
-          return 'variable-2';
+      token: function(stream, state, style) {
+        if (style == "variable") {
+          // Assume uppercase symbols are classes using variable-2
+          let isUpper = RegExp('^[_$]*[A-Z][a-zA-Z0-9_$]*$','g');
+          if (isUpper.test(stream.current())) {
+            return 'variable-2';
+          }
         }
       }
     }
