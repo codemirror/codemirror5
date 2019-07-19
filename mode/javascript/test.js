@@ -310,6 +310,13 @@
      "[number 1E+123_456];",
      "[number 12_34_56n];")
 
+  MT("underscore property",
+     "[variable something].[property _property];",
+     "[variable something].[property _123];",
+     "[variable something].[property _for];",
+     "[variable _for];",
+     "[variable _123];")
+
   var ts_mode = CodeMirror.getMode({indentUnit: 2}, "application/typescript")
   function TS(name) {
     test.mode(name, ts_mode, Array.prototype.slice.call(arguments, 1))

@@ -67,7 +67,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (ch == '"' || ch == "'") {
       state.tokenize = tokenString(ch);
       return state.tokenize(stream, state);
-    } else if (ch == "." && stream.match(/^[\d_]+(?:[eE][+\-]?[\d_]+)?/)) {
+    } else if (ch == "." && stream.match(/^\d[\d_]*(?:[eE][+\-]?[\d_]+)?/)) {
       return ret("number", "number");
     } else if (ch == "." && stream.match("..")) {
       return ret("spread", "meta");
