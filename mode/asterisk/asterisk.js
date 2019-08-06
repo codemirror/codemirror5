@@ -209,9 +209,9 @@ CodeMirror.defineMode("asterisk", function() {
       return null;
     },
 
-    blockCommentStart: jsonMode ? null : ";--",
-    blockCommentEnd: jsonMode ? null : "--;",
-    lineComment: jsonMode ? null : ";"
+    blockCommentStart: ";--",
+    blockCommentEnd: "--;",
+    lineComment: ";"
   };
 });
 
