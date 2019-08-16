@@ -10,7 +10,8 @@ const noHandlers = []
 
 export let on = function(emitter, type, f) {
   if (emitter.addEventListener) {
-    emitter.addEventListener(type, f, false)
+    const passive = type === 'wheel' || type === 'mousewheel' || type === 'touchstart' || type === 'touchmove'
+    emitter.addEventListener(type, f, passive ? {passive} :false)
   } else if (emitter.attachEvent) {
     emitter.attachEvent("on" + type, f)
   } else {
