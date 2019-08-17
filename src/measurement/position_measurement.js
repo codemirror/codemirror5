@@ -18,7 +18,7 @@ export function paddingTop(display) {return display.lineSpace.offsetTop}
 export function paddingVert(display) {return display.mover.offsetHeight - display.lineSpace.offsetHeight}
 export function paddingH(display) {
   if (display.cachedPaddingH) return display.cachedPaddingH
-  let e = removeChildrenAndAdd(display.measure, elt("pre", "x", "CodeMirror-measure-elem"))
+  let e = removeChildrenAndAdd(display.measure, elt("pre", "x", "CodeMirror-line-like"))
   let style = window.getComputedStyle ? window.getComputedStyle(e) : e.currentStyle
   let data = {left: parseInt(style.paddingLeft), right: parseInt(style.paddingRight)}
   if (!isNaN(data.left) && !isNaN(data.right)) display.cachedPaddingH = data
@@ -585,7 +585,7 @@ let measureText
 export function textHeight(display) {
   if (display.cachedTextHeight != null) return display.cachedTextHeight
   if (measureText == null) {
-    measureText = elt("pre", null, "CodeMirror-measure-elem")
+    measureText = elt("pre", null, "CodeMirror-line-like")
     // Measure a bunch of lines, for browsers that compute
     // fractional heights.
     for (let i = 0; i < 49; ++i) {
@@ -605,7 +605,7 @@ export function textHeight(display) {
 export function charWidth(display) {
   if (display.cachedCharWidth != null) return display.cachedCharWidth
   let anchor = elt("span", "xxxxxxxxxx")
-  let pre = elt("pre", [anchor], "CodeMirror-measure-elem")
+  let pre = elt("pre", [anchor], "CodeMirror-line-like")
   removeChildrenAndAdd(display.measure, pre)
   let rect = anchor.getBoundingClientRect(), width = (rect.right - rect.left) / 10
   if (width > 2) display.cachedCharWidth = width
