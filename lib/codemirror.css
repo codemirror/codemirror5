@@ -14,7 +14,7 @@
   padding: 4px 0; /* Vertical padding around content */
 }
 .CodeMirror pre.CodeMirror-line,
-.CodeMirror pre.CodeMirror-measure-elem {
+.CodeMirror pre.CodeMirror-line-like {
   padding: 0 4px; /* Horizontal padding of content */
 }
 
@@ -238,7 +238,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
   min-height: 1px; /* prevents collapsing before first draw */
 }
 .CodeMirror pre.CodeMirror-line,
-.CodeMirror pre.CodeMirror-measure-elem {
+.CodeMirror pre.CodeMirror-line-like {
   /* Reset some styles that the rest of the page might have set */
   -moz-border-radius: 0; -webkit-border-radius: 0; border-radius: 0;
   border-width: 0;
@@ -258,7 +258,7 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
   font-variant-ligatures: contextual;
 }
 .CodeMirror-wrap pre.CodeMirror-line,
-.CodeMirror-wrap pre.CodeMirror-measure-elem {
+.CodeMirror-wrap pre.CodeMirror-line-like {
   word-wrap: break-word;
   white-space: pre-wrap;
   word-break: normal;
