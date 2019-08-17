@@ -75,6 +75,7 @@ Doc.prototype = createObj(BranchChunk.prototype, {
     let top = Pos(this.first, 0), last = this.first + this.size - 1
     makeChange(this, {from: top, to: Pos(last, getLine(this, last).text.length),
                       text: this.splitLines(code), origin: "setValue", full: true}, true)
+    this.cantEdit = false
     if (this.cm) scrollToCoords(this.cm, 0, 0)
     setSelection(this, simpleSelection(top), sel_dontScroll)
   }),
