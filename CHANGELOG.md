@@ -1,3 +1,19 @@
+## 5.48.4 (2019-08-20)
+
+### Bug fixes
+
+Make default styles for line elements more specific so that they don't apply to all `<pre>` elements inside the editor.
+
+Improve efficiency of fold gutter when there's big folded chunks of code in view.
+
+Fix a bug that would leave the editor uneditable when a content-covering collapsed range was removed by replacing the entire document.
+
+[julia mode](https://codemirror.net/mode/julia/): Support number separators.
+
+[asterisk mode](https://codemirror.net/mode/asterisk/): Improve comment support.
+
+[handlebars mode](https://codemirror.net/mode/handlebars/): Support triple-brace tags.
+
 ## 5.48.2 (2019-07-20)
 
 ### Bug fixes
