@@ -15,7 +15,7 @@ import { changeEnd, computeSelAfterChange } from "./change_measurement.js"
 import { isWholeLineUpdate, linkedDocs, updateDoc } from "./document_data.js"
 import { addChangeToHistory, historyChangeFromChange, mergeOldSpans, pushSelectionToHistory } from "./history.js"
 import { Range, Selection } from "./selection.js"
-import { setSelection, setSelectionNoUndo } from "./selection_updates.js"
+import { setSelection, setSelectionNoUndo, skipAtomic } from "./selection_updates.js"
 
 // UPDATING
 
