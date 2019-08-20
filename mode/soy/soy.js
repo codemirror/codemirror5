@@ -288,7 +288,7 @@
               state.soyState.pop();
               return "keyword";
             } else if (stream.match(/^([\w?]+)(?==)/)) {
-              if (stream.current() == "kind" && (match = stream.match(/^="([^"]+)/, false))) {
+              if (state.context && state.context.tag == tagName && stream.current() == "kind" && (match = stream.match(/^="([^"]+)/, false))) {
                 var kind = match[1];
                 state.context.kind = kind;
                 var mode = modes[kind] || modes.html;
