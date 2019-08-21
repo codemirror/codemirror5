@@ -676,6 +676,11 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
         state.tokenize = tokenKotlinString(stream.match('""'));
         return state.tokenize(stream, state);
       },
+      "/": function(stream, state) {
+        if (!stream.eat("*")) return false;
+        state.tokenize = tokenNestedComment(1);
+        return state.tokenize(stream, state)
+      },
       indent: function(state, ctx, textAfter, indentUnit) {
         var firstChar = textAfter && textAfter.charAt(0);
         if ((state.prevToken == "}" || state.prevToken == ")") && textAfter == "")
