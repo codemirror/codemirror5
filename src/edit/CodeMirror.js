@@ -18,7 +18,7 @@ import { bind, copyObj, Delayed } from "../util/misc.js"
 
 import { clearDragCursor, onDragOver, onDragStart, onDrop } from "./drop_events.js"
 import { ensureGlobalHandlers } from "./global_events.js"
-import { onKeyDown, onKeyPress, onKeyUp } from "./key_events.js"
+import { onKeyDown, onKeyUp } from "./key_events.js"
 import { clickInGutter, onContextMenu, onMouseDown } from "./mouse_events.js"
 import { themeChanged } from "./utils.js"
 import { defaults, optionHandlers, Init } from "./options.js"
@@ -203,7 +203,6 @@ function registerEventHandlers(cm) {
   let inp = d.input.getField()
   on(inp, "keyup", e => onKeyUp.call(cm, e))
   on(inp, "keydown", operation(cm, onKeyDown))
-  on(inp, "keypress", operation(cm, onKeyPress))
   on(inp, "focus", e => onFocus(cm, e))
   on(inp, "blur", e => onBlur(cm, e))
 }

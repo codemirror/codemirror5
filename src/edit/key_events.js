@@ -123,6 +123,8 @@ export function onKeyDown(e) {
   // Turn mouse into crosshair when Alt is held on Mac.
   if (code == 18 && !/\bCodeMirror-crosshair\b/.test(cm.display.lineDiv.className))
     showCrossHair(cm)
+
+  onKeyPress.call(cm, e)
 }
 
 function showCrossHair(cm) {
@@ -145,13 +147,16 @@ export function onKeyUp(e) {
   signalDOMEvent(this, e)
 }
 
+// We don't handle keypress events from the browser anymore (this is called as
+// part of the handling of keydown events instead). But we keep
+// `CodeMirror.triggerOnKeyPress` for backwards compatibility.
 export function onKeyPress(e) {
   let cm = this
   if (eventInWidget(cm.display, e) || signalDOMEvent(cm, e) || e.ctrlKey && !e.altKey || mac && e.metaKey) return
-  let keyCode = e.keyCode, charCode = e.charCode
+  let keyCode = e.keyCode
   if (presto && keyCode == lastStoppedKey) {lastStoppedKey = null; e_preventDefault(e); return}
-  if ((presto && (!e.which || e.which < 10)) && handleKeyBinding(cm, e)) return
-  let ch = String.fromCharCode(charCode == null ? keyCode : charCode)
+  if (presto && (!e.which || e.which < 10) && handleKeyBinding(cm, e)) return
+  let ch = e.key
   // Some browsers fire keypress events for backspace
   if (ch == "\x08") return
   if (handleCharBinding(cm, e, ch)) return
