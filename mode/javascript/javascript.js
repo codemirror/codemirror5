@@ -101,6 +101,9 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     } else if (ch == "#") {
       stream.skipToEnd();
       return ret("error", "error");
+    } else if (ch == "<" && stream.match("!--") || ch == "-" && stream.match("->")) {
+      stream.skipToEnd()
+      return ret("comment", "comment")
     } else if (isOperatorChar.test(ch)) {
       if (ch != ">" || !state.lexical || state.lexical.type != ">") {
         if (stream.eat("=")) {
