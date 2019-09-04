@@ -685,7 +685,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
         var firstChar = textAfter && textAfter.charAt(0);
         if ((state.prevToken == "}" || state.prevToken == ")") && textAfter == "")
           return state.indented;
-        if (state.prevToken == "operator" && textAfter != "}" ||
+        if ((state.prevToken == "operator" && textAfter != "}" && state.context.type != "}") ||
           state.prevToken == "variable" && firstChar == "." ||
           (state.prevToken == "}" || state.prevToken == ")") && firstChar == ".")
           return indentUnit * 2 + ctx.indented;
