@@ -29,10 +29,27 @@ export function countColumn(string, end, tabSize, startIndex, startValue) {
 }
 
 export class Delayed {
-  constructor() {this.id = null}
+  constructor() {
+    this.id = null
+    this.f = null
+    this.time = 0
+    this.handler = bind(this.onTimeout, this)
+  }
+  onTimeout(self) {
+    self.id = 0
+    if (self.time < Date.now()) {
+      self.f()
+    } else {
+      setTimeout(self.handler, self.time - Date.now())
+    }
+  }
   set(ms, f) {
-    clearTimeout(this.id)
-    this.id = setTimeout(f, ms)
+    this.f = f
+    const time = Date.now() + ms
+    if (!this.id || time < this.time) {
+      clearTimeout(this.id)
+      this.id = setTimeout(this.handler, ms)
+    }
   }
 }
 
