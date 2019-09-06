@@ -16,7 +16,7 @@
       cm.clearGutter(cm.state.foldGutter.options.gutter);
       cm.state.foldGutter = null;
       cm.off("gutterClick", onGutterClick);
-      cm.off("change", onChange);
+      cm.off("changes", onChange);
       cm.off("viewportChange", onViewportChange);
       cm.off("fold", onFold);
       cm.off("unfold", onFold);
@@ -26,7 +26,7 @@
       cm.state.foldGutter = new State(parseOptions(val));
       updateInViewport(cm);
       cm.on("gutterClick", onGutterClick);
-      cm.on("change", onChange);
+      cm.on("changes", onChange);
       cm.on("viewportChange", onViewportChange);
       cm.on("fold", onFold);
       cm.on("unfold", onFold);
