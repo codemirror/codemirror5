@@ -15,7 +15,7 @@ import { changeEnd, computeSelAfterChange } from "./change_measurement.js"
 import { isWholeLineUpdate, linkedDocs, updateDoc } from "./document_data.js"
 import { addChangeToHistory, historyChangeFromChange, mergeOldSpans, pushSelectionToHistory } from "./history.js"
 import { Range, Selection } from "./selection.js"
-import { setSelection, setSelectionNoUndo } from "./selection_updates.js"
+import { setSelection, setSelectionNoUndo, skipAtomic } from "./selection_updates.js"
 
 // UPDATING
 
@@ -202,6 +202,9 @@ function makeChangeSingleDoc(doc, change, selAfter, spans) {
   if (doc.cm) makeChangeSingleDocInEditor(doc.cm, change, spans)
   else updateDoc(doc, change, spans)
   setSelectionNoUndo(doc, selAfter, sel_dontScroll)
+
+  if (doc.cantEdit && skipAtomic(doc, Pos(doc.firstLine(), 0)))
+    doc.cantEdit = false
 }
 
 // Handle the interaction of a change to a document with the editor

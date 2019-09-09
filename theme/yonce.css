@@ -24,8 +24,8 @@
 .cm-s-yonce .CodeMirror-activeline .CodeMirror-linenumber.CodeMirror-gutter-elt { background: #1C1C1C; color: #fc4384; }
 .cm-s-yonce .CodeMirror-linenumber { color: #777; }
 .cm-s-yonce .CodeMirror-cursor { border-left: 2px solid #FC4384; }
-.cm-s-yonce .cm-searching { background: rgb(243, 155, 53, .3) !important; outline: 1px solid #F39B35; }
-.cm-s-yonce .cm-searching.CodeMirror-selectedtext { background: rgb(243, 155, 53, .7) !important; color: white; }
+.cm-s-yonce .cm-searching { background: rgba(243, 155, 53, .3) !important; outline: 1px solid #F39B35; }
+.cm-s-yonce .cm-searching.CodeMirror-selectedtext { background: rgba(243, 155, 53, .7) !important; color: white; }
 
 .cm-s-yonce .cm-keyword { color: #00A7AA; } /**/
 .cm-s-yonce .cm-atom { color: #F39B35; }

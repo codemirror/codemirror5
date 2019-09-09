@@ -43,7 +43,7 @@
     cm.on("markerAdded", this.resizeHandler);
     cm.on("markerCleared", this.resizeHandler);
     if (options.listenForChanges !== false)
-      cm.on("change", this.changeHandler = function() {
+      cm.on("changes", this.changeHandler = function() {
         scheduleRedraw(250);
       });
   }
@@ -116,7 +116,7 @@
     this.cm.off("refresh", this.resizeHandler);
     this.cm.off("markerAdded", this.resizeHandler);
     this.cm.off("markerCleared", this.resizeHandler);
-    if (this.changeHandler) this.cm.off("change", this.changeHandler);
+    if (this.changeHandler) this.cm.off("changes", this.changeHandler);
     this.div.parentNode.removeChild(this.div);
   };
 });

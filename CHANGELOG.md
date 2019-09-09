@@ -1,3 +1,57 @@
+## 5.48.4 (2019-08-20)
+
+### Bug fixes
+
+Make default styles for line elements more specific so that they don't apply to all `<pre>` elements inside the editor.
+
+Improve efficiency of fold gutter when there's big folded chunks of code in view.
+
+Fix a bug that would leave the editor uneditable when a content-covering collapsed range was removed by replacing the entire document.
+
+[julia mode](https://codemirror.net/mode/julia/): Support number separators.
+
+[asterisk mode](https://codemirror.net/mode/asterisk/): Improve comment support.
+
+[handlebars mode](https://codemirror.net/mode/handlebars/): Support triple-brace tags.
+
+## 5.48.2 (2019-07-20)
+
+### Bug fixes
+
+[vim bindings](https://codemirror.net/demo/vim.html): Adjust char escape substitution to match vim, support `&/$0`.
+
+[search addon](https://codemirror.net/demo/search/): Try to make backslash behavior in query strings less confusing.
+
+[javascript mode](https://codemirror.net/mode/javascript/): Handle numeric separators, strings in arrow parameter defaults, and TypeScript `in` operator in index types.
+
+[sparql mode](https://codemirror.net/mode/sparql/index.html): Allow non-ASCII identifier characters.
+
+## 5.48.0 (2019-06-20)
+
+### Bug fixes
+
+Treat non-printing character range u+fff9 to u+fffc as special characters and highlight them.
+
+[show-hint addon](https://codemirror.net/doc/manual.html#addon_show-hint): Fix positioning when the dialog is placed in a scrollable container.
+
+### New features
+
+Add [`selectLeft`](https://codemirror.net/doc/manual.html#mark_selectLeft)/[`selectRight`](https://codemirror.net/doc/manual.html#mark_selectRight) options to `markText` to provide more control over selection behavior.
+
+## 5.47.0 (2019-05-21)
+
+### Bug fixes
+
+[python mode](https://codemirror.net/mode/python/): Properly handle `...` syntax.
+
+[ruby mode](https://codemirror.net/mode/ruby): Fix indenting before closing brackets.
+
+[vim bindings](https://codemirror.net/demo/vim.html): Fix repeat for `C-v I`, fix handling of fat cursor `C-v c Esc` and `0`, fix `@@`, fix block-wise yank.
+
+### New features
+
+[vim bindings](https://codemirror.net/demo/vim.html): Add support for `` ` `` text object.
+
 ## 5.46.0 (2019-04-22)
 
 ### Bug fixes

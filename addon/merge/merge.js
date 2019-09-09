@@ -918,7 +918,7 @@
     hasMarker: function(n) {
       var handle = this.cm.getLineHandle(n)
       if (handle.markedSpans) for (var i = 0; i < handle.markedSpans.length; i++)
-        if (handle.markedSpans[i].mark.collapsed && handle.markedSpans[i].to != null)
+        if (handle.markedSpans[i].marker.collapsed && handle.markedSpans[i].to != null)
           return true
       return false
     },

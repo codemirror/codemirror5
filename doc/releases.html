@@ -30,6 +30,43 @@
 
   <h2>Version 5.x</h2>
 
+  <p class="rel">20-08-2019: <a href="https://codemirror.net/codemirror-5.48.4.zip">Version 5.48.4</a>:</p>
+
+  <ul class="rel-note">
+    <li>Make default styles for line elements more specific so that they don’t apply to all <code>&lt;pre&gt;</code> elements inside the editor.</li>
+    <li>Improve efficiency of fold gutter when there’s big folded chunks of code in view.</li>
+    <li>Fix a bug that would leave the editor uneditable when a content-covering collapsed range was removed by replacing the entire document.</li>
+    <li><a href="https://codemirror.net/mode/julia/">julia mode</a>: Support number separators.</li>
+    <li><a href="https://codemirror.net/mode/asterisk/">asterisk mode</a>: Improve comment support.</li>
+    <li><a href="https://codemirror.net/mode/handlebars/">handlebars mode</a>: Support triple-brace tags.</li>
+  </ul>
+
+  <p class="rel">20-07-2019: <a href="https://codemirror.net/codemirror-5.48.2.zip">Version 5.48.2</a>:</p>
+
+  <ul class="rel-note">
+    <li><a href="https://codemirror.net/demo/vim.html">vim bindings</a>: Adjust char escape substitution to match vim, support <code>&amp;/$0</code>.</li>
+    <li><a href="https://codemirror.net/demo/search/">search addon</a>: Try to make backslash behavior in query strings less confusing.</li>
+    <li><a href="https://codemirror.net/mode/javascript/">javascript mode</a>: Handle numeric separators, strings in arrow parameter defaults, and TypeScript <code>in</code> operator in index types.</li>
+    <li><a href="https://codemirror.net/mode/sparql/index.html">sparql mode</a>: Allow non-ASCII identifier characters.</li>
+  </ul>
+
+  <p class="rel">20-06-2019: <a href="https://codemirror.net/codemirror-5.48.0.zip">Version 5.48.0</a>:</p>
+
+  <ul class="rel-note">
+    <li>Treat non-printing character range u+fff9 to u+fffc as special characters and highlight them.</li>
+    <li><a href="https://codemirror.net/doc/manual.html#addon_show-hint">show-hint addon</a>: Fix positioning when the dialog is placed in a scrollable container.</li>
+    <li>Add <a href="https://codemirror.net/doc/manual.html#mark_selectLeft"><code>selectLeft</code></a>/<a href="https://codemirror.net/doc/manual.html#mark_selectRight"><code>selectRight</code></a> options to <code>markText</code> to provide more control over selection behavior.</li>
+  </ul>
+
+  <p class="rel">21-05-2019: <a href="https://codemirror.net/codemirror-5.47.0.zip">Version 5.47.0</a>:</p>
+
+  <ul class="rel-note">
+    <li><a href="https://codemirror.net/mode/python/">python mode</a>: Properly handle <code>...</code> syntax.</li>
+    <li><a href="https://codemirror.net/mode/ruby">ruby mode</a>: Fix indenting before closing brackets.</li>
+    <li><a href="https://codemirror.net/demo/vim.html">vim bindings</a>: Fix repeat for <code>C-v I</code>, fix handling of fat cursor <code>C-v c Esc</code> and <code>0</code>, fix <code>@@</code>, fix block-wise yank.</li>
+    <li><a href="https://codemirror.net/demo/vim.html">vim bindings</a>: Add support for <code>`</code> text object.</li>
+  </ul>
+
   <p class="rel">22-04-2019: <a href="https://codemirror.net/codemirror-5.46.0.zip">Version 5.46.0</a>:</p>
 
   <ul class="rel-note">
