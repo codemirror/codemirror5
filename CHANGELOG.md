@@ -1,3 +1,19 @@
+## 5.49.0 (2019-09-20)
+
+### Bug fixes
+
+[octave mode](https://codemirror.net/mode/octave/index.html): Don't mark common punctuation as error.
+
+[clike mode](https://codemirror.net/mode/clike/): Support nested comments and properly indent lambdas in Kotlin.
+
+[foldgutter](https://codemirror.net/doc/manual.html#addon_foldgutter) and [annotatescrollbar](https://codemirror.net/doc/manual.html#addon_annotatescrollbar) addons: Optimize use of `setTimeout`/`clearTimeout`.
+
+### New features
+
+New themes: [moxer](https://codemirror.net/demo/theme.html#moxer), [material-darker](https://codemirror.net/demo/theme.html#material-darker), [material-palenight](https://codemirror.net/demo/theme.html#material-palenight), [material-ocean](https://codemirror.net/demo/theme.html#material-ocean).
+
+[xml mode](https://codemirror.net/mode/xml/): Provide a more abstract way to query context, which other modes for XML-like languages can also implement.
+
 ## 5.48.4 (2019-08-20)
 
 ### Bug fixes
