@@ -1,6 +1,6 @@
 {
     "name": "codemirror",
-    "version":"5.6.1-wingify",
+    "version":"5.6.4-wingify",
     "main": "lib/codemirror.js",
     "description": "In-browser code editing made bearable",
     "license": "MIT",
