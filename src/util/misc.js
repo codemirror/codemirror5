@@ -37,18 +37,19 @@ export class Delayed {
   }
   onTimeout(self) {
     self.id = 0
-    if (self.time < Date.now()) {
+    if (self.time < +new Date) {
       self.f()
     } else {
-      setTimeout(self.handler, self.time - Date.now())
+      setTimeout(self.handler, self.time - +new Date)
     }
   }
   set(ms, f) {
     this.f = f
-    const time = Date.now() + ms
+    const time = +new Date + ms
     if (!this.id || time < this.time) {
       clearTimeout(this.id)
       this.id = setTimeout(this.handler, ms)
+      this.time = time
     }
   }
 }
