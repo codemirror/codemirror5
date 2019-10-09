@@ -37,7 +37,7 @@ export class Delayed {
   }
   onTimeout(self) {
     self.id = 0
-    if (self.time < +new Date) {
+    if (self.time <= +new Date) {
       self.f()
     } else {
       setTimeout(self.handler, self.time - +new Date)
