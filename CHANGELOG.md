@@ -1,3 +1,17 @@
+## 5.49.2 (2019-10-21)
+
+### Bug fixes
+
+[sublime bindings](https://codemirror.net/demo/sublime.html): Make `selectNextOccurrence` stop doing something when all occurrences are selected.
+
+[continuecomment addon](https://codemirror.net/doc/manual.html#addon_continuecomment): Respect `indentWithTabs` option.
+
+[foldgutter addon](https://codemirror.net/doc/manual.html#addon_foldgutter): Optimize by reusing DOM when possible.
+
+[markdown mode](https://codemirror.net/mode/markdown/): Don't reset inline styles at the start of a continued list item line.
+
+[clike mode](https://codemirror.net/mode/clike/): Add a configuration for Objective-C++.
+
 ## 5.49.0 (2019-09-20)
 
 ### Bug fixes
