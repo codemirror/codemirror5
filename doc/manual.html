@@ -223,9 +223,10 @@
       first mode that was loaded. It may be a string, which either
       simply names the mode or is
       a <a href="http://en.wikipedia.org/wiki/MIME">MIME</a> type
-      associated with the mode. Alternatively, it may be an object
-      containing configuration options for the mode, with
-      a <code>name</code> property that names the mode (for
+      associated with the mode. The value <code>"null"</code>
+      indicates no highlighting should be applied. Alternatively, it
+      may be an object containing configuration options for the mode,
+      with a <code>name</code> property that names the mode (for
       example <code>{name: "javascript", json: true}</code>). The demo
       pages for each mode contain information about what configuration
       parameters the mode supports. You can ask CodeMirror which modes
