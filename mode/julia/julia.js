@@ -28,7 +28,7 @@ CodeMirror.defineMode("julia", function(config, parserConf) {
         "\\u00D7", "\\u2208", "\\u2209", "\\u220B", "\\u220C", "\\u2218",
         "\\u221A", "\\u221B", "\\u2229", "\\u222A", "\\u2260", "\\u2264",
         "\\u2265", "\\u2286", "\\u2288", "\\u228A", "\\u22C5",
-        "\\b(in|isa)\\b(?!\.?\\()"], "");
+        "\\b(in|isa)\\b(?!\\.?\\()"], "");
   var delimiters = parserConf.delimiters || /^[;,()[\]{}]/;
   var identifiers = parserConf.identifiers ||
         /^[_A-Za-z\u00A1-\u2217\u2219-\uFFFF][\w\u00A1-\u2217\u2219-\uFFFF]*!*/;

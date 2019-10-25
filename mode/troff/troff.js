@@ -36,7 +36,7 @@ CodeMirror.defineMode('troff', function() {
         stream.eatWhile(/[\d-]/);
         return 'string';
       }
-      if (stream.match('\(') || stream.match('*\(')) {
+      if (stream.match('\\(') || stream.match('*\\(')) {
         stream.eatWhile(/[\w-]/);
         return 'string';
       }
