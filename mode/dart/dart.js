@@ -15,7 +15,7 @@
     "implements mixin get native set typedef with enum throw rethrow " +
     "assert break case continue default in return new deferred async await covariant " +
     "try catch finally do else for if switch while import library export " +
-    "part of show hide is as").split(" ");
+    "part of show hide is as extension on").split(" ");
   var blockKeywords = "try catch finally do else for if switch while".split(" ");
   var atoms = "true false null".split(" ");
   var builtins = "void bool num int double dynamic var String".split(" ");
@@ -78,6 +78,15 @@
         if (!stream.eat("*")) return false
         state.tokenize = tokenNestedComment(1)
         return state.tokenize(stream, state)
+      },
+      token: function(stream, _, style) {
+        if (style == "variable") {
+          // Assume uppercase symbols are classes using variable-2
+          var isUpper = RegExp('^[_$]*[A-Z][a-zA-Z0-9_$]*$','g');
+          if (isUpper.test(stream.current())) {
+            return 'variable-2';
+          }
+        }
       }
     }
   });

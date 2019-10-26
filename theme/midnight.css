@@ -1,9 +1,5 @@
 /* Based on the theme at http://bonsaiden.github.com/JavaScript-Garden */
 
-/*<!--match-->*/
-.cm-s-midnight span.CodeMirror-matchhighlight { background: #494949; }
-.cm-s-midnight.CodeMirror-focused span.CodeMirror-matchhighlight { background: #314D67 !important; }
-
 /*<!--activeline-->*/
 .cm-s-midnight .CodeMirror-activeline-background { background: #253540; }
 

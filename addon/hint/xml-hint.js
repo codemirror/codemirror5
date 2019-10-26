@@ -29,7 +29,7 @@
       token.string = token.string.slice(0, cur.ch - token.start);
     }
     var inner = CodeMirror.innerMode(cm.getMode(), token.state);
-    if (inner.mode.name != "xml") return;
+    if (!inner.mode.xmlCurrentTag) return
     var result = [], replaceToken = false, prefix;
     var tag = /\btag\b/.test(token.type) && !/>$/.test(token.string);
     var tagName = tag && /^\w/.test(token.string), tagStart;
@@ -44,12 +44,15 @@
       tagType = "close";
     }
 
-    if (!tag && !inner.state.tagName || tagType) {
+    var tagInfo = inner.mode.xmlCurrentTag(inner.state)
+    if (!tag && !tagInfo || tagType) {
       if (tagName)
         prefix = token.string;
       replaceToken = tagType;
-      var cx = inner.state.context, curTag = cx && tags[cx.tagName];
-      var childList = cx ? curTag && curTag.children : tags["!top"];
+      var context = inner.mode.xmlCurrentContext ? inner.mode.xmlCurrentContext(inner.state) : []
+      var inner = context.length && context[context.length - 1]
+      var curTag = inner && tags[inner]
+      var childList = inner ? curTag && curTag.children : tags["!top"];
       if (childList && tagType != "close") {
         for (var i = 0; i < childList.length; ++i) if (!prefix || matches(childList[i], prefix, matchInMiddle))
           result.push("<" + childList[i]);
@@ -58,11 +61,11 @@
           if (tags.hasOwnProperty(name) && name != "!top" && name != "!attrs" && (!prefix || matches(name, prefix, matchInMiddle)))
             result.push("<" + name);
       }
-      if (cx && (!prefix || tagType == "close" && matches(cx.tagName, prefix, matchInMiddle)))
-        result.push("</" + cx.tagName + ">");
+      if (inner && (!prefix || tagType == "close" && matches(inner, prefix, matchInMiddle)))
+        result.push("</" + inner + ">");
     } else {
       // Attribute completion
-      var curTag = tags[inner.state.tagName], attrs = curTag && curTag.attrs;
+      var curTag = tagInfo && tags[tagInfo.name], attrs = curTag && curTag.attrs;
       var globalAttrs = tags["!attrs"];
       if (!attrs && !globalAttrs) return;
       if (!attrs) {

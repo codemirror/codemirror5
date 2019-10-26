@@ -229,14 +229,26 @@
       elt.hintId = i;
     }
 
+    var container = completion.options.container || ownerDocument.body;
     var pos = cm.cursorCoords(completion.options.alignWithWord ? data.from : null);
     var left = pos.left, top = pos.bottom, below = true;
-    hints.style.left = left + "px";
-    hints.style.top = top + "px";
+    var offsetLeft = 0, offsetTop = 0;
+    if (container !== ownerDocument.body) {
+      // We offset the cursor position because left and top are relative to the offsetParent's top left corner.
+      var isContainerPositioned = ['absolute', 'relative', 'fixed'].indexOf(parentWindow.getComputedStyle(container).position) !== -1;
+      var offsetParent = isContainerPositioned ? container : container.offsetParent;
+      var offsetParentPosition = offsetParent.getBoundingClientRect();
+      var bodyPosition = ownerDocument.body.getBoundingClientRect();
+      offsetLeft = (offsetParentPosition.left - bodyPosition.left - offsetParent.scrollLeft);
+      offsetTop = (offsetParentPosition.top - bodyPosition.top - offsetParent.scrollTop);
+    }
+    hints.style.left = (left - offsetLeft) + "px";
+    hints.style.top = (top - offsetTop) + "px";
+
     // If we're at the edge of the screen, then we want the menu to appear on the left of the cursor.
     var winW = parentWindow.innerWidth || Math.max(ownerDocument.body.offsetWidth, ownerDocument.documentElement.offsetWidth);
     var winH = parentWindow.innerHeight || Math.max(ownerDocument.body.offsetHeight, ownerDocument.documentElement.offsetHeight);
-    (completion.options.container || ownerDocument.body).appendChild(hints);
+    container.appendChild(hints);
     var box = hints.getBoundingClientRect(), overlapY = box.bottom - winH;
     var scrolls = hints.scrollHeight > hints.clientHeight + 1
     var startScroll = cm.getScrollInfo();
@@ -244,15 +256,15 @@
     if (overlapY > 0) {
       var height = box.bottom - box.top, curTop = pos.top - (pos.bottom - box.top);
       if (curTop - height > 0) { // Fits above cursor
-        hints.style.top = (top = pos.top - height) + "px";
+        hints.style.top = (top = pos.top - height - offsetTop) + "px";
         below = false;
       } else if (height > winH) {
         hints.style.height = (winH - 5) + "px";
-        hints.style.top = (top = pos.bottom - box.top) + "px";
+        hints.style.top = (top = pos.bottom - box.top - offsetTop) + "px";
         var cursor = cm.getCursor();
         if (data.from.ch != cursor.ch) {
           pos = cm.cursorCoords(cursor);
-          hints.style.left = (left = pos.left) + "px";
+          hints.style.left = (left = pos.left - offsetLeft) + "px";
           box = hints.getBoundingClientRect();
         }
       }
@@ -263,7 +275,7 @@
         hints.style.width = (winW - 5) + "px";
         overlapX -= (box.right - box.left) - winW;
       }
-      hints.style.left = (left = pos.left - overlapX) + "px";
+      hints.style.left = (left = pos.left - overlapX - offsetLeft) + "px";
     }
     if (scrolls) for (var node = hints.firstChild; node; node = node.nextSibling)
       node.style.paddingRight = cm.display.nativeBarWidth + "px"

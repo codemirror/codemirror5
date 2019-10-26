@@ -161,4 +161,44 @@
   MT('highlight-command-at-eol',
      '[keyword {msg]',
      '    [keyword }]');
+
+  MT('switch-indent-test',
+     '[keyword {let] [def $marbles]: [atom 5] [keyword /}]',
+     '[keyword {switch] [variable-2 $marbles][keyword }]',
+     '  [keyword {case] [atom 0][keyword }]',
+     '    No marbles',
+     '  [keyword {default}]',
+     '    At least 1 marble',
+     '[keyword {/switch}]',
+     '');
+
+  MT('if-elseif-else-indent',
+     '[keyword {if] [atom true][keyword }]',
+     '  [keyword {let] [def $a]: [atom 5] [keyword /}]',
+     '[keyword {elseif] [atom false][keyword }]',
+     '  [keyword {let] [def $bar]: [atom 5] [keyword /}]',
+     '[keyword {else}]',
+     '  [keyword {let] [def $bar]: [atom 5] [keyword /}]',
+     '[keyword {/if}]');
+
+  MT('msg-fallbackmsg-indent',
+     '[keyword {msg] [attribute desc]=[string "A message"][keyword }]',
+     '  A message',
+     '[keyword {fallbackmsg] [attribute desc]=[string "A message"][keyword }]',
+     '  Old message',
+     '[keyword {/msg}]');
+
+  MT('special-chars',
+     '[keyword {sp}]',
+     '[keyword {nil}]',
+     '[keyword {\\r}]',
+     '[keyword {\\n}]',
+     '[keyword {\\t}]',
+     '[keyword {lb}]',
+     '[keyword {rb}]');
+
+  MT('wrong-closing-tag',
+     '[keyword {if] [atom true][keyword }]',
+     '  Optional',
+     '[keyword&error {/badend][keyword }]');
 })();

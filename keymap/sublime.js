@@ -144,8 +144,7 @@
         cur = cm.getSearchCursor(query, Pos(cm.firstLine(), 0));
         found = cur.findNext();
       }
-      if (!found || isSelectedRange(cm.listSelections(), cur.from(), cur.to()))
-        return CodeMirror.Pass
+      if (!found || isSelectedRange(cm.listSelections(), cur.from(), cur.to())) return
       cm.addSelection(cur.from(), cur.to());
     }
     if (fullWord)
@@ -175,7 +174,8 @@
 
   function isSelectedRange(ranges, from, to) {
     for (var i = 0; i < ranges.length; i++)
-      if (ranges[i].from() == from && ranges[i].to() == to) return true
+      if (CodeMirror.cmpPos(ranges[i].from(), from) == 0 &&
+          CodeMirror.cmpPos(ranges[i].to(), to) == 0) return true
     return false
   }
 
