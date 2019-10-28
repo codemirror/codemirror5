@@ -213,11 +213,15 @@
     if (!selectBetweenBrackets(cm)) return CodeMirror.Pass;
   };
 
+  function puncType(type) {
+    return !type ? null : /\bpunctuation\b/.test(type) ? type : undefined
+  }
+
   cmds.goToBracket = function(cm) {
     cm.extendSelectionsBy(function(range) {
-      var next = cm.scanForBracket(range.head, 1);
+      var next = cm.scanForBracket(range.head, 1, puncType(cm.getTokenTypeAt(range.head)));
       if (next && CodeMirror.cmpPos(next.pos, range.head) != 0) return next.pos;
-      var prev = cm.scanForBracket(range.head, -1);
+      var prev = cm.scanForBracket(range.head, -1, puncType(cm.getTokenTypeAt(Pos(range.head.line, range.head.ch + 1))));
       return prev && Pos(prev.pos.line, prev.pos.ch + 1) || range.head;
     });
   };
