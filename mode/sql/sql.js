@@ -199,7 +199,8 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     blockCommentStart: "/*",
     blockCommentEnd: "*/",
     lineComment: support.commentSlashSlash ? "//" : support.commentHash ? "#" : "--",
-    closeBrackets: "()[]{}''\"\"``"
+    closeBrackets: "()[]{}''\"\"``",
+    fold: "indent"
   };
 });
 
