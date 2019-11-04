@@ -23,7 +23,7 @@
   "devDependencies": {
     "blint": "^1",
     "node-static": "0.7.11",
-    "phantomjs-prebuilt": "^2.1.12",
+    "puppeteer": "^1.20.0",
     "rollup": "^0.66.2",
     "rollup-plugin-buble": "^0.19.2",
     "rollup-watch": "^4.3.1"
