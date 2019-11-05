@@ -21,12 +21,11 @@
     "lint": "bin/lint"
   },
   "devDependencies": {
-    "blint": "^1",
+    "blint": "^1.1.0",
     "node-static": "0.7.11",
     "phantomjs-prebuilt": "^2.1.12",
-    "rollup": "^0.66.2",
-    "rollup-plugin-buble": "^0.19.2",
-    "rollup-watch": "^4.3.1"
+    "rollup": "^1.26.3",
+    "rollup-plugin-buble": "^0.19.8"
   },
   "bugs": "http://github.com/codemirror/CodeMirror/issues",
   "keywords": [
