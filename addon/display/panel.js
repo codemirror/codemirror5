@@ -54,6 +54,7 @@
     this.options = options;
     this.height = height;
     this.cleared = false;
+    window.addEventListener("resize", () => this.changed());
   }
 
   Panel.prototype.clear = function() {
@@ -68,7 +69,9 @@
   };
 
   Panel.prototype.changed = function(height) {
-    var newHeight = height == null ? this.node.offsetHeight : height;
+    if (!height && !this.node.parentElement) return; //this.node.offsetHeight would be undefined
+    var newHeight = !height ? this.node.offsetHeight : height;
+    if (newHeight == this.height) return;
     var info = this.cm.state.panels;
     this.cm._setSize(null, info.heightLeft -= (newHeight - this.height));
     this.height = newHeight;
@@ -91,7 +94,7 @@
 
     cm._setSize = cm.setSize;
     if (height != null) cm.setSize = function(width, newHeight) {
-      if (newHeight == null) return this._setSize(width, newHeight);
+      if (!newHeight) newHeight = info.wrapper.offsetHeight;
       info.setHeight = newHeight;
       if (typeof newHeight != "number") {
         var px = /^(\d+\.?\d*)px$/.exec(newHeight);
@@ -100,7 +103,6 @@
         } else {
           info.wrapper.style.height = newHeight;
           newHeight = info.wrapper.offsetHeight;
-          info.wrapper.style.height = "";
         }
       }
       cm._setSize(width, info.heightLeft += (newHeight - height));
