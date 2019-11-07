@@ -54,7 +54,14 @@
     this.options = options;
     this.height = height;
     this.cleared = false;
-    window.addEventListener("resize", () => this.changed());
+
+    var handler = (function(cm) {
+      cm.off("refresh", handler); //avoid infinite recursive loop
+      this.changed();
+      cm.on("refresh", handler)
+    }).bind(this);
+
+    this.cm.on("refresh", handler);
   }
 
   Panel.prototype.clear = function() {
