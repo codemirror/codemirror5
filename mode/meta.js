@@ -190,6 +190,7 @@
   };
 
   CodeMirror.findModeByExtension = function(ext) {
+    ext = ext.toLowerCase();
     for (var i = 0; i < CodeMirror.modeInfo.length; i++) {
       var info = CodeMirror.modeInfo[i];
       if (info.ext) for (var j = 0; j < info.ext.length; j++)
