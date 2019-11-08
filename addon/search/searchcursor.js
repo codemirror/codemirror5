@@ -73,15 +73,18 @@
   }
 
   function lastMatchIn(string, regexp, endMargin) {
-    var cutOff = 0, match
-    for (;;) {
-      regexp.lastIndex = cutOff
+    var match, from = 0
+    while (from <= string.length) {
+      regexp.lastIndex = from
       var newMatch = regexp.exec(string)
-      if (!newMatch || newMatch.index + newMatch[0].length > string.length - endMargin) return match
-      match = newMatch
-      cutOff = match.index + (match[0].length || 1)
-      if (cutOff == string.length) return match
+      if (!newMatch) break
+      var end = newMatch.index + newMatch[0].length
+      if (end > string.length - endMargin) break
+      if (!match || end > match.index + match[0].length)
+        match = newMatch
+      from = newMatch.index + 1
     }
+    return match
   }
 
   function searchRegexpBackward(doc, regexp, start) {
@@ -97,6 +100,7 @@
   }
 
   function searchRegexpBackwardMultiline(doc, regexp, start) {
+    if (!maybeMultiline(regexp)) return searchRegexpBackward(doc, regexp, start)
     regexp = ensureFlags(regexp, "gm")
     var string, chunkSize = 1, endMargin = doc.getLine(start.line).length - start.ch
     for (var line = start.line, first = doc.firstLine(); line >= first;) {

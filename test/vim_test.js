@@ -2482,7 +2482,7 @@ testVim('?_nongreedy', function(cm, vim, helpers) {
   helpers.doKeys('n');
   helpers.assertCursorAt(0, 4);
   helpers.doKeys('n');
-  helpers.assertCursorAt(0, 0);
+  helpers.assertCursorAt(0, 1);
 }, { value: 'aaa aa \n a aa'});
 testVim('/_greedy', function(cm, vim, helpers) {
   cm.openDialog = helpers.fakeOpenDialog('a+');

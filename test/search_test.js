@@ -41,7 +41,7 @@
   });
 
   test("regexpMultiline", function() {
-    var doc = new CodeMirror.Doc("foo foo\nbar\nbaz")
+    var doc = new CodeMirror.Doc("fom fom\nbar\nbaz")
     run(doc, /fo[^]*az/, {multiline: true}, 0, 0, 2, 3)
     run(doc, /[oa][^u]/, {multiline: true}, 0, 1, 0, 3, 0, 5, 0, 7, 1, 1, 1, 3, 2, 1, 2, 3)
     run(doc, /[a][^u]{2}/, {multiline: true}, 1, 1, 2, 0)
@@ -85,7 +85,7 @@
 
   test("endOfLine", function() {
     var doc = new CodeMirror.Doc("bbcdb\nabcd\nbbcdb\nabcd")
-    run(doc, /[^b]$/, false, 1, 3, 1, 4, 3, 3, 3, 4)
+    run(doc, /[^b]$/, {multiline: true}, 1, 3, 1, 4, 3, 3, 3, 4)
     run(doc, /b$/, false, 0, 4, 0, 5, 2, 4, 2, 5)
   })
 })();
