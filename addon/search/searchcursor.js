@@ -72,12 +72,12 @@
     }
   }
 
-  function lastMatchIn(string, regexp) {
+  function lastMatchIn(string, regexp, endMargin) {
     var cutOff = 0, match
     for (;;) {
       regexp.lastIndex = cutOff
       var newMatch = regexp.exec(string)
-      if (!newMatch) return match
+      if (!newMatch || newMatch.index + newMatch[0].length > string.length - endMargin) return match
       match = newMatch
       cutOff = match.index + (match[0].length || 1)
       if (cutOff == string.length) return match
@@ -88,8 +88,7 @@
     regexp = ensureFlags(regexp, "g")
     for (var line = start.line, ch = start.ch, first = doc.firstLine(); line >= first; line--, ch = -1) {
       var string = doc.getLine(line)
-      if (ch > -1) string = string.slice(0, ch)
-      var match = lastMatchIn(string, regexp)
+      var match = lastMatchIn(string, regexp, ch < 0 ? 0 : string.length - ch)
       if (match)
         return {from: Pos(line, match.index),
                 to: Pos(line, match.index + match[0].length),
@@ -99,15 +98,15 @@
 
   function searchRegexpBackwardMultiline(doc, regexp, start) {
     regexp = ensureFlags(regexp, "gm")
-    var string, chunk = 1
+    var string, chunkSize = 1, endMargin = doc.getLine(start.line).length - start.ch
     for (var line = start.line, first = doc.firstLine(); line >= first;) {
-      for (var i = 0; i < chunk; i++) {
+      for (var i = 0; i < chunkSize && line >= first; i++) {
         var curLine = doc.getLine(line--)
-        string = string == null ? curLine.slice(0, start.ch) : curLine + "\n" + string
+        string = string == null ? curLine : curLine + "\n" + string
       }
-      chunk *= 2
+      chunkSize *= 2
 
-      var match = lastMatchIn(string, regexp)
+      var match = lastMatchIn(string, regexp, endMargin)
       if (match) {
         var before = string.slice(0, match.index).split("\n"), inside = match[0].split("\n")
         var startLine = line + before.length, startCh = before[before.length - 1].length
