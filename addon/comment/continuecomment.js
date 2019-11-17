@@ -32,7 +32,8 @@
             lineCmt && (found = line.lastIndexOf(lineCmt, pos.ch - 1)) > -1 &&
             /\bcomment\b/.test(cm.getTokenTypeAt({line: pos.line, ch: found + 1}))) {
           // ...then don't continue it
-        } else if ((found = line.lastIndexOf(blockStart, pos.ch - blockStart.length)) > -1 &&
+        } else if (pos.ch >= blockStart.length &&
+                   (found = line.lastIndexOf(blockStart, pos.ch - blockStart.length)) > -1 &&
                    found > end) {
           // reuse the existing leading spaces/tabs/mixed
           // or build the correct indent using CM's tab/indent options
