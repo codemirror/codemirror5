@@ -59,10 +59,10 @@
 <script src="../mode/dylan/dylan.js"></script>
 
 <style>
-  .ok {color: #090;}
-  .fail {color: #e00;}
-  .error {color: #c90;}
-  .done {font-weight: bold;}
+  .ok { color: #090; }
+  .fail { color: #e00; }
+  .error { color: #c90; }
+  .done { font-weight: bold; }
   #progress {
   background: #45d;
   color: white;
@@ -152,6 +152,9 @@
     <script src="../mode/mscgen/msgenny_test.js"></script>
     <script src="../mode/dylan/test.js"></script>
     <script src="../addon/mode/multiplex_test.js"></script>
+    <script src="../addon/fold/foldcode.js"></script>
+    <script src="../addon/fold/brace-fold.js"></script>
+
     <script src="emacs_test.js"></script>
     <script src="sql-hint-test.js"></script>
     <script src="sublime_test.js"></script>
@@ -182,7 +185,7 @@
         if (running) {
           quit = true;
           setStatus("Restarting tests...", '', true);
-          setTimeout(function(){runHarness();}, 500);
+          setTimeout(function(){ runHarness(); }, 500);
           return;
         }
         filters = [];
