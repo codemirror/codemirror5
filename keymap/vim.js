@@ -1843,6 +1843,12 @@
         var line = motionArgs.forward ? cur.line + repeat : cur.line - repeat;
         var first = cm.firstLine();
         var last = cm.lastLine();
+        var posV = cm.findPosV(cur, (motionArgs.forward ? repeat : -repeat), 'line', vim.lastHSPos);
+        var hasMarkedText = motionArgs.forward ? posV.line > line : posV.line < line;
+        if (hasMarkedText) {
+          line = posV.line;
+          endCh = posV.ch;
+        }
         // Vim go to line begin or line end when cursor at first/last line and
         // move to previous/next line is triggered.
         if (line < first && cur.line == first){

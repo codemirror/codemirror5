@@ -38,6 +38,8 @@ var bigWordLine = lines[1];
 var charLine = lines[2];
 var bracesLine = lines[3];
 var seekBraceLine = lines[4];
+var foldingStart = lines[7];
+var foldingEnd = lines[11];
 
 var word1 = {
   start: new Pos(wordLine.line, 1),
@@ -93,6 +95,14 @@ var seekOutside = {
 var seekInside = {
   start: new Pos(seekBraceLine.line, 14),
   end: new Pos(seekBraceLine.line, 11)
+};
+var foldingRangeDown = {
+  start: new Pos(foldingStart.line, 3),
+  end: new Pos(foldingEnd.line, 0)
+};
+var foldingRangeUp = {
+  start: new Pos(foldingEnd.line, 0),
+  end: new Pos(foldingStart.line, 0)
 };
 
 function copyCursor(cur) {
@@ -310,6 +320,16 @@ function testMotion(name, keys, endPos, startPos) {
   });
 }
 
+function testMotionWithFolding(name, keys, endPos, startPos) {
+  testVim(name, function (cm, vim, helpers) {
+    cm.foldCode(startPos);
+    cm.foldCode(endPos);
+    cm.setCursor(startPos);
+    helpers.doKeys(keys);
+    helpers.assertCursorAt(endPos)
+  })
+}
+
 function makeCursor(line, ch) {
   return new Pos(line, ch);
 }
@@ -392,6 +412,11 @@ testMotion('%_squares', ['%'], squares1.end, squares1.start);
 testMotion('%_braces', ['%'], curlys1.end, curlys1.start);
 testMotion('%_seek_outside', ['%'], seekOutside.end, seekOutside.start);
 testMotion('%_seek_inside', ['%'], seekInside.end, seekInside.start);
+
+// Motion with folding tests
+testMotionWithFolding('j_with_folding', 'j', foldingRangeDown.end, foldingRangeDown.start);
+testMotionWithFolding('k_with_folding', 'k', foldingRangeUp.end, foldingRangeUp.start);
+
 testVim('%_seek_skip', function(cm, vim, helpers) {
   cm.setCursor(0,0);
   helpers.doKeys(['%']);
