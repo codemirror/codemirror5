@@ -58,12 +58,12 @@
     CodeMirror.signal(cm, "fold", cm, range.from, range.to);
   }
 
-  function makeWidget(cm, options, items) {
+  function makeWidget(cm, options, count) {
     var widget = getOption(cm, options, "widget");
     var jsonCountWidget = getOption(cm, options, "jsonCountWidget");
 
     if (typeof jsonCountWidget == "function") {
-      jsonCountWidget = jsonCountWidget(items);
+      jsonCountWidget = jsonCountWidget(count);
     }
 
     widget = jsonCountWidget || widget;
