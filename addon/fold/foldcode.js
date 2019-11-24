@@ -42,7 +42,7 @@
     }
     if (!range || range.cleared || force === "unfold") return;
 
-    var myWidget = makeWidget(cm, options, range.items);
+    var myWidget = makeWidget(cm, options, range.count);
     CodeMirror.on(myWidget, "mousedown", function(e) {
       myRange.clear();
       CodeMirror.e_preventDefault(e);
@@ -62,13 +62,13 @@
 
   function makeWidget(cm, options, items) {
     var widget = getOption(cm, options, "widget");
+
+    if (typeof widget == "function") {
+      widget = widget(items);
+    }
+
     if (typeof widget == "string") {
       var text = document.createTextNode(widget);
-      widget = document.createElement("span");
-      widget.appendChild(text);
-      widget.className = "CodeMirror-foldmarker";
-    } else if (typeof widget == "function") {
-      var text = document.createTextNode(widget(items));
       widget = document.createElement("span");
       widget.appendChild(text);
       widget.className = "CodeMirror-foldmarker";
