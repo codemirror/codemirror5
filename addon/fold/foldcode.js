@@ -138,6 +138,7 @@
   var defaultOptions = {
     rangeFinder: CodeMirror.fold.auto,
     widget: "\u2194",
+    jsonCountWidget: undefined,
     minFoldSize: 0,
     scanUp: false,
     clearOnEnter: true
