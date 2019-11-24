@@ -70,7 +70,7 @@ CodeMirror.registerHelper("fold", "brace", function(cm, start) {
     } catch(e) { }
   }
 
-  return {from: from, to: to, count: count};
+  return {from, to, count};
 });
 
 CodeMirror.registerHelper("fold", "import", function(cm, start) {
