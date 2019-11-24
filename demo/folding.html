@@ -53,7 +53,21 @@
     <div style="max-width: 50em; margin-bottom: 1em">JavaScript:<br>
     <textarea id="code" name="code"></textarea></div>
     <div style="max-width: 50em; margin-bottom: 1em">HTML:<br>
-    <textarea id="code-html" name="code-html"></textarea></div>
+    <textarea id="code-html" name="code-html"></textarea></div>    
+    <div style="max-width: 50em; margin-bottom: 1em">JSON:<br>
+    <textarea id="code-json" name="code-json">
+{"menu": {
+  "id": "file",
+  "value": "File",
+  "popup": {
+    "menuitem": [
+      {"value": "New", "onclick": "CreateNewDoc()"},
+      {"value": "Open", "onclick": "OpenDoc()"},
+      {"value": "Close", "onclick": "CloseDoc()"}
+    ]
+  }
+}}
+    </textarea></div>
     <div style="max-width: 50em">Python:<br>
     <textarea id="code-python" name="code">
 def foo():
@@ -89,6 +103,7 @@ window.onload = function() {
   var te_python = document.getElementById("code-python");
   var te_markdown = document.getElementById("code-markdown");
   te_markdown.value = "# Foo\n## Bar\n\nblah blah\n\n## Baz\n\nblah blah\n\n# Quux\n\nblah blah\n"
+  var te_json = document.getElementById("code-json");
 
   window.editor = CodeMirror.fromTextArea(te, {
     mode: "javascript",
@@ -99,6 +114,19 @@ window.onload = function() {
     gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"]
   });
   editor.foldCode(CodeMirror.Pos(13, 0));
+
+  window.editor_json = CodeMirror.fromTextArea(te_json, {
+    mode: "javascript",
+    lineNumbers: true,
+    lineWrapping: true,
+    extraKeys: {"Ctrl-Q": function(cm){ cm.foldCode(cm.getCursor()); }},
+    foldGutter: true,
+    gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
+    foldOptions: {
+      rangeFinder: CodeMirror.fold.json, widget: items => `...${items}...` || '...'
+    }
+  });
+  editor_json.foldCode(CodeMirror.Pos(4, 0));
 
   window.editor_html = CodeMirror.fromTextArea(te_html, {
     mode: "text/html",

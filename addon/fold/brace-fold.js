@@ -56,7 +56,26 @@ CodeMirror.registerHelper("fold", "brace", function(cm, start) {
   }
   if (end == null || line == end) return;
   return {from: CodeMirror.Pos(line, startCh),
-          to: CodeMirror.Pos(end, endCh)};
+          to: CodeMirror.Pos(end, endCh),
+          startToken,
+          endToken};
+});
+
+CodeMirror.registerHelper("fold", "json", function(cm, start) {
+  var helpers = cm.getHelpers(start, "fold", "brace");
+  for (var i = 0; i < helpers.length; i++) {
+    var cur = helpers[i](cm, start);
+    
+    if (cur) {
+      const internal = cm.doc.getRange(cur.from, cur.to);
+      const toParse = `${cur.startToken}${internal}${cur.endToken}`;
+    
+      var items = undefined;
+      try { items = Object.keys(JSON.parse(toParse)).length; } catch {}
+      
+      return {from: cur.from, to: cur.to, items};
+    };
+  }
 });
 
 CodeMirror.registerHelper("fold", "import", function(cm, start) {

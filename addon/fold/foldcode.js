@@ -42,26 +42,33 @@
     }
     if (!range || range.cleared || force === "unfold") return;
 
-    var myWidget = makeWidget(cm, options);
+    var myWidget = makeWidget(cm, options, range.items);
     CodeMirror.on(myWidget, "mousedown", function(e) {
       myRange.clear();
       CodeMirror.e_preventDefault(e);
     });
+    
     var myRange = cm.markText(range.from, range.to, {
       replacedWith: myWidget,
       clearOnEnter: getOption(cm, options, "clearOnEnter"),
       __isFold: true
     });
+
     myRange.on("clear", function(from, to) {
       CodeMirror.signal(cm, "unfold", cm, from, to);
     });
     CodeMirror.signal(cm, "fold", cm, range.from, range.to);
   }
 
-  function makeWidget(cm, options) {
+  function makeWidget(cm, options, items) {
     var widget = getOption(cm, options, "widget");
     if (typeof widget == "string") {
       var text = document.createTextNode(widget);
+      widget = document.createElement("span");
+      widget.appendChild(text);
+      widget.className = "CodeMirror-foldmarker";
+    } else if (typeof widget == "function") {
+      var text = document.createTextNode(widget(items));
       widget = document.createElement("span");
       widget.appendChild(text);
       widget.className = "CodeMirror-foldmarker";
@@ -125,7 +132,7 @@
       var cur = helpers[i](cm, start);
       if (cur) return cur;
     }
-  });
+  });  
 
   var defaultOptions = {
     rangeFinder: CodeMirror.fold.auto,
