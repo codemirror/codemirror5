@@ -123,7 +123,7 @@ window.onload = function() {
     foldGutter: true,
     gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
     foldOptions: {
-      widget: items => items ? `\u21A4${items}\u21A6` : '\u2194'
+      itemsWidget: items => items && `\u21A4${items}\u21A6`
     }
   });
   editor_json.foldCode(CodeMirror.Pos(4, 0));

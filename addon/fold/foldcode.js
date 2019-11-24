@@ -62,10 +62,13 @@
 
   function makeWidget(cm, options, items) {
     var widget = getOption(cm, options, "widget");
+    var itemsWidget = getOption(cm, options, "itemsWidget");
 
-    if (typeof widget == "function") {
-      widget = widget(items);
+    if (typeof itemsWidget == "function") {
+      itemsWidget = itemsWidget(items);
     }
+
+    widget = itemsWidget || widget;
 
     if (typeof widget == "string") {
       var text = document.createTextNode(widget);
@@ -137,6 +140,7 @@
   var defaultOptions = {
     rangeFinder: CodeMirror.fold.auto,
     widget: "\u2194",
+    itemsWidget: undefined,
     minFoldSize: 0,
     scanUp: false,
     clearOnEnter: true
