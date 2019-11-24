@@ -62,15 +62,15 @@ CodeMirror.registerHelper("fold", "brace", function(cm, start) {
   if (cm.foldOption(cm.options, 'itemsWidget'))
   {
     var internal = cm.doc.getRange(from, to);
-    var toParse = `${startToken}${internal}${endToken}`;
+    var toParse = startToken + internal + endToken;
 
     try {
       var parsed = JSON.parse(toParse);
-      count = Object.keys(parsed).length; 
-    } catch {}    
+      count = Object.keys(parsed).length;
+    } catch(e) { }
   }
 
-  return {from, to, count};
+  return {from: from, to: to, count: count};
 });
 
 CodeMirror.registerHelper("fold", "import", function(cm, start) {

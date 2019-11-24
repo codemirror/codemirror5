@@ -47,7 +47,7 @@
       myRange.clear();
       CodeMirror.e_preventDefault(e);
     });
-    
+
     var myRange = cm.markText(range.from, range.to, {
       replacedWith: myWidget,
       clearOnEnter: getOption(cm, options, "clearOnEnter"),
@@ -135,7 +135,7 @@
       var cur = helpers[i](cm, start);
       if (cur) return cur;
     }
-  });  
+  });
 
   var defaultOptions = {
     rangeFinder: CodeMirror.fold.auto,
