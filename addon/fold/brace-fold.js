@@ -59,7 +59,7 @@ CodeMirror.registerHelper("fold", "brace", function(cm, start) {
   var from = CodeMirror.Pos(line, startCh), to = CodeMirror.Pos(end, endCh);
   var count = undefined;
 
-  if (cm.foldOption(cm.options, 'itemsWidget'))
+  if (cm.foldOption(cm.options, 'jsonCountWidget'))
   {
     var internal = cm.doc.getRange(from, to);
     var toParse = startToken + internal + endToken;

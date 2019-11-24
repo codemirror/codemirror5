@@ -47,13 +47,11 @@
       myRange.clear();
       CodeMirror.e_preventDefault(e);
     });
-
     var myRange = cm.markText(range.from, range.to, {
       replacedWith: myWidget,
       clearOnEnter: getOption(cm, options, "clearOnEnter"),
       __isFold: true
     });
-
     myRange.on("clear", function(from, to) {
       CodeMirror.signal(cm, "unfold", cm, from, to);
     });
@@ -62,13 +60,13 @@
 
   function makeWidget(cm, options, items) {
     var widget = getOption(cm, options, "widget");
-    var itemsWidget = getOption(cm, options, "itemsWidget");
+    var jsonCountWidget = getOption(cm, options, "jsonCountWidget");
 
-    if (typeof itemsWidget == "function") {
-      itemsWidget = itemsWidget(items);
+    if (typeof jsonCountWidget == "function") {
+      jsonCountWidget = jsonCountWidget(items);
     }
 
-    widget = itemsWidget || widget;
+    widget = jsonCountWidget || widget;
 
     if (typeof widget == "string") {
       var text = document.createTextNode(widget);
@@ -140,7 +138,6 @@
   var defaultOptions = {
     rangeFinder: CodeMirror.fold.auto,
     widget: "\u2194",
-    itemsWidget: undefined,
     minFoldSize: 0,
     scanUp: false,
     clearOnEnter: true

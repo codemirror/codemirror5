@@ -56,17 +56,19 @@
     <textarea id="code-html" name="code-html"></textarea></div>    
     <div style="max-width: 50em; margin-bottom: 1em">JSON:<br>
     <textarea id="code-json" name="code-json">
-{"menu": {
-  "id": "file",
-  "value": "File",
-  "popup": {
-    "menuitem": [
-      {"value": "New", "onclick": "CreateNewDoc()"},
-      {"value": "Open", "onclick": "OpenDoc()"},
-      {"value": "Close", "onclick": "CloseDoc()"}
-    ]
+{
+  "menu": {
+    "id": "file",
+    "value": "File",
+    "popup": {
+      "menuitem": [
+        {"value": "New", "onclick": "CreateNewDoc()"},
+        {"value": "Open", "onclick": "OpenDoc()"},
+        {"value": "Close", "onclick": "CloseDoc()"}
+      ]
+    }
   }
-}}
+}
     </textarea></div>
     <div style="max-width: 50em">Python:<br>
     <textarea id="code-python" name="code">
@@ -116,14 +118,14 @@ window.onload = function() {
   editor.foldCode(CodeMirror.Pos(13, 0));
 
   window.editor_json = CodeMirror.fromTextArea(te_json, {
-    mode: "javascript",
+    mode: {name: "javascript", json: true},
     lineNumbers: true,
     lineWrapping: true,
     extraKeys: {"Ctrl-Q": function(cm){ cm.foldCode(cm.getCursor()); }},
     foldGutter: true,
     gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
     foldOptions: {
-      itemsWidget: items => items && `\u21A4${items}\u21A6`
+      jsonCountWidget: count => count && `\u21A4${count}\u21A6`
     }
   });
   editor_json.foldCode(CodeMirror.Pos(4, 0));
