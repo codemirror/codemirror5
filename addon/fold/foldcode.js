@@ -60,13 +60,13 @@
 
   function makeWidget(cm, options, count) {
     var widget = getOption(cm, options, "widget");
-    var jsonCountWidget = getOption(cm, options, "jsonCountWidget");
 
-    if (typeof jsonCountWidget == "function") {
+    if (count) {
+      var jsonCountWidget = getOption(cm, options, "jsonCountWidget");
       jsonCountWidget = jsonCountWidget(count);
-    }
 
-    widget = jsonCountWidget || widget;
+      widget = jsonCountWidget || widget;
+    }
 
     if (typeof widget == "string") {
       var text = document.createTextNode(widget);

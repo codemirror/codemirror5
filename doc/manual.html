@@ -2568,13 +2568,13 @@ editor.setOption("extraKeys", {
         <dd>The widget to show for folded ranges. Can be either a
         string, in which case it'll become a span with
         class <code>CodeMirror-foldmarker</code>, or a DOM node.</dd>
-        <dt><code><strong>jsonCountWidget</strong>: fn(number): string|Element|undefined</code></dt>
+        <dt><code><strong>jsonCountWidget</strong>: fn(number): string|Element</code></dt>
         <dd>The widget to show for folded JSON ranges where a count 
         can be determined. This is a callback function that recieves 
         a count. It can return either a string, in which case it'll
         become a span with class <code>CodeMirror-foldmarker</code>,
-        or a DOM node. If it returns <code>undefined</code>, the
-        <code>widget</code> is used as a fallback.</dd>
+        or a DOM node. The <code>widget</code> is used as a fallback
+        if there is no count to show.</dd>
         <dt><code><strong>scanUp</strong>: boolean</code></dt>
         <dd>When true (default is false), the addon will try to find
         foldable ranges on the lines above the current one if there

@@ -125,7 +125,7 @@ window.onload = function() {
     foldGutter: true,
     gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
     foldOptions: {
-      jsonCountWidget: count => count && `\u21A4${count}\u21A6`
+      jsonCountWidget: count => `\u21A4${count}\u21A6`
     }
   });
   editor_json.foldCode(CodeMirror.Pos(4, 0));
