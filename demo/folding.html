@@ -125,7 +125,7 @@ window.onload = function() {
     foldGutter: true,
     gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
     foldOptions: {
-      widget: ({from, to}) => {
+      widget: (from, to) => {
         var count = undefined;
 
         // Get open / close token

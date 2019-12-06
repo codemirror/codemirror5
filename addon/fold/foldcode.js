@@ -62,7 +62,7 @@
     var widget = getOption(cm, options, "widget");
 
     if (typeof widget == "function") {
-      widget = widget(range);
+      widget = widget(range.from, range.to);
     }
 
     if (typeof widget == "string") {
