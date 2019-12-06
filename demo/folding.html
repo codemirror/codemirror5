@@ -125,10 +125,28 @@ window.onload = function() {
     foldGutter: true,
     gutters: ["CodeMirror-linenumbers", "CodeMirror-foldgutter"],
     foldOptions: {
-      jsonCountWidget: count => `\u21A4${count}\u21A6`
+      widget: ({from, to}) => {
+        var count = undefined;
+
+        var startToken = '{', endToken = '}';        
+        var prevLine = window.editor_json.getLine(from.line);
+        if (prevLine.lastIndexOf('[') > -1) {
+          startToken = '[', endToken = ']';
+        }
+
+        var internal = window.editor_json.getRange(from, to);
+        var toParse = startToken + internal + endToken;
+
+        try {
+          var parsed = JSON.parse(toParse);
+          count = Object.keys(parsed).length;
+        } catch(e) { }        
+
+        return count ? `\u21A4${count}\u21A6` : '\u2194';
+      }
     }
   });
-  editor_json.foldCode(CodeMirror.Pos(4, 0));
+  editor_json.foldCode(CodeMirror.Pos(5, 0));
 
   window.editor_html = CodeMirror.fromTextArea(te_html, {
     mode: "text/html",

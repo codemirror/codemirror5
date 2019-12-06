@@ -55,22 +55,8 @@ CodeMirror.registerHelper("fold", "brace", function(cm, start) {
     }
   }
   if (end == null || line == end) return;
-
-  var from = CodeMirror.Pos(line, startCh), to = CodeMirror.Pos(end, endCh);
-  var count = undefined;
-
-  if (cm.foldOption(cm.options, 'jsonCountWidget'))
-  {
-    var internal = cm.doc.getRange(from, to);
-    var toParse = startToken + internal + endToken;
-
-    try {
-      var parsed = JSON.parse(toParse);
-      count = Object.keys(parsed).length;
-    } catch(e) { }
-  }
-
-  return {from, to, count};
+  return {from: CodeMirror.Pos(line, startCh),
+          to: CodeMirror.Pos(end, endCh)};
 });
 
 CodeMirror.registerHelper("fold", "import", function(cm, start) {

@@ -42,7 +42,7 @@
     }
     if (!range || range.cleared || force === "unfold") return;
 
-    var myWidget = makeWidget(cm, options, range.count);
+    var myWidget = makeWidget(cm, options, range);
     CodeMirror.on(myWidget, "mousedown", function(e) {
       myRange.clear();
       CodeMirror.e_preventDefault(e);
@@ -58,14 +58,11 @@
     CodeMirror.signal(cm, "fold", cm, range.from, range.to);
   }
 
-  function makeWidget(cm, options, count) {
+  function makeWidget(cm, options, range) {
     var widget = getOption(cm, options, "widget");
 
-    if (count) {
-      var jsonCountWidget = getOption(cm, options, "jsonCountWidget");
-      jsonCountWidget = jsonCountWidget(count);
-
-      widget = jsonCountWidget || widget;
+    if (typeof widget == "function") {
+      widget = widget(range);
     }
 
     if (typeof widget == "string") {
@@ -138,7 +135,6 @@
   var defaultOptions = {
     rangeFinder: CodeMirror.fold.auto,
     widget: "\u2194",
-    jsonCountWidget: undefined,
     minFoldSize: 0,
     scanUp: false,
     clearOnEnter: true
