@@ -22,7 +22,8 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
       dateSQL        = parserConfig.dateSQL || {"date" : true, "time" : true, "timestamp" : true},
       backslashStringEscapes = parserConfig.backslashStringEscapes !== false,
       brackets       = parserConfig.brackets || /^[\{}\(\)\[\]]/,
-      punctuation    = parserConfig.punctuation || /^[;.,:]/
+      punctuation    = parserConfig.punctuation || /^[;.,:]/,
+      escapeConstSet = false;
 
   function tokenBase(stream, state) {
     var ch = stream.next();
@@ -60,10 +61,14 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
       state.tokenize = tokenLiteral(ch);
       return state.tokenize(stream, state);
     } else if ((((support.nCharCast && (ch == "n" || ch == "N"))
+        || (support.escapeConstant && (ch == "e" || ch == "E"))
         || (support.charsetCast && ch == "_" && stream.match(/[a-z][a-z0-9]*/i)))
-        && (stream.peek() == "'" || stream.peek() == '"'))) {
+        && (stream.peek() == "'" || (stream.peek() == '"' && support.doubleQuote)))) {
       // charset casting: _utf8'str', N'str', n'str'
       // ref: http://dev.mysql.com/doc/refman/5.5/en/string-literals.html
+      // escape constant: E'str', e'str'
+      // ref: https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-STRINGS-ESCAPE
+      escapeConstSet = true;
       return "keyword";
     } else if (support.commentSlashSlash && ch == "/" && stream.eat("/")) {
       // 1-line comment
@@ -130,8 +135,9 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
           state.tokenize = tokenBase;
           break;
         }
-        escaped = backslashStringEscapes && !escaped && ch == "\\";
+        escaped = (backslashStringEscapes || escapeConstSet) && !escaped && ch == "\\";
       }
+      escapeConstSet = false;
       return "string";
     };
   }
@@ -413,8 +419,9 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     builtin: set("bigint int8 bigserial serial8 bit varying varbit boolean bool box bytea character char varchar cidr circle date double precision float8 inet integer int int4 interval json jsonb line lseg macaddr macaddr8 money numeric decimal path pg_lsn point polygon real float4 smallint int2 smallserial serial2 serial serial4 text time without zone with timetz timestamp timestamptz tsquery tsvector txid_snapshot uuid xml"),
     atoms: set("false true null unknown"),
     operatorChars: /^[*\/+\-%<>!=&|^\/#@?~]/,
+    backslashStringEscapes: false,
     dateSQL: set("date time timestamp"),
-    support: set("ODBCdotTable decimallessFloat zerolessFloat binaryNumber hexNumber nCharCast charsetCast")
+    support: set("ODBCdotTable decimallessFloat zerolessFloat binaryNumber hexNumber nCharCast charsetCast escapeConstant")
   });
 
   // Google's SQL-like query language, GQL
