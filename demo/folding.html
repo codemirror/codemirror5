@@ -128,15 +128,18 @@ window.onload = function() {
       widget: ({from, to}) => {
         var count = undefined;
 
+        // Get open / close token
         var startToken = '{', endToken = '}';        
         var prevLine = window.editor_json.getLine(from.line);
         if (prevLine.lastIndexOf('[') > -1) {
           startToken = '[', endToken = ']';
         }
 
+        // Get json content
         var internal = window.editor_json.getRange(from, to);
         var toParse = startToken + internal + endToken;
 
+        // Get key count
         try {
           var parsed = JSON.parse(toParse);
           count = Object.keys(parsed).length;
