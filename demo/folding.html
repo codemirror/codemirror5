@@ -131,7 +131,7 @@ window.onload = function() {
         // Get open / close token
         var startToken = '{', endToken = '}';        
         var prevLine = window.editor_json.getLine(from.line);
-        if (prevLine.lastIndexOf('[') > -1) {
+        if (prevLine.lastIndexOf('[') > prevLine.lastIndexOf('{')) {
           startToken = '[', endToken = ']';
         }
 
