@@ -60,14 +60,16 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
       state.tokenize = tokenLiteral(ch);
       return state.tokenize(stream, state);
     } else if ((((support.nCharCast && (ch == "n" || ch == "N"))
-        || (support.escapeConstant && (ch == "e" || ch == "E"))
         || (support.charsetCast && ch == "_" && stream.match(/[a-z][a-z0-9]*/i)))
-        && (stream.peek() == "'" || (stream.peek() == '"' && support.doubleQuote)))) {
+        && (stream.peek() == "'" || stream.peek() == '"'))) {
       // charset casting: _utf8'str', N'str', n'str'
       // ref: http://dev.mysql.com/doc/refman/5.5/en/string-literals.html
+      return "keyword";
+    } else if (support.escapeConstant && (ch == "e" || ch == "E")
+        && (stream.peek() == "'" || (stream.peek() == '"' && support.doubleQuote))) {
       // escape constant: E'str', e'str'
       // ref: https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-STRINGS-ESCAPE
-      state.escapeConstSet = true;
+      state.tokenize = tokenLiteral(stream.peek(), true);
       return "keyword";
     } else if (support.commentSlashSlash && ch == "/" && stream.eat("/")) {
       // 1-line comment
@@ -126,17 +128,20 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
   }
 
   // 'string', with char specified in quote escaped by '\'
-  function tokenLiteral(quote) {
+  function tokenLiteral(quote, withEscapeConst) {
     return function(stream, state) {
       var escaped = false, ch;
+      /* eat the first quote in case of escape constant */
+      if(withEscapeConst) {
+        ch = stream.eat(quote)
+      }
       while ((ch = stream.next()) != null) {
         if (ch == quote && !escaped) {
           state.tokenize = tokenBase;
           break;
         }
-        escaped = (backslashStringEscapes || state.escapeConstSet) && !escaped && ch == "\\";
+        escaped = (backslashStringEscapes || withEscapeConst) && !escaped && ch == "\\";
       }
-      state.escapeConstSet = false;
       return "string";
     };
   }
@@ -167,7 +172,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
 
   return {
     startState: function() {
-      return {tokenize: tokenBase, context: null, escapeConstSet: false};
+      return {tokenize: tokenBase, context: null};
     },
 
     token: function(stream, state) {
