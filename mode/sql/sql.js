@@ -22,8 +22,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
       dateSQL        = parserConfig.dateSQL || {"date" : true, "time" : true, "timestamp" : true},
       backslashStringEscapes = parserConfig.backslashStringEscapes !== false,
       brackets       = parserConfig.brackets || /^[\{}\(\)\[\]]/,
-      punctuation    = parserConfig.punctuation || /^[;.,:]/,
-      escapeConstSet = false;
+      punctuation    = parserConfig.punctuation || /^[;.,:]/
 
   function tokenBase(stream, state) {
     var ch = stream.next();
@@ -68,7 +67,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
       // ref: http://dev.mysql.com/doc/refman/5.5/en/string-literals.html
       // escape constant: E'str', e'str'
       // ref: https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-STRINGS-ESCAPE
-      escapeConstSet = true;
+      state.escapeConstSet = true;
       return "keyword";
     } else if (support.commentSlashSlash && ch == "/" && stream.eat("/")) {
       // 1-line comment
@@ -135,9 +134,9 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
           state.tokenize = tokenBase;
           break;
         }
-        escaped = (backslashStringEscapes || escapeConstSet) && !escaped && ch == "\\";
+        escaped = (backslashStringEscapes || state.escapeConstSet) && !escaped && ch == "\\";
       }
-      escapeConstSet = false;
+      state.escapeConstSet = false;
       return "string";
     };
   }
@@ -168,7 +167,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
 
   return {
     startState: function() {
-      return {tokenize: tokenBase, context: null};
+      return {tokenize: tokenBase, context: null, escapeConstSet: false};
     },
 
     token: function(stream, state) {
