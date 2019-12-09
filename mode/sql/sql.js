@@ -69,7 +69,9 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
         && (stream.peek() == "'" || (stream.peek() == '"' && support.doubleQuote))) {
       // escape constant: E'str', e'str'
       // ref: https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-STRINGS-ESCAPE
-      state.tokenize = tokenLiteral(stream.peek(), true);
+      state.tokenize = function(stream, state) {
+        return (state.tokenize = tokenLiteral(stream.next(), true))(stream, state);
+      }
       return "keyword";
     } else if (support.commentSlashSlash && ch == "/" && stream.eat("/")) {
       // 1-line comment
@@ -128,19 +130,15 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
   }
 
   // 'string', with char specified in quote escaped by '\'
-  function tokenLiteral(quote, withEscapeConst) {
+  function tokenLiteral(quote, backslashEscapes) {
     return function(stream, state) {
       var escaped = false, ch;
-      /* eat the first quote in case of escape constant */
-      if(withEscapeConst) {
-        ch = stream.eat(quote)
-      }
       while ((ch = stream.next()) != null) {
         if (ch == quote && !escaped) {
           state.tokenize = tokenBase;
           break;
         }
-        escaped = (backslashStringEscapes || withEscapeConst) && !escaped && ch == "\\";
+        escaped = (backslashStringEscapes || backslashEscapes) && !escaped && ch == "\\";
       }
       return "string";
     };
