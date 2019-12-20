@@ -1,3 +1,35 @@
+## 5.50.0 (2019-12-20)
+
+### Bug fixes
+
+Make Shift-Delete to cut work on Firefox.
+
+[closetag addon](https://codemirror.net/demo/closetag.html): Properly handle self-closing tags.
+
+[handlebars mode](https://codemirror.net/mode/handlebars/): Fix triple-brace support.
+
+[searchcursor addon](https://codemirror.net/doc/manual.html#addon_searchcursor): Support mathing `$` in reverse regexp search.
+
+[panel addon](https://codemirror.net/doc/manual.html#addon_panel): Don't get confused by changing panel sizes.
+
+[javascript-hint addon](https://codemirror.net/doc/manual.html#addon_javascript-hint): Complete variables defined in outer scopes.
+
+[sublime bindings](https://codemirror.net/demo/sublime.html): Make by-subword motion more consistent with Sublime Text.
+
+[julia mode](https://codemirror.net/mode/julia/): Don't break on zero-prefixed integers.
+
+[elm mode](https://codemirror.net/mode/elm/): Sync with upstream version.
+
+[sql mode](https://codemirror.net/mode/sql/): Support Postgres-style backslash-escaped string literals.
+
+### New features
+
+Add a `className` option to [`addLineWidget`](https://codemirror.net/doc/manual.html#addLineWidget).
+
+[foldcode addon](https://codemirror.net/doc/manual.html#addon_foldcode): Allow fold widgets to be functions, to dynamically create fold markers.
+
+New themes: [ayu-dark](https://codemirror.net/demo/theme.html#ayu-dark) and [ayu-mirage](https://codemirror.net/demo/theme.html#ayu-mirage).
+
 ## 5.49.2 (2019-10-21)
 
 ### Bug fixes
