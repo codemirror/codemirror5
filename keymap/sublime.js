@@ -32,7 +32,10 @@
       } else if (state == "in") {
         if (type != cat) {
           if (type == "w" && cat == "W" && dir < 0) pos--;
-          if (type == "W" && cat == "w" && dir > 0) { type = "w"; continue; }
+          if (type == "W" && cat == "w" && dir > 0) { // From uppercase to lowercase
+            if (pos == start.ch + 1) { type = "w"; continue; }
+            else pos--;
+          }
           break;
         }
       }
