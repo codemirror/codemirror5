@@ -22,17 +22,21 @@
     if (dir < 0 && start.ch == 0) return doc.clipPos(Pos(start.line - 1));
     var line = doc.getLine(start.line);
     if (dir > 0 && start.ch >= line.length) return doc.clipPos(Pos(start.line + 1, 0));
-    var state = "start", type;
-    for (var pos = start.ch, e = dir < 0 ? 0 : line.length, i = 0; pos != e; pos += dir, i++) {
+    var state = "start", type, startPos = start.ch;
+    for (var pos = startPos, e = dir < 0 ? 0 : line.length, i = 0; pos != e; pos += dir, i++) {
       var next = line.charAt(dir < 0 ? pos - 1 : pos);
       var cat = next != "_" && CodeMirror.isWordChar(next) ? "w" : "o";
       if (cat == "w" && next.toUpperCase() == next) cat = "W";
       if (state == "start") {
         if (cat != "o") { state = "in"; type = cat; }
+        else startPos = pos + dir
       } else if (state == "in") {
         if (type != cat) {
           if (type == "w" && cat == "W" && dir < 0) pos--;
-          if (type == "W" && cat == "w" && dir > 0) { type = "w"; continue; }
+          if (type == "W" && cat == "w" && dir > 0) { // From uppercase to lowercase
+            if (pos == startPos + 1) { type = "w"; continue; }
+            else pos--;
+          }
           break;
         }
       }
@@ -144,8 +148,7 @@
         cur = cm.getSearchCursor(query, Pos(cm.firstLine(), 0));
         found = cur.findNext();
       }
-      if (!found || isSelectedRange(cm.listSelections(), cur.from(), cur.to()))
-        return CodeMirror.Pass
+      if (!found || isSelectedRange(cm.listSelections(), cur.from(), cur.to())) return
       cm.addSelection(cur.from(), cur.to());
     }
     if (fullWord)
@@ -175,7 +178,8 @@
 
   function isSelectedRange(ranges, from, to) {
     for (var i = 0; i < ranges.length; i++)
-      if (ranges[i].from() == from && ranges[i].to() == to) return true
+      if (CodeMirror.cmpPos(ranges[i].from(), from) == 0 &&
+          CodeMirror.cmpPos(ranges[i].to(), to) == 0) return true
     return false
   }
 
@@ -213,11 +217,15 @@
     if (!selectBetweenBrackets(cm)) return CodeMirror.Pass;
   };
 
+  function puncType(type) {
+    return !type ? null : /\bpunctuation\b/.test(type) ? type : undefined
+  }
+
   cmds.goToBracket = function(cm) {
     cm.extendSelectionsBy(function(range) {
-      var next = cm.scanForBracket(range.head, 1);
+      var next = cm.scanForBracket(range.head, 1, puncType(cm.getTokenTypeAt(range.head)));
       if (next && CodeMirror.cmpPos(next.pos, range.head) != 0) return next.pos;
-      var prev = cm.scanForBracket(range.head, -1);
+      var prev = cm.scanForBracket(range.head, -1, puncType(cm.getTokenTypeAt(Pos(range.head.line, range.head.ch + 1))));
       return prev && Pos(prev.pos.line, prev.pos.ch + 1) || range.head;
     });
   };

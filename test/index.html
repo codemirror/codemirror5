@@ -6,6 +6,10 @@
 
 <link rel="stylesheet" href="../lib/codemirror.css">
 <link rel="stylesheet" href="mode_test.css">
+<script>
+  var errored = []
+  window.onerror = function(e) { errored.push(e) }
+</script>
 <script src="../doc/activebookmark.js"></script>
 <script src="../lib/codemirror.js"></script>
 <script src="../mode/meta.js"></script>
@@ -55,10 +59,10 @@
 <script src="../mode/dylan/dylan.js"></script>
 
 <style>
-  .ok {color: #090;}
-  .fail {color: #e00;}
-  .error {color: #c90;}
-  .done {font-weight: bold;}
+  .ok { color: #090; }
+  .fail { color: #e00; }
+  .error { color: #c90; }
+  .done { font-weight: bold; }
   #progress {
   background: #45d;
   color: white;
@@ -148,6 +152,9 @@
     <script src="../mode/mscgen/msgenny_test.js"></script>
     <script src="../mode/dylan/test.js"></script>
     <script src="../addon/mode/multiplex_test.js"></script>
+    <script src="../addon/fold/foldcode.js"></script>
+    <script src="../addon/fold/brace-fold.js"></script>
+
     <script src="emacs_test.js"></script>
     <script src="sql-hint-test.js"></script>
     <script src="sublime_test.js"></script>
@@ -171,13 +178,14 @@
           bad = "",
           running = false, // Flag that states tests are running
           quit = false, // Flag to quit tests ASAP
-          verbose = false; // Adds message for *every* test to output
+          verbose = false, // Adds message for *every* test to output
+          done = false
 
       function runHarness(){
         if (running) {
           quit = true;
           setStatus("Restarting tests...", '', true);
-          setTimeout(function(){runHarness();}, 500);
+          setTimeout(function(){ runHarness(); }, 500);
           return;
         }
         filters = [];
@@ -197,6 +205,7 @@
         setStatus("Loading tests...");
         count = 0;
         failed = 0;
+        done = false;
         skipped = 0;
         bad = "";
         totalTests = countTests();
@@ -257,11 +266,12 @@
             message = failed + " failure" + (failed > 1 ? "s" : "");
           } else {
             type += " ok";
-            message = "All passed";
+            message = "All passed"
             if (skipped) {
               message += " (" + skipped + " skipped)";
             }
           }
+          done = true
           progressTotal.nodeValue = '';
           customMessage = true; // Hack to avoid adding to output
         }

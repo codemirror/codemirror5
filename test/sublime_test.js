@@ -60,7 +60,7 @@
     };
   }
 
-  stTest("bySubword", "the foo_bar DooDahBah \n a",
+  stTest("bySubword", "the foo_bar DooDahBah \n a FOOBar",
          "goSubwordLeft", at(0, 0),
          "goSubwordRight", at(0, 3),
          "goSubwordRight", at(0, 7),
@@ -71,7 +71,10 @@
          "goSubwordRight", at(0, 22),
          "goSubwordRight", at(1, 0),
          "goSubwordRight", at(1, 2),
-         "goSubwordRight", at(1, 2),
+         "goSubwordRight", at(1, 6),
+         "goSubwordRight", at(1, 9),
+         "goSubwordLeft", at(1, 6),
+         "goSubwordLeft", at(1, 3),
          "goSubwordLeft", at(1, 1),
          "goSubwordLeft", at(1, 0),
          "goSubwordLeft", at(0, 22),

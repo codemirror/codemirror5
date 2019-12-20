@@ -69,7 +69,7 @@
 <section class=first id=overview>
     <h2 style="position: relative">
       User manual and reference guide
-      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 5.48.4</span>
+      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 5.50.0</span>
     </h2>
 
     <p>CodeMirror is a code-editor component that can be embedded in
@@ -223,9 +223,10 @@
       first mode that was loaded. It may be a string, which either
       simply names the mode or is
       a <a href="http://en.wikipedia.org/wiki/MIME">MIME</a> type
-      associated with the mode. Alternatively, it may be an object
-      containing configuration options for the mode, with
-      a <code>name</code> property that names the mode (for
+      associated with the mode. The value <code>"null"</code>
+      indicates no highlighting should be applied. Alternatively, it
+      may be an object containing configuration options for the mode,
+      with a <code>name</code> property that names the mode (for
       example <code>{name: "javascript", json: true}</code>). The demo
       pages for each mode contain information about what configuration
       parameters the mode supports. You can ask CodeMirror which modes
@@ -1880,6 +1881,9 @@ editor.setOption("extraKeys", {
           position (zero for the top, N to put it after the Nth other
           widget). Note that this only has effect once, when the
           widget is created.
+          <dt><code><strong>className</strong>: string</code></dt>
+          <dd>Add an extra CSS class name to the wrapper element
+          created for the widget.</dd>
         </dl>
       Note that the widget node will become a descendant of nodes with
       CodeMirror-specific CSS classes, and those classes might in some
@@ -2563,10 +2567,14 @@ editor.setOption("extraKeys", {
         and <code>CodeMirror.fold.xml</code>, for XML-style languages,
         and <code>CodeMirror.fold.comment</code>, for folding comment
         blocks.</dd>
-        <dt><code><strong>widget</strong>: string|Element</code></dt>
+        <dt><code><strong>widget</strong>: string | Element | fn(from: Pos, to: Pos) → string|Element</code></dt>
         <dd>The widget to show for folded ranges. Can be either a
         string, in which case it'll become a span with
-        class <code>CodeMirror-foldmarker</code>, or a DOM node.</dd>
+        class <code>CodeMirror-foldmarker</code>, or a DOM node.
+        To dynamically generate the widget, this can be a function 
+        that returns a string or DOM node, which will then render
+        as described. The function will be invoked with parameters
+        identifying the range to be folded.</dd>
         <dt><code><strong>scanUp</strong>: boolean</code></dt>
         <dd>When true (default is false), the addon will try to find
         foldable ranges on the lines above the current one if there
