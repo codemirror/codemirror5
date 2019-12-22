@@ -151,6 +151,19 @@
      '[keyword {/template}]',
      '');
 
+  MT('param-type-and-default-value',
+     '[keyword {template] [def .foo][keyword }]',
+     '  [keyword {@param] [def bar]: [type bool] = [atom true][keyword }]',
+     '[keyword {/template}]',
+     '');
+
+   MT('state-variable-reference',
+     '[keyword {template] [def .foo][keyword }]',
+     '  [keyword {@param] [def bar]:= [atom true][keyword }]',
+     '  [keyword {@state] [def foobar]:= [variable-2 $bar][keyword }]',
+     '[keyword {/template}]',
+     '');
+
   MT('single-quote-strings',
      '[keyword {][string "foo"] [string \'bar\'][keyword }]',
      '');
