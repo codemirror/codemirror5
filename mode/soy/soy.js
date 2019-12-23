@@ -21,7 +21,6 @@
     "@inject": paramData,
     "@inject?": paramData,
     "@state": paramData,
-    "@state?": paramData,
     "template": { soyState: "templ-def", variableScope: true},
     "literal": { },
     "msg": {},
@@ -250,7 +249,8 @@
             return null;
 
           case "param-type":
-            if (stream.peek() == "}") {
+            var peekChar = stream.peek();
+            if (peekChar == "}" || peekChar == "=") {
               state.soyState.pop();
               return null;
             }
