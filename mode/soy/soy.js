@@ -329,7 +329,6 @@
 
           case "literal":
             if (stream.match(/^(?=\{\/literal})/)) {
-              state.indent -= config.indentUnit;
               state.soyState.pop();
               return this.token(stream, state);
             }
