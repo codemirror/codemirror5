@@ -127,7 +127,7 @@ function updateLineWidgets(cm, lineView, dims) {
   let isWidget = classTest("CodeMirror-linewidget")
   for (let node = lineView.node.firstChild, next; node; node = next) {
     next = node.nextSibling
-    if (isWidget.test(node)) lineView.node.removeChild(node)
+    if (isWidget.test(node.className)) lineView.node.removeChild(node)
   }
   insertLineWidgets(cm, lineView, dims)
 }
