@@ -127,16 +127,14 @@ CodeMirror.defineMode("julia", function(config, parserConf) {
     }
 
     if (inArray(state) && ch === ']') {
-      if (currentScope(state) === "if") { state.scopes.pop(); }
-      while (currentScope(state) === "for") { state.scopes.pop(); }
+      while (currentScope(state) !== "[") { state.scopes.pop(); }
       state.scopes.pop();
       state.nestedArrays--;
       state.leavingExpr = true;
     }
 
     if (inGenerator(state) && ch === ')') {
-      if (currentScope(state) === "if") { state.scopes.pop(); }
-      while (currentScope(state) === "for") { state.scopes.pop(); }
+      while (currentScope(state) !== "(") { state.scopes.pop(); }
       state.scopes.pop();
       state.nestedGenerators--;
       state.leavingExpr = true;
