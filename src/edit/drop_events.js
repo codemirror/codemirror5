@@ -40,7 +40,7 @@ export function onDrop(e) {
         reader.onerror = () => reject(reader.error)
         reader.onload = () => {
           let content = reader.result
-          if (/[\x00-\x08\x0e-\x1f]{2}/.test(content)) Promise.reject('Bad content.')
+          if (/[\x00-\x08\x0e-\x1f]{2}/.test(content)) reject('Bad content.')
           resolve(content)
         }
         reader.readAsText(file)
