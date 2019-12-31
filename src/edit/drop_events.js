@@ -28,29 +28,35 @@ export function onDrop(e) {
   // Might be a file drop, in which case we simply extract the text
   // and insert it.
   if (files && files.length && window.FileReader && window.File) {
-    let n = files.length, text = Array(n), read = 0
-    let loadFile = (file, i) => {
-      if (cm.options.allowDropFileTypes &&
-          indexOf(cm.options.allowDropFileTypes, file.type) == -1)
-        return
-
-      let reader = new FileReader
-      reader.onload = operation(cm, () => {
-        let content = reader.result
-        if (/[\x00-\x08\x0e-\x1f]{2}/.test(content)) content = ""
-        text[i] = content
-        if (++read == n) {
-          pos = clipPos(cm.doc, pos)
-          let change = {from: pos, to: pos,
-                        text: cm.doc.splitLines(text.join(cm.doc.lineSeparator())),
-                        origin: "paste"}
-          makeChange(cm.doc, change)
-          setSelectionReplaceHistory(cm.doc, simpleSelection(pos, changeEnd(change)))
+    const readTextFromFile = (file) => {
+      return new Promise((resolve, reject) => {
+        if (cm.options.allowDropFileTypes &&
+            indexOf(cm.options.allowDropFileTypes, file.type) == -1) {
+          reject('File type not allowed: ' + file.type)
+          return
         }
+
+        let reader = new FileReader
+        reader.onerror = () => reject(reader.error)
+        reader.onload = () => {
+          let content = reader.result
+          if (/[\x00-\x08\x0e-\x1f]{2}/.test(content)) Promise.reject('Bad content.')
+          resolve(content)
+        }
+        reader.readAsText(file)
       })
-      reader.readAsText(file)
     }
-    for (let i = 0; i < n; ++i) loadFile(files[i], i)
+    Promise.allSettled(Array.from(files).map((file) => readTextFromFile(file))).then((results) => {
+      const text = results.filter((res) => res.status == "fulfilled").map(res => res.value)
+      operation(cm, () => {
+        pos = clipPos(cm.doc, pos)
+        let change = {from: pos, to: pos,
+                      text: cm.doc.splitLines(text.join(cm.doc.lineSeparator())),
+                      origin: "paste"}
+        makeChange(cm.doc, change)
+        setSelectionReplaceHistory(cm.doc, simpleSelection(pos, changeEnd(change)))
+      })()
+    })
   } else { // Normal drop
     // Don't do a replace if the drop happened inside of the selected text.
     if (cm.state.draggingText && cm.doc.sel.contains(pos) > -1) {
