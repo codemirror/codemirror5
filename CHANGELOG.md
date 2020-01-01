@@ -1,3 +1,9 @@
+## 5.50.2 (2020-01-01)
+
+### Bug fixes
+
+Fix bug that broke removal of line widgets.
+
 ## 5.50.0 (2019-12-20)
 
 ### Bug fixes
