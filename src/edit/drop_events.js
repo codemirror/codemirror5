@@ -28,20 +28,21 @@ export function onDrop(e) {
   // Might be a file drop, in which case we simply extract the text
   // and insert it.
   if (files && files.length && window.FileReader && window.File) {
-    let readFiles = 0, text = []
+    let n = files.length, text = Array(n), read = 0
     const markAsReadAndPasteIfAllFilesAreRead = () => {
-      if (++readFiles == files.length) {
+      if (++read == n) {
         operation(cm, () => {
           pos = clipPos(cm.doc, pos)
           let change = {from: pos, to: pos,
-                        text: cm.doc.splitLines(text.join(cm.doc.lineSeparator())),
+                        text: cm.doc.splitLines(
+                            text.filter(t => t != null).join(cm.doc.lineSeparator())),
                         origin: "paste"}
           makeChange(cm.doc, change)
           setSelectionReplaceHistory(cm.doc, simpleSelection(pos, changeEnd(change)))
         })()
       }
     }
-    const readTextFromFile = (file) => {
+    const readTextFromFile = (file, i) => {
       if (cm.options.allowDropFileTypes &&
           indexOf(cm.options.allowDropFileTypes, file.type) == -1) {
         markAsReadAndPasteIfAllFilesAreRead()
@@ -55,12 +56,12 @@ export function onDrop(e) {
           markAsReadAndPasteIfAllFilesAreRead()
           return
         }
-        text.push(content)
+        text[i] = content;
         markAsReadAndPasteIfAllFilesAreRead()
       }
       reader.readAsText(file)
     }
-    for (let i = 0; i < files.length; i++) readTextFromFile(files[i])
+    for (let i = 0; i < files.length; i++) readTextFromFile(files[i], i)
   } else { // Normal drop
     // Don't do a replace if the drop happened inside of the selected text.
     if (cm.state.draggingText && cm.doc.sel.contains(pos) > -1) {
