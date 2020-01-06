@@ -22,9 +22,9 @@
     "constructor", "assert", "require", "revert", "addmod", "mulmod",
     "blockhash", "keccak256", "sha256", "ripemd160", "ecrecover",
     "now", "this", "super", "selfdestruct", "delete", "type",
-    // "abi", "block", "msg", "tx",
     "if", "else", "try", "catch", "while", "_", "for", "do", "continue", "break", "return", "throw", "emit",
   ]);
+  let globalVariables = wordRegexp(["abi", "block", "msg", "tx"]);
   let reserved = wordRegexp([
     "after", "alias", "apply", "auto", "case", "copyof", "default", "define", "finel",
     "immutable", "implements", "in", "inline", "let", "macro", "match", "mutable", "null",
@@ -32,7 +32,6 @@
     "static", "suppors", "switch", "typedef", "typeof", "unchecked"
   ]);
 
-  let pathLiteral = "";
   let stringLiteral = /"([^'\r\n'\\]|'\\'.)*"/;
   let hexLiteral = /(hex)(("([0-9a-fA-F]{2})*")|'([0-9a-fA-F]{2})*')/;
   let identifier = /[a-zA-Z_$][a-zA-Z_$0-9]*/;
@@ -74,6 +73,8 @@
   let builtinTypes = wordRegexp(typeList);
 
   function tokenBase(stream, state) {
+    let current = stream.current();
+
     // Whitespace
     if (stream.eatSpace()) return null;
 
@@ -127,6 +128,7 @@
 
     // Keywords
     if (stream.match(keywords)) return "keyword";
+    if (stream.match(numberUnits)) return "keyword";
 
     // Reserved keywords
     if (stream.match(reserved)) return "meta";
@@ -150,6 +152,12 @@
       return "def";
     }
 
+    // Global variables and their properties
+    if (stream.match(globalVariables)) return "keyword";
+    if (state.lastToken === "abi." && stream.match(abiMembers)) return "property";
+    if (state.lastToken === "block." && stream.match(blockMembers)) return "property";
+    if (state.lastToken === "msg." && stream.match(msgMembers)) return "property";
+    if (state.lastToken === "tx." && stream.match(txMembers)) return "property";
 
     // Others
     if (stream.match(identifier)) return null;
@@ -178,8 +186,11 @@
         let style = state.tokenize(stream, state);
         let current = stream.current();
 
-        state.lastToken = current;
-        console.log(state.lastToken);
+        if (globalVariables.test(state.lastToken) && current == ".") {
+          state.lastToken += current;
+        } else {
+          state.lastToken = current;
+        }
 
         return style;
       },
