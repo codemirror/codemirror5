@@ -15,10 +15,22 @@
     return new RegExp("^((" + words.join(")|(") + "))\\b");
   };
 
-  // let multilineCommentsStart = /\/\*[^*]/;
-  // let multilineCommentsEnd = /\*\//;
-  // let multilineDocumentationstart = /(\/(\/\/)|(\*\*))/;
-  // let multilineDocumentationEnd = /^.*?\*\//;
+  let keywords = wordRegexp([
+    "pragma", "import", "as", "is",
+    "public", "private", "external", "internal", "memory", "storage", "calldata",
+    "pure", "view", "payable", "constant", "anonymous", "indexed", "virtual", "override", "returns",
+    "constructor", "assert", "require", "revert", "addmod", "mulmod",
+    "blockhash", "keccak256", "sha256", "ripemd160", "ecrecover",
+    "now", "this", "super", "selfdestruct", "delete", "type",
+    // "abi", "block", "msg", "tx",
+    "if", "else", "try", "catch", "while", "_", "for", "do", "continue", "break", "return", "throw", "emit",
+  ]);
+  let reserved = wordRegexp([
+    "after", "alias", "apply", "auto", "case", "copyof", "default", "define", "finel",
+    "immutable", "implements", "in", "inline", "let", "macro", "match", "mutable", "null",
+    "of", "partial", "promise", "reference", "relocatable", "sealed", "sizeof",
+    "static", "suppors", "switch", "typedef", "typeof", "unchecked"
+  ]);
 
   let pathLiteral = "";
   let stringLiteral = /"([^'\r\n'\\]|'\\'.)*"/;
@@ -36,14 +48,16 @@
     "seconds", "minutes", "hours", "days", "weeks", "years" // Time units
   ]);
   let definition = wordRegexp([
-    "contract", "library", "interface",
+    "contract", "library", "interface", "mapping",
     "struct", "modifier", "function", "event", "enum"
   ]);
   let natSpecTags = /@(title|author|notice|dev|param|return)\b/;
 
-  let blockProperties = /\b(coinbase|difficulty|gaslimit|number|timestamp)\b/;
-  let msgProperties = /\b(data|sender|value)\b/;
-  let txProperties = /\b(gasprice|origin)\b/;
+  let abiMembers = /\b(decode|encode|encodePacked|encodeWithSelector|encodeWithSignature)\b/;
+  let blockMembers = /\b(coinbase|difficulty|gaslimit|number|timestamp)\b/;
+  let msgMembers = wordRegexp(["data", "sender", "value"]); ///\b(data|sender|value)\b/;
+  let txMembers = /\b(gasprice|origin)\b/;
+  let typeCMembers = /\b(name|creationCode|runtimeCode)\b/;
 
   let typeList = ["address", "bool", "string", "int", "uint", "fixed", "ufixed", "bytes"];
   for (let i = 8; i <= 256; i += 8) {
@@ -111,14 +125,18 @@
       return "comment";
     }
 
+    // Keywords
+    if (stream.match(keywords)) return "keyword";
+
+    // Reserved keywords
+    if (stream.match(reserved)) return "meta";
+
     // Strings and Numbers
     if (stream.match(stringLiteral)) return "string";
     if (stream.match(hexLiteral)) return "number";
     if (stream.match(hexNumber) || stream.match(decimalNumber)) return "number";
 
-    // Operator
     if (stream.match(operators)) return "operator";
-
     if (stream.match(atoms)) return "atom";
     if (stream.match(builtinTypes)) return "type";
 
@@ -131,6 +149,7 @@
       state.isDefinition = false;
       return "def";
     }
+
 
     // Others
     if (stream.match(identifier)) return null;
@@ -150,6 +169,8 @@
           inSingleLineDoc: false,
           inMultiLineDoc: false,
           inDefinition: false,
+          isType: false,
+          global: null
         }
       },
 
@@ -157,7 +178,8 @@
         let style = state.tokenize(stream, state);
         let current = stream.current();
 
-        if (current && style) state.lastToken = current;
+        state.lastToken = current;
+        console.log(state.lastToken);
 
         return style;
       },
