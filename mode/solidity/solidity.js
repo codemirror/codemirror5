@@ -11,12 +11,39 @@
 })(function(CodeMirror) {
   "use strict";
 
+  let blockProperties = /\b(coinbase|difficulty|gaslimit|number|timestamp)\b/;
+  let msgProperties = /\b(data|sender|value)\b/;
+  let txProperties = /\b(gasprice|origin)\b/;
+
+  function tokenBase(stream, state) {
+    // whitespace
+    if (stream.eatSpace()) return null;
+
+    if (stream.match(/\s*(address)\b/)) return "type";
+
+    stream.next();
+    return null;
+  }
+
   CodeMirror.defineMode("solidity", function() {
+
     return {
+      startState: function() {
+        return {
+          tokenize: tokenBase,
+          lastToken: null,
+        }
+      },
+
       token: function(stream, state) {
-        stream.next();
-        return "error";
-      }
+        let style = state.tokenize(stream, state);
+        let current = stream.current();
+
+        if (current && style) state.lastToken = current;
+        console.log(current);
+
+        return style;
+      },
     }
   });
 
