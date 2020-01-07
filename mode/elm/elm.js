@@ -171,7 +171,7 @@
       while (source.skipTo('\\"')) { source.next(); source.next(); }
       if (source.skipTo('"'))
       {
-      	source.next();
+        source.next();
         setState(normal());
         return 'string';
       }
