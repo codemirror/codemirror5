@@ -26,41 +26,50 @@
 <h2>Solidity mode</h2>
 
 <div><textarea id="code" name="code">
-pragma solidity >=0.5.0 <0.7.0;
+pragma solidity >=0.5.0 <0.7.0
 
-contract Coin {
-    // The keyword "public" makes variables
-    // accessible from other contracts
-    address public minter;
-    mapping (address => uint) public balances;
+import "./another.sol";
 
-    // Events allow clients to react to specific
-    // contract changes you declare
-    event Sent(address from, address to, uint amount);
+/** @title Sample contract
+ *  @author My Name
+ *  @notice This is a Solidity syntax highlight demo.
+ */
+contract Token {
+    mapping(address => uint256) balances;
+    using Balances for *;
+    mapping(address => mapping (address => uint256)) allowed;
 
-    // Constructor code is only run when the contract
-    // is created
-    constructor() public {
-        minter = msg.sender;
+    event Transfer(address from, address to, uint amount);
+    event Approval(address owner, address spender, uint amount);
+
+	/// @param
+    function transfer(address to, uint amount) public returns (bool success) {
+        balances.move(msg.sender, to, amount);
+        emit Transfer(msg.sender, to, amount);
+        return true;
+
     }
 
-    // Sends an amount of newly created coins to an address
-    // Can only be called by the contract creator
-    function mint(address receiver, uint amount) public {
-        require(msg.sender == minter);
-        require(amount < 1e60);
-        balances[receiver] += amount;
-   }
+    function transferFrom(address from, address to, uint amount) public returns (bool success) {
+        require(allowed[from][msg.sender] >= amount);
+        allowed[from][msg.sender] -= amount;
+        balances.move(from, to, amount);
+        emit Transfer(from, to, amount);
+        return true;
+    }
 
-    // Sends an amount of existing coins
-    // from any caller to an address
-    function send(address receiver, uint amount) public {
-        require(amount <= balances[msg.sender], "Insufficient balance.");
-        balances[msg.sender] -= amount;
-        balances[receiver] += amount;
-        emit Sent(msg.sender, receiver, amount);
+    function approve(address spender, uint tokens) public returns (bool success) {
+        require(allowed[msg.sender][spender] == 0, "");
+        allowed[msg.sender][spender] = tokens;
+        emit Approval(msg.sender, spender, tokens);
+        return true;
+    }
+
+    function balanceOf(address tokenOwner) public view returns (uint balance) {
+        return balances[tokenOwner];
     }
 }
+
 </textarea></div>
 
     <script>

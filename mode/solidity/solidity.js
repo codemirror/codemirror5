@@ -36,7 +36,7 @@
   let hexLiteral    = /(hex)(("([0-9a-fA-F]{2})*")|'([0-9a-fA-F]{2})*')/;
   let identifier    = /[a-zA-Z_$][a-zA-Z_$0-9]*/;
   let hexNumber     = /\-?(0x)[0-9a-fA-F]+(_?[0-9a-fA-F]+)*\b/;
-  let decimalNumber = /\-?[0-9](\.[0-9]*)?([eE][0-9]+)?/;
+  let decimalNumber = /^\-?[0-9](\.[0-9]*)?([eE][0-9]+)?/;
   let operators     = /[+\-*\/%&^|:=<>!~]+/;
 
   let atoms = wordRegexp(["true", "false"]);
@@ -76,29 +76,31 @@
     if (stream.eatSpace()) return null;
 
     // Multi-line documentation
-    if (state.inMultiLineDoc) {
-      if (stream.match("*/")) {
-        state.inMultiLineDoc = false;
-        return "comment";
-      }
-      if (stream.match(natSpecTags)) return "tag";
-      stream.skipToEnd();
-      return "comment";
-    }
     if (stream.match("/**")) {
       state.inMultiLineDoc = true;
+      return "comment";
+    }
+    if (state.inMultiLineDoc) {
+      if (stream.match("*/")) {
+        state.inMultiLineDoc= false;
+        return "comment";
+      }
+      if (stream.match("*")) return "comment";
+      if (stream.match(natSpecTags)) return "tag";
+      stream.skipToEnd();
       return "comment";
     }
 
     // Single-line documentation
     if (state.inSingleLineDoc) {
-      if (stream.sol()) {
+      state.inSingleLineDoc = false;
+      if (stream.sol() || stream.eol()) {
         state.inSingleLineDoc = false;
         return "comment";
       }
       if (stream.match(natSpecTags)) return "tag";
       stream.skipToEnd();
-      state.inSingleLineDoc = false;
+      // state.inSingleLineDoc = false;
       return "comment";
     }
     if (stream.match("///")) {
@@ -153,13 +155,10 @@
 
     // Global variables and their properties
     if (stream.match(globalVariables)) return "keyword";
-    if (state.lastToken === "abi." && stream.match(abiMembers)) return "keyword";
-    if (state.lastToken === "block." && stream.match(blockMembers)) return "keyword";
-    if (state.lastToken === "msg." && stream.match(msgMembers)) return "keyword";
-    if (state.lastToken === "tx." && stream.match(txMembers)) return "keyword";
-
-    // Property
-    if (state.lastToken === ".") return "property";
+    if (state.lastToken === "abi" && stream.match(abiMembers)) return "keyword";
+    if (state.lastToken === "block" && stream.match(blockMembers)) return "keyword";
+    if (state.lastToken === "msg" && stream.match(msgMembers)) return "keyword";
+    if (state.lastToken === "tx" && stream.match(txMembers)) return "keyword";
 
     // Others
     if (stream.match(identifier)) return "variable";
@@ -187,18 +186,18 @@
         let style = state.tokenize(stream, state);
         let current = stream.current();
 
-        if (globalVariables.test(state.lastToken) && current == ".") {
-          state.lastToken += current;
-        } else if (current && style){
+        if (current && style) {
           state.lastToken = current;
         }
 
         return style;
       },
 
+      electricInput: /^\s*[\}\]\)]$/,
       lineComment: "//",
       blockCommentStart: "/*",
-      blockCommentEnd: "*/"
+      blockCommentEnd: "*/",
+      fold: "brace"
     }
   });
 
