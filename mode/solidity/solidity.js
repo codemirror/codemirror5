@@ -16,7 +16,7 @@
   };
 
   let keywords = wordRegexp([
-    "pragma", "import", "as", "is",
+    "pragma", "import", "as", "is", "using", "new", "assembly",
     "public", "private", "external", "internal", "memory", "storage", "calldata",
     "pure", "view", "payable", "constant", "anonymous", "indexed", "virtual", "override", "returns",
     "constructor", "assert", "require", "revert", "addmod", "mulmod",
@@ -32,16 +32,14 @@
     "static", "suppors", "switch", "typedef", "typeof", "unchecked"
   ]);
 
-  let stringLiteral = /"([^'\r\n'\\]|'\\'.)*"/;
-  let hexLiteral = /(hex)(("([0-9a-fA-F]{2})*")|'([0-9a-fA-F]{2})*')/;
-  let identifier = /[a-zA-Z_$][a-zA-Z_$0-9]*/;
+  let stringLiteral = /('.*')|(".*")/;
+  let hexLiteral    = /(hex)(("([0-9a-fA-F]{2})*")|'([0-9a-fA-F]{2})*')/;
+  let identifier    = /[a-zA-Z_$][a-zA-Z_$0-9]*/;
+  let hexNumber     = /\-?(0x)[0-9a-fA-F]+(_?[0-9a-fA-F]+)*\b/;
+  let decimalNumber = /\-?[0-9](\.[0-9]*)?([eE][0-9]+)?/;
+  let operators     = /[+\-*\/%&^|:=<>!~]+/;
 
-  let hexNumber = /(0x)[0-9a-fA-F]+/;
-  let decimalNumber = /[0-9]+(\.[0-9]*)?([eE][0-9]+)?/;
-
-  let operators = /[+\-*\/%&^|=<>!~]+/;
-
-  let atoms = /(true|false)/;
+  let atoms = wordRegexp(["true", "false"]);
   let numberUnits = wordRegexp([
     "wei", "szabo", "finney", "ether", // Ether units
     "seconds", "minutes", "hours", "days", "weeks", "years" // Time units
@@ -52,11 +50,10 @@
   ]);
   let natSpecTags = /@(title|author|notice|dev|param|return)\b/;
 
-  let abiMembers = /\b(decode|encode|encodePacked|encodeWithSelector|encodeWithSignature)\b/;
-  let blockMembers = /\b(coinbase|difficulty|gaslimit|number|timestamp)\b/;
-  let msgMembers = wordRegexp(["data", "sender", "value"]); ///\b(data|sender|value)\b/;
-  let txMembers = /\b(gasprice|origin)\b/;
-  let typeCMembers = /\b(name|creationCode|runtimeCode)\b/;
+  let abiMembers = wordRegexp(["decode", "encode", "encodePacked", "encodeWithSelector", "encodeWithSignature"]);
+  let blockMembers = wordRegexp(["coinbase", "difficulty", "gaslimit", "number", "timestamp"]);
+  let msgMembers = wordRegexp(["data", "sender", "value"]);
+  let txMembers = wordRegexp(["gasprice", "origin"]);
 
   let typeList = ["address", "bool", "string", "int", "uint", "fixed", "ufixed", "bytes"];
   for (let i = 8; i <= 256; i += 8) {
@@ -94,11 +91,14 @@
     }
 
     // Single-line documentation
-    // @todo doesn't work well!
     if (state.inSingleLineDoc) {
+      if (stream.sol()) {
+        state.inSingleLineDoc = false;
+        return "comment";
+      }
       if (stream.match(natSpecTags)) return "tag";
-      if (stream.eol()) state.inSingleLineDoc = false;
       stream.skipToEnd();
+      state.inSingleLineDoc = false;
       return "comment";
     }
     if (stream.match("///")) {
@@ -126,21 +126,16 @@
       return "comment";
     }
 
-    // Keywords
-    if (stream.match(keywords)) return "keyword";
-    if (stream.match(numberUnits)) return "keyword";
+    // `payable` is a builtin keyword but `address payable` is a type
+    if (state.lastToken == "address" && stream.match("payable")) return "type";
+    if (stream.match(builtinTypes)) return "type";
 
-    // Reserved keywords
-    if (stream.match(reserved)) return "meta";
-
-    // Strings and Numbers
     if (stream.match(stringLiteral)) return "string";
     if (stream.match(hexLiteral)) return "number";
     if (stream.match(hexNumber) || stream.match(decimalNumber)) return "number";
 
     if (stream.match(operators)) return "operator";
     if (stream.match(atoms)) return "atom";
-    if (stream.match(builtinTypes)) return "type";
 
     if (stream.match(definition)) {
       state.isDefinition = true;
@@ -152,15 +147,22 @@
       return "def";
     }
 
+    if (stream.match(keywords)) return "keyword";
+    if (stream.match(numberUnits)) return "keyword";
+    if (stream.match(reserved)) return "keyword";
+
     // Global variables and their properties
     if (stream.match(globalVariables)) return "keyword";
-    if (state.lastToken === "abi." && stream.match(abiMembers)) return "property";
-    if (state.lastToken === "block." && stream.match(blockMembers)) return "property";
-    if (state.lastToken === "msg." && stream.match(msgMembers)) return "property";
-    if (state.lastToken === "tx." && stream.match(txMembers)) return "property";
+    if (state.lastToken === "abi." && stream.match(abiMembers)) return "keyword";
+    if (state.lastToken === "block." && stream.match(blockMembers)) return "keyword";
+    if (state.lastToken === "msg." && stream.match(msgMembers)) return "keyword";
+    if (state.lastToken === "tx." && stream.match(txMembers)) return "keyword";
+
+    // Property
+    if (state.lastToken === ".") return "property";
 
     // Others
-    if (stream.match(identifier)) return null;
+    if (stream.match(identifier)) return "variable";
 
     stream.next();
     return null;
@@ -177,7 +179,6 @@
           inSingleLineDoc: false,
           inMultiLineDoc: false,
           inDefinition: false,
-          isType: false,
           global: null
         }
       },
@@ -188,7 +189,7 @@
 
         if (globalVariables.test(state.lastToken) && current == ".") {
           state.lastToken += current;
-        } else {
+        } else if (current && style){
           state.lastToken = current;
         }
 
