@@ -129,7 +129,6 @@
       startState: function() {
         return {
           soyState: [],
-          templates: null,
           variables: prepend(null, 'ij'),
           scopes: null,
           indent: 0,
@@ -146,7 +145,6 @@
         return {
           tag: state.tag, // Last seen Soy tag.
           soyState: state.soyState.concat([]),
-          templates: state.templates,
           variables: state.variables,
           context: state.context,
           indent: state.indent, // Indentation of the following line.
@@ -202,7 +200,6 @@
         switch (last(state.soyState)) {
           case "templ-def":
             if (match = stream.match(/^\.?([\w]+(?!\.[\w]+)*)/)) {
-              state.templates = prepend(state.templates, match[1]);
               state.soyState.pop();
               return "def";
             }
