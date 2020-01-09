@@ -197,7 +197,10 @@ Doc.prototype = createObj(BranchChunk.prototype, {
     for (let i = 0; i < hist.undone.length; i++) if (!hist.undone[i].ranges) ++undone
     return {undo: done, redo: undone}
   },
-  clearHistory: function() {this.history = new History(this.history.maxGeneration)},
+  clearHistory: function() {
+    this.history = new History(this.history.maxGeneration)
+    linkedDocs(this, doc => doc.history = this.history, true)
+  },
 
   markClean: function() {
     this.cleanGeneration = this.changeGeneration(true)
