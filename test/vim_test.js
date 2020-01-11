@@ -1608,13 +1608,13 @@ testVim('i_forward_delete', function(cm, vim, helpers) {
 }, { value: 'A1234\nBCD'});
 testVim('forward_delete', function(cm, vim, helpers) {
   cm.setCursor(0, 3);
-  helpers.doInsertModeKeys('Delete');
+  helpers.doKeys('<Del>');
   helpers.assertCursorAt(0, 3);
   eq('A124\nBCD', cm.getValue());
-  helpers.doInsertModeKeys('Delete');
+  helpers.doKeys('<Del>');
   helpers.assertCursorAt(0, 2);
   eq('A12\nBCD', cm.getValue());
-  helpers.doInsertModeKeys('Delete');
+  helpers.doKeys('<Del>');
   helpers.assertCursorAt(0, 1);
   eq('A1\nBCD', cm.getValue());
 }, { value: 'A1234\nBCD'});
@@ -1690,6 +1690,25 @@ testVim('J_repeat', function(cm, vim, helpers) {
   eq(expectedValue, cm.getValue());
   helpers.assertCursorAt(0, expectedValue.indexOf('word3') - 1);
 }, { value: 'word1 \n    word2\nword3\n word4' });
+testVim('gJ', function(cm, vim, helpers) {
+  cm.setCursor(0, 4);
+  helpers.doKeys('g', 'J');
+  eq('word1word2 \n word3', cm.getValue());
+  helpers.assertCursorAt(0, 5);
+  helpers.doKeys('g', 'J');
+  eq('word1word2  word3', cm.getValue());
+  helpers.assertCursorAt(0, 11);
+}, { value: 'word1\nword2 \n word3' });
+testVim('gi', function(cm, vim, helpers) {
+  cm.setCursor(1, 5);
+  helpers.doKeys('g', 'I');
+  helpers.doKeys('a', 'a', '<Esc>', 'k');
+  eq('12\naa  xxxx', cm.getValue());
+  helpers.assertCursorAt(0, 1);
+  helpers.doKeys('g', 'i');
+  helpers.assertCursorAt(1, 2);
+  eq('vim-insert', cm.getOption('keyMap'));
+}, { value: '12\n  xxxx' });
 testVim('p', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.getRegisterController().pushText('"', 'yank', 'abc\ndef', false);
