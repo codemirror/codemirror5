@@ -1825,15 +1825,31 @@ testVim('mark', function(cm, vim, helpers) {
   helpers.assertCursorAt(2, 3);
 });
 testVim('mark\'', function(cm, vim, helpers) {
+  // motions that do not update jumplist
   cm.setCursor(2, 2);
-  cm.setCursor(0, 0);
   helpers.doKeys('`', '\'');
+  helpers.assertCursorAt(0, 0);
+  helpers.doKeys('j', '3', 'l');
+  helpers.doKeys('`', '`');
   helpers.assertCursorAt(2, 2);
-  cm.setCursor(2, 0);
-  cm.replaceRange('   h', cm.getCursor());
-  cm.setCursor(0, 0);
+  helpers.doKeys('`', '`');
+  helpers.assertCursorAt(1, 3);
+  // motions that update jumplist
+  cm.openDialog = helpers.fakeOpenDialog('=');
+  helpers.doKeys('/');
+  helpers.assertCursorAt(6, 20);
+  helpers.doKeys('`', '`');
+  helpers.assertCursorAt(1, 3);
   helpers.doKeys('\'', '\'');
-  helpers.assertCursorAt(2, 3);
+  helpers.assertCursorAt(6, 2);
+  helpers.doKeys('\'', '`');
+  helpers.assertCursorAt(1, 1);
+  // edits
+  helpers.doKeys('g', 'I', '\n', '<Esc>', 'l');
+  helpers.doKeys('`', '`');
+  helpers.assertCursorAt(7, 2);
+  helpers.doKeys('`', '`');
+  helpers.assertCursorAt(2, 1);
 });
 testVim('mark.', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
