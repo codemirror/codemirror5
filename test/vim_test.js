@@ -1800,6 +1800,18 @@ testVim('R', function(cm, vim, helpers) {
   eq('vim-replace', cm.getOption('keyMap'));
   is(cm.state.overwrite, 'Setting overwrite state failed');
 });
+testVim('R_visual', function(cm, vim, helpers) {
+  helpers.doKeys('<C-v>', 'j', 'R', '0', '<Esc>');
+  eq('0\nb33\nc44\nc55', cm.getValue());
+  helpers.doKeys('2', 'j', '.');
+  eq('0\nb33\n0', cm.getValue());
+  helpers.doKeys('k', 'v', 'R', '1', '<Esc>');
+  eq('0\n1\n0', cm.getValue());
+  helpers.doKeys('k', '.');
+  eq('1\n1\n0', cm.getValue());
+  helpers.doKeys('p');
+  eq('1\n0\n1\n0', cm.getValue());
+}, {value: 'a11\na22\nb33\nc44\nc55'});
 testVim('mark', function(cm, vim, helpers) {
   cm.setCursor(2, 2);
   helpers.doKeys('m', 't');
