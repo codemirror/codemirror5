@@ -180,7 +180,8 @@
     { keys: '@<character>', type: 'action', action: 'replayMacro' },
     { keys: 'q<character>', type: 'action', action: 'enterMacroRecordMode' },
     // Handle Replace-mode as a special case of insert mode.
-    { keys: 'R', type: 'action', action: 'enterInsertMode', isEdit: true, actionArgs: { replace: true }},
+    { keys: 'R', type: 'action', action: 'enterInsertMode', isEdit: true, actionArgs: { replace: true }, context: 'normal'},
+    { keys: 'R', type: 'operator', operator: 'change', operatorArgs: { linewise: true, fullLine: true }, context: 'visual', exitVisualBlock: true},
     { keys: 'u', type: 'action', action: 'undo', context: 'normal' },
     { keys: 'u', type: 'operator', operator: 'changeCase', operatorArgs: {toLower: true}, context: 'visual', isEdit: true },
     { keys: 'U', type: 'operator', operator: 'changeCase', operatorArgs: {toLower: false}, context: 'visual', isEdit: true },
@@ -1293,6 +1294,10 @@
         }
         inputState.operator = command.operator;
         inputState.operatorArgs = copyArgs(command.operatorArgs);
+        if (command.exitVisualBlock) {
+            vim.visualBlock = false;
+            updateCmSelection(cm);
+        }
         if (vim.visualMode) {
           // Operating on a selection in visual mode. We don't need a motion.
           this.evalInput(cm, vim);
@@ -2104,9 +2109,9 @@
       change: function(cm, args, ranges) {
         var finalHead, text;
         var vim = cm.state.vim;
+        var anchor = ranges[0].anchor,
+            head = ranges[0].head;
         if (!vim.visualMode) {
-          var anchor = ranges[0].anchor,
-              head = ranges[0].head;
           text = cm.getRange(anchor, head);
           var lastState = vim.lastEditInputState || {};
           if (lastState.motion == "moveByWords" && !isWhiteSpaceString(text)) {
@@ -2134,6 +2139,13 @@
             anchor.ch = Number.MAX_VALUE;
           }
           finalHead = anchor;
+        } else if (args.fullLine) {
+            head.ch = Number.MAX_VALUE;
+            head.line--;
+            cm.setSelection(anchor, head)
+            text = cm.getSelection();
+            cm.replaceSelection("");
+            finalHead = anchor;
         } else {
           text = cm.getSelection();
           var replacement = fillArray('', ranges.length);
