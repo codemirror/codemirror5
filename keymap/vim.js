@@ -595,9 +595,16 @@
         }
         return mark;
       }
+      function find(cm, offset) {
+        var oldPointer = pointer;
+        var mark = move(cm, offset);
+        pointer = oldPointer;
+        return mark && mark.find();
+      }
       return {
         cachedCursor: undefined, //used for # and * jumps
         add: add,
+        find: find,
         move: move
       };
     };
@@ -4336,23 +4343,23 @@
     }
 
     function getMarkPos(cm, vim, markName) {
-      if (markName == '\'') {
-        var history = cm.doc.history.done;
-        var event = history[history.length - 2];
-        return event && event.ranges && event.ranges[0].head;
+      if (markName == '\'' || markName == '`') {
+        return vimGlobalState.jumpList.find(cm, -1) || Pos(0, 0);
       } else if (markName == '.') {
-        if (cm.doc.history.lastModTime == 0) {
-          return  // If no changes, bail out; don't bother to copy or reverse history array.
-        } else {
-          var changeHistory = cm.doc.history.done.filter(function(el){ if (el.changes !== undefined) { return el } });
-          changeHistory.reverse();
-          var lastEditPos = changeHistory[0].changes[0].to;
-        }
-        return lastEditPos;
+        return getLastEditPos(cm);
       }
 
       var mark = vim.marks[markName];
       return mark && mark.find();
+    }
+
+    function getLastEditPos(cm) {
+      var done = cm.doc.history.done;
+      for (var i = done.length; i--;) {
+        if (done[i].changes) {
+          return copyCursor(done[i].changes[0].to);
+        }
+      }
     }
 
     var ExCommandDispatcher = function() {
