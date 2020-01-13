@@ -1,0 +1,147 @@
+<!doctype html>
+
+<title>CodeMirror: Elixir mode</title>
+<meta charset="utf-8" />
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel="stylesheet" href="../../lib/codemirror.css">
+<script src="../../lib/codemirror.js"></script>
+<script src="../../addon/edit/matchbrackets.js"></script>
+<link rel="stylesheet" href="../../addon/hint/show-hint.css">
+<script src="../../addon/hint/show-hint.js"></script>
+<script src="elixir.js"></script>
+<style>
+  .CodeMirror {
+      border: 2px inset #dee;
+  }
+</style>
+<div id=nav>
+  <a href="https://codemirror.net">
+    <h1>CodeMirror</h1><img id=logo src="../../doc/logo.png" alt="">
+  </a>
+
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#">Elixir</a>
+  </ul>
+</div>
+
+<article>
+  <h2>Elixir mode</h2>
+  <form>
+    <textarea id="code" name="code">
+# Some code examples borrowed from https://learnxinyminutes.com/docs/elixir/
+defmodule MyModule do
+  @moduledoc """
+  This is a built-in attribute on a example module.
+  """
+
+  use Bitwise
+
+  @type doubled_even_list() :: list(number())
+
+  # Struct
+  defstruct name: nil, age: 0, height: 0, tags: nil
+
+  @doc ~s"oneline sigil"
+  # Function
+  def function_one do
+    mm_struct = %MyModule{name: "a", age: 3, height: 40, tags: ~w(foo bar bat)}
+    list = [~D[2020-01-12], 1_000_000, :'🌢 Elixir', ~s/f#{"o"}o/, 0x1F, 0b1010, 1.0e-10]
+    map = %{one: mm_struct, two: 'two', "three" => list}
+    {:ok, map["three"]}
+  end
+
+  @doc ~S"oneline capital S sigil"
+  # Pattern matching
+  def function_two do
+    {:ok, msg} = function_one
+    IO.puts(msg)
+  end
+
+  # Try/Rescue block
+  def function_three do
+    a = "a"
+    try do
+      raise "some error" <> """
+      something
+      """ <> a
+    rescue
+      RuntimeError -> "rescued a runtime error"
+      _error -> "this will rescue any error"
+    end
+  end
+
+  def function_four do
+    raise "some other error"
+  rescue
+    RuntimeError -> "rescued a runtime error"
+    _error -> "this will rescue any error"
+  end
+
+  def even?(n) when is_number(n), do: rem(n, 2) == 0
+
+  # Pipes
+  @spec function_five(number(), number()) :: doubled_even_list()
+  def function_five(start, finish, _third, _) do
+    with true <- is_number(start),
+      true <- is_number(finish),
+      true <- finish >= start
+    do
+      Range.new(start, finish)
+      |> Enum.map(fn x -> x * x end)
+      |> Enum.filter(&even?/1)
+    end
+  end
+
+  # Oneliner
+  def function_six(n) when n not in [1, 2], do: IO.puts("Oneliner #{inspect(n)}")
+
+  # Bitwise
+  def function_seven() do
+    one = 1 &&& 1
+    two = 1 <<< 2
+    _three = 9 ^^^ 3
+    four = 9 ||| 3
+    five ~~~2 &&& 3
+    [one, two, four, five]
+  end
+
+  # Binary pattern matching
+  def parse(<<_type, length::big-32, data::binary>>) do
+    case byte_size(data) == length do
+      true -> :ok
+      false -> :error
+    end
+  end
+
+  def sigil_multiline_string do
+    ~S"""
+    Converts double-quotes to single-quotes.
+
+    ## Examples
+
+        iex> convert("\"foo\"")
+        "'foo'"
+
+    """
+  end
+end
+
+</textarea>
+  </form>
+  <script>
+    var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        mode: "text/x-elixir",
+        matchBrackets: true,
+        indentUnit: 4
+    });
+  </script>
+
+  <p><strong>MIME types defined:</strong> <code>text/x-elixir</code>.</p>
+</article>
