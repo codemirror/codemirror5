@@ -43,6 +43,7 @@
     {name: "ECL", mime: "text/x-ecl", mode: "ecl", ext: ["ecl"]},
     {name: "edn", mime: "application/edn", mode: "clojure", ext: ["edn"]},
     {name: "Eiffel", mime: "text/x-eiffel", mode: "eiffel", ext: ["e"]},
+    {name: "Elixir", mime: "text/x-elixir", mode: "elixir", ext: ["ex", "exs"]},
     {name: "Elm", mime: "text/x-elm", mode: "elm", ext: ["elm"]},
     {name: "Embedded Javascript", mime: "application/x-ejs", mode: "htmlembedded", ext: ["ejs"]},
     {name: "Embedded Ruby", mime: "application/x-erb", mode: "htmlembedded", ext: ["erb"]},

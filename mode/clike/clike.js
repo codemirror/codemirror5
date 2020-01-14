@@ -932,4 +932,131 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
     }
   });
 
+  function tokenElixirString(tripleString){
+    return function (stream, state) {
+      var escaped = false, next, end = false;
+      while (!stream.eol()) {
+        if (!tripleString && !escaped && stream.match('"') ) {end = true; break;}
+        if (tripleString && stream.match('"""')) {end = true; break;}
+        next = stream.next();
+        if(!escaped && next == "#" && stream.match('{'))
+          stream.skipTo("}");
+        escaped = !escaped && next == "\\" && !tripleString;
+      }
+      if (end || !tripleString)
+        state.tokenize = null;
+      return "string";
+    }
+  }
+
+  function tokenElixirSigil(trigger){
+    return function (stream, state) {
+      var end = false, until = trigger;
+      if (trigger == "(") until = ")"
+      if (trigger == "[") until = "]"
+      if (trigger == "{") until = "}"
+      while (!stream.eol()) {
+        if (stream.match(until)) {end = true; break}
+        stream.next();
+      }
+      if (end) state.tokenize = null;
+      return "string";
+    }
+  }
+
+  function wordRE() { return /[\w_?!]/ }
+
+  def("text/x-elixir", {
+    name: "clike",
+    types: function(word) {
+      var first = word.charAt(0);
+      return (first === first.toUpperCase() && first !== first.toLowerCase());
+    },
+    keywords: words(
+      "def defdelegate defexception defguard" +
+      "defguardp defimpl defmacro defmacrop defmodule defoverridable" +
+      "defp defprotocol defstruct" +
+      "alias fn use not self end import" +
+      "__MODULE__ __FILE__ __DIR__" +
+      "__ENV__ __CALLER__" +
+      "catch do else receive for if try case cond" +
+      "quote unquote rescue after with end"
+    ),
+    intendSwitch: false,
+    indentStatements: false,
+    multiLineStrings: true,
+    number: /^(?:0x[a-f\d_]+|0b[01_]+|(?:[\d_]+(\.\d+)?|\.\d+)(?:e[-+]?[\d_]+)?)(u|ll?|l|f)?/i,
+    isPunctuationChar: /[\[\]{}\(\),;\:\.]/,
+    isOperatorChar: /[+\-*&%=<>!|^~:\/]/,
+    defKeywords: words("def defdelegate defexception defguard" +
+      "defguardp defimpl defmacro defmacrop defmodule defoverridable" +
+      "defp defprotocol defstruct"
+    ),
+    builtin: words("abs and binary_part bit_size byte_size ceil div elem floor" +
+      "hd in is_atom is_binary is_bitstring is_boolean is_float" +
+      "is_function is_integer is_list is_map is_nil is_number is_pid" +
+      "is_port is_reference is_tuple length map_size node not or rem" +
+      "round self tl trunc tuple_size" +
+      "alias! apply binding destructure exit function_exported?" +
+      "get_and_update_in get_in inspect macro_exported? make_ref match?" +
+      "max min pop_in put_elem put_in raise reraise send sigil_C sigil_D" +
+      "sigil_N sigil_R sigil_S sigil_T sigil_U sigil_W sigil_c sigil_r" +
+      "sigil_s sigil_w spawn spawn_link spawn_monitor struct struct!" +
+      "throw to_charlist to_string unless update_in var!"
+    ),
+    atoms: words("true false nil"),
+    hooks: {
+      "@": function(stream) {
+        stream.eatWhile(wordRE());
+        return "meta";
+      },
+      ':': function(stream) {
+        if (!stream.match(wordRE())) return false
+        stream.eatWhile(wordRE());
+        return "atom"
+      },
+      '_': function(stream) {
+        stream.eatWhile(wordRE());
+        return "comment"
+      },
+      '"': function(stream, state) {
+        state.tokenize = tokenElixirString(stream.match('""'));
+        return state.tokenize(stream, state);
+      },
+      "~": function(stream, state) {
+        var next;
+        if (!/[wcrsDSNTURWC]/.test(stream.next())) return false
+        if (stream.match('"')) {
+          state.tokenize = tokenElixirString(stream.match('""'));
+          return state.tokenize(stream, state);
+        }
+        next = stream.next()
+        if (!/[\/|{\[\(\)\"\']/.test(next)) return false
+        state.tokenize = tokenElixirSigil(next);
+        return state.tokenize(stream, state);
+      },
+      "#": function(stream) {
+        stream.skipToEnd()
+        return "comment";
+      },
+      "&": function(stream) {
+        if (!stream.match(wordRE())) return false
+        stream.skipTo('/');
+        return "variable-2"
+      },
+      indent: function(state, ctx, textAfter, indentUnit) {
+        var firstChar = textAfter && textAfter.charAt(0);
+        if ((state.prevToken == "}" || state.prevToken == ")") && textAfter == "")
+          return state.indented;
+        if ((state.prevToken == "operator" && textAfter != "}" && state.context.type != "}") ||
+          state.prevToken == "variable" && firstChar == "." ||
+          (state.prevToken == "}" || state.prevToken == ")") && firstChar == ".")
+          return indentUnit * 2 + ctx.indented;
+        if (ctx.align && ctx.type == "}")
+          return ctx.indented + (state.context.type == (textAfter || "").charAt(0) ? 0 : indentUnit);
+      }
+    },
+    modeProps: {closeBrackets: {triples: '"'}}
+  });
+
 });
