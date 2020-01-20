@@ -12,7 +12,7 @@ Make sure `clearHistory` clears the history in all linked docs with a shared his
 
 ### New features
 
-[vim bindings](https://codemirror.net/demo/vim.html): Support `gi`, gI`, and `gJ`.
+[vim bindings](https://codemirror.net/demo/vim.html): Support `gi`, `gI`, and `gJ`.
 
 ## 5.50.2 (2020-01-01)
 
