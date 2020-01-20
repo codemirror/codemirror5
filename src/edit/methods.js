@@ -469,8 +469,9 @@ function findPosH(doc, pos, dir, unit, visually) {
   let oldPos = pos
   let origDir = dir
   let lineObj = getLine(doc, pos.line)
+  let lineDir = visually && doc.cm && doc.cm.getOption("direction") == "rtl" ? -dir : dir
   function findNextLine() {
-    let l = pos.line + dir
+    let l = pos.line + lineDir
     if (l < doc.first || l >= doc.first + doc.size) return false
     pos = new Pos(l, pos.ch, pos.sticky)
     return lineObj = getLine(doc, l)
@@ -484,7 +485,7 @@ function findPosH(doc, pos, dir, unit, visually) {
     }
     if (next == null) {
       if (!boundToLine && findNextLine())
-        pos = endOfLine(visually, doc.cm, lineObj, pos.line, dir)
+        pos = endOfLine(visually, doc.cm, lineObj, pos.line, lineDir)
       else
         return false
     } else {
