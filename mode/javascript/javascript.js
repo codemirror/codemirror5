@@ -446,7 +446,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   }
 
   function maybeoperatorComma(type, value) {
-    if (type == ",") return cont(expression);
+    if (type == ",") return cont(maybeexpression);
     return maybeoperatorNoComma(type, value, false);
   }
   function maybeoperatorNoComma(type, value, noComma) {
