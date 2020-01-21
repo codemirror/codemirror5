@@ -63,13 +63,27 @@
      '[keyword {] [atom 0x1F] [keyword }]',
      '[keyword {] [atom 0x1F00BBEA] [keyword }]');
 
-  MT('param-type-test',
+  MT('param-type-record',
+     '[keyword {@param] [def record]: [[[property foo]: [type bool], [property bar]: [type int] ]][keyword }]',
+  );
+
+  MT('param-type-map',
+     '[keyword {@param] [def unknown]: [type map]<[type string], [type bool]>[keyword }]',
+  );
+
+  MT('param-type-list',
+     '[keyword {@param] [def list]: [type list]<[type ?]>[keyword }]'
+  );
+
+  MT('param-type-any',
+     '[keyword {@param] [def unknown]: [type ?][keyword }]',
+  );
+
+  MT('param-type-nested',
      '[keyword {@param] [def a]: ' +
-         '[type list]<[[[type a]: [type int], ' +
-         '[type b]: [type map]<[type string], ' +
-         '[type bool]>]]>][keyword }]',
-      '[keyword {@param] [def unknown]: [type ?][keyword }]',
-      '[keyword {@param] [def list]: [type list]<[type ?]>[keyword }]');
+         '[type list]<[[[property a]: [type int], ' +
+         '[property b]: [type map]<[type string], ' +
+         '[type bool]>]]>][keyword }]',);
 
   MT('undefined-var',
      '[keyword {][variable-2&error $var]');

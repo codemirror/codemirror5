@@ -247,12 +247,43 @@
 
           case "param-type":
             var peekChar = stream.peek();
-            if (peekChar == "}" || peekChar == "=") {
+            if ("}]=>,".indexOf(peekChar) != -1) {
+              state.soyState.pop();
+              return null;
+            } else if (peekChar == "[") {
+              state.soyState.push('param-type-record');
+              return null;
+            } else if (stream.match(/^(map)|(list)/)) {
+              state.soyState.push('param-type-map-list');
+              return "type";
+            } else if (stream.eatWhile(/^([\w]+|[?])/)) {
+              return "type";
+            }
+            stream.next();
+            return null;
+
+          case "param-type-record":
+            var peekChar = stream.peek();
+            if (peekChar == "]") {
               state.soyState.pop();
               return null;
             }
-            if (stream.eatWhile(/^([\w]+|[?])/)) {
-              return "type";
+            if (stream.match(/^\w+/)) {
+              state.soyState.push('param-type');
+              return "property";
+            }
+            stream.next();
+            return null;
+
+          case "param-type-map-list":
+            var peekChar = stream.peek();
+            if (stream.match(/^[>]/)) {
+              state.soyState.pop();
+              return null;
+            }
+            if (stream.match(/^[<,]/)) {
+              state.soyState.push('param-type');
+              return null;
             }
             stream.next();
             return null;
