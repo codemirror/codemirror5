@@ -125,6 +125,40 @@
       this.scope = scope;
     }
 
+    function expression(stream, state) {
+      let match;
+      if (stream.match(/map/)) {
+        state.soyState.push("map-literal");
+        return "keyword";
+      } else if (stream.match(/record/)) {
+        state.soyState.push("record-literal");
+        return "keyword";
+      } else if (stream.match(/([\w]+)(?=\()/)) {
+        return "variable callee";
+      } else if (match = stream.match(/^["']/)) {
+        state.soyState.push("string");
+        state.quoteKind = match;
+        return "string";
+      } else if (stream.match(/^[(]/)) {
+        state.soyState.push("open-parentheses");
+        return null;
+      } else if (stream.match(/(null|true|false)(?!\w)/) ||
+          stream.match(/0x([0-9a-fA-F]{2,})/) ||
+          stream.match(/-?([0-9]*[.])?[0-9]+(e[0-9]*)?/)) {
+        return "atom";
+      } else if (stream.match(/(\||[+\-*\/%]|[=!]=|\?:|[<>]=?)/)) {
+        // Tokenize filter, binary, null propagator, and equality operators.
+        return "operator";
+      } else if (match = stream.match(/^\$([\w]+)/)) {
+        return ref(state.variables, match[1]);
+      } else if (match = stream.match(/^\w+/)) {
+        return /^(?:as|and|or|not|in)$/.test(match[0]) ? "keyword" : null;
+      }
+
+      stream.next();
+      return null;
+    }
+
     return {
       startState: function() {
         return {
@@ -245,6 +279,13 @@
             stream.next();
             return null;
 
+          case "open-parentheses":
+            if (stream.match(/[)]/)) {
+              state.soyState.pop();
+              return null;
+            }
+            return expression(stream, state);
+
           case "param-type":
             var peekChar = stream.peek();
             if ("}]=>,".indexOf(peekChar) != -1) {
@@ -297,6 +338,50 @@
             stream.next();
             return null;
 
+          case "record-literal":
+            if (stream.match(/^[)]/)) {
+              state.soyState.pop();
+              return null;
+            }
+            if (stream.match(/[(,]/)) {
+              state.soyState.push("map-value")
+              state.soyState.push("record-key")
+              return null;
+            }
+            stream.next()
+            return null;
+
+          case "map-literal":
+            if (stream.match(/^[)]/)) {
+              state.soyState.pop();
+              return null;
+            }
+            if (stream.match(/[(,]/)) {
+              state.soyState.push("map-value")
+              state.soyState.push("map-value")
+              return null;
+            }
+            stream.next()
+            return null;
+
+          case "record-key":
+            if (stream.match(/[\w]+/)) {
+              return "property";
+            }
+            if (stream.match(/^[:]/)) {
+              state.soyState.pop();
+              return null;
+            }
+            stream.next();
+            return null;
+            
+          case "map-value":
+            if (stream.peek() == ")" || stream.peek() == "," || stream.match(/^[:)]/)) {
+              state.soyState.pop();
+              return null;
+            }
+            return expression(stream, state);
+
           case "tag":
             var endTag = state.tag[0] == "/";
             var tagName = endTag ? state.tag.substring(1) : state.tag;
@@ -330,30 +415,8 @@
                 });
               }
               return "attribute";
-            } else if (match = stream.match(/([\w]+)(?=\()/)) {
-              return "variable callee";
-            } else if (match = stream.match(/^["']/)) {
-              state.soyState.push("string");
-              state.quoteKind = match;
-              return "string";
             }
-            if (stream.match(/(null|true|false)(?!\w)/) ||
-              stream.match(/0x([0-9a-fA-F]{2,})/) ||
-              stream.match(/-?([0-9]*[.])?[0-9]+(e[0-9]*)?/)) {
-              return "atom";
-            }
-            if (stream.match(/(\||[+\-*\/%]|[=!]=|\?:|[<>]=?)/)) {
-              // Tokenize filter, binary, null propagator, and equality operators.
-              return "operator";
-            }
-            if (match = stream.match(/^\$([\w]+)/)) {
-              return ref(state.variables, match[1]);
-            }
-            if (match = stream.match(/^\w+/)) {
-              return /^(?:as|and|or|not|in)$/.test(match[0]) ? "keyword" : null;
-            }
-            stream.next();
-            return null;
+            return expression(stream, state);
 
           case "literal":
             if (stream.match(/^(?=\{\/literal})/)) {
