@@ -247,4 +247,8 @@
      '[keyword {if] [atom true][keyword }]',
      '  Optional',
      '[keyword&error {/badend][keyword }]');
+
+  MT('list-comprehension',
+     '[keyword {let] [def $test]: [[[variable $a] [operator +] [atom 1] [keyword for] ' +
+         '[variable $a] [keyword in] [variable $myList] [keyword if] [variable $a] [operator >=] [atom 3] ] [keyword /}]');
 })();

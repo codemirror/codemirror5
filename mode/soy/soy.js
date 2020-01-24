@@ -127,7 +127,11 @@
 
     function expression(stream, state) {
       let match;
-      if (stream.match(/map/)) {
+      if (stream.match(/[[]/)) {
+        state.soyState.push("list-literal");
+        state.lookupVariables = false;
+        return null;
+      } else if (stream.match(/map/)) {
         state.soyState.push("map-literal");
         return "keyword";
       } else if (stream.match(/record/)) {
@@ -150,9 +154,9 @@
         // Tokenize filter, binary, null propagator, and equality operators.
         return "operator";
       } else if (match = stream.match(/^\$([\w]+)/)) {
-        return ref(state.variables, match[1]);
+        return ref(state.variables, match[1], !state.lookupVariables);
       } else if (match = stream.match(/^\w+/)) {
-        return /^(?:as|and|or|not|in)$/.test(match[0]) ? "keyword" : null;
+        return /^(?:as|and|or|not|in|for|if)$/.test(match[0]) ? "keyword" : null;
       }
 
       stream.next();
@@ -168,6 +172,7 @@
           indent: 0,
           quoteKind: null,
           context: null,
+          lookupVariables: true, // Is unknown variables considered an error
           localStates: [{
             mode: modes.html,
             state: CodeMirror.startState(modes.html)
@@ -183,6 +188,7 @@
           context: state.context,
           indent: state.indent, // Indentation of the following line.
           quoteKind: state.quoteKind,
+          lookupVariables: state.lookupVariables,
           localStates: state.localStates.map(function(localState) {
             return {
               mode: localState.mode,
@@ -363,6 +369,14 @@
             }
             stream.next()
             return null;
+
+          case "list-literal":
+            if (stream.match(/\]/)) {
+              state.soyState.pop();
+              state.lookupVariables = true;
+              return null;
+            }
+            return expression(stream, state);
 
           case "record-key":
             if (stream.match(/[\w]+/)) {
