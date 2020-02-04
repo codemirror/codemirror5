@@ -150,7 +150,9 @@ li.last {
     lineNumbers: true,
     mode: "javascript",
     gutters: ["CodeMirror-lint-markers"],
-    lint: true
+    lint: {
+      selfContain: true
+    }
   });
 
   var editor_json = CodeMirror.fromTextArea(document.getElementById("code-json"), {
