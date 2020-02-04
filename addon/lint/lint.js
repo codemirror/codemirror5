@@ -16,7 +16,10 @@
     var tt = document.createElement("div");
     tt.className = "CodeMirror-lint-tooltip cm-s-" + cm.options.theme;
     tt.appendChild(content.cloneNode(true));
-    document.body.appendChild(tt);
+    if(cm.options.lint.selfContain)
+      cm.getWrapperElement().appendChild(tt);
+    else
+      document.body.appendChild(tt);
 
     function position(e) {
       if (!tt.parentNode) return CodeMirror.off(document, "mousemove", position);
