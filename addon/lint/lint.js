@@ -16,7 +16,7 @@
     var tt = document.createElement("div");
     tt.className = "CodeMirror-lint-tooltip cm-s-" + cm.options.theme;
     tt.appendChild(content.cloneNode(true));
-    if(cm.options.lint.selfContain)
+    if (cm.state.lint.options.selfContain)
       cm.getWrapperElement().appendChild(tt);
     else
       document.body.appendChild(tt);
