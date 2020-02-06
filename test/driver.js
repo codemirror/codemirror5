@@ -11,8 +11,6 @@ function indexOf(collection, elt) {
 }
 
 function test(name, run, expectedFail) {
-  if (!/^vim/.test(name)) return
-  console.log(name)
   // Force unique names
   var originalName = name;
   var i = 2; // Second function would be NAME_2
