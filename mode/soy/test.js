@@ -233,7 +233,7 @@
      '[keyword {rb}]');
 
   MT('let-list-literal',
-     '[keyword {let] [def $test]: [[[[[string \'a\'] ], [[[string \'b\'] ]] [keyword /}]');
+     '[keyword {let] [def $test]: [[[[[string \'a\'] ], [[[string \'b\'] ] ] [keyword /}]');
 
   MT('let-record-literal',
      '[keyword {let] [def $test]: [keyword record]([property test]: [callee&variable bidiGlobalDir](), ' +
@@ -249,6 +249,7 @@
      '[keyword&error {/badend][keyword }]');
 
   MT('list-comprehension',
+     '[keyword {let] [def $myList]: [[[[[string \'a\'] ] ] [keyword /}] ' +
      '[keyword {let] [def $test]: [[[variable $a] [operator +] [atom 1] [keyword for] ' +
-         '[variable $a] [keyword in] [variable $myList] [keyword if] [variable $a] [operator >=] [atom 3] ] [keyword /}]');
+         '[def $a] [keyword in] [variable-2 $myList] [keyword if] [variable-2 $a] [operator >=] [atom 3] ] [keyword /}]');
 })();

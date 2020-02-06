@@ -156,7 +156,7 @@
       } else if (match = stream.match(/^\$([\w]+)/)) {
         return ref(state.variables, match[1], !state.lookupVariables);
       } else if (match = stream.match(/^\w+/)) {
-        return /^(?:as|and|or|not|in|for|if)$/.test(match[0]) ? "keyword" : null;
+        return /^(?:as|and|or|not|in|if)$/.test(match[0]) ? "keyword" : null;
       }
 
       stream.next();
@@ -375,6 +375,13 @@
               state.soyState.pop();
               state.lookupVariables = true;
               return null;
+            }
+            if (stream.match(/for/)) {
+              state.soyState.push("var-def")
+              return "keyword";
+            } else if (stream.match(/in/)) {
+              state.lookupVariables = true;
+              return "keyword";
             }
             return expression(stream, state);
 
