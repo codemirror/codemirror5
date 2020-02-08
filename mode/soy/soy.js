@@ -131,17 +131,17 @@
         state.soyState.push("list-literal");
         state.lookupVariables = false;
         return null;
-      } else if (stream.match(/map/)) {
+      } else if (stream.match(/map\b/)) {
         state.soyState.push("map-literal");
         return "keyword";
-      } else if (stream.match(/record/)) {
+      } else if (stream.match(/record\b/)) {
         state.soyState.push("record-literal");
         return "keyword";
       } else if (stream.match(/([\w]+)(?=\()/)) {
         return "variable callee";
       } else if (match = stream.match(/^["']/)) {
         state.soyState.push("string");
-        state.quoteKind = match;
+        state.quoteKind = match[0];
         return "string";
       } else if (stream.match(/^[(]/)) {
         state.soyState.push("open-parentheses");
@@ -300,10 +300,10 @@
             } else if (peekChar == "[") {
               state.soyState.push('param-type-record');
               return null;
-            } else if (stream.match(/^(map)|(list)/)) {
-              state.soyState.push('param-type-map-list');
-              return "type";
-            } else if (stream.eatWhile(/^([\w]+|[?])/)) {
+            } else if (match = stream.match(/^([\w]+|[?])/)) {
+              if (match[0] == "map" || match[0] == "list") {
+                state.soyState.push('param-type-map-list');
+              }
               return "type";
             }
             stream.next();
@@ -376,10 +376,10 @@
               state.lookupVariables = true;
               return null;
             }
-            if (stream.match(/for/)) {
+            if (stream.match(/for\b/)) {
               state.soyState.push("var-def")
               return "keyword";
-            } else if (stream.match(/in/)) {
+            } else if (stream.match(/in\b/)) {
               state.lookupVariables = true;
               return "keyword";
             }
