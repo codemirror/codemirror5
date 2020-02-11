@@ -41,7 +41,9 @@
         return;
       }
       if (emptyListRE.test(line)) {
-        if (!/>\s*$/.test(line)) cm.replaceRange("", {
+        var endOfQuote = inQuote && />\s*$/.test(line)
+        var endOfList = !/>\s*$/.test(line)
+        if (endOfQuote || endOfList) cm.replaceRange("", {
           line: pos.line, ch: 0
         }, {
           line: pos.line, ch: pos.ch + 1
