@@ -75,6 +75,7 @@ mode/mediawiki/mediawiki.js \
 mode/go/go.js \
 mode/groovy/groovy.js \
 mode/gherkin/gherkin.js \
+mode/mllike/mllike.js \
 keymap/emacs.js \
 keymap/sublime.js \
 keymap/vim.js
