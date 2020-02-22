@@ -126,7 +126,7 @@
     }
 
     function expression(stream, state) {
-      let match;
+      var match;
       if (stream.match(/[[]/)) {
         state.soyState.push("list-literal");
         state.lookupVariables = false;
@@ -395,7 +395,7 @@
             }
             stream.next();
             return null;
-            
+
           case "map-value":
             if (stream.peek() == ")" || stream.peek() == "," || stream.match(/^[:)]/)) {
               state.soyState.pop();

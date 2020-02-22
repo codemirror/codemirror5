@@ -56,7 +56,7 @@ export function onDrop(e) {
           markAsReadAndPasteIfAllFilesAreRead()
           return
         }
-        text[i] = content;
+        text[i] = content
         markAsReadAndPasteIfAllFilesAreRead()
       }
       reader.readAsText(file)
