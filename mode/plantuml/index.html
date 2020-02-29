@@ -1,0 +1,58 @@
+<!doctype html>
+<title>CodeMirror: Pig Latin mode</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel="stylesheet" href="../../lib/codemirror.css">
+<script src="../../lib/codemirror.js"></script>
+<script src="../../addon/mode/simple.js"></script>
+<script src="plantuml.js"></script>
+<style>.CodeMirror {border: 2px inset #dee;}</style>
+<div id=nav>
+  <a href="https://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png" alt=""></a>
+
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#">PlantUML</a>
+  </ul>
+</div>
+
+<article>
+<h2>PlantUML mode</h2>
+<form><textarea id="code" name="code">
+start
+if (condition A) then (yes)
+  :Text 1;
+elseif (condition B) then (yes)
+  :Text 2;
+  stop
+elseif (condition C) then (yes)
+  :Text 3;
+elseif (condition D) then (yes)
+  :Text 4;
+else (nothing)
+  :Text else;
+endif
+stop
+</textarea></form>
+
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        lineNumbers: true,
+        indentUnit: 4,
+        mode: "plantuml"
+      });
+    </script>
+
+    <p>
+        Simple mode that handles PlantUML language.
+    </p>
+
+    <p><strong>MIME type defined:</strong> <code>text/plantuml</code>
+    (PlantUML)
+</article>
