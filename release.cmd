@@ -44,6 +44,7 @@ mode\clojure\clojure.js ^
 mode\ruby\ruby.js ^
 mode\rust\rust.js ^
 mode\python\python.js ^
+mode\plantuml\plantuml.js ^
 mode\shell\shell.js ^
 mode\php\php.js ^
 mode\sas\sas.js ^
