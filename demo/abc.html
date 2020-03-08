@@ -1,0 +1,49 @@
+<!doctype html>
+
+<title>CodeMirror: Native Spellchecker Demo</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../doc/docs.css">
+
+<link rel="stylesheet" href="../lib/codemirror.css">
+<link rel="stylesheet" href="../addon/hint/show-hint.css">
+<script src="../lib/codemirror.js"></script>
+<script src="../addon/hint/show-hint.js"></script>
+<script src="../addon/hint/anyword-hint.js"></script>
+<script src="../mode/javascript/javascript.js"></script>
+<div id=nav>
+  <a href="https://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../doc/logo.png"></a>
+
+  <ul>
+    <li><a href="../index.html">Home</a>
+    <li><a href="../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a class=active href="#">Native Spellchecker Demo</a>
+  </ul>
+</div>
+
+<article>
+<h2>Native Spellchecker Demo</h2>
+<p>This editor uses <code>Codemirror.inputStyle: 'contenteditable'</code> and <code>spellcheck: true</code>.</p>
+<form><textarea id="code" name="code">
+Native abc tesst with contenteditableInput editor
+</textarea></form>
+
+<h2>Default Editor Mode</h2>
+<p>The native spellchecker (of the browser) does not run with <code>Codemirror.inputStyle: 'textarea'</code> (default value).</p>
+<form><textarea id="code2" name="code2">
+No spellchecker in a textareaInput editor
+</textarea></form>
+
+<script>
+var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+  inputStyle: "contenteditable",
+  spellcheck: true
+})
+
+editor.focus()
+
+var editor2 = CodeMirror.fromTextArea(document.getElementById("code2"), {})
+</script>
+</article>
