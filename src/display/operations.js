@@ -32,6 +32,7 @@ export function startOperation(cm) {
     cursorActivityHandlers: null, // Set of handlers to fire cursorActivity on
     cursorActivityCalled: 0, // Tracks which cursorActivity handlers have been called already
     selectionChanged: false, // Whether the selection needs to be redrawn
+    forceFocus: false,       // Force focus after selection changed
     updateMaxLine: false,    // Set when the widest line needs to be determined anew
     scrollLeft: null, scrollTop: null, // Intermediate scroll position, not pushed to DOM yet
     scrollToPos: null,       // Used to scroll to a specific position
@@ -128,9 +129,9 @@ function endOperation_W2(op) {
   if (cm.state.focused && op.updateInput)
     cm.display.input.reset(op.typing)
 
-  if (!op.extActiveElt)
-    ensureFocus(op.cm)
-  else {
+  if (!op.extActiveElt || op.forceFocus) {
+    ensureFocus(cm)
+  } else {
     op.extActiveElt.focus()
   }
 }

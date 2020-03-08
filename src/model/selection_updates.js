@@ -108,6 +108,9 @@ export function setSelectionNoUndo(doc, sel, options) {
 
   if (!(options && options.scroll === false) && doc.cm)
     ensureCursorVisible(doc.cm)
+
+  if ((options && options.forceFocus === true) && doc.cm)
+    doc.cm.curOp.forceFocus = true
 }
 
 function setSelectionInner(doc, sel) {
