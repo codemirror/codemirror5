@@ -101,7 +101,7 @@ export default class ContentEditableInput {
 
   prepareSelection() {
     let result = prepareSelection(this.cm, false)
-    result.focus = this.cm.state.focused
+    result.focus = document.activeElement == this.div
     return result
   }
 
