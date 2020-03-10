@@ -107,7 +107,7 @@ export default class ContentEditableInput {
   showSelection(info) {
     if (!info || !this.cm.display.view.length) return
 
-    if (info.focus) this.showPrimarySelection(info)
+    this.showPrimarySelection(info)
     this.showMultipleSelections(info)
   }
 

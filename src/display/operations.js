@@ -1,6 +1,7 @@
 import { clipPos } from "../line/pos.js"
 import { findMaxLine } from "../line/spans.js"
 import { displayWidth, measureChar, scrollGap } from "../measurement/position_measurement.js"
+import { activeElt } from "../util/dom.js"
 import { signal } from "../util/event.js"
 import { finishOperation, pushOperation } from "../util/operation_group.js"
 
@@ -76,6 +77,8 @@ function endOperation_R1(op) {
     display.maxLineChanged && cm.options.lineWrapping
   op.update = op.mustUpdate &&
     new DisplayUpdate(cm, op.mustUpdate && {top: op.scrollTop, ensure: op.scrollToPos}, op.forceUpdate)
+
+  op.extActiveElt = (!cm.state.focused) ? activeElt() : false
 }
 
 function endOperation_W1(op) {
@@ -125,8 +128,11 @@ function endOperation_W2(op) {
   if (cm.state.focused && op.updateInput)
     cm.display.input.reset(op.typing)
 
-  if (cm.state.focused)
+  if (!op.extActiveElt)
     ensureFocus(op.cm)
+  else {
+    op.extActiveElt.focus()
+  }
 }
 
 function endOperation_finish(op) {
