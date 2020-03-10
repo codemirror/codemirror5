@@ -100,14 +100,14 @@ export default class ContentEditableInput {
   }
 
   prepareSelection() {
-    let result = prepareSelection(this.cm, false)
-    result.focus = this.cm.state.focused
-    return result
+    // Redraw the selection and/or cursor
+    return prepareSelection(this.cm, false)
   }
 
-  showSelection(info, takeFocus) {
+  showSelection(info) {
     if (!info || !this.cm.display.view.length) return
-    if (info.focus || takeFocus) this.showPrimarySelection()
+
+    if (info.focus) this.showPrimarySelection(info)
     this.showMultipleSelections(info)
   }
 

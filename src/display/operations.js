@@ -2,7 +2,6 @@ import { clipPos } from "../line/pos.js"
 import { findMaxLine } from "../line/spans.js"
 import { displayWidth, measureChar, scrollGap } from "../measurement/position_measurement.js"
 import { signal } from "../util/event.js"
-import { activeElt } from "../util/dom.js"
 import { finishOperation, pushOperation } from "../util/operation_group.js"
 
 import { ensureFocus } from "./focus.js"
@@ -35,7 +34,6 @@ export function startOperation(cm) {
     updateMaxLine: false,    // Set when the widest line needs to be determined anew
     scrollLeft: null, scrollTop: null, // Intermediate scroll position, not pushed to DOM yet
     scrollToPos: null,       // Used to scroll to a specific position
-    focus: false,
     id: ++nextOpId           // Unique ID
   }
   pushOperation(cm.curOp)
@@ -115,9 +113,8 @@ function endOperation_W2(op) {
     cm.display.maxLineChanged = false
   }
 
-  let takeFocus = op.focus && op.focus == activeElt()
   if (op.preparedSelection)
-    cm.display.input.showSelection(op.preparedSelection, takeFocus)
+    cm.display.input.showSelection(op.preparedSelection)
   if (op.updatedDisplay || op.startHeight != cm.doc.height)
     updateScrollbars(cm, op.barMeasure)
   if (op.updatedDisplay)
@@ -127,7 +124,9 @@ function endOperation_W2(op) {
 
   if (cm.state.focused && op.updateInput)
     cm.display.input.reset(op.typing)
-  if (takeFocus) ensureFocus(op.cm)
+
+  if (cm.state.focused)
+    ensureFocus(op.cm)
 }
 
 function endOperation_finish(op) {
