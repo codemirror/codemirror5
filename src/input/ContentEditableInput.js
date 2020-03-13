@@ -195,7 +195,7 @@ export default class ContentEditableInput {
 
   focus() {
     if (this.cm.options.readOnly != "nocursor") {
-      if (!this.selectionInEditor())
+      if (!this.selectionInEditor() || document.activeElement != this.div)
         this.showSelection(this.prepareSelection(), true)
       this.div.focus()
     }
