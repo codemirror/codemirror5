@@ -172,6 +172,8 @@ export function postUpdateDisplay(cm, update) {
       update.visible = visibleLines(cm.display, cm.doc, viewport)
       if (update.visible.from >= cm.display.viewFrom && update.visible.to <= cm.display.viewTo)
         break
+    } else if (first) {
+      update.visible = visibleLines(cm.display, cm.doc, viewport)
     }
     if (!updateDisplayIfNeeded(cm, update)) break
     updateHeightsInViewport(cm)
