@@ -295,16 +295,16 @@
       clearFatCursorMark(cm);
       var ranges = cm.listSelections(), result = []
       for (var i = 0; i < ranges.length; i++) {
-        var range = ranges[i]
+        var range = ranges[i];
         if (range.empty()) {
-          if (range.anchor.ch < cm.getLine(range.anchor.line).length) {
+          var lineLength = cm.getLine(range.anchor.line).length;
+          if (range.anchor.ch < lineLength) {
             result.push(cm.markText(range.anchor, Pos(range.anchor.line, range.anchor.ch + 1),
-                                    {className: "cm-fat-cursor-mark"}))
+                                    {className: "cm-fat-cursor-mark"}));
           } else {
-            var widget = document.createElement("span")
-            widget.textContent = "\u00a0"
-            widget.className = "cm-fat-cursor-mark"
-            result.push(cm.setBookmark(range.anchor, {widget: widget}))
+            result.push(cm.markText(Pos(range.anchor.line, lineLength - 1),
+                                    Pos(range.anchor.line, lineLength),
+                                    {className: "cm-fat-cursor-mark"}));
           }
         }
       }
