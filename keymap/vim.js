@@ -1603,10 +1603,10 @@
           }
           if (vim.visualMode) {
             if (!(vim.visualBlock && newHead.ch === Infinity)) {
-              newHead = clipCursorToContent(cm, newHead, vim.visualBlock);
+              newHead = clipCursorToContent(cm, newHead);
             }
             if (newAnchor) {
-              newAnchor = clipCursorToContent(cm, newAnchor, true);
+              newAnchor = clipCursorToContent(cm, newAnchor);
             }
             newAnchor = newAnchor || oldAnchor;
             sel.anchor = newAnchor;
@@ -2200,8 +2200,7 @@
         vimGlobalState.registerController.pushText(
             args.registerName, 'delete', text,
             args.linewise, vim.visualBlock);
-        var includeLineBreak = vim.insertMode
-        return clipCursorToContent(cm, finalHead, includeLineBreak);
+        return clipCursorToContent(cm, finalHead);
       },
       indent: function(cm, args, ranges) {
         var vim = cm.state.vim;
@@ -2460,8 +2459,7 @@
           vim.visualLine = !!actionArgs.linewise;
           vim.visualBlock = !!actionArgs.blockwise;
           head = clipCursorToContent(
-              cm, Pos(anchor.line, anchor.ch + repeat - 1),
-              true /** includeLineBreak */);
+              cm, Pos(anchor.line, anchor.ch + repeat - 1));
           vim.sel = {
             anchor: anchor,
             head: head
@@ -2837,10 +2835,11 @@
      * Clips cursor to ensure that line is within the buffer's range
      * If includeLineBreak is true, then allow cur.ch == lineLength.
      */
-    function clipCursorToContent(cm, cur, includeLineBreak) {
+    function clipCursorToContent(cm, cur) {
+      var vim = cm.state.vim;
+      var includeLineBreak = vim.insertMode || vim.visualMode;
       var line = Math.min(Math.max(cm.firstLine(), cur.line), cm.lastLine() );
-      var maxCh = lineLength(cm, line) - 1;
-      maxCh = (includeLineBreak) ? maxCh + 1 : maxCh;
+      var maxCh = lineLength(cm, line) - 1 + !!includeLineBreak;
       var ch = Math.min(Math.max(0, cur.ch), maxCh);
       return Pos(line, ch);
     }
@@ -3206,9 +3205,7 @@
       vim.visualLine = false;
       vim.visualBlock = false;
       CodeMirror.signal(cm, "vim-mode-change", {mode: "normal"});
-      if (vim.fakeCursor) {
-        vim.fakeCursor.clear();
-      }
+      clearFakeCursor(vim);
     }
 
     // Remove any trailing newlines from the selection. For
@@ -5358,14 +5355,34 @@
         updateFakeCursor(cm);
       }
     }
+    /**
+     * Keeps track of a fake cursor to support visual mode cursor behavior.
+     */
     function updateFakeCursor(cm) {
+      var className = 'cm-animate-fat-cursor';
       var vim = cm.state.vim;
       var from = clipCursorToContent(cm, copyCursor(vim.sel.head));
       var to = offsetCursor(from, 0, 1);
+      clearFakeCursor(vim);
+      // In visual mode, the cursor may be positioned over EOL.
+      if (from.ch == cm.getLine(from.line).length) {
+        var widget = document.createElement("span");
+        widget.textContent = "\u00a0";
+        widget.className = className;
+        vim.fakeCursorBookmark = cm.setBookmark(from, {widget: widget});
+      } else {
+        vim.fakeCursor = cm.markText(from, to, {className: className});
+      }
+    }
+    function clearFakeCursor(vim) {
       if (vim.fakeCursor) {
         vim.fakeCursor.clear();
+        vim.fakeCursor = null;
       }
-      vim.fakeCursor = cm.markText(from, to, {className: 'cm-animate-fat-cursor'});
+      if (vim.fakeCursorBookmark) {
+        vim.fakeCursorBookmark.clear();
+        vim.fakeCursorBookmark = null;
+      }
     }
     function handleExternalSelection(cm, vim) {
       var anchor = cm.getCursor('anchor');
