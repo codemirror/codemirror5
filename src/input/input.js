@@ -119,11 +119,8 @@ export function disableBrowserMagic(field, spellcheck, autocorrect, autocapitali
   field.setAttribute("spellcheck", !!spellcheck)
 }
 
-export function hiddenTextarea(label) {
+export function hiddenTextarea() {
   let te = elt("textarea", null, null, "position: absolute; bottom: -1em; padding: 0; width: 1px; height: 1em; outline: none")
-  /* Label for screenreaders, accessibility */
-  te.setAttribute('aria-label', label)
-
   let div = elt("div", [te], null, "overflow: hidden; position: relative; width: 3px; height: 0px;")
   // The textarea is kept positioned near the cursor to prevent the
   // fact that it'll be scrolled into view on input from scrolling

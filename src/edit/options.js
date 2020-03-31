@@ -132,7 +132,12 @@ export function defineOptions(CodeMirror) {
     }
     cm.display.input.readOnlyChanged(val)
   })
-  option("screenReaderLabel", 'CodeMirror text input')
+
+  option("screenReaderLabel", null, (cm, val) => {
+    val = (val === '') ? null : val
+    cm.display.input.screenReaderLabelChanged(val)
+  })
+
   option("disableInput", false, (cm, val) => {if (!val) cm.display.input.reset()}, true)
   option("dragDrop", true, dragDropChanged)
   option("allowDropFileTypes", null)
