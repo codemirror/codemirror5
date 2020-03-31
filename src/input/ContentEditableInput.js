@@ -99,6 +99,15 @@ export default class ContentEditableInput {
     on(div, "cut", onCopyCut)
   }
 
+  screenReaderLabelChanged(label) {
+    // Label for screenreaders, accessibility
+    if(label) {
+      this.div.setAttribute('aria-label', label)
+    } else {
+      this.div.removeAttribute('aria-label')
+    }
+  }
+
   prepareSelection() {
     let result = prepareSelection(this.cm, false)
     result.focus = document.activeElement == this.div
