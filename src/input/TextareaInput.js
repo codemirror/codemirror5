@@ -112,7 +112,7 @@ export default class TextareaInput {
 
   createField(_display) {
     // Wraps and hides input textarea
-    this.wrapper = hiddenTextarea()
+    this.wrapper = hiddenTextarea(this.cm.options.srLabel)
     // The semihidden textarea that is focused when the editor is
     // focused, and receives input.
     this.textarea = this.wrapper.firstChild

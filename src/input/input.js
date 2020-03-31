@@ -119,9 +119,15 @@ export function disableBrowserMagic(field, spellcheck, autocorrect, autocapitali
   field.setAttribute("spellcheck", !!spellcheck)
 }
 
-export function hiddenTextarea() {
+export function hiddenTextarea(label) {
   let te = elt("textarea", null, null, "position: absolute; bottom: -1em; padding: 0; width: 1px; height: 1em; outline: none")
-  let div = elt("div", [te], null, "overflow: hidden; position: relative; width: 3px; height: 0px;")
+  let te_id = 'cm-textarea-' + Math.floor(Math.random() * 9999)
+  te.setAttribute('id', te_id)
+  /* Label for screenreaders, accessibility */
+  let le = elt("label", label, null, 'position: absolute; width: 1px; height: 1px; padding: 0; overflow: hidden; clip: rect(0, 0, 0, 0); white-space: nowrap; border: 0;')
+  le.setAttribute('for', te_id)
+
+  let div = elt("div", [te, le], null, "overflow: hidden; position: relative; width: 3px; height: 0px;")
   // The textarea is kept positioned near the cursor to prevent the
   // fact that it'll be scrolled into view on input from scrolling
   // our fake cursor out of view. On webkit, when wrap=off, paste is
