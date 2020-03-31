@@ -31,6 +31,9 @@ export default class ContentEditableInput {
     let div = input.div = display.lineDiv
     disableBrowserMagic(div, cm.options.spellcheck, cm.options.autocorrect, cm.options.autocapitalize)
 
+    /* Add the label for screenreaders, accessibility */
+    div.setAttribute('aria-label', this.cm.options.screenReaderLabel)
+
     on(div, "paste", e => {
       if (signalDOMEvent(cm, e) || handlePaste(e, cm)) return
       // IE doesn't fire input events, so we schedule a read for the pasted content in this way
