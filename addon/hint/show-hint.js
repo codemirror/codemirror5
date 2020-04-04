@@ -370,10 +370,11 @@
 
     scrollToActive: function() {
       var node = this.hints.childNodes[this.selectedHint]
+      var firstNode = this.hints.firstChild;
       if (node.offsetTop < this.hints.scrollTop)
-        this.hints.scrollTop = node.offsetTop - 3;
+        this.hints.scrollTop = node.offsetTop - firstNode.offsetTop;
       else if (node.offsetTop + node.offsetHeight > this.hints.scrollTop + this.hints.clientHeight)
-        this.hints.scrollTop = node.offsetTop + node.offsetHeight - this.hints.clientHeight + 3;
+        this.hints.scrollTop = node.offsetTop + node.offsetHeight - this.hints.clientHeight + firstNode.offsetTop;
     },
 
     screenAmount: function() {
