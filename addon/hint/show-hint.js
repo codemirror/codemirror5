@@ -89,8 +89,8 @@
       if (completion.hint) completion.hint(this.cm, data, completion);
       else this.cm.replaceRange(getText(completion), completion.from || data.from,
                                 completion.to || data.to, "complete");
-      this.cm.scrollIntoView();
       CodeMirror.signal(data, "pick", completion);
+      this.cm.scrollIntoView();
       this.close();
     },
 
