@@ -562,13 +562,13 @@
       always rendered, and thus the browser's text search works on it.
       This <em>will</em> have bad effects on performance of big
       documents.</dd>
-      
+
       <dt id="option_spellcheck"><code><strong>spellcheck</strong>: boolean</code></dt>
       <dd>Specifies whether or not spellcheck will be enabled on the input.</dd>
-      
+
       <dt id="option_autocorrect"><code><strong>autocorrect</strong>: boolean</code></dt>
       <dd>Specifies whether or not autocorrect will be enabled on the input.</dd>
-      
+
       <dt id="option_autocapitalize"><code><strong>autocapitalize</strong>: boolean</code></dt>
       <dd>Specifies whether or not autocapitalization will be enabled on the input.</dd>
     </dl>
@@ -2575,7 +2575,7 @@ editor.setOption("extraKeys", {
         <dd>The widget to show for folded ranges. Can be either a
         string, in which case it'll become a span with
         class <code>CodeMirror-foldmarker</code>, or a DOM node.
-        To dynamically generate the widget, this can be a function 
+        To dynamically generate the widget, this can be a function
         that returns a string or DOM node, which will then render
         as described. The function will be invoked with parameters
         identifying the range to be folded.</dd>
@@ -3530,6 +3530,26 @@ editor.setOption("extraKeys", {
       <code>extras.isEdit</code> is applicable only to actions,
       determining whether it is recorded for replay for the
       <code>.</code> single-repeat command.
+
+      <dt id="vimapi_unmap"><strong><code>unmap(lhs: string, ctx: string)</code></strong></dt>
+      <dd>
+      Remove the command <code>lhs</code> if it is a user defined command.
+      If the command is an Ex to Ex or Ex to key mapping then the context
+      must be <code>undefined</code> or <code>false</code>.
+      </dd>
+
+      <dt id="vimapi_mapclear"><strong><code>mapclear(ctx: string)</code></strong></dt>
+      <dd>
+      Remove all user-defined mappings for the provided context.
+      </dd>
+
+      <dt id="vimapi_noremap"><strong><code>noremap(lhs: string, rhs: string, ctx: {string, array&lt;string&gt;})</code></strong></dt>
+      <dd>
+      Non-recursive map function. This will not create mappings to key maps
+      that aren't present in the default key map.
+      If no context is provided then the  mapping will be applied to each of
+      normal, insert, and visual mode.
+      </dd>
     </dl>
 
     <h3 id="vimapi_extending">Extending VIM</h3>
@@ -3595,7 +3615,74 @@ editor.setOption("extraKeys", {
       command was prefixed with a
       <code><strong><a href="http://vimdoc.sourceforge.net/htmldoc/cmdline.html#cmdline-ranges">line range</a></strong></code>,
       <code>params.line</code> and <code>params.lineEnd</code> will
-      be set.
+      be set.</dd>
+
+      <dt id="vimapi_getRegisterController"><strong><code>getRegisterController()</code></strong></dt>
+      <dd>Returns the RegisterController that manages the state of registers
+      used by vim mode. For the RegisterController api see its
+      defintion <a href="https://github.com/CodeMirror/CodeMirror/blob/b2d26b4ccb1d0994ae84d18ad8b84018de176da9/keymap/vim.js#L1123">here</a>.
+      </dd>
+
+      <dt id='vimapi_buildkeymap'><strong><code>buildKeyMap()</code></strong></dt>
+      <dd>
+      Not currently implemented. If you would like to contribute this please open
+      a pull request on <a href="https://github.com/codemirror/CodeMirror">Github</a>.
+      </dd>
+
+      <dt id="vimapi_defineRegister"><strong><code>defineRegister()</code></strong></dt>
+      <dd> Defines an external register. The name should be a single character
+      that will be used to reference the register. The register should support
+      <code>setText</code>, <code>pushText</code>, <code>clear</code>, and <code>toString</code>.
+      See <a href="https://github.com/CodeMirror/CodeMirror/blob/b2d26b4ccb1d0994ae84d18ad8b84018de176da9/keymap/vim.js#L1055">Register</a> for a reference implementation.
+      </dd>
+
+      <dt id="vimapi_getVimGlobalState_"><strong><code>getVimGlobalState_()</code></strong></dt>
+      <dd>
+      Return a reference to the VimGlobalState.
+      </dd>
+
+      <dt id="vimapi_resetVimGlobalState_"><strong><code>resetVimGlobalState_()</code></strong></dt>
+      <dd>
+      Reset the default values of the VimGlobalState to fresh values. Any options
+      set with <code>setOption</code> will also be applied to the reset global state.
+      </dd>
+
+      <dt id="vimapi_maybeInitVimState_"><strong><code>maybeInitVimState_(cm: CodeMirror)</code></strong></dt>
+      <dd>
+      Initialize <code>cm.state.vim</code> if it does not exist. Returns <code>cm.state.vim</code>.
+      </dd>
+
+      <dt id="vimapi_handleKey"><strong><code>handleKey(cm: CodeMirror, key: string, origin: string)</code></strong></dt>
+      <dd>
+      Convenience function to pass the arguments to <code>findKey</code> and
+      call returned function if it is defined.
+      </dd>
+
+      <dt id="vimapi_findKey"><strong><code>findKey(cm: CodeMirror, key: string, origin: string)</code></strong></dt>
+      <dd>
+      This is the outermost function called by CodeMirror, after keys have
+      been mapped to their Vim equivalents. Finds a command based on the key
+      (and cached keys if there is a multi-key sequence). Returns <code>undefined</code>
+      if no key is matched, a noop function if a partial match is found (multi-key),
+      and a function to execute the bound command if a a key is matched. The
+      function always returns true.
+      </dd>
+
+      <dt id="vimapi_option_suppressErrorLogging"><code><strong>suppressErrorLogging</strong>: boolean</code></dt>
+      <dd>Whether to use suppress the use of <code>console.log</code> when catching an
+      error in the function returned by <code>findKey</code>.
+      Defaults to false.</dd>
+
+      <dt id="vimapi_exitVisualMode"><strong><code>exitVisualMode(cm: CodeMirror, ?moveHead: boolean)</code></strong></dt>
+      <dd> Exit visual mode. If moveHead is set to false, the CodeMirror selection
+      will not be touched. The caller assumes the responsibility of putting
+      the cursor in the right place.
+      </dd>
+
+      <dt id="vimapi_exitInsertMode"><strong><code>exitInsertMode(cm: CodeMirror)</code></strong></dt>
+      <dd>
+      Exit insert mode.
+      </dd>
     </dl>
 
 </section>
