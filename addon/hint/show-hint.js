@@ -86,10 +86,15 @@
 
     pick: function(data, i) {
       var completion = data.list[i];
-      if (completion.hint) completion.hint(this.cm, data, completion);
-      else this.cm.replaceRange(getText(completion), completion.from || data.from,
-                                completion.to || data.to, "complete");
-      CodeMirror.signal(data, "pick", completion);
+      this.cm.operation(function(){
+        if (completion.hint)
+          completion.hint(this.cm, data, completion);
+        else
+          this.cm.replaceRange(getText(completion), completion.from || data.from,
+                               completion.to || data.to, "complete");
+        CodeMirror.signal(data, "pick", completion);
+        this.cm.scrollIntoView();
+      })
       this.close();
     },
 
