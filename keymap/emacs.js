@@ -308,6 +308,7 @@
 
     "Alt-F": move(byWord, 1), "Alt-B": move(byWord, -1),
     "Alt-Right": move(byWord, 1), "Alt-Left": move(byWord, -1),
+    "Ctrl-Right": move(byWord, 1), "Ctrl-Left": move(byWord, -1),
     "Alt-D": function(cm) { killTo(cm, byWord, 1, "grow"); },
     "Alt-Backspace": function(cm) { killTo(cm, byWord, -1, "grow"); },
 
