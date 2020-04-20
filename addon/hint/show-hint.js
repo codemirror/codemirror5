@@ -103,7 +103,7 @@
         cancelAnimationFrame(this.debounce);
         this.debounce = 0;
       }
-      
+
       var identStart = this.startPos;
       if(this.data) {
         identStart = this.data.from;
