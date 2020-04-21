@@ -1,3 +1,9 @@
+## 5.53.2 (2020-04-21)
+
+### Bug fixes
+
+[show-hint addon](https://codemirror.net/doc/manual.html#addon_show-hint): Fix a regression that broke completion picking.
+
 ## 5.53.0 (2020-04-21)
 
 ### Bug fixes
