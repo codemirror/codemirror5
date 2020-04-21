@@ -85,15 +85,15 @@
     },
 
     pick: function(data, i) {
-      var completion = data.list[i];
-      this.cm.operation(function(){
+      var completion = data.list[i], self = this;
+      this.cm.operation(function() {
         if (completion.hint)
-          completion.hint(this.cm, data, completion);
+          completion.hint(self.cm, data, completion);
         else
-          this.cm.replaceRange(getText(completion), completion.from || data.from,
+          self.cm.replaceRange(getText(completion), completion.from || data.from,
                                completion.to || data.to, "complete");
         CodeMirror.signal(data, "pick", completion);
-        this.cm.scrollIntoView();
+        self.cm.scrollIntoView();
       })
       this.close();
     },
