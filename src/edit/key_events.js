@@ -106,6 +106,7 @@ function handleCharBinding(cm, e, ch) {
 let lastStoppedKey = null
 export function onKeyDown(e) {
   let cm = this
+  if (e.target && e.target != cm.display.input.getField()) return
   cm.curOp.focus = activeElt()
   if (signalDOMEvent(cm, e)) return
   // IE does strange things with escape.
@@ -149,6 +150,7 @@ export function onKeyUp(e) {
 
 export function onKeyPress(e) {
   let cm = this
+  if (e.target && e.target != cm.display.input.getField()) return
   if (eventInWidget(cm.display, e) || signalDOMEvent(cm, e) || e.ctrlKey && !e.altKey || mac && e.metaKey) return
   let keyCode = e.keyCode, charCode = e.charCode
   if (presto && keyCode == lastStoppedKey) {lastStoppedKey = null; e_preventDefault(e); return}
