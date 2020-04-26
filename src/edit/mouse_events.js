@@ -157,8 +157,14 @@ function leftButtonStartDrag(cm, event, pos, behavior) {
       e_preventDefault(e)
       if (!behavior.addNew)
         extendSelection(cm.doc, pos, null, null, behavior.extend)
-      // Work around unexplainable focus problem in IE9 (#2127) and Chrome (#3081)
-      if (webkit || ie && ie_version == 9)
+      // 'webkit' will cause issue(#6246)
+      let isEdit = false
+      if (webkit) {
+        isEdit = display.wrapper.ownerDocument.body.getAttribute('contenteditable')
+        isEdit = isEdit === '' || /^true$/i.test(isEdit)
+      }
+      // Work around unexplainable focus problem in IE9 (#2127) and Chrome (#3081)      
+      if ((!isEdit && webkit) || ie && ie_version == 9)
         setTimeout(() => {display.wrapper.ownerDocument.body.focus(); display.input.focus()}, 20)
       else
         display.input.focus()
