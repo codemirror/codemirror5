@@ -98,9 +98,11 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     } else if (ch == "`") {
       state.tokenize = tokenQuasi;
       return tokenQuasi(stream, state);
-    } else if (ch == "#") {
+    } else if (ch == "#" && stream.peek() == "!") {
       stream.skipToEnd();
-      return ret("error", "error");
+      return ret("meta", "meta");
+    } else if (ch == "#" && stream.eatWhile(wordRE)) {
+      return ret("variable", "property")
     } else if (ch == "<" && stream.match("!--") || ch == "-" && stream.match("->")) {
       stream.skipToEnd()
       return ret("comment", "comment")
