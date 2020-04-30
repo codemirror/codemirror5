@@ -300,10 +300,10 @@
             } else if (peekChar == "[") {
               state.soyState.push('param-type-record');
               return null;
+            } else if (peekChar == "<") {
+              state.soyState.push('param-type-parameter');
+              return null;
             } else if (match = stream.match(/^([\w]+|[?])/)) {
-              if (match[0] == "map" || match[0] == "list") {
-                state.soyState.push('param-type-map-list');
-              }
               return "type";
             }
             stream.next();
@@ -322,8 +322,7 @@
             stream.next();
             return null;
 
-          case "param-type-map-list":
-            var peekChar = stream.peek();
+          case "param-type-parameter":
             if (stream.match(/^[>]/)) {
               state.soyState.pop();
               return null;
