@@ -1,7 +1,8 @@
 // CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: https://codemirror.net/LICENSE
 
-window.CodeMirror = {};
+var root = typeof globalThis !== 'undefined' ? globalThis : window;
+root.CodeMirror = {};
 
 (function() {
 "use strict";

@@ -3,7 +3,7 @@ var blint = require("blint");
 ["mode", "lib", "addon", "keymap"].forEach(function(dir) {
   blint.checkDir(dir, {
     browser: true,
-    allowedGlobals: ["CodeMirror", "define", "test", "requirejs"],
+    allowedGlobals: ["CodeMirror", "define", "test", "requirejs", "globalThis"],
     ecmaVersion: 5,
     tabs: dir == "lib"
   });
