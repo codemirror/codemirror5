@@ -115,6 +115,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
           if (ch == ">") stream.eat(ch)
         }
       }
+      if (ch == "?" && stream.eat(".")) return ret(".")
       return ret("operator", "operator", stream.current());
     } else if (wordRE.test(ch)) {
       stream.eatWhile(wordRE);
@@ -465,7 +466,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "quasi") { return pass(quasi, me); }
     if (type == ";") return;
     if (type == "(") return contCommasep(expressionNoComma, ")", "call", me);
-    if (type == ".") return cont(maybeQuestion, property, me);
+    if (type == ".") return cont(property, me);
     if (type == "[") return cont(pushlex("]"), maybeexpression, expect("]"), poplex, me);
     if (isTS && value == "as") { cx.marked = "keyword"; return cont(typeexpr, me) }
     if (type == "regexp") {
@@ -473,9 +474,6 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       cx.stream.backUp(cx.stream.pos - cx.stream.start - 1)
       return cont(expr)
     }
-  }
-  function maybeQuestion(_type, value) {
-    return value == "?" ? cont() : pass()
   }
   function quasi(type, value) {
     if (type != "quasi") return pass();
