@@ -1,9 +1,6 @@
 import buble from 'rollup-plugin-buble';
 
-export default {
-  input: "src/codemirror.js",
-  output: {
-    banner: `// CodeMirror, copyright (c) by Marijn Haverbeke and others
+const banner = `// CodeMirror, copyright (c) by Marijn Haverbeke and others
 // Distributed under an MIT license: https://codemirror.net/LICENSE
 
 // This is CodeMirror (https://codemirror.net), a code editor
@@ -11,10 +8,20 @@ export default {
 //
 // You can find some technical background for some of the code below
 // at http://marijnhaverbeke.nl/blog/#cm-internals .
-`,
+`;
+
+export default {
+  input: "src/codemirror.js",
+  output: [{
+    banner,
     format: "umd",
     file: "lib/codemirror.js",
+    name: "CodeMirror",
+  }, {
+    banner,
+    format: "esm",
+    file: "lib/codemirror.mjs",
     name: "CodeMirror"
-  },
-  plugins: [ buble({namedFunctionExpressions: false}) ]
+  }],
+  plugins: [ buble({namedFunctionExpressions: false}) ],
 };
