@@ -9,9 +9,11 @@ root.CodeMirror = {};
 
 function splitLines(string){ return string.split(/\r?\n|\r/); };
 
-function StringStream(string) {
+function StringStream(strings, i) {
   this.pos = this.start = 0;
-  this.string = string;
+  this.string = strings[i];
+  this.strings = strings
+  this.i = i
   this.lineStart = 0;
 }
 StringStream.prototype = {
@@ -67,7 +69,7 @@ StringStream.prototype = {
     try { return inner(); }
     finally { this.lineStart -= n; }
   },
-  lookAhead: function() { return null }
+  lookAhead: function(n) { return this.strings[this.i + n] }
 };
 CodeMirror.StringStream = StringStream;
 
@@ -151,7 +153,7 @@ CodeMirror.runMode = function (string, modespec, callback, options) {
   var lines = splitLines(string), state = (options && options.state) || CodeMirror.startState(mode);
   for (var i = 0, e = lines.length; i < e; ++i) {
     if (i) callback("\n");
-    var stream = new CodeMirror.StringStream(lines[i]);
+    var stream = new CodeMirror.StringStream(lines, i);
     if (!stream.string && mode.blankLine) mode.blankLine(state);
     while (!stream.eol()) {
       var style = mode.token(stream, state);
