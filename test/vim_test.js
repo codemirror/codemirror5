@@ -4479,6 +4479,37 @@ testVim('ex_api_test', function(cm, vim, helpers) {
   is(res,'Mapping to key failed');
   CodeMirror.Vim.mapclear();
 });
+// Testing ex-commands with non-alpha names.
+testVim('ex_special_names', function(cm, vim, helpers) {
+  var ran,val;
+  var cmds = ['!','!!','#','&','*','<','=','>','@','@@','~','regtest1','RT2'];
+  cmds.forEach(function(name){
+    CodeMirror.Vim.defineEx(name,'',function(cm,params){
+      ran=params.commandName;
+      val=params.argString;
+    });
+    helpers.doEx(':'+name);
+    eq(ran,name,'Running ex-command failed');
+    helpers.doEx(':'+name+' x');
+    eq(val,' x','Running ex-command with param failed: '+name);
+    if(/^\W+$/.test(name)){
+      helpers.doEx(':'+name+'y');
+      eq(val,'y','Running ex-command with param failed: '+name);
+    }
+    else{
+      helpers.doEx(':'+name+'-y');
+      eq(val,'-y','Running ex-command with param failed: '+name);
+    }
+    if(name!=='!'){
+      helpers.doEx(':'+name+'!');
+      eq(ran,name,'Running ex-command with bang failed');
+      eq(val,'!','Running ex-command with bang failed: '+name);
+      helpers.doEx(':'+name+'!z');
+      eq(ran,name,'Running ex-command with bang & param failed');
+      eq(val,'!z','Running ex-command with bang & param failed: '+name);
+    }
+  });
+});
 // For now, this test needs to be last because it messes up : for future tests.
 testVim('ex_map_key2key_from_colon', function(cm, vim, helpers) {
   helpers.doEx('map : x');

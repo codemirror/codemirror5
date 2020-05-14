@@ -4456,7 +4456,7 @@
         }
 
         // Parse command name.
-        var commandMatch = inputStream.match(/^(\w+)/);
+        var commandMatch = inputStream.match(/^(\w+|!!|@@|[!#&*<=>@~])/);
         if (commandMatch) {
           result.commandName = commandMatch[1];
         } else {
