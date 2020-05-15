@@ -51,11 +51,12 @@ class NativeScrollbars {
     let needsH = measure.scrollWidth > measure.clientWidth + 1
     let needsV = measure.scrollHeight > measure.clientHeight + 1
     let sWidth = measure.nativeBarWidth
+    let resizable = this.cm.options.resizable && !ie
 
     if (needsV) {
       this.vert.style.display = "block"
-      this.vert.style.bottom = needsH ? sWidth + "px" : "0"
-      let totalHeight = measure.viewHeight - (needsH ? sWidth : 0)
+      this.vert.style.bottom = needsH || resizable ? sWidth + "px" : "0"
+      let totalHeight = measure.viewHeight - (needsH || resizable ? sWidth : 0)
       // A bug in IE8 can cause this value to be negative, so guard it.
       this.vert.firstChild.style.height =
         Math.max(0, measure.scrollHeight - measure.clientHeight + totalHeight) + "px"
@@ -66,9 +67,9 @@ class NativeScrollbars {
 
     if (needsH) {
       this.horiz.style.display = "block"
-      this.horiz.style.right = needsV ? sWidth + "px" : "0"
+      this.horiz.style.right = needsV || resizable ? sWidth + "px" : "0"
       this.horiz.style.left = measure.barLeft + "px"
-      let totalWidth = measure.viewWidth - measure.barLeft - (needsV ? sWidth : 0)
+      let totalWidth = measure.viewWidth - measure.barLeft - (needsV || resizable ? sWidth : 0)
       this.horiz.firstChild.style.width =
         Math.max(0, measure.scrollWidth - measure.clientWidth + totalWidth) + "px"
     } else {

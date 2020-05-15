@@ -177,6 +177,10 @@ div.CodeMirror span.CodeMirror-nonmatchingbracket {color: #a22;}
   border-right: 50px solid transparent;
 }
 
+.CodeMirror-resizable {
+  resize: both;
+}
+
 /* The fake, visible scrollbars. Used to force redraw during scrolling
    before actual scrolling happens, thus preventing shaking and
    flickering artifacts. */

@@ -44,6 +44,8 @@ export function CodeMirror(place, options) {
   themeChanged(this)
   if (options.lineWrapping)
     this.display.wrapper.className += " CodeMirror-wrap"
+  if (options.resizable)
+    this.display.wrapper.className += " CodeMirror-resizable"
   initScrollbars(this)
 
   this.state = {

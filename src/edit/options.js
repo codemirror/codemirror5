@@ -97,6 +97,7 @@ export function defineOptions(CodeMirror) {
   option("configureMouse", null)
 
   option("lineWrapping", false, wrappingChanged, true)
+  option("resizable", false, resizableChanged, true)
   option("gutters", [], (cm, val) => {
     cm.display.gutterSpecs = getGutters(val, cm.options.lineNumbers)
     updateGutters(cm)
@@ -190,5 +191,14 @@ function wrappingChanged(cm) {
   estimateLineHeights(cm)
   regChange(cm)
   clearCaches(cm)
+  setTimeout(() => updateScrollbars(cm), 100)
+}
+
+function resizableChanged(cm){
+  if (cm.options.lineWrapping) {
+    addClass(cm.display.wrapper, "CodeMirror-resizable")
+  } else {
+    rmClass(cm.display.wrapper, "CodeMirror-resizable")
+  }
   setTimeout(() => updateScrollbars(cm), 100)
 }
