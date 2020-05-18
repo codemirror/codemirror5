@@ -47,6 +47,9 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
   if (modeCfg.fencedCodeBlockHighlighting === undefined)
     modeCfg.fencedCodeBlockHighlighting = true;
+  
+  if (modeCfg.fencedCodeBlockDefaultMode === undefined)
+    modeCfg.fencedCodeBlockDefaultMode = '';
 
   if (modeCfg.xml === undefined)
     modeCfg.xml = true;
@@ -236,7 +239,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       state.quote = 0;
       state.fencedEndRE = new RegExp(match[1] + "+ *$");
       // try switching mode
-      state.localMode = modeCfg.fencedCodeBlockHighlighting && getMode(match[2]);
+      state.localMode = modeCfg.fencedCodeBlockHighlighting && getMode(match[2] || modeCfg.fencedCodeBlockDefaultMode );
       if (state.localMode) state.localState = CodeMirror.startState(state.localMode);
       state.f = state.block = local;
       if (modeCfg.highlightFormatting) state.formatting = "code-block";
