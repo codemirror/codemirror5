@@ -388,13 +388,19 @@ for (var i = 0; i < items.length; i++) {
       <li>
         <d1>
           <dt><code>fencedCodeBlockHighlighting: boolean</code></dt>
-          <dd>Whether to syntax-highlight fenced code blocks, if given mode is included (default: <code>true</code>).</dd>
+          <dd>Whether to syntax-highlight fenced code blocks, if given mode is included, or fencedCodeBlockDefaultMode is set (default: <code>true</code>).</dd>
+        </d1>
+      </li>
+      <li>
+        <d1>
+          <dt><code>fencedCodeBlockDefaultMode: string</code></dt>
+          <dd>Mode to use for fencedCodeBlockHighlighting, if given mode is not included.</dd>
         </d1>
       </li>
       <li>
         <d1>
           <dt><code>tokenTypeOverrides: Object</code></dt>
-          <dd>When you want ot override default token type names (e.g. <code>{code: "code"}</code>).</dd>
+          <dd>When you want to override default token type names (e.g. <code>{code: "code"}</code>).</dd>
         </d1>
       </li>
       <li>
