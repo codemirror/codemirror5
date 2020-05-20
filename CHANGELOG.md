@@ -1,3 +1,25 @@
+## 5.54.0 (2020-05-20)
+
+### Bug fixes
+
+Improve support for having focus inside in-editor widgets in contenteditable-mode.
+
+Fix issue where the scroll position could jump when clicking on a selection in Chrome.
+
+[python mode](https://codemirror.net/mode/python/): Better format string support.
+
+[javascript mode](https://codemirror.net/mode/javascript/): Improve parsing of private properties and class fields.
+
+[matchbrackets addon](https://codemirror.net/doc/manual.html#addon_matchbrackets): Disable highlighting when the editor doesn't have focus.
+
+### New features
+
+[runmode addon](https://codemirror.net/doc/manual.html#addon_runmode): Properly support for cross-line lookahead.
+
+[vim bindings](https://codemirror.net/demo/vim.html): Allow Ex-Commands with non-word names.
+
+[gfm mode](https://codemirror.net/mode/gfm/): Add a `fencedCodeBlockDefaultMode` option.
+
 ## 5.53.2 (2020-04-21)
 
 ### Bug fixes
