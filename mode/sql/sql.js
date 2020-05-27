@@ -96,7 +96,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
         return null
       // .table_name (ODBC)
       // // ref: http://dev.mysql.com/doc/refman/5.6/en/identifier-qualifiers.html
-      if (support.ODBCdotTable && stream.match(/^[\w\d_]+/))
+      if (support.ODBCdotTable && stream.match(/^[\w\d_$#]+/))
         return "variable-2";
     } else if (operatorChars.test(ch)) {
       // operators
