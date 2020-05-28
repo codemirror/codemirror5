@@ -1183,6 +1183,9 @@ testVim('on_mode_change', function(cm, vim, helpers) {
   test('<C-c>', 'normal');
   test('a', 'insert');
   test('<Esc>', 'normal');
+  test('v', 'visual');
+  test(':', ''); // Event for Command-line mode not implemented.
+  test('y', 'normal');
 });
 
 // Swapcase commands edit in place and do not modify registers.
