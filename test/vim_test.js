@@ -1153,6 +1153,41 @@ testVim('s_visual_block', function(cm, vim, helpers) {
   eq('1hello{\n  world\n', cm.getValue());
 }, {value: '1234\n5678\nabcdefg\n'});
 
+// Test mode change event. It should only fire once per mode transition.
+testVim('on_mode_change', function(cm, vim, helpers) {
+  var modeHist = [];
+  function callback(arg) {
+    var subMode = arg.subMode ? ':' + arg.subMode : '';
+    modeHist.push(arg.mode + subMode);
+  }
+  helpers.doKeys('<Esc>', '<Esc>');
+  cm.on('vim-mode-change', callback);
+  function test(key, mode) {
+    modeHist.length = 0;
+    helpers.doKeys(key);
+    eq(modeHist.join(';'), mode);
+  }
+  test('v', 'visual');
+  test('c', 'insert');
+  test('<Esc>', 'normal');
+  test('<C-v>', 'visual:blockwise');
+  test('I', 'insert');
+  test('<Esc>', 'normal');
+  test('R', 'replace');
+  test('x', '');
+  test('<C-[>', 'normal');
+  test('v', 'visual');
+  test('V', 'visual:linewise');
+  test('<C-v>', 'visual:blockwise');
+  test('v', 'visual');
+  test('<C-c>', 'normal');
+  test('a', 'insert');
+  test('<Esc>', 'normal');
+  test('v', 'visual');
+  test(':', ''); // Event for Command-line mode not implemented.
+  test('y', 'normal');
+});
+
 // Swapcase commands edit in place and do not modify registers.
 testVim('g~w_repeat', function(cm, vim, helpers) {
   // Assert that dw does delete newline if it should go to the next line, and

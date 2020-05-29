@@ -3203,7 +3203,7 @@
       vim.visualMode = false;
       vim.visualLine = false;
       vim.visualBlock = false;
-      CodeMirror.signal(cm, "vim-mode-change", {mode: "normal"});
+      if (!vim.insertMode) CodeMirror.signal(cm, "vim-mode-change", {mode: "normal"});
       clearFakeCursor(vim);
     }
 
