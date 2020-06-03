@@ -47,7 +47,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
   if (modeCfg.fencedCodeBlockHighlighting === undefined)
     modeCfg.fencedCodeBlockHighlighting = true;
-  
+
   if (modeCfg.fencedCodeBlockDefaultMode === undefined)
     modeCfg.fencedCodeBlockDefaultMode = '';
 
