@@ -9,12 +9,10 @@ root.CodeMirror = {};
 
 function splitLines(string){ return string.split(/\r?\n|\r/); };
 
-function StringStream(strings, i) {
+function StringStream(string, _tabSize, oracle) {
   this.pos = this.start = 0;
-  this.string = strings[i];
-  this.strings = strings
-  this.i = i
-  this.lineStart = 0;
+  this.string = string
+  this.oracle = oracle
 }
 StringStream.prototype = {
   eol: function() {return this.pos >= this.string.length;},
@@ -69,7 +67,7 @@ StringStream.prototype = {
     try { return inner(); }
     finally { this.lineStart -= n; }
   },
-  lookAhead: function(n) { return this.strings[this.i + n] }
+  lookAhead: function(n) { return this.oracle && this.oracle.lookAhead(n) }
 };
 CodeMirror.StringStream = StringStream;
 
@@ -151,9 +149,10 @@ CodeMirror.runMode = function (string, modespec, callback, options) {
   }
 
   var lines = splitLines(string), state = (options && options.state) || CodeMirror.startState(mode);
+  var oracle = {lookAhead: function(n) { return lines[i + n] }}
   for (var i = 0, e = lines.length; i < e; ++i) {
     if (i) callback("\n");
-    var stream = new CodeMirror.StringStream(lines, i);
+    var stream = new CodeMirror.StringStream(lines[i], tabSize, oracle);
     if (!stream.string && mode.blankLine) mode.blankLine(state);
     while (!stream.eol()) {
       var style = mode.token(stream, state);
