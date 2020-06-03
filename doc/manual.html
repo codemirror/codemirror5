@@ -2950,13 +2950,20 @@ editor.setOption("extraKeys", {
       see a demo <a href="../mode/htmlmixed/index.html">here</a>.</dd>
 
       <dt id="addon_loadmode"><a href="../addon/mode/loadmode.js"><code>mode/loadmode.js</code></a></dt>
-      <dd>Defines a <code>CodeMirror.requireMode(modename,
-      callback)</code> function that will try to load a given mode and
-      call the callback when it succeeded. You'll have to
-      set <code>CodeMirror.modeURL</code> to a string that mode paths
-      can be constructed from, for
-      example <code>"mode/%N/%N.js"</code>—the <code>%N</code>'s will
-      be replaced with the mode name. Also
+      <dd>Defines a <code>CodeMirror.requireMode(modename, callback,
+      options)</code> function that will try to load a given mode and
+      call the callback when it succeeded. <code>options</code> is an
+      optional object that may contain:
+        <dl>
+          <dt><code><strong>path</strong>: fn(modeName: string) → string</code></dt>
+          <dd>Defines the way mode names are mapped to paths.</dd>
+          <dt><code><strong>loadMode</strong>: fn(path: string, cont: fn())</code></dt>
+          <dd>Override the way the mode script is loaded. By default,
+          this will use the CommonJS or AMD module loader if one is
+          present, and fall back to creating
+          a <code>&lt;script></code> tag otherwise.</dd>
+        </dl>
+      This addon also
       defines <code>CodeMirror.autoLoadMode(instance, mode)</code>,
       which will ensure the given mode is loaded and cause the given
       editor instance to refresh its mode when the loading
