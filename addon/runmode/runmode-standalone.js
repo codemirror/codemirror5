@@ -92,10 +92,24 @@ CodeMirror.resolveMode = function(spec) {
   else return spec || {name: "null"};
 };
 CodeMirror.getMode = function (options, spec) {
-  spec = CodeMirror.resolveMode(spec);
-  var mfactory = modes[spec.name];
-  if (!mfactory) throw new Error("Unknown mode: " + spec);
-  return mfactory(options, spec);
+  spec = CodeMirror.resolveMode(spec)
+  let mfactory = modes[spec.name]
+  if (!mfactory) return CodeMirror.getMode(options, "text/plain")
+  let modeObj = mfactory(options, spec)
+  if (modeExtensions.hasOwnProperty(spec.name)) {
+    let exts = modeExtensions[spec.name]
+    for (let prop in exts) {
+      if (!exts.hasOwnProperty(prop)) continue
+      if (modeObj.hasOwnProperty(prop)) modeObj["_" + prop] = modeObj[prop]
+      modeObj[prop] = exts[prop]
+    }
+  }
+  modeObj.name = spec.name
+  if (spec.helperType) modeObj.helperType = spec.helperType
+  if (spec.modeProps) for (let prop in spec.modeProps)
+    modeObj[prop] = spec.modeProps[prop]
+
+  return modeObj
 };
 CodeMirror.registerHelper = CodeMirror.registerGlobalHelper = Math.min;
 CodeMirror.defineMode("null", function() {
