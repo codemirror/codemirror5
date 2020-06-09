@@ -401,9 +401,9 @@ CodeMirror.defineMode("julia", function(config, parserConf) {
 
     indent: function(state, textAfter) {
       var delta = 0;
-      if ( textAfter === ']' || textAfter === ')' || textAfter === "end" ||
-           textAfter === "else" || textAfter === "catch" || textAfter === "elseif" ||
-           textAfter === "finally" ) {
+      if ( textAfter === ']' || textAfter === ')' || textAfter.startsWith("end") ||
+           textAfter.startsWith("else") || textAfter.startsWith("catch") || textAfter.startsWith("elseif") ||
+           textAfter.startsWith("finally") ) {
         delta = -1;
       }
       return (state.scopes.length + delta) * config.indentUnit;
