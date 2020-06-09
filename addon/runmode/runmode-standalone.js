@@ -7,7 +7,7 @@ root.CodeMirror = {};
 (function() {
 "use strict";
 
-function splitLines(string){ return string.split(/\r?\n|\r/); };
+function splitLines(string){ return string.split(/\r\n?|\n/); };
 
 function StringStream(string, _tabSize, oracle) {
   this.pos = this.start = 0;
