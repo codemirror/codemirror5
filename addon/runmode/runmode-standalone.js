@@ -9,6 +9,28 @@ root.CodeMirror = {};
 
 function splitLines(string){ return string.split(/\r\n?|\n/); };
 
+function copyObj(obj, target, overwrite) {
+  if (!target) target = {}
+  for (let prop in obj)
+    if (obj.hasOwnProperty(prop) && (overwrite !== false || !target.hasOwnProperty(prop)))
+      target[prop] = obj[prop]
+  return target
+}
+
+function nothing() {}
+
+function createObj(base, props) {
+  let inst
+  if (Object.create) {
+    inst = Object.create(base)
+  } else {
+    nothing.prototype = base
+    inst = new nothing()
+  }
+  if (props) copyObj(props, inst)
+  return inst
+}
+
 function StringStream(string, _tabSize, oracle) {
   this.pos = this.start = 0;
   this.string = string
@@ -82,15 +104,28 @@ CodeMirror.defineMode = function (name, mode) {
   modes[name] = mode;
 };
 CodeMirror.defineMIME = function (mime, spec) { mimeModes[mime] = spec; };
+
+// Given a MIME type, a {name, ...options} config object, or a name
+// string, return a mode config object.
 CodeMirror.resolveMode = function(spec) {
   if (typeof spec == "string" && mimeModes.hasOwnProperty(spec)) {
-    spec = mimeModes[spec];
+    spec = mimeModes[spec]
   } else if (spec && typeof spec.name == "string" && mimeModes.hasOwnProperty(spec.name)) {
-    spec = mimeModes[spec.name];
+    let found = mimeModes[spec.name]
+    if (typeof found == "string") found = {name: found}
+    spec = createObj(found, spec)
+    spec.name = found.name
+  } else if (typeof spec == "string" && /^[\w\-]+\/[\w\-]+\+xml$/.test(spec)) {
+    return CodeMirror.resolveMode("application/xml")
+  } else if (typeof spec == "string" && /^[\w\-]+\/[\w\-]+\+json$/.test(spec)) {
+    return CodeMirror.resolveMode("application/json")
   }
-  if (typeof spec == "string") return {name: spec};
-  else return spec || {name: "null"};
-};
+  if (typeof spec == "string") return {name: spec}
+  else return spec || {name: "null"}
+}
+
+// Given a mode spec (anything that resolveMode accepts), find and
+// initialize an actual mode object.
 CodeMirror.getMode = function (options, spec) {
   spec = CodeMirror.resolveMode(spec)
   let mfactory = modes[spec.name]
