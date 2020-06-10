@@ -44,13 +44,13 @@ var countColumn = exports.countColumn = function(string, end, tabSize, startInde
   }
 };
 
-function StringStream(string, tabSize, context) {
+function StringStream(string, tabSize, lineOracle) {
   this.pos = this.start = 0;
   this.string = string;
   this.tabSize = tabSize || 8;
   this.lastColumnPos = this.lastColumnValue = 0;
   this.lineStart = 0;
-  this.context = context
+  this.lineOracle = lineOracle
 };
 
 StringStream.prototype = {
@@ -62,20 +62,21 @@ StringStream.prototype = {
       return this.string.charAt(this.pos++);
   },
   eat: function(match) {
-    var ch = this.string.charAt(this.pos);
-    if (typeof match == "string") var ok = ch == match;
-    else var ok = ch && (match.test ? match.test(ch) : match(ch));
-    if (ok) {++this.pos; return ch;}
+    let ch = this.string.charAt(this.pos)
+    let ok
+    if (typeof match == "string") ok = ch == match
+    else ok = ch && (match.test ? match.test(ch) : match(ch))
+    if (ok) {++this.pos; return ch}
   },
   eatWhile: function(match) {
-    var start = this.pos;
+    let start = this.pos
     while (this.eat(match)){}
-    return this.pos > start;
+    return this.pos > start
   },
   eatSpace: function() {
-    var start = this.pos;
-    while (/[\s\u00a0]/.test(this.string.charAt(this.pos))) ++this.pos;
-    return this.pos > start;
+    let start = this.pos
+    while (/[\s\u00a0]/.test(this.string.charAt(this.pos))) ++this.pos
+    return this.pos > start
   },
   skipToEnd: function() {this.pos = this.string.length;},
   skipTo: function(ch) {
@@ -116,8 +117,12 @@ StringStream.prototype = {
     finally { this.lineStart -= n; }
   },
   lookAhead: function(n) {
-    var line = this.context.line + n
-    return line >= this.context.lines.length ? null : this.context.lines[line]
+    let oracle = this.lineOracle
+    return oracle && oracle.lookAhead(n)
+  },
+  baseToken: function() {
+    let oracle = this.lineOracle
+    return oracle && oracle.baseToken(this.pos)
   }
 };
 exports.StringStream = StringStream;
