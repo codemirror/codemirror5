@@ -219,11 +219,12 @@ exports.registerHelper = exports.registerGlobalHelper = Math.min;
 
 exports.runMode = function(string, modespec, callback, options) {
   var mode = exports.getMode({indentUnit: 2}, modespec);
+  var tabSize = (options && options.tabSize) || 4;
   var lines = splitLines(string), state = (options && options.state) || exports.startState(mode);
-  var context = {lines: lines, line: 0}
-  for (var i = 0, e = lines.length; i < e; ++i, ++context.line) {
+  var oracle = {lookAhead: function(n) { return lines[i + n] }, baseToken: function() {}}
+  for (var i = 0, e = lines.length; i < e; ++i) {
     if (i) callback("\n");
-    var stream = new exports.StringStream(lines[i], 4, context);
+    var stream = new exports.StringStream(lines[i], tabSize, oracle);
     if (!stream.string && mode.blankLine) mode.blankLine(state);
     while (!stream.eol()) {
       var style = mode.token(stream, state);
