@@ -241,19 +241,18 @@
   var root = typeof globalThis !== 'undefined' ? globalThis : window;
   root.CodeMirror = Object.assign({}, modesMethods, {StringStream: StringStream});
 
-  (function() {
-
-  function splitLines(string){ return string.split(/\r?\n|\r/); }
-  CodeMirror.registerHelper = CodeMirror.registerGlobalHelper = Math.min;
-
   // Minimal default mode.
   CodeMirror.defineMode("null", function () { return ({token: function (stream) { return stream.skipToEnd(); }}); });
   CodeMirror.defineMIME("text/plain", "null");
 
-  CodeMirror.runMode = function (string, modespec, callback, options) {
+  CodeMirror.registerHelper = CodeMirror.registerGlobalHelper = Math.min;
+  CodeMirror.splitLines = function(string) { return string.split(/\r?\n|\r/); };
+
+  CodeMirror.runMode = function(string, modespec, callback, options) {
     var mode = CodeMirror.getMode({ indentUnit: 2 }, modespec);
     var tabSize = (options && options.tabSize) || 4;
 
+    // Create a callback function if passed-in callback is a DOM element.
     if (callback.appendChild) {
       var ie = /MSIE \d/.test(navigator.userAgent);
       var ie_lt9 = ie && (document.documentMode == null || document.documentMode < 9);
@@ -294,8 +293,8 @@
       };
     }
 
-    var lines = splitLines(string), state = (options && options.state) || CodeMirror.startState(mode);
-    var oracle = {lookAhead: function(n) { return lines[i + n] }};
+    var lines = CodeMirror.splitLines(string), state = (options && options.state) || CodeMirror.startState(mode);
+    var oracle = {lookAhead: function(n) { return lines[i + n] }, baseToken: function() {}};
     for (var i = 0, e = lines.length; i < e; ++i) {
       if (i) { callback("\n"); }
       var stream = new CodeMirror.StringStream(lines[i], tabSize, oracle);
@@ -307,6 +306,5 @@
       }
     }
   };
-  })();
 
 }());

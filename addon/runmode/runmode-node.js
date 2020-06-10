@@ -238,19 +238,20 @@ StringStream.prototype.baseToken = function () {
 };
 
 var runmodeNode = CodeMirror = Object.assign({}, modesMethods, {StringStream: StringStream});
-CodeMirror.registerHelper = CodeMirror.registerGlobalHelper = Math.min;
 
 // Minimal default mode.
 CodeMirror.defineMode("null", function () { return ({token: function (stream) { return stream.skipToEnd(); }}); });
 CodeMirror.defineMIME("text/plain", "null");
 
-function splitLines(string){ return string.split(/\r?\n|\r/); }
-CodeMirror.runMode = function (string, modespec, callback, options) {
+CodeMirror.registerHelper = CodeMirror.registerGlobalHelper = Math.min;
+CodeMirror.splitLines = function(string) { return string.split(/\r?\n|\r/); };
+
+CodeMirror.runMode = function(string, modespec, callback, options) {
   var mode = CodeMirror.getMode({ indentUnit: 2 }, modespec);
   var tabSize = (options && options.tabSize) || 4;
 
-  var lines = splitLines(string), state = (options && options.state) || CodeMirror.startState(mode);
-  var oracle = {lookAhead: function(n) { return lines[i + n] }};
+  var lines = CodeMirror.splitLines(string), state = (options && options.state) || CodeMirror.startState(mode);
+  var oracle = {lookAhead: function(n) { return lines[i + n] }, baseToken: function() {}};
   for (var i = 0, e = lines.length; i < e; ++i) {
     if (i) { callback("\n"); }
     var stream = new CodeMirror.StringStream(lines[i], tabSize, oracle);
