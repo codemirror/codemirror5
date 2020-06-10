@@ -105,6 +105,11 @@ CodeMirror.defineMode = function (name, mode) {
 };
 CodeMirror.defineMIME = function (mime, spec) { mimeModes[mime] = spec; };
 
+CodeMirror.defineMode("null", function() {
+  return {token: function(stream) {stream.skipToEnd();}};
+});
+CodeMirror.defineMIME("text/plain", "null");
+
 // Given a MIME type, a {name, ...options} config object, or a name
 // string, return a mode config object.
 CodeMirror.resolveMode = function(spec) {
@@ -155,11 +160,20 @@ CodeMirror.extendMode = function(mode, properties) {
   copyObj(properties, exts);
 };
 
+// Given a mode and a state (for that mode), find the inner mode and
+// state at the position that the state refers to.
+CodeMirror.innerMode = function(mode, state) {
+  let info
+  while (mode.innerMode) {
+    info = mode.innerMode(state)
+    if (!info || info.mode == mode) break
+    state = info.state
+    mode = info.mode
+  }
+  return info || {mode: mode, state: state}
+};
+
 CodeMirror.registerHelper = CodeMirror.registerGlobalHelper = Math.min;
-CodeMirror.defineMode("null", function() {
-  return {token: function(stream) {stream.skipToEnd();}};
-});
-CodeMirror.defineMIME("text/plain", "null");
 
 CodeMirror.runMode = function (string, modespec, callback, options) {
   var mode = CodeMirror.getMode({ indentUnit: 2 }, modespec);
