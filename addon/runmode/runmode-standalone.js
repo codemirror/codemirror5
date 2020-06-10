@@ -31,29 +31,33 @@ function createObj(base, props) {
   return inst
 }
 
-function StringStream(string, _tabSize, oracle) {
+function StringStream(string, tabSize, lineOracle) {
   this.pos = this.start = 0;
   this.string = string
-  this.oracle = oracle
+  this.tabSize = tabSize || 8
+  this.lastColumnPos = this.lastColumnValue = 0
+  this.lineStart = 0
+  this.lineOracle = lineOracle
 }
 StringStream.prototype = {
   eol: function() {return this.pos >= this.string.length;},
-  sol: function() {return this.pos == 0;},
-  peek: function() {return this.string.charAt(this.pos) || null;},
+  sol: function() {return this.pos == this.lineStart;},
+  peek: function() {return this.string.charAt(this.pos) || undefined;},
   next: function() {
     if (this.pos < this.string.length)
       return this.string.charAt(this.pos++);
   },
   eat: function(match) {
-    var ch = this.string.charAt(this.pos);
-    if (typeof match == "string") var ok = ch == match;
-    else var ok = ch && (match.test ? match.test(ch) : match(ch));
-    if (ok) {++this.pos; return ch;}
+    let ch = this.string.charAt(this.pos)
+    let ok
+    if (typeof match == "string") ok = ch == match
+    else ok = ch && (match.test ? match.test(ch) : match(ch))
+    if (ok) {++this.pos; return ch}
   },
   eatWhile: function(match) {
-    var start = this.pos;
+    let start = this.pos
     while (this.eat(match)){}
-    return this.pos > start;
+    return this.pos > start
   },
   eatSpace: function() {
     var start = this.pos;
@@ -66,8 +70,17 @@ StringStream.prototype = {
     if (found > -1) {this.pos = found; return true;}
   },
   backUp: function(n) {this.pos -= n;},
-  column: function() {return this.start - this.lineStart;},
-  indentation: function() {return 0;},
+  column: function() {
+    if (this.lastColumnPos < this.start) {
+      this.lastColumnValue = countColumn(this.string, this.start, this.tabSize, this.lastColumnPos, this.lastColumnValue)
+      this.lastColumnPos = this.start
+    }
+    return this.lastColumnValue - (this.lineStart ? countColumn(this.string, this.lineStart, this.tabSize) : 0)
+  },
+  indentation: function() {
+    return countColumn(this.string, null, this.tabSize) -
+      (this.lineStart ? countColumn(this.string, this.lineStart, this.tabSize) : 0)
+  },
   match: function(pattern, consume, caseInsensitive) {
     if (typeof pattern == "string") {
       var cased = function(str) {return caseInsensitive ? str.toLowerCase() : str;};
@@ -89,7 +102,14 @@ StringStream.prototype = {
     try { return inner(); }
     finally { this.lineStart -= n; }
   },
-  lookAhead: function(n) { return this.oracle && this.oracle.lookAhead(n) }
+  lookAhead: function(n) {
+    let oracle = this.lineOracle
+    return oracle && oracle.lookAhead(n)
+  },
+  baseToken: function() {
+    let oracle = this.lineOracle
+    return oracle && oracle.baseToken(this.pos)
+  }
 };
 CodeMirror.StringStream = StringStream;
 
@@ -189,11 +209,11 @@ CodeMirror.registerHelper = CodeMirror.registerGlobalHelper = Math.min;
 
 CodeMirror.runMode = function (string, modespec, callback, options) {
   var mode = CodeMirror.getMode({ indentUnit: 2 }, modespec);
-  var ie = /MSIE \d/.test(navigator.userAgent);
-  var ie_lt9 = ie && (document.documentMode == null || document.documentMode < 9);
+  var tabSize = (options && options.tabSize) || 4;
 
   if (callback.appendChild) {
-    var tabSize = (options && options.tabSize) || 4;
+    var ie = /MSIE \d/.test(navigator.userAgent);
+    var ie_lt9 = ie && (document.documentMode == null || document.documentMode < 9);
     var node = callback, col = 0;
     node.innerHTML = "";
     callback = function (text, style) {
@@ -233,7 +253,7 @@ CodeMirror.runMode = function (string, modespec, callback, options) {
   }
 
   var lines = splitLines(string), state = (options && options.state) || CodeMirror.startState(mode);
-  var oracle = {lookAhead: function(n) { return lines[i + n] }}
+  var oracle = {lookAhead: function(n) { return lines[i + n] }, baseToken: function() {}}
   for (var i = 0, e = lines.length; i < e; ++i) {
     if (i) callback("\n");
     var stream = new CodeMirror.StringStream(lines[i], tabSize, oracle);
