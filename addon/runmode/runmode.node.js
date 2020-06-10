@@ -5,6 +5,28 @@
 
 function splitLines(string){return string.split(/\r\n?|\n/);};
 
+function copyObj(obj, target, overwrite) {
+  if (!target) target = {}
+  for (let prop in obj)
+    if (obj.hasOwnProperty(prop) && (overwrite !== false || !target.hasOwnProperty(prop)))
+      target[prop] = obj[prop]
+  return target
+}
+
+function nothing() {}
+
+function createObj(base, props) {
+  let inst
+  if (Object.create) {
+    inst = Object.create(base)
+  } else {
+    nothing.prototype = base
+    inst = new nothing()
+  }
+  if (props) copyObj(props, inst)
+  return inst
+}
+
 // Counts the column offset in a string, taking tabs into account.
 // Used mostly to find indentation.
 var countColumn = exports.countColumn = function(string, end, tabSize, startIndex, startValue) {
@@ -117,23 +139,24 @@ exports.defineMode("null", function() {
 });
 exports.defineMIME("text/plain", "null");
 
+// Given a MIME type, a {name, ...options} config object, or a name
+// string, return a mode config object.
 exports.resolveMode = function(spec) {
   if (typeof spec == "string" && mimeModes.hasOwnProperty(spec)) {
-    spec = mimeModes[spec];
+    spec = mimeModes[spec]
   } else if (spec && typeof spec.name == "string" && mimeModes.hasOwnProperty(spec.name)) {
-    spec = mimeModes[spec.name];
+    let found = mimeModes[spec.name]
+    if (typeof found == "string") found = {name: found}
+    spec = createObj(found, spec)
+    spec.name = found.name
+  } else if (typeof spec == "string" && /^[\w\-]+\/[\w\-]+\+xml$/.test(spec)) {
+    return exports.resolveMode("application/xml")
+  } else if (typeof spec == "string" && /^[\w\-]+\/[\w\-]+\+json$/.test(spec)) {
+    return exports.resolveMode("application/json")
   }
-  if (typeof spec == "string") return {name: spec};
-  else return spec || {name: "null"};
+  if (typeof spec == "string") return {name: spec}
+  else return spec || {name: "null"}
 };
-
-function copyObj(obj, target, overwrite) {
-  if (!target) target = {};
-  for (var prop in obj)
-    if (obj.hasOwnProperty(prop) && (overwrite !== false || !target.hasOwnProperty(prop)))
-      target[prop] = obj[prop];
-  return target;
-}
 
 // This can be used to attach properties to mode objects from
 // outside the actual mode definition.
