@@ -164,6 +164,18 @@ exports.getMode = function(options, spec) {
   return modeObj;
 };
 
+exports.copyState = function(mode, state) {
+  if (state === true) return state
+  if (mode.copyState) return mode.copyState(state)
+  let nstate = {}
+  for (let n in state) {
+    let val = state[n]
+    if (val instanceof Array) val = val.concat([])
+    nstate[n] = val
+  }
+  return nstate
+}
+
 exports.innerMode = function(mode, state) {
   var info;
   while (mode.innerMode) {
