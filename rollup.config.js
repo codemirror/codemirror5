@@ -1,4 +1,4 @@
-import buble from 'rollup-plugin-buble';
+import buble from '@rollup/plugin-buble';
 
 export default {
   input: "src/codemirror.js",
