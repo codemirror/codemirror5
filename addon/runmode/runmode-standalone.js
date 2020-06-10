@@ -160,6 +160,18 @@ CodeMirror.extendMode = function(mode, properties) {
   copyObj(properties, exts);
 };
 
+CodeMirror.copyState = function(mode, state) {
+  if (state === true) return state
+  if (mode.copyState) return mode.copyState(state)
+  let nstate = {}
+  for (let n in state) {
+    let val = state[n]
+    if (val instanceof Array) val = val.concat([])
+    nstate[n] = val
+  }
+  return nstate
+}
+
 // Given a mode and a state (for that mode), find the inner mode and
 // state at the position that the state refers to.
 CodeMirror.innerMode = function(mode, state) {
