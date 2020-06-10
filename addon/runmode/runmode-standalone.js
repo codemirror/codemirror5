@@ -146,6 +146,15 @@ CodeMirror.getMode = function (options, spec) {
 
   return modeObj
 };
+
+// This can be used to attach properties to mode objects from
+// outside the actual mode definition.
+var modeExtensions = CodeMirror.modeExtensions = {};
+CodeMirror.extendMode = function(mode, properties) {
+  var exts = modeExtensions.hasOwnProperty(mode) ? modeExtensions[mode] : (modeExtensions[mode] = {});
+  copyObj(properties, exts);
+};
+
 CodeMirror.registerHelper = CodeMirror.registerGlobalHelper = Math.min;
 CodeMirror.defineMode("null", function() {
   return {token: function(stream) {stream.skipToEnd();}};
