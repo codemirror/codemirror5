@@ -21,19 +21,19 @@ export default [
     plugins: [ buble({namedFunctionExpressions: false}) ]
   },
   {
-    input: ["addon/runmode/src/runmode-browser.js", "addon/runmode/runmode.js"],
+    input: ["src/addon/runmode/runmode-standalone.js", "addon/runmode/runmode.js"],
     output: {
       format: "iife",
-      file: "addon/runmode/runmode-browser.js",
+      file: "addon/runmode/runmode-standalone.js",
       name: "CodeMirror"
     },
     plugins: [ buble({namedFunctionExpressions: false}), multi() ]
   },
   {
-    input: ["addon/runmode/src/runmode-node.js", "addon/runmode/runmode.js"],
+    input: ["src/addon/runmode/runmode.node.js", "addon/runmode/runmode.js"],
     output: {
       format: "cjs",
-      file: "addon/runmode/runmode-node.js",
+      file: "addon/runmode/runmode.node.js",
       name: "CodeMirror"
     },
     plugins: [ buble({namedFunctionExpressions: false}), multi() ]
