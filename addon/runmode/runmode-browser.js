@@ -238,6 +238,7 @@
     return oracle && oracle.baseToken(this.pos)
   };
 
+  // Create a minimal CodeMirror needed to use runMode, and assign to root.
   var root = typeof globalThis !== 'undefined' ? globalThis : window;
   root.CodeMirror = Object.assign({}, modesMethods, {StringStream: StringStream});
 
@@ -246,19 +247,32 @@
   CodeMirror.defineMIME("text/plain", "null");
 
   CodeMirror.registerHelper = CodeMirror.registerGlobalHelper = Math.min;
-  CodeMirror.splitLines = function(string) { return string.split(/\r?\n|\r/); };
+  CodeMirror.splitLines = function(string) { return string.split(/\r?\n|\r/); };  
+
+  CodeMirror.defaults = { indentUnit: 2 };
+
+  // CodeMirror, copyright (c) by Marijn Haverbeke and others
+  // Distributed under an MIT license: https://codemirror.net/LICENSE
+
+  (function(mod) {
+    if (typeof exports == "object" && typeof module == "object") // CommonJS
+      { mod(require("../../lib/codemirror")); }
+    else if (typeof define == "function" && define.amd) // AMD
+      { define(["../../lib/codemirror"], mod); }
+    else // Plain browser env
+      { mod(CodeMirror); }
+  })(function(CodeMirror) {
 
   CodeMirror.runMode = function(string, modespec, callback, options) {
-    var mode = CodeMirror.getMode({ indentUnit: 2 }, modespec);
-    var tabSize = (options && options.tabSize) || 4;
+    var mode = CodeMirror.getMode(CodeMirror.defaults, modespec);
+    var ie = /MSIE \d/.test(navigator.userAgent);
+    var ie_lt9 = ie && (document.documentMode == null || document.documentMode < 9);
 
-    // Create a callback function if passed-in callback is a DOM element.
     if (callback.appendChild) {
-      var ie = /MSIE \d/.test(navigator.userAgent);
-      var ie_lt9 = ie && (document.documentMode == null || document.documentMode < 9);
+      var tabSize = (options && options.tabSize) || CodeMirror.defaults.tabSize;
       var node = callback, col = 0;
       node.innerHTML = "";
-      callback = function (text, style) {
+      callback = function(text, style) {
         if (text == "\n") {
           // Emitting LF or CRLF on IE8 or earlier results in an incorrect display.
           // Emitting a carriage return makes everything ok.
@@ -268,7 +282,7 @@
         }
         var content = "";
         // replace tabs
-        for (var pos = 0; ;) {
+        for (var pos = 0;;) {
           var idx = text.indexOf("\t", pos);
           if (idx == -1) {
             content += text.slice(pos);
@@ -283,6 +297,7 @@
             pos = idx + 1;
           }
         }
+
         if (style) {
           var sp = node.appendChild(document.createElement("span"));
           sp.className = "cm-" + style.replace(/ +/g, " cm-");
@@ -294,10 +309,12 @@
     }
 
     var lines = CodeMirror.splitLines(string), state = (options && options.state) || CodeMirror.startState(mode);
-    var oracle = {lookAhead: function(n) { return lines[i + n] }, baseToken: function() {}};
     for (var i = 0, e = lines.length; i < e; ++i) {
       if (i) { callback("\n"); }
-      var stream = new CodeMirror.StringStream(lines[i], tabSize, oracle);
+      var stream = new CodeMirror.StringStream(lines[i], null, {
+        lookAhead: function(n) { return lines[i + n] },
+        baseToken: function() {}
+      });
       if (!stream.string && mode.blankLine) { mode.blankLine(state); }
       while (!stream.eol()) {
         var style = mode.token(stream, state);
@@ -306,5 +323,7 @@
       }
     }
   };
+
+  });
 
 }());
