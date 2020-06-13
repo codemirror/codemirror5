@@ -194,7 +194,7 @@
 
         function words(array) {
             var keys = {};
-            for (let i = 0, l = array.length; i < l; ++i) {
+            for (var i = 0, l = array.length; i < l; ++i) {
                 keys[array[i]] = true;
             }
             return keys;
