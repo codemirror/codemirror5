@@ -1,0 +1,60 @@
+<!doctype html>
+
+<title>CodeMirror: ASL mode</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel="stylesheet" href="../../lib/codemirror.css">
+<script src="../../lib/codemirror.js"></script>
+<script src="../../addon/edit/matchbrackets.js"></script>
+<script src="./asl.js"></script>
+<style>
+	.CodeMirror { border: 2px inset #dee; }
+    </style>
+<div id=nav>
+  <a href="https://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png" alt=""></a>
+
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#">ASL</a>
+  </ul>
+</div>
+
+<article>
+<h2>ASL mode</h2>
+<form><textarea id="code" name="code">
+DefinitionBlock ("", "SSDT", 1, "EXMP", "Example", 0x00000000)
+{
+    External (_PR_.CPU0, DeviceObj)
+    External (_SB_.CPUP, UnknownObj)
+    External (_SB_.SLMT, UnknownObj)
+    External (CFGD, UnknownObj)
+
+    Scope (\_PR.CPU0)
+    {
+        Method (_PPC, 0, NotSerialized)  // _PPC: Performance Present Capabilities
+        {
+            Local0 = (\_SB.CPUP - \_SB.SLMT) /* External reference */
+            Return (Local0)
+        }
+    }
+}
+</textarea></form>
+
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        lineNumbers: true,
+        matchBrackets: true,
+        mode: "asl"
+      });
+    </script>
+
+    <p>Simple mode that tries to handle ASL as well as it can.</p>
+
+    <p><strong>MIME types defined:</strong> <code>text/x-asl</code> (ASL code)</p>
+  </article>
