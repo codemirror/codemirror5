@@ -25,7 +25,8 @@ export default [
     output: {
       format: "iife",
       file: "addon/runmode/runmode-standalone.js",
-      name: "CodeMirror"
+      name: "CodeMirror",
+      freeze: false, // IE8 doesn't support Object.freeze.
     },
     plugins: [ buble({namedFunctionExpressions: false}), multi() ]
   },
@@ -34,7 +35,8 @@ export default [
     output: {
       format: "cjs",
       file: "addon/runmode/runmode.node.js",
-      name: "CodeMirror"
+      name: "CodeMirror",
+      freeze: false, // IE8 doesn't support Object.freeze.
     },
     plugins: [ buble({namedFunctionExpressions: false}), multi() ]
   },
