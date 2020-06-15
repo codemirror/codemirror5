@@ -34,6 +34,18 @@
      '[keyword i32.add]',
      '[keyword local.get]');
 
+  MT('control-instructions',
+     '[keyword unreachable]',
+     '[keyword nop]',
+     '[keyword br] [variable-2 $label0]',
+     '[keyword br_if] [variable-2 $label0]',
+     '[keyword br_table] [variable-2 $label0] [variable-2 $label1] [variable-2 $label3]',
+     '[keyword return]',
+     '[keyword call] [variable-2 $func0]',
+     '[keyword call_indirect] ([keyword param] [atom f32] [atom f64]) ([keyword result] [atom i32] [atom i64])',
+     '[keyword return_call] [variable-2 $func0]',
+     '[keyword return_call_indirect] ([keyword param] [atom f32] [atom f64]) ([keyword result] [atom i32] [atom i64])');
+
   MT('memory-instructions',
      '[keyword i32.load] [keyword offset]=[number 4] [keyword align]=[number 4]',
      '[keyword i32.load8_s] [keyword offset]=[number 4] [keyword align]=[number 4]',
