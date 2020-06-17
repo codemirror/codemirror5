@@ -1,5 +1,4 @@
 import buble from '@rollup/plugin-buble';
-import multi from '@rollup/plugin-multi-entry';
 
 export default [
   {
@@ -21,23 +20,23 @@ export default [
     plugins: [ buble({namedFunctionExpressions: false}) ]
   },
   {
-    input: ["src/addon/runmode/runmode-standalone.js", "addon/runmode/runmode.js"],
+    input: ["src/addon/runmode/runmode-standalone.js"],
     output: {
       format: "iife",
       file: "addon/runmode/runmode-standalone.js",
       name: "CodeMirror",
       freeze: false, // IE8 doesn't support Object.freeze.
     },
-    plugins: [ buble({namedFunctionExpressions: false}), multi() ]
+    plugins: [ buble({namedFunctionExpressions: false}) ]
   },
   {
-    input: ["src/addon/runmode/runmode.node.js", "addon/runmode/runmode.js"],
+    input: ["src/addon/runmode/runmode.node.js"],
     output: {
       format: "cjs",
       file: "addon/runmode/runmode.node.js",
       name: "CodeMirror",
       freeze: false, // IE8 doesn't support Object.freeze.
     },
-    plugins: [ buble({namedFunctionExpressions: false}), multi() ]
+    plugins: [ buble({namedFunctionExpressions: false}) ]
   },
 ];
