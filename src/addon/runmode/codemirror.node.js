@@ -1,8 +1,10 @@
 import StringStream from "../../util/StringStream.js"
 import * as modeMethods from "../../modes.js"
+import {countColumn} from "../../util/misc.js"
 
 // Copy StringStream and mode methods into exports (CodeMirror) object.
 exports.StringStream = StringStream
+exports.countColumn = countColumn
 for (var exported in modeMethods) exports[exported] = modeMethods[exported]
 
 // Shim library CodeMirror with the minimal CodeMirror defined above. 
