@@ -192,6 +192,5 @@
      '[keyword i64x2.shl]',
      '[keyword i64x2.shr_s]',
      '[keyword i64x2.shr_u]',
-     '[keyword i64x2.sub]',
-  );
+     '[keyword i64x2.sub]');
 })();
