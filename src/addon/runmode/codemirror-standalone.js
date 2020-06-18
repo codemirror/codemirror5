@@ -1,6 +1,8 @@
 import StringStream from "../../util/StringStream.js"
 import * as modeMethods from "../../modes.js"
 
+// declare global: globalThis, CodeMirror
+
 // Create a minimal CodeMirror needed to use runMode, and assign to root.
 var root = typeof globalThis !== 'undefined' ? globalThis : window
 root.CodeMirror = {}
@@ -14,7 +16,7 @@ CodeMirror.defineMode("null", () => ({token: stream => stream.skipToEnd()}))
 CodeMirror.defineMIME("text/plain", "null")
 
 CodeMirror.registerHelper = CodeMirror.registerGlobalHelper = Math.min
-CodeMirror.splitLines = function(string) { return string.split(/\r?\n|\r/); }
+CodeMirror.splitLines = function(string) { return string.split(/\r?\n|\r/) }
 
 CodeMirror.defaults = { indentUnit: 2 }
-export default CodeMirror;
+export default CodeMirror
