@@ -1,3 +1,23 @@
+## 5.55.0 (2020-05-20)
+
+### Bug fixes
+
+The editor no longer overrides the rendering of zero-width joiners (allowing combined emoji to be shown).
+
+[vim bindings](https://codemirror.net/demo/vim.html): Fix an issue where the `vim-mode-change` event was fired twice.
+
+[javascript mode](https://codemirror.net/mode/javascript/): Only allow `-->`-style comments at the start of a line.
+
+[julia mode](https://codemirror.net/mode/julia/): Improve indentation.
+
+[pascal mode](https://codemirror.net/mode/pascal/index.html): Recognize curly bracket comments.
+
+[runmode addon](https://codemirror.net/doc/manual.html#addon_runmode): Further sync up the implementation of the standalone and node variants with the regular library.
+
+### New features
+
+[loadmode addon](https://codemirror.net/doc/manual.html#addon_loadmode): Allow overriding the way the addon constructs filenames and loads modules.
+
 ## 5.54.0 (2020-05-20)
 
 ### Bug fixes
