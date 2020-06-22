@@ -72,9 +72,9 @@
      '[keyword f64.store] [keyword offset]=[number 4] [keyword align]=[number 4]');
 
   MT('atomic-memory-instructions',
-     '[keyword atomic.notify] [keyword offset]=[number 32] [keyword align]=[number 4]',
-     '[keyword i32.atomic.wait] [keyword offset]=[number 32] [keyword align]=[number 4]',
-     '[keyword i64.atomic.wait] [keyword offset]=[number 32] [keyword align]=[number 4]',
+     '[keyword memory.atomic.notify] [keyword offset]=[number 32] [keyword align]=[number 4]',
+     '[keyword memory.atomic.wait32] [keyword offset]=[number 32] [keyword align]=[number 4]',
+     '[keyword memory.atomic.wait64] [keyword offset]=[number 32] [keyword align]=[number 4]',
      '[keyword i32.atomic.load] [keyword offset]=[number 32] [keyword align]=[number 4]',
      '[keyword i32.atomic.load8_u] [keyword offset]=[number 32] [keyword align]=[number 4]',
      '[keyword i32.atomic.load16_u] [keyword offset]=[number 32] [keyword align]=[number 4]',
