@@ -3135,6 +3135,11 @@ editor.setOption("extraKeys", {
           <dt><code><strong>killTrailingSpace</strong>: boolean</code></dt>
           <dd>Whether trailing space caused by wrapping should be
           preserved, or deleted. Defaults to true.</dd>
+          <dt><code><strong>forceBreak</strong>: boolean</code></dt>
+          <dd>If set to true forces a break at <code>column</code> in the case
+          when no <code>wrapOn</code> pattern is found in the range. If set to
+          false allows line to overflow the <code>column</code> limit if no
+          <code>wrapOn</code> pattern found. Defaults to true.</dd>
         </dl>
         A demo of the addon is available <a href="../demo/hardwrap.html">here</a>.
       </dd>
