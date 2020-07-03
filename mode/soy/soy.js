@@ -402,6 +402,26 @@
             }
             return expression(stream, state);
 
+          case "import":
+            if (stream.eat(";")) {
+              state.soyState.pop();
+              state.indent -= 2 * config.indentUnit;
+              return null;
+            }
+            if (stream.match(/\w+(?=\s+as)/)) {
+              return "variable";
+            }
+            if (match = stream.match(/\w+/)) {
+              return /(from|as)/.test(match[0]) ? "keyword" : "def";
+            }
+            if (match = stream.match(/^["']/)) {
+              state.soyState.push("string");
+              state.quoteKind = match[0];
+              return "string";
+            }
+            stream.next();
+            return null;
+
           case "tag":
             var endTag = state.tag[0] == "/";
             var tagName = endTag ? state.tag.substring(1) : state.tag;
@@ -498,6 +518,10 @@
           state.tag = "print";
           state.indent += 2 * config.indentUnit;
           state.soyState.push("tag");
+          return "keyword";
+        } else if (!state.context && stream.match(/\bimport\b/)) {
+          state.soyState.push("import");
+          state.indent += 2 * config.indentUnit;
           return "keyword";
         }
 

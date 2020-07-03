@@ -252,4 +252,7 @@
      '[keyword {let] [def $myList]: [[[[[string \'a\'] ] ] [keyword /}] ' +
      '[keyword {let] [def $test]: [[[variable $a] [operator +] [atom 1] [keyword for] ' +
          '[def $a] [keyword in] [variable-2 $myList] [keyword if] [variable-2 $a] [operator >=] [atom 3] ] [keyword /}]');
+
+  MT('import',
+   '[keyword import] {[def Name], [variable Person] [keyword as] [def P]} [keyword from] [string \'examples/proto/example.proto\'];');
 })();
