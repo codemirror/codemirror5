@@ -1,0 +1,62 @@
+.alert {
+  padding: 20px;
+  background-color: #f44336;
+  color: white;
+  font-family: Google Sans;
+  font-size: 20px;
+}
+
+.closebtn {
+  margin-left: 15px;
+  color: white;
+  font-weight: bold;
+  float: right;
+  font-size: 22px;
+  line-height: 20px;
+  cursor: pointer;
+  transition: 0.3s;
+}
+
+.closebtn:hover {
+  color: black;
+}
+#myBtn {
+  width: 70px;
+  display: none;
+  position: fixed;
+  bottom: 10px;
+  left: 10px;
+  z-index: 99;
+  font-size: 18px;
+  border: none;
+  outline: none;
+  background-color:  #555;
+  color: white;
+  cursor: pointer;
+  padding: 15px;
+  border-radius: 400px;
+}
+
+#myBtn:hover {
+  background-color:red;
+}
+ h5{
+        font-size: 60px;
+        font-weight: bold;
+        color: white;
+        text-align: center;
+        }
+h1 {
+            font-family: Merriweather;
+            font-size: 100px;
+            font-weight: bold;
+            color: red;
+            text-align: center;
+        }
+ h3 {
+            font-family:Montserrat;
+            font-size: 60px;
+            font-weight: normal;
+            color: #0000ff;
+            text-align: center;
+        }
