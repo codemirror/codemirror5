@@ -58,6 +58,7 @@
     <li><a href="#vimapi">Vim Mode API</a>
       <ul>
         <li><a href="#vimapi_configuration">Configuration</a></li>
+        <li><a href="#vimapi_events">Events</a></li>
         <li><a href="#vimapi_extending">Extending VIM</a></li>
       </ul>
     </li>
@@ -3557,6 +3558,21 @@ editor.setOption("extraKeys", {
       If no context is provided then the  mapping will be applied to each of
       normal, insert, and visual mode.
       </dd>
+    </dl>
+
+    <h3 id="vimapi_events">Events</h3>
+
+    <p>VIM mode signals a few events on the editor instance. For an example usage, see <a href="https://github.com/codemirror/CodeMirror/blob/5.55.0/demo/vim.html#L101-L110">demo/vim.html#L101</a>.</p>
+
+    <dl>
+      <dt id="vimapi_commanddone"><code><strong>"vim-command-done"</strong> (reason: undefined)</code></dt>
+      <dd>Fired on keypress and mousedown where command has completed or no command found.</dd>
+
+      <dt id="vimapi_keypress"><code><strong>"vim-keypress"</strong> (vimKey: string)</code></dt>
+      <dd>Fired on keypress, <code>vimKey</code> is in Vim's key notation.</dd>
+
+      <dt id="vimapi_modechange"><code><strong>"vim-mode-change"</strong> (modeObj: object)</code></dt>
+      <dd>Fired after mode change, <code>modeObj</code> parameter is a <code>{mode: string, ?subMode: string}</code> object. Modes: <code>"insert", "normal", "replace", "visual"</code>. Visual sub-modes: <code>"linewise", "blockwise"</code>.</dd>
     </dl>
 
     <h3 id="vimapi_extending">Extending VIM</h3>
