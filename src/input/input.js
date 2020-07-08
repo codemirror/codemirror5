@@ -51,7 +51,7 @@ export function applyTextInput(cm, inserted, deleted, sel, origin) {
         from = Pos(from.line, from.ch - deleted)
       else if (cm.state.overwrite && !paste) // Handle overwrite
         to = Pos(to.line, Math.min(getLine(doc, to.line).text.length, to.ch + lst(textLines).length))
-      else if (paste && lastCopied && lastCopied.lineWise && lastCopied.text.join("\n") == inserted)
+      else if (paste && lastCopied && lastCopied.lineWise && lastCopied.text.join("\n") == textLines.join("\n"))
         from = to = Pos(from.line, 0)
     }
     let changeEvent = {from: from, to: to, text: multiPaste ? multiPaste[i % multiPaste.length] : textLines,
