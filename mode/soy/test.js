@@ -178,9 +178,10 @@
      '[keyword {/template}]',
      '');
 
-   MT('param-type-function',
+   MT('param-type-template',
      '[keyword {template] [def .foo][keyword }]',
-     '  [keyword {@param] [def renderer]: ([def s]:[type string])=>[type html]}',
+     '  [keyword {@param] [def renderer]: ([def s]:[type string])=>[type html][keyword }]',
+     '  [keyword {call] [variable-2 $renderer] [keyword /}]',
      '[keyword {/template}]',
      '');
 

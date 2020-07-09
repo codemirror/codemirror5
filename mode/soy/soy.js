@@ -256,6 +256,11 @@
               // Otherwise
               return "variable";
             }
+            if (match = stream.match(/^\$([\w]+)/)) {
+              state.soyState.pop();
+              return ref(state.variables, match[1], !state.lookupVariables);
+            }
+
             stream.next();
             return null;
 
