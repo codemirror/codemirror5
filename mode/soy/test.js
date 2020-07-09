@@ -178,6 +178,12 @@
      '[keyword {/template}]',
      '');
 
+   MT('param-type-function',
+     '[keyword {template] [def .foo][keyword }]',
+     '  [keyword {@param] [def renderer]: ([def s]:[type string])=>[type html]}',
+     '[keyword {/template}]',
+     '');
+
   MT('single-quote-strings',
      '[keyword {][string "foo"] [string \'bar\'][keyword }]',
      '');
