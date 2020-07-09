@@ -256,6 +256,11 @@
               // Otherwise
               return "variable";
             }
+            if (match = stream.match(/^\$([\w]+)/)) {
+              state.soyState.pop();
+              return ref(state.variables, match[1], !state.lookupVariables);
+            }
+
             stream.next();
             return null;
 
@@ -300,6 +305,9 @@
             } else if (peekChar == "[") {
               state.soyState.push('param-type-record');
               return null;
+            } else if (peekChar == "(") {
+              state.soyState.push('param-type-template');
+              return null;
             } else if (peekChar == "<") {
               state.soyState.push('param-type-parameter');
               return null;
@@ -330,6 +338,19 @@
             if (stream.match(/^[<,]/)) {
               state.soyState.push('param-type');
               return null;
+            }
+            stream.next();
+            return null;
+
+          case "param-type-template":
+            if (stream.match(/[>]/)) {
+              state.soyState.pop();
+              state.soyState.push('param-type');
+              return null;
+            }
+            if (stream.match(/^\w+/)) {
+              state.soyState.push('param-type');
+              return "def";
             }
             stream.next();
             return null;

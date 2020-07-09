@@ -178,6 +178,13 @@
      '[keyword {/template}]',
      '');
 
+   MT('param-type-template',
+     '[keyword {template] [def .foo][keyword }]',
+     '  [keyword {@param] [def renderer]: ([def s]:[type string])=>[type html][keyword }]',
+     '  [keyword {call] [variable-2 $renderer] [keyword /}]',
+     '[keyword {/template}]',
+     '');
+
   MT('single-quote-strings',
      '[keyword {][string "foo"] [string \'bar\'][keyword }]',
      '');
