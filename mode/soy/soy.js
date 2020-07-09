@@ -34,9 +34,9 @@
     "switch": {},
     "case": { noEndTag: true, reduceIndent: true},
     "default": { noEndTag: true, reduceIndent: true},
-    "foreach": { variableScope: true, soyState: "var-def" },
+    "foreach": { variableScope: true, soyState: "for-loop" },
     "ifempty": { noEndTag: true, reduceIndent: true},
-    "for": { variableScope: true, soyState: "var-def" },
+    "for": { variableScope: true, soyState: "for-loop" },
     "call": { soyState: "templ-ref" },
     "param": { soyState: "param-ref"},
     "print": { noEndTag: true },
@@ -129,6 +129,7 @@
       var match;
       if (stream.match(/[[]/)) {
         state.soyState.push("list-literal");
+        state.context = new Context(state.context, "list-literal", state.variables);
         state.lookupVariables = false;
         return null;
       } else if (stream.match(/map\b/)) {
@@ -364,6 +365,18 @@
             stream.next();
             return null;
 
+          case "for-loop":
+            if (stream.match(/\bin\b/)) {
+              state.soyState.pop();
+              return "keyword";
+            }
+            if (stream.peek() == "$") {
+              state.soyState.push('var-def');
+              return null;
+            }
+            stream.next();
+            return null;
+
           case "record-literal":
             if (stream.match(/^[)]/)) {
               state.soyState.pop();
@@ -394,13 +407,12 @@
             if (stream.match(/\]/)) {
               state.soyState.pop();
               state.lookupVariables = true;
+              popcontext(state);
               return null;
             }
-            if (stream.match(/for\b/)) {
-              state.soyState.push("var-def")
-              return "keyword";
-            } else if (stream.match(/in\b/)) {
+            if (stream.match(/\bfor\b/)) {
               state.lookupVariables = true;
+              state.soyState.push('for-loop');
               return "keyword";
             }
             return expression(stream, state);
