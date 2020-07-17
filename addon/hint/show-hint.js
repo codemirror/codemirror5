@@ -379,7 +379,7 @@
     },
 
     scrollToActive: function() {
-      let pad = this.completion.options.scrollPadding || 0;
+      var pad = this.completion.options.scrollPadding || 0;
       if (! Number.isInteger(pad)) pad = 0;
       var node1 = this.hints.childNodes[Math.max(0, this.selectedHint-pad)];
       var node2 = this.hints.childNodes[Math.min(this.data.list.length-1, this.selectedHint+pad)];
