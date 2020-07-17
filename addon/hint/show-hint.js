@@ -378,7 +378,8 @@
       CodeMirror.signal(this.data, "select", this.data.list[this.selectedHint], node);
     },
 
-    scrollToActive: function(pad=0) {
+    scrollToActive: function(pad) {
+      if (pad === undefined) pad = 0;
       var node1 = this.hints.childNodes[Math.max(0, this.selectedHint-pad)];
       var node2 = this.hints.childNodes[Math.min(this.data.list.length-1, this.selectedHint+pad)];
       var firstNode = this.hints.firstChild;
