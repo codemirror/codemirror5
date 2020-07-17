@@ -378,13 +378,14 @@
       CodeMirror.signal(this.data, "select", this.data.list[this.selectedHint], node);
     },
 
-    scrollToActive: function() {
-      var node = this.hints.childNodes[this.selectedHint]
+    scrollToActive: function(pad=0) {
+      var node1 = this.hints.childNodes[Math.max(0, this.selectedHint-pad)];
+      var node2 = this.hints.childNodes[Math.min(this.data.list.length-1, this.selectedHint+pad)];
       var firstNode = this.hints.firstChild;
-      if (node.offsetTop < this.hints.scrollTop)
-        this.hints.scrollTop = node.offsetTop - firstNode.offsetTop;
-      else if (node.offsetTop + node.offsetHeight > this.hints.scrollTop + this.hints.clientHeight)
-        this.hints.scrollTop = node.offsetTop + node.offsetHeight - this.hints.clientHeight + firstNode.offsetTop;
+      if (node1.offsetTop < this.hints.scrollTop)
+        this.hints.scrollTop = node1.offsetTop - firstNode.offsetTop;
+      else if (node2.offsetTop + node2.offsetHeight > this.hints.scrollTop + this.hints.clientHeight)
+        this.hints.scrollTop = node2.offsetTop + node2.offsetHeight - this.hints.clientHeight + firstNode.offsetTop;
     },
 
     screenAmount: function() {
