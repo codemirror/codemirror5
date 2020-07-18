@@ -379,10 +379,10 @@
     },
 
     scrollToActive: function() {
-      var pad = this.completion.options.scrollPadding || 0;
-      if (! Number.isInteger(pad)) pad = 0;
-      var node1 = this.hints.childNodes[Math.max(0, this.selectedHint-pad)];
-      var node2 = this.hints.childNodes[Math.min(this.data.list.length-1, this.selectedHint+pad)];
+      var margin = this.completion.options.scrollMargin || 0;
+      if (! Number.isInteger(margin)) margin = 0;
+      var node1 = this.hints.childNodes[Math.max(0, this.selectedHint-margin)];
+      var node2 = this.hints.childNodes[Math.min(this.data.list.length-1, this.selectedHint+margin)];
       var firstNode = this.hints.firstChild;
       if (node1.offsetTop < this.hints.scrollTop)
         this.hints.scrollTop = node1.offsetTop - firstNode.offsetTop;
