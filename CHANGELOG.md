@@ -1,4 +1,22 @@
-## 5.55.0 (2020-05-20)
+## 5.56.0 (2020-07-20)
+
+### Bug fixes
+
+Line-wise pasting was fixed on Chrome Windows.
+
+[wast mode](https://codemirror.net/mode/wast/): Follow standard changes.
+
+[soy mode](https://codemirror.net/mode/soy/): Support import expressions, template type, and loop indices.
+
+[sql-hint addon](https://codemirror.net/doc/manual.html#addon_sql-hint): Improve handling of double quotes.
+
+### New features
+
+[show-hint addon](https://codemirror.net/doc/manual.html#addon_show-hint): New option `scrollMargin` to control how many options are visible beyond the selected one.
+
+[hardwrap addon](https://codemirror.net/doc/manual.html#addon_hardwrap): New option `forceBreak` to disable breaking of words that are longer than a line.
+
+## 5.55.0 (2020-06-21)
 
 ### Bug fixes
 
