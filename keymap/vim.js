@@ -2069,6 +2069,8 @@
             if (operatorArgs) { operatorArgs.linewise = true; }
             tmp.end.line--;
           }
+        } else if (character === 't') {
+          tmp = expandTagUnderCursor(cm, head, inclusive);
         } else {
           // No text object defined for this, don't move.
           return null;
@@ -3295,6 +3297,49 @@
       return { start: Pos(cur.line, start), end: Pos(cur.line, end) };
     }
 
+    /**
+     * Depends on the following:
+     *
+     * - editor mode should be htmlmixedmode / xml
+     * - mode/xml/xml.js should be loaded
+     * - addon/fold/xml-fold.js should be loaded
+     *
+     * If any of the above requirements are not true, this function noops.
+     *
+     * This is _NOT_ a 100% accurate implementation of vim tag text objects.
+     * The following caveats apply (based off cursory testing, I'm sure there
+     * are other discrepancies):
+     *
+     * - Does not work inside comments:
+     *   ```
+     *   <!-- <div>broken</div> -->
+     *   ```
+     * - Does not work when tags have different cases:
+     *   ```
+     *   <div>broken</DIV>
+     *   ```
+     * - Does not work when cursor is inside a broken tag:
+     *   ```
+     *   <div><brok><en></div>
+     *   ```
+     */
+    function expandTagUnderCursor(cm, head, inclusive) {
+      var cur = head;
+      if (!CodeMirror.findMatchingTag || !CodeMirror.findEnclosingTag) {
+        return { start: cur, end: cur };
+      }
+
+      var tags = CodeMirror.findMatchingTag(cm, head) || CodeMirror.findEnclosingTag(cm, head);
+      if (!tags || !tags.open || !tags.close) {
+        return { start: cur, end: cur };
+      }
+
+      if (inclusive) {
+        return { start: tags.open.from, end: tags.close.to };
+      }
+      return { start: tags.open.to, end: tags.close.from };
+    }
+
     function recordJumpPosition(cm, oldCur, newCur) {
       if (!cursorEqual(oldCur, newCur)) {
         vimGlobalState.jumpList.add(cm, oldCur, newCur);
@@ -3836,7 +3881,7 @@
       return Pos(curr_index.ln, curr_index.pos);
     }
 
-    // TODO: perhaps this finagling of start and end positions belonds
+    // TODO: perhaps this finagling of start and end positions belongs
     // in codemirror/replaceRange?
     function selectCompanionObject(cm, head, symb, inclusive) {
       var cur = head, start, end;
