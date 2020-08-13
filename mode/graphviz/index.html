@@ -1,0 +1,54 @@
+<!doctype html>
+<title>CodeMirror: Graphviz mode</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel="stylesheet" href="../../lib/codemirror.css">
+<script src="../../lib/codemirror.js"></script>
+<script src="../../addon/mode/simple.js"></script>
+<script src="graphviz.js"></script>
+<style>.CodeMirror {border: 2px inset #dee;}</style>
+<div id=nav>
+  <a href="https://codemirror.net"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png" alt=""></a>
+
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#">Graphviz (DOT)</a>
+  </ul>
+</div>
+
+<article>
+<h2>Graphviz mode</h2>
+<form><textarea id="code" name="code">
+digraph hierarchy {
+    nodesep=1.0 // increases the separation between nodes
+
+    node [color=Red,fontname=Courier,shape=box] //All nodes will this shape and colour
+    edge [color=Blue, style=dashed] //All the lines look like this
+
+    Headteacher->{Deputy1 Deputy2 BusinessManager}
+    Deputy1->{Teacher1 Teacher2}
+    BusinessManager->ITManager
+    {rank=same;ITManager Teacher1 Teacher2}  // Put them on the same level
+}
+</textarea></form>
+
+    <script>
+      var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+        lineNumbers: true,
+        indentUnit: 4,
+        mode: "graphviz"
+      });
+    </script>
+
+    <p>
+        Graphviz (DOT) language support.
+    </p>
+
+    <p><strong>MIME type defined:</strong> <code>application/vnd.graphviz</code> and <code>application/vnd.graphviz.neato</code>
+</article>
