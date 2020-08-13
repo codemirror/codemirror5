@@ -317,6 +317,14 @@
      "[variable _for];",
      "[variable _123];")
 
+  MT("private properties",
+     "[keyword class] [def C] {",
+     "  [property #x] [operator =] [number 2];",
+     "  [property #read]() {",
+     "    [keyword return] [keyword this].[property #x]",
+     "  }",
+     "}")
+
   var ts_mode = CodeMirror.getMode({indentUnit: 2}, "application/typescript")
   function TS(name) {
     test.mode(name, ts_mode, Array.prototype.slice.call(arguments, 1))

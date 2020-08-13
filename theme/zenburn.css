@@ -11,7 +11,7 @@
 .cm-s-zenburn .CodeMirror-gutters { background: #3f3f3f !important; }
 .cm-s-zenburn .CodeMirror-foldgutter-open, .CodeMirror-foldgutter-folded { color: #999; }
 .cm-s-zenburn .CodeMirror-cursor { border-left: 1px solid white; }
-.cm-s-zenburn { background-color: #3f3f3f; color: #dcdccc; }
+.cm-s-zenburn.CodeMirror { background-color: #3f3f3f; color: #dcdccc; }
 .cm-s-zenburn span.cm-builtin { color: #dcdccc; font-weight: bold; }
 .cm-s-zenburn span.cm-comment { color: #7f9f7f; }
 .cm-s-zenburn span.cm-keyword { color: #f0dfaf; font-weight: bold; }

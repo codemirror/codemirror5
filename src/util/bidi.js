@@ -175,14 +175,15 @@ let bidiOrdering = (function() {
         for (++i; i < len && countsAsLeft.test(types[i]); ++i) {}
         order.push(new BidiSpan(0, start, i))
       } else {
-        let pos = i, at = order.length
+        let pos = i, at = order.length, isRTL = direction == "rtl" ? 1 : 0
         for (++i; i < len && types[i] != "L"; ++i) {}
         for (let j = pos; j < i;) {
           if (countsAsNum.test(types[j])) {
-            if (pos < j) order.splice(at, 0, new BidiSpan(1, pos, j))
+            if (pos < j) { order.splice(at, 0, new BidiSpan(1, pos, j)); at += isRTL }
             let nstart = j
             for (++j; j < i && countsAsNum.test(types[j]); ++j) {}
             order.splice(at, 0, new BidiSpan(2, nstart, j))
+            at += isRTL
             pos = j
           } else ++j
         }
