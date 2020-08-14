@@ -75,6 +75,7 @@ mode/dockerfile/dockerfile.js \
 mode/tiddlywiki/tiddlywiki.js \
 mode/mediawiki/mediawiki.js \
 mode/go/go.js \
+mode/graphviz/graphviz.js \
 mode/groovy/groovy.js \
 mode/gherkin/gherkin.js \
 mode/mllike/mllike.js \
