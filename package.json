@@ -1,5 +1,5 @@
 {
-  "name": "codemirror",
+  "name": "@hackmd/codemirror",
   "version": "5.49.8",
   "main": "lib/codemirror.js",
   "style": "lib/codemirror.css",
