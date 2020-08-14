@@ -59,6 +59,8 @@
     {name: "GitHub Flavored Markdown", mime: "text/x-gfm", mode: "gfm", file: /^(readme|contributing|history).md$/i},
     {name: "Go", mime: "text/x-go", mode: "go", ext: ["go"]},
     {name: "Groovy", mime: "text/x-groovy", mode: "groovy", ext: ["groovy", "gradle"], file: /^Jenkinsfile$/},
+    {name: "Graphviz (dot)", mime: "application/vnd.graphviz", mode: 'graphviz', ext: ["gv", "dot"] },
+    {name: "Graphviz (neato)", mime: "application/vnd.graphviz.neato", mode: 'graphviz', ext: ["neato"] },
     {name: "HAML", mime: "text/x-haml", mode: "haml", ext: ["haml"]},
     {name: "Haskell", mime: "text/x-haskell", mode: "haskell", ext: ["hs"]},
     {name: "Haskell (Literate)", mime: "text/x-literate-haskell", mode: "haskell-literate", ext: ["lhs"]},
