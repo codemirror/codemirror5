@@ -9,22 +9,7 @@
   // Modify from https://github.com/Stephanvs/vscode-graphviz/blob/master/dot/syntaxes/dot.tmLanguage
   // and https://github.com/PhE/jupyterlab_graphviz/blob/master/src/mode.ts
 
-
-  var TYPES = {
-    'application/vnd.graphviz': {
-      name: 'dot',
-      extensions: ['.gv', '.dot'],
-      engine: 'dot'
-    },
-    'application/vnd.graphviz.neato': {
-      name: 'neato',
-      extensions: ['.neato'],
-      engine: 'neato'
-    }
-  };
-
   var MODE_NAME = 'graphviz';
-
 
   var STATES = {
     start: [
@@ -69,15 +54,4 @@
   
 
   CodeMirror.defineSimpleMode(MODE_NAME, STATES);
-
-  for(var t in TYPES) {
-    CodeMirror.defineMIME(t, MODE_NAME);
-    CodeMirror.modeInfo.push({
-      // codemirror extensions don't expect the leading dot
-      ext: TYPES[t].extensions.map(function(e) { return e.replace(/^\./, '') }),
-      mime: t,
-      mode: MODE_NAME,
-      name: MODE_NAME + ' (' + TYPES[t].name + ')',
-    });
-  }
 })
