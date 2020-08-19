@@ -110,7 +110,7 @@ CodeMirror.defineMode("pascal", function() {
         break;
       }
     }
-    return "comment";    
+    return "comment";
   }
 
   // Interface
