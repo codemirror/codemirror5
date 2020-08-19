@@ -73,19 +73,15 @@
     var singleLineH = wrapping && cm.defaultTextHeight() * 1.5;
     var curLine = null, curLineObj = null;
 
-    function getFoldLineHandle(pos) {
-      var marks = cm.findMarksAt(pos);
-      for (var i = 0; i < marks.length; ++i) {
-        if (marks[i].collapsed)
-          return marks[i].lines[0];
-      }
-    }
-
     function getY(pos, top) {
       if (curLine != pos.line) {
-        curLine = pos.line;
-        if(!(curLineObj = getFoldLineHandle(pos)))
-          curLineObj = cm.getLineHandle(curLine);
+        curLine = pos.line
+        curLineObj = cm.getLineHandle(pos.line)
+        var visual = cm.getLineHandleVisualStart(curLineObj)
+        if (visual != curLineObj) {
+          curLine = cm.getLineNumber(visual)
+          curLineObj = visual
+        }
       }
       if ((curLineObj.widgets && curLineObj.widgets.length) ||
           (wrapping && curLineObj.height > singleLineH))
