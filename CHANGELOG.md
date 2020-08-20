@@ -1,3 +1,19 @@
+## 5.57.0 (2020-08-20)
+
+### Bug fixes
+
+Fix issue that broke binding the macOS Command key.
+
+[comment addon](https://codemirror.net/doc/manual.html#addon_comment): Keep selection in front of inserted markers when adding a block comment.
+
+[css mode](https://codemirror.net/mode/css/): Recognize more properties and value names.
+
+[annotatescrollbar addon](https://codemirror.net/doc/manual.html#addon_annotatescrollbar): Don't hide matches in collapsed content.
+
+### New features
+
+[vim bindings](https://codemirror.net/demo/vim.html): Support tag text objects in xml and html modes.
+
 ## 5.56.0 (2020-07-20)
 
 ### Bug fixes
