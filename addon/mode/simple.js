@@ -94,7 +94,7 @@
 
   function tokenFunction(states, config) {
     return function(stream, state) {
-      if (state.pending && state.pending.length > 0) {
+      if (state.pending) {
         var pend = state.pending.shift();
         if (state.pending.length == 0) state.pending = null;
         stream.pos += pend.text.length;
