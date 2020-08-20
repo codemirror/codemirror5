@@ -99,6 +99,8 @@
         if (state.pending.length == 0) state.pending = null;
         stream.pos += pend.text.length;
         return pend.token;
+      } else if (state.pending && state.pending.length === 0) {
+        console.warn('Regex capturing group is empty. Please check your regex')
       }
 
       if (state.local) {
