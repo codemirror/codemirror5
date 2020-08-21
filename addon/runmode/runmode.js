@@ -13,11 +13,12 @@
 
 CodeMirror.runMode = function(string, modespec, callback, options) {
   var mode = CodeMirror.getMode(CodeMirror.defaults, modespec);
-  var ie = /MSIE \d/.test(navigator.userAgent);
-  var ie_lt9 = ie && (document.documentMode == null || document.documentMode < 9);
+  var tabSize = (options && options.tabSize) || CodeMirror.defaults.tabSize;
 
+  // Create a tokenizing callback function if passed-in callback is a DOM element.
   if (callback.appendChild) {
-    var tabSize = (options && options.tabSize) || CodeMirror.defaults.tabSize;
+    var ie = /MSIE \d/.test(navigator.userAgent);
+    var ie_lt9 = ie && (document.documentMode == null || document.documentMode < 9);
     var node = callback, col = 0;
     node.innerHTML = "";
     callback = function(text, style) {
@@ -45,7 +46,7 @@ CodeMirror.runMode = function(string, modespec, callback, options) {
           pos = idx + 1;
         }
       }
-
+      // Create a node with token style and append it to the callback DOM element.
       if (style) {
         var sp = node.appendChild(document.createElement("span"));
         sp.className = "cm-" + style.replace(/ +/g, " cm-");
@@ -59,7 +60,10 @@ CodeMirror.runMode = function(string, modespec, callback, options) {
   var lines = CodeMirror.splitLines(string), state = (options && options.state) || CodeMirror.startState(mode);
   for (var i = 0, e = lines.length; i < e; ++i) {
     if (i) callback("\n");
-    var stream = new CodeMirror.StringStream(lines[i]);
+    var stream = new CodeMirror.StringStream(lines[i], null, {
+      lookAhead: function(n) { return lines[i + n] },
+      baseToken: function() {}
+    });
     if (!stream.string && mode.blankLine) mode.blankLine(state);
     while (!stream.eol()) {
       var style = mode.token(stream, state);

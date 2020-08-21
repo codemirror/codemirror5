@@ -9,3 +9,6 @@
 *.iml
 /lib/codemirror.js
 codemirror.min.js
+/addon/runmode/runmode-standalone.js 
+/addon/runmode/runmode.node.js
+**/.DS_Store

@@ -22,17 +22,21 @@
     if (dir < 0 && start.ch == 0) return doc.clipPos(Pos(start.line - 1));
     var line = doc.getLine(start.line);
     if (dir > 0 && start.ch >= line.length) return doc.clipPos(Pos(start.line + 1, 0));
-    var state = "start", type;
-    for (var pos = start.ch, e = dir < 0 ? 0 : line.length, i = 0; pos != e; pos += dir, i++) {
+    var state = "start", type, startPos = start.ch;
+    for (var pos = startPos, e = dir < 0 ? 0 : line.length, i = 0; pos != e; pos += dir, i++) {
       var next = line.charAt(dir < 0 ? pos - 1 : pos);
       var cat = next != "_" && CodeMirror.isWordChar(next) ? "w" : "o";
       if (cat == "w" && next.toUpperCase() == next) cat = "W";
       if (state == "start") {
         if (cat != "o") { state = "in"; type = cat; }
+        else startPos = pos + dir
       } else if (state == "in") {
         if (type != cat) {
           if (type == "w" && cat == "W" && dir < 0) pos--;
-          if (type == "W" && cat == "w" && dir > 0) { type = "w"; continue; }
+          if (type == "W" && cat == "w" && dir > 0) { // From uppercase to lowercase
+            if (pos == startPos + 1) { type = "w"; continue; }
+            else pos--;
+          }
           break;
         }
       }
@@ -151,6 +155,17 @@
       cm.state.sublimeFindFullWord = cm.doc.sel;
   };
 
+  cmds.skipAndSelectNextOccurrence = function(cm) {
+    var prevAnchor = cm.getCursor("anchor"), prevHead = cm.getCursor("head");
+    cmds.selectNextOccurrence(cm);
+    if (CodeMirror.cmpPos(prevAnchor, prevHead) != 0) {
+      cm.doc.setSelections(cm.doc.listSelections()
+          .filter(function (sel) {
+            return sel.anchor != prevAnchor || sel.head != prevHead;
+          }));
+    }
+  }
+
   function addCursorToSelection(cm, dir) {
     var ranges = cm.listSelections(), newRanges = [];
     for (var i = 0; i < ranges.length; i++) {
@@ -213,11 +228,15 @@
     if (!selectBetweenBrackets(cm)) return CodeMirror.Pass;
   };
 
+  function puncType(type) {
+    return !type ? null : /\bpunctuation\b/.test(type) ? type : undefined
+  }
+
   cmds.goToBracket = function(cm) {
     cm.extendSelectionsBy(function(range) {
-      var next = cm.scanForBracket(range.head, 1);
+      var next = cm.scanForBracket(range.head, 1, puncType(cm.getTokenTypeAt(range.head)));
       if (next && CodeMirror.cmpPos(next.pos, range.head) != 0) return next.pos;
-      var prev = cm.scanForBracket(range.head, -1);
+      var prev = cm.scanForBracket(range.head, -1, puncType(cm.getTokenTypeAt(Pos(range.head.line, range.head.ch + 1))));
       return prev && Pos(prev.pos.line, prev.pos.ch + 1) || range.head;
     });
   };
@@ -597,6 +616,7 @@
     "Shift-Cmd-F2": "clearBookmarks",
     "Alt-F2": "selectBookmarks",
     "Backspace": "smartBackspace",
+    "Cmd-K Cmd-D": "skipAndSelectNextOccurrence",
     "Cmd-K Cmd-K": "delLineRight",
     "Cmd-K Cmd-U": "upcaseAtCursor",
     "Cmd-K Cmd-L": "downcaseAtCursor",
@@ -608,6 +628,7 @@
     "Cmd-K Cmd-C": "showInCenter",
     "Cmd-K Cmd-G": "clearBookmarks",
     "Cmd-K Cmd-Backspace": "delLineLeft",
+    "Cmd-K Cmd-1": "foldAll",
     "Cmd-K Cmd-0": "unfoldAll",
     "Cmd-K Cmd-J": "unfoldAll",
     "Ctrl-Shift-Up": "addCursorToPrevLine",
@@ -657,6 +678,7 @@
     "Shift-Ctrl-F2": "clearBookmarks",
     "Alt-F2": "selectBookmarks",
     "Backspace": "smartBackspace",
+    "Ctrl-K Ctrl-D": "skipAndSelectNextOccurrence",
     "Ctrl-K Ctrl-K": "delLineRight",
     "Ctrl-K Ctrl-U": "upcaseAtCursor",
     "Ctrl-K Ctrl-L": "downcaseAtCursor",
@@ -668,6 +690,7 @@
     "Ctrl-K Ctrl-C": "showInCenter",
     "Ctrl-K Ctrl-G": "clearBookmarks",
     "Ctrl-K Ctrl-Backspace": "delLineLeft",
+    "Ctrl-K Ctrl-1": "foldAll",
     "Ctrl-K Ctrl-0": "unfoldAll",
     "Ctrl-K Ctrl-J": "unfoldAll",
     "Ctrl-Alt-Up": "addCursorToPrevLine",

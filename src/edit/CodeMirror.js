@@ -120,6 +120,9 @@ function registerEventHandlers(cm) {
   // which point we can't mess with it anymore. Context menu is
   // handled in onMouseDown for these browsers.
   on(d.scroller, "contextmenu", e => onContextMenu(cm, e))
+  on(d.input.getField(), "contextmenu", e => {
+    if (!d.scroller.contains(e.target)) onContextMenu(cm, e)
+  })
 
   // Used to suppress mouse event handling when a touch happens
   let touchFinished, prevTouch = {end: 0}

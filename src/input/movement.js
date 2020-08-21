@@ -15,6 +15,7 @@ export function moveLogically(line, start, dir) {
 
 export function endOfLine(visually, cm, lineObj, lineNo, dir) {
   if (visually) {
+    if (cm.doc.direction == "rtl") dir = -dir
     let order = getOrder(lineObj, cm.doc.direction)
     if (order) {
       let part = dir < 0 ? lst(order) : order[0]

@@ -63,13 +63,27 @@
      '[keyword {] [atom 0x1F] [keyword }]',
      '[keyword {] [atom 0x1F00BBEA] [keyword }]');
 
-  MT('param-type-test',
+  MT('param-type-record',
+     '[keyword {@param] [def record]: [[[property foo]: [type bool], [property bar]: [type int] ]][keyword }]'
+  );
+
+  MT('param-type-map',
+     '[keyword {@param] [def unknown]: [type map]<[type string], [type bool]>[keyword }]'
+  );
+
+  MT('param-type-list',
+     '[keyword {@param] [def list]: [type list]<[type ?]>[keyword }]'
+  );
+
+  MT('param-type-any',
+     '[keyword {@param] [def unknown]: [type ?][keyword }]'
+  );
+
+  MT('param-type-nested',
      '[keyword {@param] [def a]: ' +
-         '[type list]<[[[type a]: [type int], ' +
-         '[type b]: [type map]<[type string], ' +
-         '[type bool]>]]>][keyword }]',
-      '[keyword {@param] [def unknown]: [type ?][keyword }]',
-      '[keyword {@param] [def list]: [type list]<[type ?]>[keyword }]');
+         '[type list]<[[[property a]: [type int], ' +
+         '[property b]: [type map]<[type string], ' +
+         '[type bool]>]]>][keyword }]');
 
   MT('undefined-var',
      '[keyword {][variable-2&error $var]');
@@ -124,6 +138,11 @@
      '[keyword {/foreach}]',
      '');
 
+   MT('foreach-index',
+      '[keyword {foreach] [def $foo],[def $index] [keyword in] [[]] [keyword }]',
+      '  [keyword {][variable-2 $foo][keyword }] [keyword {][variable-2 $index][keyword }]',
+      '[keyword {/foreach}]');
+
   MT('nested-kind-test',
      '[keyword {template] [def .foo] [attribute kind]=[string "html"][keyword }]',
      '  [tag&bracket <][tag div][tag&bracket >]',
@@ -148,6 +167,26 @@
      '  [keyword {if] [variable-2 $showThing][keyword }]',
      '    Yo!',
      '  [keyword {/if}]',
+     '[keyword {/template}]',
+     '');
+
+  MT('param-type-and-default-value',
+     '[keyword {template] [def .foo][keyword }]',
+     '  [keyword {@param] [def bar]: [type bool] = [atom true][keyword }]',
+     '[keyword {/template}]',
+     '');
+
+   MT('state-variable-reference',
+     '[keyword {template] [def .foo][keyword }]',
+     '  [keyword {@param] [def bar]:= [atom true][keyword }]',
+     '  [keyword {@state] [def foobar]:= [variable-2 $bar][keyword }]',
+     '[keyword {/template}]',
+     '');
+
+   MT('param-type-template',
+     '[keyword {template] [def .foo][keyword }]',
+     '  [keyword {@param] [def renderer]: ([def s]:[type string])=>[type html][keyword }]',
+     '  [keyword {call] [variable-2 $renderer] [keyword /}]',
      '[keyword {/template}]',
      '');
 
@@ -188,6 +227,14 @@
      '  Old message',
      '[keyword {/msg}]');
 
+  MT('literal-indent',
+     '[keyword {template] [def .name][keyword }]',
+     '  [keyword {literal}]',
+     '    Lerum',
+     '  [keyword {/literal}]',
+     '  Ipsum',
+     '[keyword {/template}]');
+
   MT('special-chars',
      '[keyword {sp}]',
      '[keyword {nil}]',
@@ -197,8 +244,41 @@
      '[keyword {lb}]',
      '[keyword {rb}]');
 
+  MT('let-list-literal',
+     '[keyword {let] [def $test]: [[[[[string \'a\'] ], [[[string \'b\'] ] ] [keyword /}]');
+
+  MT('let-record-literal',
+     '[keyword {let] [def $test]: [keyword record]([property test]: [callee&variable bidiGlobalDir](), ' +
+         '[property foo]: [atom 5]) [keyword /}]');
+
+  MT('let-map-literal',
+     '[keyword {let] [def $test]: [keyword map]([string \'outer\']: [keyword map]([atom 5]: [atom false]), ' +
+         '[string \'foo\']: [string \'bar\']) [keyword /}]');
+
   MT('wrong-closing-tag',
      '[keyword {if] [atom true][keyword }]',
      '  Optional',
      '[keyword&error {/badend][keyword }]');
+
+  MT('list-comprehension',
+     '[keyword {let] [def $myList]: [[[[[string \'a\'] ] ] [keyword /}] ' +
+     '[keyword {let] [def $test]: [[[variable $a] [operator +] [atom 1] [keyword for] ' +
+         '[def $a] [keyword in] [variable-2 $myList] [keyword if] [variable-2 $a] [operator >=] [atom 3] ] [keyword /}]');
+
+  MT('list-comprehension-index',
+     '[keyword {let] [def $test]: [[[variable $a] [operator +] [variable $index] [keyword for] ' +
+         '[def $a],[def $index] [keyword in] [[]] [keyword if] [variable-2 $a] [operator >=] [variable-2 $index] ] [keyword /}]');
+
+
+  MT('list-comprehension-variable-scope',
+     '[keyword {let] [def $name]: [string "world"][keyword /}]',
+     '[keyword {let] [def $test]: [[[variable $a] [operator +] [variable $index] [keyword for] ' +
+         '[def $a],[def $index] [keyword in] [[]] [keyword if] [variable-2 $a] [operator >=] [variable-2 $index] ] [keyword /}]',
+     '[keyword {][variable-2&error $a][keyword }]',
+     '[keyword {][variable-2&error $index][keyword }]',
+     '[keyword {][variable-2 $test][keyword }]',
+     '[keyword {][variable-2 $name][keyword }]');
+
+  MT('import',
+   '[keyword import] {[def Name], [variable Person] [keyword as] [def P]} [keyword from] [string \'examples/proto/example.proto\'];');
 })();

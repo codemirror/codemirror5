@@ -61,7 +61,7 @@ export function indexOf(array, elt) {
 }
 
 // Number of pixels added to scroller and sizer to hide scrollbar
-export let scrollerGap = 30
+export let scrollerGap = 50
 
 // Returned or thrown by various protocols to signal 'I'm not
 // handling this'.

@@ -30,13 +30,13 @@
 <div><textarea id="code" name="code">
 // Demo code.
 
-type foo<T> = int;
+type foo<T> = i32;
 enum bar {
-    some(int, foo<float>),
-    none
+    Some(i32, foo<f32>),
+    None
 }
 
-fn check_crate(x: int) {
+fn check_crate(x: i32) {
     let v = 10;
     match foo {
         1 ... 3 {

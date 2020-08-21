@@ -74,7 +74,8 @@ function selectionSnapshot(cm) {
 function restoreSelection(snapshot) {
   if (!snapshot || !snapshot.activeElt || snapshot.activeElt == activeElt()) return
   snapshot.activeElt.focus()
-  if (snapshot.anchorNode && contains(document.body, snapshot.anchorNode) && contains(document.body, snapshot.focusNode)) {
+  if (!/^(INPUT|TEXTAREA)$/.test(snapshot.activeElt.nodeName) &&
+      snapshot.anchorNode && contains(document.body, snapshot.anchorNode) && contains(document.body, snapshot.focusNode)) {
     let sel = window.getSelection(), range = document.createRange()
     range.setEnd(snapshot.anchorNode, snapshot.anchorOffset)
     range.collapse(false)
@@ -172,6 +173,8 @@ export function postUpdateDisplay(cm, update) {
       update.visible = visibleLines(cm.display, cm.doc, viewport)
       if (update.visible.from >= cm.display.viewFrom && update.visible.to <= cm.display.viewTo)
         break
+    } else if (first) {
+      update.visible = visibleLines(cm.display, cm.doc, viewport)
     }
     if (!updateDisplayIfNeeded(cm, update)) break
     updateHeightsInViewport(cm)

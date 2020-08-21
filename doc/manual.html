@@ -58,6 +58,7 @@
     <li><a href="#vimapi">Vim Mode API</a>
       <ul>
         <li><a href="#vimapi_configuration">Configuration</a></li>
+        <li><a href="#vimapi_events">Events</a></li>
         <li><a href="#vimapi_extending">Extending VIM</a></li>
       </ul>
     </li>
@@ -69,7 +70,7 @@
 <section class=first id=overview>
     <h2 style="position: relative">
       User manual and reference guide
-      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 5.49.3</span>
+      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 5.57.0</span>
     </h2>
 
     <p>CodeMirror is a code-editor component that can be embedded in
@@ -78,9 +79,9 @@
     functionality. It does provide a rich API on top of which such
     functionality can be straightforwardly implemented. See
     the <a href="#addons">addons</a> included in the distribution,
-    and the <a href="https://github.com/codemirror/CodeMirror/wiki/CodeMirror-addons">list
-    of externally hosted addons</a>, for reusable
-    implementations of extra features.</p>
+    and <a href="https://npms.io/search?q=codemirror">3rd party
+    packages on npm</a>, for reusable implementations of extra
+    features.</p>
 
     <p>CodeMirror works with language-specific modes. Modes are
     JavaScript programs that help color (and optionally indent) text
@@ -421,6 +422,10 @@
       simply <code>true</code>), focusing of the editor is also
       disallowed.</dd>
 
+      <dt id="option_screenReaderLabel"><code><strong>screenReaderLabel</strong>: string</code></dt>
+      <dd>This label is read by the screenreaders when CodeMirror text area is focused. This
+      is helpful for accessibility.</dd>
+
       <dt id="option_showCursorWhenSelecting"><code><strong>showCursorWhenSelecting</strong>: boolean</code></dt>
       <dd>Whether the cursor should be drawn when a selection is
       active. Defaults to false.</dd>
@@ -558,13 +563,13 @@
       always rendered, and thus the browser's text search works on it.
       This <em>will</em> have bad effects on performance of big
       documents.</dd>
-      
+
       <dt id="option_spellcheck"><code><strong>spellcheck</strong>: boolean</code></dt>
       <dd>Specifies whether or not spellcheck will be enabled on the input.</dd>
-      
+
       <dt id="option_autocorrect"><code><strong>autocorrect</strong>: boolean</code></dt>
       <dd>Specifies whether or not autocorrect will be enabled on the input.</dd>
-      
+
       <dt id="option_autocapitalize"><code><strong>autocapitalize</strong>: boolean</code></dt>
       <dd>Specifies whether or not autocapitalization will be enabled on the input.</dd>
     </dl>
@@ -1881,6 +1886,9 @@ editor.setOption("extraKeys", {
           position (zero for the top, N to put it after the Nth other
           widget). Note that this only has effect once, when the
           widget is created.
+          <dt><code><strong>className</strong>: string</code></dt>
+          <dd>Add an extra CSS class name to the wrapper element
+          created for the widget.</dd>
         </dl>
       Note that the widget node will become a descendant of nodes with
       CodeMirror-specific CSS classes, and those classes might in some
@@ -2564,10 +2572,14 @@ editor.setOption("extraKeys", {
         and <code>CodeMirror.fold.xml</code>, for XML-style languages,
         and <code>CodeMirror.fold.comment</code>, for folding comment
         blocks.</dd>
-        <dt><code><strong>widget</strong>: string|Element</code></dt>
+        <dt><code><strong>widget</strong>: string | Element | fn(from: Pos, to: Pos) → string|Element</code></dt>
         <dd>The widget to show for folded ranges. Can be either a
         string, in which case it'll become a span with
-        class <code>CodeMirror-foldmarker</code>, or a DOM node.</dd>
+        class <code>CodeMirror-foldmarker</code>, or a DOM node.
+        To dynamically generate the widget, this can be a function
+        that returns a string or DOM node, which will then render
+        as described. The function will be invoked with parameters
+        identifying the range to be folded.</dd>
         <dt><code><strong>scanUp</strong>: boolean</code></dt>
         <dd>When true (default is false), the addon will try to find
         foldable ranges on the lines above the current one if there
@@ -2778,6 +2790,9 @@ editor.setOption("extraKeys", {
         <dd>Like <code>customKeys</code> above, but the bindings will
         be added to the set of default bindings, instead of replacing
         them.</dd>
+        <dt><code><strong>scrollMargin</strong>: integer</code></dt>
+        <dd>Show this many lines before and after the selected item.
+        Default is 0.</dd>
       </dl>
       The following events will be fired on the completions object
       during completion:
@@ -2904,6 +2919,7 @@ editor.setOption("extraKeys", {
       will only be executed when the promise resolves.
       By default, the linter will run (debounced) whenever the document is changed.
       You can pass a <code>lintOnChange: false</code> option to disable that.
+      You can pass a <code>selfContain: true</code> option to render the tooltip inside the editor instance.
       Depends on <code>addon/lint/lint.css</code>. A demo can be
       found <a href="../demo/lint.html">here</a>.</dd>
 
@@ -2938,13 +2954,20 @@ editor.setOption("extraKeys", {
       see a demo <a href="../mode/htmlmixed/index.html">here</a>.</dd>
 
       <dt id="addon_loadmode"><a href="../addon/mode/loadmode.js"><code>mode/loadmode.js</code></a></dt>
-      <dd>Defines a <code>CodeMirror.requireMode(modename,
-      callback)</code> function that will try to load a given mode and
-      call the callback when it succeeded. You'll have to
-      set <code>CodeMirror.modeURL</code> to a string that mode paths
-      can be constructed from, for
-      example <code>"mode/%N/%N.js"</code>—the <code>%N</code>'s will
-      be replaced with the mode name. Also
+      <dd>Defines a <code>CodeMirror.requireMode(modename, callback,
+      options)</code> function that will try to load a given mode and
+      call the callback when it succeeded. <code>options</code> is an
+      optional object that may contain:
+        <dl>
+          <dt><code><strong>path</strong>: fn(modeName: string) → string</code></dt>
+          <dd>Defines the way mode names are mapped to paths.</dd>
+          <dt><code><strong>loadMode</strong>: fn(path: string, cont: fn())</code></dt>
+          <dd>Override the way the mode script is loaded. By default,
+          this will use the CommonJS or AMD module loader if one is
+          present, and fall back to creating
+          a <code>&lt;script></code> tag otherwise.</dd>
+        </dl>
+      This addon also
       defines <code>CodeMirror.autoLoadMode(instance, mode)</code>,
       which will ensure the given mode is loaded and cause the given
       editor instance to refresh its mode when the loading
@@ -3115,9 +3138,19 @@ editor.setOption("extraKeys", {
           <dt><code><strong>killTrailingSpace</strong>: boolean</code></dt>
           <dd>Whether trailing space caused by wrapping should be
           preserved, or deleted. Defaults to true.</dd>
+          <dt><code><strong>forceBreak</strong>: boolean</code></dt>
+          <dd>If set to true forces a break at <code>column</code> in the case
+          when no <code>wrapOn</code> pattern is found in the range. If set to
+          false allows line to overflow the <code>column</code> limit if no
+          <code>wrapOn</code> pattern found. Defaults to true.</dd>
         </dl>
         A demo of the addon is available <a href="../demo/hardwrap.html">here</a>.
       </dd>
+
+      <dt id="addon_scrollpastend"><a href="../addon/scroll/scrollpastend.js"><code>scroll/scrollpastend.js</code></a></dt>
+      <dd>Defines an option `"scrollPastEnd"` that, when set to a
+      truthy value, allows the user to scroll one editor height of
+      empty space into view at the bottom of the editor.</dd>
 
       <dt id="addon_merge"><a href="../addon/merge/merge.js"><code>merge/merge.js</code></a></dt>
       <dd>Implements an interface for merging changes, using either a
@@ -3171,14 +3204,14 @@ editor.setOption("extraKeys", {
 
       <dt id="addon_tern"><a href="../addon/tern/tern.js"><code>tern/tern.js</code></a></dt>
       <dd>Provides integration with
-      the <a href="http://ternjs.net">Tern</a> JavaScript analysis
+      the <a href="https://ternjs.net">Tern</a> JavaScript analysis
       engine, for completion, definition finding, and minor
       refactoring help. See the <a href="../demo/tern.html">demo</a>
       for a very simple integration. For more involved scenarios, see
       the comments at the top of
       the <a href="../addon/tern/tern.js">addon</a> and the
       implementation of the
-      (multi-file) <a href="http://ternjs.net/doc/demo.html">demonstration
+      (multi-file) <a href="https://ternjs.net/doc/demo/index.html">demonstration
       on the Tern website</a>.</dd>
     </dl>
 </section>
@@ -3518,6 +3551,41 @@ editor.setOption("extraKeys", {
       <code>extras.isEdit</code> is applicable only to actions,
       determining whether it is recorded for replay for the
       <code>.</code> single-repeat command.
+
+      <dt id="vimapi_unmap"><strong><code>unmap(lhs: string, ctx: string)</code></strong></dt>
+      <dd>
+      Remove the command <code>lhs</code> if it is a user defined command.
+      If the command is an Ex to Ex or Ex to key mapping then the context
+      must be <code>undefined</code> or <code>false</code>.
+      </dd>
+
+      <dt id="vimapi_mapclear"><strong><code>mapclear(ctx: string)</code></strong></dt>
+      <dd>
+      Remove all user-defined mappings for the provided context.
+      </dd>
+
+      <dt id="vimapi_noremap"><strong><code>noremap(lhs: string, rhs: string, ctx: {string, array&lt;string&gt;})</code></strong></dt>
+      <dd>
+      Non-recursive map function. This will not create mappings to key maps
+      that aren't present in the default key map.
+      If no context is provided then the  mapping will be applied to each of
+      normal, insert, and visual mode.
+      </dd>
+    </dl>
+
+    <h3 id="vimapi_events">Events</h3>
+
+    <p>VIM mode signals a few events on the editor instance. For an example usage, see <a href="https://github.com/codemirror/CodeMirror/blob/5.55.0/demo/vim.html#L101-L110">demo/vim.html#L101</a>.</p>
+
+    <dl>
+      <dt id="vimapi_commanddone"><code><strong>"vim-command-done"</strong> (reason: undefined)</code></dt>
+      <dd>Fired on keypress and mousedown where command has completed or no command found.</dd>
+
+      <dt id="vimapi_keypress"><code><strong>"vim-keypress"</strong> (vimKey: string)</code></dt>
+      <dd>Fired on keypress, <code>vimKey</code> is in Vim's key notation.</dd>
+
+      <dt id="vimapi_modechange"><code><strong>"vim-mode-change"</strong> (modeObj: object)</code></dt>
+      <dd>Fired after mode change, <code>modeObj</code> parameter is a <code>{mode: string, ?subMode: string}</code> object. Modes: <code>"insert", "normal", "replace", "visual"</code>. Visual sub-modes: <code>"linewise", "blockwise"</code>.</dd>
     </dl>
 
     <h3 id="vimapi_extending">Extending VIM</h3>
@@ -3583,7 +3651,74 @@ editor.setOption("extraKeys", {
       command was prefixed with a
       <code><strong><a href="http://vimdoc.sourceforge.net/htmldoc/cmdline.html#cmdline-ranges">line range</a></strong></code>,
       <code>params.line</code> and <code>params.lineEnd</code> will
-      be set.
+      be set.</dd>
+
+      <dt id="vimapi_getRegisterController"><strong><code>getRegisterController()</code></strong></dt>
+      <dd>Returns the RegisterController that manages the state of registers
+      used by vim mode. For the RegisterController api see its
+      defintion <a href="https://github.com/CodeMirror/CodeMirror/blob/b2d26b4ccb1d0994ae84d18ad8b84018de176da9/keymap/vim.js#L1123">here</a>.
+      </dd>
+
+      <dt id='vimapi_buildkeymap'><strong><code>buildKeyMap()</code></strong></dt>
+      <dd>
+      Not currently implemented. If you would like to contribute this please open
+      a pull request on <a href="https://github.com/codemirror/CodeMirror">Github</a>.
+      </dd>
+
+      <dt id="vimapi_defineRegister"><strong><code>defineRegister()</code></strong></dt>
+      <dd> Defines an external register. The name should be a single character
+      that will be used to reference the register. The register should support
+      <code>setText</code>, <code>pushText</code>, <code>clear</code>, and <code>toString</code>.
+      See <a href="https://github.com/CodeMirror/CodeMirror/blob/b2d26b4ccb1d0994ae84d18ad8b84018de176da9/keymap/vim.js#L1055">Register</a> for a reference implementation.
+      </dd>
+
+      <dt id="vimapi_getVimGlobalState_"><strong><code>getVimGlobalState_()</code></strong></dt>
+      <dd>
+      Return a reference to the VimGlobalState.
+      </dd>
+
+      <dt id="vimapi_resetVimGlobalState_"><strong><code>resetVimGlobalState_()</code></strong></dt>
+      <dd>
+      Reset the default values of the VimGlobalState to fresh values. Any options
+      set with <code>setOption</code> will also be applied to the reset global state.
+      </dd>
+
+      <dt id="vimapi_maybeInitVimState_"><strong><code>maybeInitVimState_(cm: CodeMirror)</code></strong></dt>
+      <dd>
+      Initialize <code>cm.state.vim</code> if it does not exist. Returns <code>cm.state.vim</code>.
+      </dd>
+
+      <dt id="vimapi_handleKey"><strong><code>handleKey(cm: CodeMirror, key: string, origin: string)</code></strong></dt>
+      <dd>
+      Convenience function to pass the arguments to <code>findKey</code> and
+      call returned function if it is defined.
+      </dd>
+
+      <dt id="vimapi_findKey"><strong><code>findKey(cm: CodeMirror, key: string, origin: string)</code></strong></dt>
+      <dd>
+      This is the outermost function called by CodeMirror, after keys have
+      been mapped to their Vim equivalents. Finds a command based on the key
+      (and cached keys if there is a multi-key sequence). Returns <code>undefined</code>
+      if no key is matched, a noop function if a partial match is found (multi-key),
+      and a function to execute the bound command if a a key is matched. The
+      function always returns true.
+      </dd>
+
+      <dt id="vimapi_option_suppressErrorLogging"><code><strong>suppressErrorLogging</strong>: boolean</code></dt>
+      <dd>Whether to use suppress the use of <code>console.log</code> when catching an
+      error in the function returned by <code>findKey</code>.
+      Defaults to false.</dd>
+
+      <dt id="vimapi_exitVisualMode"><strong><code>exitVisualMode(cm: CodeMirror, ?moveHead: boolean)</code></strong></dt>
+      <dd> Exit visual mode. If moveHead is set to false, the CodeMirror selection
+      will not be touched. The caller assumes the responsibility of putting
+      the cursor in the right place.
+      </dd>
+
+      <dt id="vimapi_exitInsertMode"><strong><code>exitInsertMode(cm: CodeMirror)</code></strong></dt>
+      <dd>
+      Exit insert mode.
+      </dd>
     </dl>
 
 </section>

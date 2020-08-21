@@ -63,7 +63,7 @@
   MT('operator_long', "[operator -match]");
 
   forEach([
-    '(', ')', '[[', ']]', '{', '}', ',', '`', ';', '.'
+    '(', ')', '[[', ']]', '{', '}', ',', '`', ';', '.', '\\'
   ], function(punctuation) {
     MT("punctuation_" + punctuation.replace(/^[\[\]]/,''), "[punctuation " + punctuation + "]");
   });

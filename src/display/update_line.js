@@ -1,7 +1,7 @@
 import { buildLineContent } from "../line/line_data.js"
 import { lineNumberFor } from "../line/utils_line.js"
 import { ie, ie_version } from "../util/browser.js"
-import { elt } from "../util/dom.js"
+import { elt, classTest } from "../util/dom.js"
 import { signalLater } from "../util/operation_group.js"
 
 // When an aspect of a line changes, a string is added to
@@ -124,10 +124,10 @@ function updateLineGutter(cm, lineView, lineN, dims) {
 
 function updateLineWidgets(cm, lineView, dims) {
   if (lineView.alignable) lineView.alignable = null
+  let isWidget = classTest("CodeMirror-linewidget")
   for (let node = lineView.node.firstChild, next; node; node = next) {
     next = node.nextSibling
-    if (node.className == "CodeMirror-linewidget")
-      lineView.node.removeChild(node)
+    if (isWidget.test(node.className)) lineView.node.removeChild(node)
   }
   insertLineWidgets(cm, lineView, dims)
 }
@@ -157,7 +157,7 @@ function insertLineWidgetsFor(cm, line, lineView, dims, allowAbove) {
   if (!line.widgets) return
   let wrap = ensureLineWrapped(lineView)
   for (let i = 0, ws = line.widgets; i < ws.length; ++i) {
-    let widget = ws[i], node = elt("div", [widget.node], "CodeMirror-linewidget")
+    let widget = ws[i], node = elt("div", [widget.node], "CodeMirror-linewidget" + (widget.className ? " " + widget.className : ""))
     if (!widget.handleMouseEvents) node.setAttribute("cm-ignore-events", "true")
     positionLineWidget(widget, node, lineView, dims)
     cm.display.input.setUneditable(node)

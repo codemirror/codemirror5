@@ -60,7 +60,7 @@
     };
   }
 
-  stTest("bySubword", "the foo_bar DooDahBah \n a",
+  stTest("bySubword", "the foo_bar DooDahBah \n a FOOBar",
          "goSubwordLeft", at(0, 0),
          "goSubwordRight", at(0, 3),
          "goSubwordRight", at(0, 7),
@@ -71,7 +71,10 @@
          "goSubwordRight", at(0, 22),
          "goSubwordRight", at(1, 0),
          "goSubwordRight", at(1, 2),
-         "goSubwordRight", at(1, 2),
+         "goSubwordRight", at(1, 6),
+         "goSubwordRight", at(1, 9),
+         "goSubwordLeft", at(1, 6),
+         "goSubwordLeft", at(1, 3),
          "goSubwordLeft", at(1, 1),
          "goSubwordLeft", at(1, 0),
          "goSubwordLeft", at(0, 22),
@@ -127,6 +130,14 @@
          hasSel(0, 0, 0, 0,
                 2, 0, 2, 0), val("\nabcde\n\nfghijkl\nmn"));
 
+  stTest("skipAndSelectNextOccurrence", "a foo bar\nfoobar foo",
+         setSel(0, 2, 0, 5), "skipAndSelectNextOccurrence", hasSel(1, 0, 1, 3),
+         "skipAndSelectNextOccurrence",  hasSel(1, 7, 1, 10),
+         "skipAndSelectNextOccurrence",  hasSel(0, 2, 0, 5),
+         Pos(0, 3), "skipAndSelectNextOccurrence", hasSel(0, 2, 0, 5),
+         "skipAndSelectNextOccurrence", hasSel(1, 7, 1, 10),
+         setSel(0, 6, 0, 9), "skipAndSelectNextOccurrence", hasSel(1, 3, 1, 6));
+
   stTest("selectNextOccurrence", "a foo bar\nfoobar foo",
          setSel(0, 2, 0, 5),
          "selectNextOccurrence", hasSel(0, 2, 0, 5,
@@ -138,8 +149,8 @@
                                         1, 0, 1, 3,
                                         1, 7, 1, 10),
          Pos(0, 3), "selectNextOccurrence", hasSel(0, 2, 0, 5),
-        "selectNextOccurrence", hasSel(0, 2, 0, 5,
-                                       1, 7, 1, 10),
+         "selectNextOccurrence", hasSel(0, 2, 0, 5,
+                                        1, 7, 1, 10),
          setSel(0, 6, 0, 9),
          "selectNextOccurrence", hasSel(0, 6, 0, 9,
                                         1, 3, 1, 6));

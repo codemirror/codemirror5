@@ -1,3 +1,191 @@
+## 5.57.0 (2020-08-20)
+
+### Bug fixes
+
+Fix issue that broke binding the macOS Command key.
+
+[comment addon](https://codemirror.net/doc/manual.html#addon_comment): Keep selection in front of inserted markers when adding a block comment.
+
+[css mode](https://codemirror.net/mode/css/): Recognize more properties and value names.
+
+[annotatescrollbar addon](https://codemirror.net/doc/manual.html#addon_annotatescrollbar): Don't hide matches in collapsed content.
+
+### New features
+
+[vim bindings](https://codemirror.net/demo/vim.html): Support tag text objects in xml and html modes.
+
+## 5.56.0 (2020-07-20)
+
+### Bug fixes
+
+Line-wise pasting was fixed on Chrome Windows.
+
+[wast mode](https://codemirror.net/mode/wast/): Follow standard changes.
+
+[soy mode](https://codemirror.net/mode/soy/): Support import expressions, template type, and loop indices.
+
+[sql-hint addon](https://codemirror.net/doc/manual.html#addon_sql-hint): Improve handling of double quotes.
+
+### New features
+
+[show-hint addon](https://codemirror.net/doc/manual.html#addon_show-hint): New option `scrollMargin` to control how many options are visible beyond the selected one.
+
+[hardwrap addon](https://codemirror.net/doc/manual.html#addon_hardwrap): New option `forceBreak` to disable breaking of words that are longer than a line.
+
+## 5.55.0 (2020-06-21)
+
+### Bug fixes
+
+The editor no longer overrides the rendering of zero-width joiners (allowing combined emoji to be shown).
+
+[vim bindings](https://codemirror.net/demo/vim.html): Fix an issue where the `vim-mode-change` event was fired twice.
+
+[javascript mode](https://codemirror.net/mode/javascript/): Only allow `-->`-style comments at the start of a line.
+
+[julia mode](https://codemirror.net/mode/julia/): Improve indentation.
+
+[pascal mode](https://codemirror.net/mode/pascal/index.html): Recognize curly bracket comments.
+
+[runmode addon](https://codemirror.net/doc/manual.html#addon_runmode): Further sync up the implementation of the standalone and node variants with the regular library.
+
+### New features
+
+[loadmode addon](https://codemirror.net/doc/manual.html#addon_loadmode): Allow overriding the way the addon constructs filenames and loads modules.
+
+## 5.54.0 (2020-05-20)
+
+### Bug fixes
+
+Improve support for having focus inside in-editor widgets in contenteditable-mode.
+
+Fix issue where the scroll position could jump when clicking on a selection in Chrome.
+
+[python mode](https://codemirror.net/mode/python/): Better format string support.
+
+[javascript mode](https://codemirror.net/mode/javascript/): Improve parsing of private properties and class fields.
+
+[matchbrackets addon](https://codemirror.net/doc/manual.html#addon_matchbrackets): Disable highlighting when the editor doesn't have focus.
+
+### New features
+
+[runmode addon](https://codemirror.net/doc/manual.html#addon_runmode): Properly support for cross-line lookahead.
+
+[vim bindings](https://codemirror.net/demo/vim.html): Allow Ex-Commands with non-word names.
+
+[gfm mode](https://codemirror.net/mode/gfm/): Add a `fencedCodeBlockDefaultMode` option.
+
+## 5.53.2 (2020-04-21)
+
+### Bug fixes
+
+[show-hint addon](https://codemirror.net/doc/manual.html#addon_show-hint): Fix a regression that broke completion picking.
+
+## 5.53.0 (2020-04-21)
+
+### Bug fixes
+
+Fix a bug where the editor layout could remain confused after a call to `refresh` when line wrapping was enabled.
+
+[dialog addon](https://codemirror.net/doc/manual.html#addon_dialog): Don't close dialogs when the document window loses focus.
+
+[merge addon](https://codemirror.net/doc/manual.html#addon_merge): Compensate for editor top position when aligning lines.
+
+[vim bindings](https://codemirror.net/demo/vim.html): Improve EOL handling.
+
+[emacs bindings](https://codemirror.net/demo/emacs.html): Include default keymap as a fallback.
+
+[julia mode](https://codemirror.net/mode/julia/): Fix an infinite loop bug.
+
+[show-hint addon](https://codemirror.net/doc/manual.html#addon_show-hint): Scroll cursor into view when picking a completion.
+
+### New features
+
+New option: [`screenReaderLabel`](https://codemirror.net/doc/manual.html#option_screenReaderLabel) to add a label to the editor.
+
+New mode: [wast](https://codemirror.net/mode/wast/).
+
+## 5.52.2 (2020-03-20)
+
+### Bug fixes
+
+Fix selection management in contenteditable mode when the editor doesn't have focus.
+
+Fix a bug that would cause the editor to get confused about the visible viewport in some situations in line-wrapping mode.
+
+[markdown mode](https://codemirror.net/mode/markdown/): Don't treat single dashes as setext header markers.
+
+[zenburn theme](https://codemirror.net/demo/theme.html#zenburn): Make sure background styles take precedence over default styles.
+
+[css mode](https://codemirror.net/mode/css/): Recognize a number of new properties.
+
+## 5.52.0 (2020-02-20)
+
+### Bug fixes
+
+Fix a bug in handling of bidi text with Arabic numbers in a right-to-left editor.
+
+Fix a crash when combining file drop with a `"beforeChange"` filter.
+
+Prevent issue when passing negative coordinates to `scrollTo`.
+
+### New features
+
+[lint](https://codemirror.net/doc/manual.html#addon_lint) and [tern](https://codemirror.net/demo/tern.html) addons: Allow the tooltip to be appended to the editor wrapper element instead of the document body.
+
+## 5.51.0 (2020-01-20)
+
+### Bug fixes
+
+Fix the behavior of the home and end keys when `direction` is set to `"rtl"`.
+
+When dropping multiple files, don't abort the drop of the valid files when there's an invalid or binary file among them.
+
+Make sure `clearHistory` clears the history in all linked docs with a shared history.
+
+[vim bindings](https://codemirror.net/demo/vim.html): Fix behavior of `'` and `` ` `` marks, fix `R` in visual mode.
+
+### New features
+
+[vim bindings](https://codemirror.net/demo/vim.html): Support `gi`, `gI`, and `gJ`.
+
+## 5.50.2 (2020-01-01)
+
+### Bug fixes
+
+Fix bug that broke removal of line widgets.
+
+## 5.50.0 (2019-12-20)
+
+### Bug fixes
+
+Make Shift-Delete to cut work on Firefox.
+
+[closetag addon](https://codemirror.net/demo/closetag.html): Properly handle self-closing tags.
+
+[handlebars mode](https://codemirror.net/mode/handlebars/): Fix triple-brace support.
+
+[searchcursor addon](https://codemirror.net/doc/manual.html#addon_searchcursor): Support mathing `$` in reverse regexp search.
+
+[panel addon](https://codemirror.net/doc/manual.html#addon_panel): Don't get confused by changing panel sizes.
+
+[javascript-hint addon](https://codemirror.net/doc/manual.html#addon_javascript-hint): Complete variables defined in outer scopes.
+
+[sublime bindings](https://codemirror.net/demo/sublime.html): Make by-subword motion more consistent with Sublime Text.
+
+[julia mode](https://codemirror.net/mode/julia/): Don't break on zero-prefixed integers.
+
+[elm mode](https://codemirror.net/mode/elm/): Sync with upstream version.
+
+[sql mode](https://codemirror.net/mode/sql/): Support Postgres-style backslash-escaped string literals.
+
+### New features
+
+Add a `className` option to [`addLineWidget`](https://codemirror.net/doc/manual.html#addLineWidget).
+
+[foldcode addon](https://codemirror.net/doc/manual.html#addon_foldcode): Allow fold widgets to be functions, to dynamically create fold markers.
+
+New themes: [ayu-dark](https://codemirror.net/demo/theme.html#ayu-dark) and [ayu-mirage](https://codemirror.net/demo/theme.html#ayu-mirage).
+
 ## 5.49.2 (2019-10-21)
 
 ### Bug fixes

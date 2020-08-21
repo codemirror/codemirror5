@@ -29,7 +29,6 @@ function byClassName(elt, cls) {
 var ie_lt8 = /MSIE [1-7]\b/.test(navigator.userAgent);
 var ie_lt9 = /MSIE [1-8]\b/.test(navigator.userAgent);
 var mac = /Mac/.test(navigator.platform);
-var phantom = /PhantomJS/.test(navigator.userAgent);
 var opera = /Opera\/\./.test(navigator.userAgent);
 var opera_version = opera && navigator.userAgent.match(/Version\/(\d+\.\d+)/);
 if (opera_version) opera_version = Number(opera_version);
@@ -255,6 +254,7 @@ testCM("coordsCharBidi", function(cm) {
 }, {lineNumbers: true});
 
 testCM("badBidiOptimization", function(cm) {
+  if (window.automatedTests) return
   var coords = cm.charCoords(Pos(0, 34))
   eqCharPos(cm.coordsChar({left: coords.right, top: coords.top + 2}), Pos(0, 34))
 }, {value: "----------<p class=\"title\">هل يمكنك اختيار مستوى قسط التأمين الذي ترغب بدفعه؟</p>"})
@@ -624,7 +624,6 @@ testCM("bookmarkCursor", function(cm) {
 }, {value: "foo\nbar\n\n\nx\ny"});
 
 testCM("multiBookmarkCursor", function(cm) {
-  if (phantom) return;
   var ms = [], m;
   function add(insertLeft) {
     for (var i = 0; i < 3; ++i) {
@@ -684,7 +683,6 @@ testCM("scrollSnap", function(cm) {
 });
 
 testCM("scrollIntoView", function(cm) {
-  if (phantom) return;
   function test(line, ch, msg) {
     var pos = Pos(line, ch);
     cm.scrollIntoView(pos);
@@ -723,7 +721,7 @@ testCM("selectAllNoScroll", function(cm) {
 });
 
 testCM("selectionPos", function(cm) {
-  if (phantom || cm.getOption("inputStyle") != "textarea") return;
+  if (cm.getOption("inputStyle") != "textarea") return;
   cm.setSize(100, 100);
   addDoc(cm, 200, 100);
   cm.setSelection(Pos(1, 100), Pos(98, 100));
@@ -928,7 +926,6 @@ testCM("everythingFolded", function(cm) {
 });
 
 testCM("structuredFold", function(cm) {
-  if (phantom) return;
   addDoc(cm, 4, 8);
   var range = cm.markText(Pos(1, 2), Pos(6, 2), {
     replacedWith: document.createTextNode("Q")
@@ -1050,7 +1047,6 @@ testCM("wrappingInlineWidget", function(cm) {
   eq(curR.bottom, cur1.bottom);
   cm.replaceRange("", Pos(0, 9), Pos(0));
   curR = cm.cursorCoords(Pos(0, 9));
-  if (phantom) return;
   eq(curR.top, cur1.top);
   eq(curR.bottom, cur1.bottom);
 }, {value: "1 2 3 xxx 4", lineWrapping: true});
@@ -1133,7 +1129,6 @@ testCM("wrappingAndResizing", function(cm) {
 }, null, ie_lt8);
 
 testCM("measureEndOfLine", function(cm) {
-  if (phantom) return;
   cm.setSize(null, "auto");
   var inner = byClassName(cm.getWrapperElement(), "CodeMirror-lines")[0].firstChild;
   var lh = inner.offsetHeight;
@@ -1157,7 +1152,6 @@ testCM("measureEndOfLine", function(cm) {
 }, {mode: "text/html", value: "<!-- foo barrr -->", lineWrapping: true}, ie_lt8 || opera_lt10);
 
 testCM("measureWrappedEndOfLine", function(cm) {
-  if (phantom) return;
   cm.setSize(null, "auto");
   var inner = byClassName(cm.getWrapperElement(), "CodeMirror-lines")[0].firstChild;
   var lh = inner.offsetHeight;
@@ -1194,7 +1188,6 @@ testCM("measureWrappedBidiLevel2", function(cm) {
 }, {value: "foobar إإ إإ إإ إإ 555 بببببب", lineWrapping: true})
 
 testCM("measureWrappedBeginOfLine", function(cm) {
-  if (phantom) return;
   cm.setSize(null, "auto");
   var inner = byClassName(cm.getWrapperElement(), "CodeMirror-lines")[0].firstChild;
   var lh = inner.offsetHeight;
@@ -1276,7 +1269,7 @@ testCM("verticalScroll", function(cm) {
   cm.replaceRange("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaah", Pos(0, 0), Pos(0));
   is(sc.scrollWidth > baseWidth, "scrollbar present");
   cm.replaceRange("foo", Pos(0, 0), Pos(0));
-  if (!phantom) eq(sc.scrollWidth, baseWidth, "scrollbar gone");
+  eq(sc.scrollWidth, baseWidth, "scrollbar gone");
   cm.replaceRange("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaah", Pos(0, 0), Pos(0));
   cm.replaceRange("bbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbbh", Pos(1, 0), Pos(1));
   is(sc.scrollWidth > baseWidth, "present again");
@@ -1413,8 +1406,7 @@ testCM("verticalMovementCommands", function(cm) {
   cm.execCommand("goLineUp");
   eqCharPos(cm.getCursor(), Pos(0, 0));
   cm.execCommand("goLineDown");
-  if (!phantom) // This fails in PhantomJS, though not in a real Webkit
-    eqCharPos(cm.getCursor(), Pos(1, 0));
+  eqCharPos(cm.getCursor(), Pos(1, 0));
   cm.setCursor(Pos(1, 12));
   cm.execCommand("goLineDown");
   eqCharPos(cm.getCursor(), Pos(2, 5));
@@ -1549,7 +1541,7 @@ testCM("lineChangeEvents", function(cm) {
 });
 
 testCM("scrollEntirelyToRight", function(cm) {
-  if (phantom || cm.getOption("inputStyle") != "textarea") return;
+  if (cm.getOption("inputStyle") != "textarea") return;
   addDoc(cm, 500, 2);
   cm.setCursor(Pos(0, 500));
   var wrap = cm.getWrapperElement(), cur = byClassName(wrap, "CodeMirror-cursor")[0];
@@ -1732,7 +1724,6 @@ testCM("getLineNumber", function(cm) {
 });
 
 testCM("jumpTheGap", function(cm) {
-  if (phantom) return;
   var longLine = "abcdef ghiklmnop qrstuvw xyz ";
   longLine += longLine; longLine += longLine; longLine += longLine;
   cm.replaceRange(longLine, Pos(2, 0), Pos(2));
@@ -2569,20 +2560,18 @@ bidiTests.push("Say ا ب جabj\nS");
 bidiTests.push("Sayyy ا ا ب ج");
 */
 
-if (!phantom) {
-  bidiTests.push("Όȝǝڪȉۥ״ۺ׆ɀҩۏ\nҳ");
-  bidiTests.push("ŌӰтقȤ؁ƥ؅٣ĎȺ١\nϚ");
-  bidiTests.push("ٻоҤѕѽΩ־؉ïίքǳ\nٵ");
-  bidiTests.push("؅؁ĆՕƿɁǞϮؠȩóć\nď");
-  bidiTests.push("RŨďңŪzϢŎƏԖڇڦ\nӈ");
-  bidiTests.push("ό׊۷٢ԜһОצЉيčǟ\nѩ");
-  bidiTests.push("ۑÚҳҕڬġڹհяųKV\nr");
-  bidiTests.push("źڻғúہ4ם1Ƞc1a\nԁ");
-  bidiTests.push("ҒȨҟփƞ٦ԓȦڰғâƥ\nڤ");
-  bidiTests.push("ϖسՉȏŧΔԛǆĎӟیڡ\nέ");
-  bidiTests.push("۹ؼL۵ĺȧКԙػא7״\nم");
-  bidiTests.push("ن (ي)\u2009أقواس"); // thin space to throw off Firefox 51's broken white-space compressing behavior
-}
+bidiTests.push("Όȝǝڪȉۥ״ۺ׆ɀҩۏ\nҳ");
+if (!window.automatedTests) bidiTests.push("ŌӰтقȤ؁ƥ؅٣ĎȺ١\nϚ");
+bidiTests.push("ٻоҤѕѽΩ־؉ïίքǳ\nٵ");
+bidiTests.push("؅؁ĆՕƿɁǞϮؠȩóć\nď");
+bidiTests.push("RŨďңŪzϢŎƏԖڇڦ\nӈ");
+bidiTests.push("ό׊۷٢ԜһОצЉيčǟ\nѩ");
+bidiTests.push("ۑÚҳҕڬġڹհяųKV\nr");
+bidiTests.push("źڻғúہ4ם1Ƞc1a\nԁ");
+bidiTests.push("ҒȨҟփƞ٦ԓȦڰғâƥ\nڤ");
+bidiTests.push("ϖسՉȏŧΔԛǆĎӟیڡ\nέ");
+bidiTests.push("۹ؼL۵ĺȧКԙػא7״\nم");
+bidiTests.push("ن (ي)\u2009أقواس"); // thin space to throw off Firefox 51's broken white-space compressing behavior
 
 bidiTests.push("քմѧǮßپüŢҍҞўڳ\nӧ");
 
@@ -2640,7 +2629,6 @@ testCM("rtl_wrapped_selection", function(cm) {
 }, {value: new Array(10).join(" فتي تم تضمينها فتي تم"), lineWrapping: true})
 
 testCM("bidi_wrapped_selection", function(cm) {
-  if (phantom) return
   cm.setSize(cm.charCoords(Pos(0, 10), "editor").left)
   cm.setSelection(Pos(0, 37), Pos(0, 80))
   var blocks = byClassName(cm.getWrapperElement(), "CodeMirror-selected")
@@ -2659,7 +2647,7 @@ testCM("delete_wrapped", function(cm) {
 }, {value: "12345", lineWrapping: true})
 
 testCM("issue_4878", function(cm) {
-  if (phantom) return
+  if (window.automatedTests) return
   cm.setCursor(Pos(1, 12, "after"));
   cm.moveH(-1, "char");
   eqCursorPos(cm.getCursor(), Pos(0, 113, "before"));

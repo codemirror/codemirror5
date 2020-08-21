@@ -144,10 +144,15 @@
         base = base[context.pop().string];
       if (base != null) gatherCompletions(base);
     } else {
-      // If not, just look in the global object and any local scope
+      // If not, just look in the global object, any local scope, and optional additional-context
       // (reading into JS mode internals to get at the local and global variables)
       for (var v = token.state.localVars; v; v = v.next) maybeAdd(v.name);
+      for (var c = token.state.context; c; c = c.prev)
+        for (var v = c.vars; v; v = v.next) maybeAdd(v.name)
       for (var v = token.state.globalVars; v; v = v.next) maybeAdd(v.name);
+      if (options && options.additionalContext != null)
+        for (var key in options.additionalContext)
+          maybeAdd(key);
       if (!options || options.useGlobalScope !== false)
         gatherCompletions(global);
       forEach(keywords, maybeAdd);
