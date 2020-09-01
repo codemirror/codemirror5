@@ -8,7 +8,7 @@
  * Supported Ex commands:
  *   Refer to defaultExCommandMap below.
  *
- * Registers: unnamed, -, a-z, A-Z, 0-9
+ * Registers: unnamed, -, ., :, /, _, a-z, A-Z, 0-9
  *   (Does not respect the special case for number registers when delete
  *    operator is made with these commands: %, (, ),  , /, ?, n, N, {, } )
  *   TODO: Implement the remaining registers.
@@ -416,7 +416,7 @@
     var lowerCaseAlphabet = makeKeyRange(97, 26);
     var numbers = makeKeyRange(48, 10);
     var validMarks = [].concat(upperCaseAlphabet, lowerCaseAlphabet, numbers, ['<', '>']);
-    var validRegisters = [].concat(upperCaseAlphabet, lowerCaseAlphabet, numbers, ['-', '"', '.', ':', '/']);
+    var validRegisters = [].concat(upperCaseAlphabet, lowerCaseAlphabet, numbers, ['-', '"', '.', ':', '_', '/']);
 
     function isLine(cm, line) {
       return line >= cm.firstLine() && line <= cm.lastLine();
@@ -1128,6 +1128,8 @@
     }
     RegisterController.prototype = {
       pushText: function(registerName, operator, text, linewise, blockwise) {
+        // The black hole register, "_, means delete/yank to nowhere.
+        if (registerName === '_') return;
         if (linewise && text.charAt(text.length - 1) !== '\n'){
           text += '\n';
         }

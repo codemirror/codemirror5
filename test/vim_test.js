@@ -2946,6 +2946,23 @@ testVim('yank_append_word_to_line_register', function(cm, vim, helpers) {
   });
   helpers.doKeys(':');
 }, { value: 'foo\nbar'});
+testVim('black_hole_register', function(cm,vim,helpers) {
+  helpers.doKeys('g', 'g', 'y', 'G');
+  var registersText;
+  cm.openDialog = helpers.fakeOpenDialog('registers');
+  cm.openNotification = helpers.fakeOpenNotification(function(text) {
+    registersText = text;
+  });
+  helpers.doKeys(':');
+  helpers.doKeys('"', '_', 'd', 'G');
+  cm.openDialog = helpers.fakeOpenDialog('registers');
+  cm.openNotification = helpers.fakeOpenNotification(function(text) {
+    eq(registersText, text, 'One or more registers were modified');
+  });
+  helpers.doKeys(':');
+  helpers.doKeys('"', '_', 'p');
+  eq('', cm.getValue());
+}, { value: 'foo\nbar'});
 testVim('macro_register', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('q', 'a', 'i');
