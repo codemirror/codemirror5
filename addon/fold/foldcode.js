@@ -113,6 +113,12 @@
         cm.foldCode(CodeMirror.Pos(i, 0), null, "unfold");
     });
   };
+  CodeMirror.commands.foldAtPosition = function(cm, pos) {
+    cm.foldCode(pos, null, "fold");
+  };
+  CodeMirror.commands.unfoldAtPosition = function(cm, pos) {
+    cm.foldCode(pos, null, "unfold");
+  };
 
   CodeMirror.registerHelper("fold", "combine", function() {
     var funcs = Array.prototype.slice.call(arguments, 0);
