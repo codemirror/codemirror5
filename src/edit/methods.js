@@ -457,14 +457,14 @@ export default function(CodeMirror) {
 }
 
 // Used for horizontal relative motion. Dir is -1 or 1 (left or
-// right), unit can be "char", "column" (like char, but doesn't
-// cross line boundaries), "word" (across next word), or "group" (to
-// the start of next group of word or non-word-non-whitespace
-// chars). The visually param controls whether, in right-to-left
-// text, direction 1 means to move towards the next index in the
-// string, or towards the character to the right of the current
-// position. The resulting position will have a hitSide=true
-// property if it reached the end of the document.
+// right), unit can be "codepoint", "char", "column" (like char, but
+// doesn't cross line boundaries), "word" (across next word), or
+// "group" (to the start of next group of word or
+// non-word-non-whitespace chars). The visually param controls
+// whether, in right-to-left text, direction 1 means to move towards
+// the next index in the string, or towards the character to the right
+// of the current position. The resulting position will have a
+// hitSide=true property if it reached the end of the document.
 function findPosH(doc, pos, dir, unit, visually) {
   let oldPos = pos
   let origDir = dir
@@ -478,7 +478,12 @@ function findPosH(doc, pos, dir, unit, visually) {
   }
   function moveOnce(boundToLine) {
     let next
-    if (visually) {
+    if (unit == "codepoint") {
+      let ch = lineObj.text.charCodeAt(pos.ch + (unit > 0 ? 0 : -1))
+      if (isNaN(ch)) next = null
+      else next = new Pos(pos.line, Math.max(0, Math.min(lineObj.text.length, pos.ch + dir * (ch >= 0xD800 && ch < 0xDC00 ? 2 : 1))),
+                          -dir)
+    } else if (visually) {
       next = moveVisually(doc.cm, lineObj, pos, dir)
     } else {
       next = moveLogically(lineObj, pos, dir)
@@ -494,7 +499,7 @@ function findPosH(doc, pos, dir, unit, visually) {
     return true
   }
 
-  if (unit == "char") {
+  if (unit == "char" || unit == "codepoint") {
     moveOnce()
   } else if (unit == "column") {
     moveOnce(true)
