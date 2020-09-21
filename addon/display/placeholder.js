@@ -15,7 +15,7 @@
       cm.on("blur", onBlur);
       cm.on("change", onChange);
       cm.on("swapDoc", onChange);
-      CodeMirror.on(cm.getInputField(), "compositionupdate", cm.state.placeholderCompose = () => onComposition(cm))
+      CodeMirror.on(cm.getInputField(), "compositionupdate", cm.state.placeholderCompose = function() { onComposition(cm) })
       onChange(cm);
     } else if (!val && prev) {
       cm.off("blur", onBlur);
