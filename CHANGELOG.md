@@ -1,3 +1,23 @@
+## 5.58.0 (2020-09-21)
+
+### Bug fixes
+
+Make backspace delete by code point, not glyph.
+
+Suppress flickering focus outline when clicking on scrollbars in Chrome.
+
+Fix a bug that prevented attributes added via `markText` from showing up unless the span also had some other styling.
+
+Suppress cut and paste context menu entries in readonly editors in Chrome.
+
+[placeholder addon](https://codemirror.net/doc/manual.html#addon_placeholder): Update placeholder visibility during composition.
+
+### New features
+
+Make it less cumbersome to style new lint message types.
+
+[vim bindings](https://codemirror.net/demo/vim.html): Support black hole register, `gn` and `gN`
+
 ## 5.57.0 (2020-08-20)
 
 ### Bug fixes
