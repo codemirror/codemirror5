@@ -49,13 +49,15 @@
   }
 
   function onComposition(cm) {
-    var empty = true, input = cm.getInputField()
-    if (input.nodeName == "TEXTAREA")
-      empty = !input.value
-    else if (cm.lineCount() == 1)
-      empty = !/[^\u200b]/.test(input.querySelector(".CodeMirror-line").textContent)
-    if (empty) clearPlaceholder(cm)
-    else setPlaceholder(cm)
+    setTimeout(function() {
+      var empty = false, input = cm.getInputField()
+      if (input.nodeName == "TEXTAREA")
+        empty = !input.value
+      else if (cm.lineCount() == 1)
+        empty = !/[^\u200b]/.test(input.querySelector(".CodeMirror-line").textContent)
+      if (empty) setPlaceholder(cm)
+      else clearPlaceholder(cm)
+    }, 20)
   }
 
   function onBlur(cm) {
