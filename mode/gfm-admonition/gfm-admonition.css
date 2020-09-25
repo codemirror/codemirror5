@@ -1,0 +1,37 @@
+.CodeMirror-linebackground.admonition {
+  border-left: 0.5em solid blue;
+  background-color: #f6fcff;
+}
+
+.CodeMirror-linebackground.admonition.header {
+  border-bottom: 1px solid blue;
+}
+
+.CodeMirror-line.admonition {
+  padding-left: 0.5em !important;
+}
+.CodeMirror-line.admonition.content {
+  padding-left: 1.5em !important;
+}
+
+.cm-admonition-type, .cm-admonition-end {
+  color: blue;
+}
+
+.CodeMirror-linebackground.admonition.note {
+  border-color: olive;
+  background-color: #f6fffe;
+}
+
+.cm-admonition-type.cm-note, .cm-admonition-end.cm-note {
+  color: olive;
+}
+
+.CodeMirror-linebackground.admonition.warning {
+  border-color: orange;
+  background-color: #fffeec;
+}
+
+.cm-admonition-type.cm-warning, .cm-admonition-end.cm-warning {
+  color: orange;
+}
