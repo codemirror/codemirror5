@@ -1,5 +1,5 @@
 import { Display } from "../display/Display.js"
-import { onFocus, onBlur } from "../display/focus.js"
+import { onFocus, onBlur, suppressFocusBlur, enableFocusBlur } from "../display/focus.js"
 import { maybeUpdateLineNumberWidth } from "../display/line_numbers.js"
 import { endOperation, operation, startOperation } from "../display/operations.js"
 import { initScrollbars } from "../display/scrollbars.js"
@@ -52,6 +52,7 @@ export function CodeMirror(place, options) {
     modeGen: 0,   // bumped when mode/overlay changes, used to invalidate highlighting info
     overwrite: false,
     delayingBlurEvent: false,
+    suppressFocusBlur: false, // used to supress signal focus/blur events on drag/drop operations.
     focused: false,
     suppressEdits: false, // used to disable editing during key handlers when in readOnly mode
     pasteIncoming: -1, cutIncoming: -1, // help recognize paste/cut edits in input.poll
@@ -106,6 +107,13 @@ export default CodeMirror
 function registerEventHandlers(cm) {
   let d = cm.display
   on(d.scroller, "mousedown", operation(cm, onMouseDown))
+  // disable event firing when user holds the mouse button or
+  // performs a dnd-operation.
+  on(d.scroller, "mousedown", function() { suppressFocusBlur(cm) })
+  on(d.scroller, "dragstart", function() { suppressFocusBlur(cm) })
+  on(d.scroller, "mouseup",   function() { enableFocusBlur(cm) })
+  on(d.scroller, "dragend",   function() { enableFocusBlur(cm) })
+
   // Older IE's will not fire a second mousedown for a double click
   if (ie && ie_version < 11)
     on(d.scroller, "dblclick", operation(cm, e => {
