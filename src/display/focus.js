@@ -15,22 +15,7 @@ export function delayBlurEvent(cm) {
   } }, 100)
 }
 
-export function suppressFocusBlur(cm) {
-  if (!cm.state.focused) { return } // do not suppress first focus
-  cm.state.suppressFocusBlur = true
-}
-
-export function enableFocusBlur(cm) {
-  // IE fires some more events, so enable it delayed
-  if (cm.state.suppressFocusBlur) {
-    setTimeout(function() {
-      cm.state.suppressFocusBlur = false
-    },20)
-  }
-}
-
 export function onFocus(cm, e) {
-  if (cm.state.suppressFocusBlur) { return }
   if (cm.state.delayingBlurEvent) cm.state.delayingBlurEvent = false
 
   if (cm.options.readOnly == "nocursor") return
@@ -50,7 +35,7 @@ export function onFocus(cm, e) {
   restartBlink(cm)
 }
 export function onBlur(cm, e) {
-  if (cm.state.delayingBlurEvent || cm.state.suppressFocusBlur) { return }
+  if (cm.state.delayingBlurEvent) return
 
   if (cm.state.focused) {
     signal(cm, "blur", cm, e)
