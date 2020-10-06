@@ -12,7 +12,7 @@ import { getOrder, getBidiPartAt } from "../util/bidi.js"
 import { activeElt } from "../util/dom.js"
 import { e_button, e_defaultPrevented, e_preventDefault, e_target, hasHandler, off, on, signal, signalDOMEvent } from "../util/event.js"
 import { dragAndDrop } from "../util/feature_detection.js"
-import { bind, countColumn, findColumn, sel_mouse } from "../util/misc.js"
+import { countColumn, findColumn, sel_mouse } from "../util/misc.js"
 import { addModifierNames } from "../input/keymap.js"
 import { Pass } from "../util/misc.js"
 
@@ -127,7 +127,7 @@ function configureMouse(cm, repeat, event) {
 }
 
 function leftButtonDown(cm, pos, repeat, event) {
-  if (ie) setTimeout(bind(ensureFocus, cm), 0)
+  if (ie) ensureFocus(cm)
   else cm.curOp.focus = activeElt()
 
   let behavior = configureMouse(cm, repeat, event)

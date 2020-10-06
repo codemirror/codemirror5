@@ -5,6 +5,17 @@ import { signal } from "../util/event.js"
 
 export function ensureFocus(cm) {
   if (!cm.state.focused) { cm.display.input.focus(); onFocus(cm) }
+  else {
+    // if we are already focused, skip any blur/focus events and do
+    // a refocus after timeout. This is a fix for #6427, because
+    // IE fires blur/focus events if you reposition the cursor by
+    // a mouse click.
+    cm.state.delayingBlurEvent = true
+    setTimeout(function () { if (cm.state.delayingBlurEvent) {
+      cm.display.input.focus()
+      cm.state.delayingBlurEvent = false
+    } }, 100)
+  }
 }
 
 export function delayBlurEvent(cm) {
