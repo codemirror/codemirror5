@@ -62,7 +62,7 @@
         after = after.replace('[x]', '[ ]'); // make todo list default unchecked
         replacements[i] = "\n" + indent + bullet + after;
 
-        if (numbered) incrementRemainingMarkdownListNumbers(cm, pos, disableAutoIncrement);
+        if (numbered && !disableAutoIncrement) incrementRemainingMarkdownListNumbers(cm, pos);
       }
     }
 
@@ -71,7 +71,7 @@
 
   // Auto-updating Markdown list numbers when a new item is added to the
   // middle of a list
-  function incrementRemainingMarkdownListNumbers(cm, pos, disableAutoIncrement) {
+  function incrementRemainingMarkdownListNumbers(cm, pos) {
     var startLine = pos.line, lookAhead = 0, skipCount = 0;
     var startItem = listRE.exec(cm.getLine(startLine)), startIndent = startItem[1];
 
@@ -88,8 +88,6 @@
         if (startIndent === nextIndent && !isNaN(nextNumber)) {
           if (newNumber === nextNumber) itemNumber = nextNumber + 1;
           if (newNumber > nextNumber) itemNumber = newNumber + 1;
-          if (disableAutoIncrement) itemNumber = 1
-
           cm.replaceRange(
             nextLine.replace(listRE, nextIndent + itemNumber + nextItem[4] + nextItem[5]),
           {
