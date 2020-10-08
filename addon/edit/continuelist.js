@@ -57,7 +57,7 @@
         if (numbered) {
           bullet = (disableAutoIncrement ? 1 : (parseInt(match[3], 10) + 1)) + match[4];
         } else {
-          match[2].replace("x", " ");
+          bullet = match[2].replace("x", " ");
         }
         after = after.replace('[x]', '[ ]'); // make todo list default unchecked
         replacements[i] = "\n" + indent + bullet + after;
