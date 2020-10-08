@@ -50,13 +50,19 @@
         });
         replacements[i] = "\n";
       } else {
+        var disableAutoIncrement = cm.getOption("disableAutoIncrementMarkdownListNumbers") || false
         var indent = match[1], after = match[5];
         var numbered = !(unorderedListRE.test(match[2]) || match[2].indexOf(">") >= 0);
-        var bullet = numbered ? (parseInt(match[3], 10) + 1) + match[4] : match[2].replace("x", " ");
+        var bullet
+        if (numbered) {
+          bullet = (disableAutoIncrement ? 1 : (parseInt(match[3], 10) + 1)) + match[4];
+        } else {
+          bullet = match[2].replace("x", " ");
+        }
         after = after.replace('[x]', '[ ]'); // make todo list default unchecked
         replacements[i] = "\n" + indent + bullet + after;
 
-        if (numbered) incrementRemainingMarkdownListNumbers(cm, pos);
+        if (numbered && !disableAutoIncrement) incrementRemainingMarkdownListNumbers(cm, pos);
       }
     }
 
