@@ -93,7 +93,7 @@ CodeMirror.defineMode("sparql", function(config) {
         return "variable";
     }
   }
-  
+
   function eatPnLocal(stream) {
     while (stream.match(/([:\w\d._-]|\\[-\\_~.!$&'()*+,;=/?#@%]|%[a-fA-F0-9][a-fA-F0-9])/));
   }
