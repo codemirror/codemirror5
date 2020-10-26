@@ -16,7 +16,7 @@ export function delayBlurEvent(cm) {
 }
 
 export function onFocus(cm, e) {
-  if (cm.state.delayingBlurEvent) cm.state.delayingBlurEvent = false
+  if (cm.state.delayingBlurEvent && !cm.state.draggingText) cm.state.delayingBlurEvent = false
 
   if (cm.options.readOnly == "nocursor") return
   if (!cm.state.focused) {

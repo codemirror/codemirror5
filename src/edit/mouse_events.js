@@ -1,4 +1,4 @@
-import { delayBlurEvent, ensureFocus } from "../display/focus.js"
+import { delayBlurEvent, ensureFocus, onBlur } from "../display/focus.js"
 import { operation } from "../display/operations.js"
 import { visibleLines } from "../display/update_lines.js"
 import { clipPos, cmp, maxPos, minPos, Pos } from "../line/pos.js"
@@ -149,6 +149,10 @@ function leftButtonStartDrag(cm, event, pos, behavior) {
   let dragEnd = operation(cm, e => {
     if (webkit) display.scroller.draggable = false
     cm.state.draggingText = false
+    if (cm.state.delayingBlurEvent) {
+      cm.state.delayingBlurEvent = false
+      if (!cm.state.focused) onBlur(cm)
+    }
     off(display.wrapper.ownerDocument, "mouseup", dragEnd)
     off(display.wrapper.ownerDocument, "mousemove", mouseMove)
     off(display.scroller, "dragstart", dragStart)
@@ -179,7 +183,7 @@ function leftButtonStartDrag(cm, event, pos, behavior) {
   on(display.scroller, "dragstart", dragStart)
   on(display.scroller, "drop", dragEnd)
 
-  delayBlurEvent(cm)
+  cm.state.delayingBlurEvent = true
   setTimeout(() => display.input.focus(), 20)
 }
 
@@ -193,6 +197,7 @@ function rangeForUnit(cm, pos, unit) {
 
 // Normal selection, as opposed to text dragging.
 function leftButtonSelect(cm, event, start, behavior) {
+  if (ie) delayBlurEvent(cm)
   let display = cm.display, doc = cm.doc
   e_preventDefault(event)
 
