@@ -1,3 +1,11 @@
+## 5.58.2 (2020-10-23)
+
+### Bug fixes
+
+Fix a bug where horizontally scrolling the cursor into view sometimes failed with a non-fixed gutter.
+
+[julia mode](https://codemirror.net/mode/julia/): Fix an infinite recursion bug.
+
 ## 5.58.1 (2020-09-23)
 
 ### Bug fixes
