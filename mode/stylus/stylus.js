@@ -722,6 +722,9 @@
         return indent;
       },
       electricChars: "}",
+      blockCommentStart: "/*",
+      blockCommentEnd: "*/",
+      blockCommentContinue: " * ",
       lineComment: "//",
       fold: "indent"
     };
