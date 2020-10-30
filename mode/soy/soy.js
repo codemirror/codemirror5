@@ -16,6 +16,8 @@
     "alias": { noEndTag: true },
     "delpackage": { noEndTag: true },
     "namespace": { noEndTag: true, soyState: "namespace-def" },
+    "@attribute": paramData,
+    "@attribute?": paramData,
     "@param": paramData,
     "@param?": paramData,
     "@inject": paramData,
@@ -53,7 +55,7 @@
   CodeMirror.defineMode("soy", function(config) {
     var textMode = CodeMirror.getMode(config, "text/plain");
     var modes = {
-      html: CodeMirror.getMode(config, {name: "text/html", multilineTagIndentFactor: 2, multilineTagIndentPastTag: false}),
+      html: CodeMirror.getMode(config, {name: "text/html", multilineTagIndentFactor: 2, multilineTagIndentPastTag: false, allowMissingTagName: true}),
       attributes: textMode,
       text: textMode,
       uri: textMode,
