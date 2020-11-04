@@ -1,4 +1,4 @@
-import { delayBlurEvent, ensureFocus, onBlur } from "../display/focus.js"
+import { delayBlurEvent, ensureFocus } from "../display/focus.js"
 import { operation } from "../display/operations.js"
 import { visibleLines } from "../display/update_lines.js"
 import { clipPos, cmp, maxPos, minPos, Pos } from "../line/pos.js"
