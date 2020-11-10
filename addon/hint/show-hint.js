@@ -94,8 +94,10 @@
                                completion.to || data.to, "complete");
         CodeMirror.signal(data, "pick", completion);
         self.cm.scrollIntoView();
-      })
-      this.close();
+      });
+      if (this.options.closeOnPick) {
+        this.close();
+      }
     },
 
     cursorActivity: function() {
@@ -104,15 +106,12 @@
         this.debounce = 0;
       }
 
-      var identStart = this.startPos;
-      if(this.data) {
-        identStart = this.data.from;
-      }
-
       var pos = this.cm.getCursor(), line = this.cm.getLine(pos.line);
-      if (pos.line != this.startPos.line || line.length - pos.ch != this.startLen - this.startPos.ch ||
-          pos.ch < identStart.ch || this.cm.somethingSelected() ||
-          (!pos.ch || this.options.closeCharacters.test(line.charAt(pos.ch - 1)))) {
+      if (this.options.closeOnCursorActivity &&
+          (pos.line != this.startPos.line || line.length - pos.ch != this.startLen - this.startPos.ch ||
+           pos.ch < identStart.ch || this.cm.somethingSelected() ||
+           (!pos.ch || this.options.closeCharacters.test(line.charAt(pos.ch - 1))))
+      ) {
         this.close();
       } else {
         var self = this;
@@ -259,10 +258,19 @@
     var winW = parentWindow.innerWidth || Math.max(ownerDocument.body.offsetWidth, ownerDocument.documentElement.offsetWidth);
     var winH = parentWindow.innerHeight || Math.max(ownerDocument.body.offsetHeight, ownerDocument.documentElement.offsetHeight);
     container.appendChild(hints);
-    var box = hints.getBoundingClientRect(), overlapY = box.bottom - winH;
-    var scrolls = hints.scrollHeight > hints.clientHeight + 1
-    var startScroll = cm.getScrollInfo();
 
+    var box = completion.options.moveOnOverlap ? hints.getBoundingClientRect() : new DOMRect();
+    var scrolls = completion.options.paddingForScrollbar ? hints.scrollHeight > hints.clientHeight + 1 : false;
+    var startScroll = completion.options.paddingForScrollbar ? cm.getScrollInfo() : {
+      top: 0,
+      left: 0,
+      height: 0,
+      width: 0,
+      clientHeight: 0,
+      clientWidth: 0
+    };
+
+    var overlapY = box.bottom - winH;
     if (overlapY > 0) {
       var height = box.bottom - box.top, curTop = pos.top - (pos.bottom - box.top);
       if (curTop - height > 0) { // Fits above cursor
@@ -378,17 +386,6 @@
       CodeMirror.signal(this.data, "select", this.data.list[this.selectedHint], node);
     },
 
-    scrollToActive: function() {
-      var margin = this.completion.options.scrollMargin || 0;
-      var node1 = this.hints.childNodes[Math.max(0, this.selectedHint - margin)];
-      var node2 = this.hints.childNodes[Math.min(this.data.list.length - 1, this.selectedHint + margin)];
-      var firstNode = this.hints.firstChild;
-      if (node1.offsetTop < this.hints.scrollTop)
-        this.hints.scrollTop = node1.offsetTop - firstNode.offsetTop;
-      else if (node2.offsetTop + node2.offsetHeight > this.hints.scrollTop + this.hints.clientHeight)
-        this.hints.scrollTop = node2.offsetTop + node2.offsetHeight - this.hints.clientHeight + firstNode.offsetTop;
-    },
-
     screenAmount: function() {
       return Math.floor(this.hints.clientHeight / this.hints.firstChild.offsetHeight) || 1;
     }
@@ -468,11 +465,15 @@
     completeSingle: true,
     alignWithWord: true,
     closeCharacters: /[\s()\[\]{};:>,]/,
+    closeOnCursorActivity: true,
+    closeOnPick: true,
     closeOnUnfocus: true,
     completeOnSingleClick: true,
     container: null,
     customKeys: null,
-    extraKeys: null
+    extraKeys: null,
+    paddingForScrollbar: true,
+    moveOnOverlap: true,
   };
 
   CodeMirror.defineOption("hintOptions", null);
