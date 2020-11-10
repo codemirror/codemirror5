@@ -106,6 +106,11 @@
         this.debounce = 0;
       }
 
+      var identStart = this.startPos;
+      if(this.data) {
+        identStart = this.data.from;
+      }
+
       var pos = this.cm.getCursor(), line = this.cm.getLine(pos.line);
       if (this.options.closeOnCursorActivity &&
           (pos.line != this.startPos.line || line.length - pos.ch != this.startLen - this.startPos.ch ||
@@ -384,6 +389,17 @@
       node.className += " " + ACTIVE_HINT_ELEMENT_CLASS;
       this.scrollToActive()
       CodeMirror.signal(this.data, "select", this.data.list[this.selectedHint], node);
+    },
+
+    scrollToActive: function() {
+      var margin = this.completion.options.scrollMargin || 0;
+      var node1 = this.hints.childNodes[Math.max(0, this.selectedHint - margin)];
+      var node2 = this.hints.childNodes[Math.min(this.data.list.length - 1, this.selectedHint + margin)];
+      var firstNode = this.hints.firstChild;
+      if (node1.offsetTop < this.hints.scrollTop)
+        this.hints.scrollTop = node1.offsetTop - firstNode.offsetTop;
+      else if (node2.offsetTop + node2.offsetHeight > this.hints.scrollTop + this.hints.clientHeight)
+        this.hints.scrollTop = node2.offsetTop + node2.offsetHeight - this.hints.clientHeight + firstNode.offsetTop;
     },
 
     screenAmount: function() {
