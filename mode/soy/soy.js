@@ -276,6 +276,11 @@
             return null;
 
           case "param-def":
+            if (match = stream.match(/^\*/)) {
+              state.soyState.pop();
+              state.soyState.push("param-type");
+              return "type";
+            }
             if (match = stream.match(/^\w+/)) {
               state.variables = prepend(state.variables, match[0]);
               state.soyState.pop();
