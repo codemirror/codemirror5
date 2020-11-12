@@ -112,12 +112,12 @@
       }
 
       var pos = this.cm.getCursor(), line = this.cm.getLine(pos.line);
-      if (this.options.closeOnCursorActivity &&
-          (pos.line != this.startPos.line || line.length - pos.ch != this.startLen - this.startPos.ch ||
-           pos.ch < identStart.ch || this.cm.somethingSelected() ||
-           (!pos.ch || this.options.closeCharacters.test(line.charAt(pos.ch - 1))))
-      ) {
-        this.close();
+      if (pos.line != this.startPos.line || line.length - pos.ch != this.startLen - this.startPos.ch ||
+        pos.ch < identStart.ch || this.cm.somethingSelected() ||
+        (!pos.ch || this.options.closeCharacters.test(line.charAt(pos.ch - 1)))) {
+        if (this.options.closeOnCursorActivity) {
+          this.close();
+        }
       } else {
         var self = this;
         this.debounce = requestAnimationFrame(function() {self.update();});
