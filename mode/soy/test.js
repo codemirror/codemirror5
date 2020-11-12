@@ -192,6 +192,12 @@
      '[keyword {/template}]',
      '');
 
+  MT('attribute-type-all',
+     '[keyword {template] [def .foo][keyword }]',
+     '  [keyword {@attribute] [type *][keyword }]',
+     '[keyword {/template}]',
+     '');
+
    MT('state-variable-reference',
      '[keyword {template] [def .foo][keyword }]',
      '  [keyword {@param] [def bar]:= [atom true][keyword }]',
