@@ -55,7 +55,7 @@
   CodeMirror.defineMode("soy", function(config) {
     var textMode = CodeMirror.getMode(config, "text/plain");
     var modes = {
-      html: CodeMirror.getMode(config, {name: "text/html", multilineTagIndentFactor: 2, multilineTagIndentPastTag: false, allowMissingTagName: true}),
+      html: CodeMirror.getMode(config, {name: "text/html", multilineTagIndentFactor: 2, multilineTagIndentPastTag: false}),
       attributes: textMode,
       text: textMode,
       uri: textMode,
@@ -493,6 +493,17 @@
             }
             return expression(stream, state);
 
+          case "template-call-expression":
+            if (stream.match(/^([\w-?]+)(?==)/)) {
+              return "attribute";
+            } else if (stream.eat('>')) {
+              state.soyState.pop();
+              return "keyword";
+            } else if (stream.eat('/>')) {
+              state.soyState.pop();
+              return "keyword";
+            }
+            return expression(stream, state);
           case "literal":
             if (stream.match(/^(?=\{\/literal})/)) {
               state.soyState.pop();
@@ -557,6 +568,15 @@
         } else if (!state.context && stream.match(/\bimport\b/)) {
           state.soyState.push("import");
           state.indent += 2 * config.indentUnit;
+          return "keyword";
+        } else if (match = stream.match(/^<\{/)) {
+          state.soyState.push("template-call-expression");
+          state.tag = "print";
+          state.indent += 2 * config.indentUnit;
+          state.soyState.push("tag");
+          return "keyword";
+        } else if (match = stream.match(/^<\/>/)) {
+          state.indent -= 2 * config.indentUnit;
           return "keyword";
         }
 
