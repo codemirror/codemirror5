@@ -55,7 +55,7 @@
   CodeMirror.defineMode("soy", function(config) {
     var textMode = CodeMirror.getMode(config, "text/plain");
     var modes = {
-      html: CodeMirror.getMode(config, {name: "text/html", multilineTagIndentFactor: 2, multilineTagIndentPastTag: false}),
+      html: CodeMirror.getMode(config, {name: "text/html", multilineTagIndentFactor: 2, multilineTagIndentPastTag: false, allowMissingTagName: true}),
       attributes: textMode,
       text: textMode,
       uri: textMode,
@@ -276,6 +276,11 @@
             return null;
 
           case "param-def":
+            if (match = stream.match(/^\*/)) {
+              state.soyState.pop();
+              state.soyState.push("param-type");
+              return "type";
+            }
             if (match = stream.match(/^\w+/)) {
               state.variables = prepend(state.variables, match[0]);
               state.soyState.pop();
