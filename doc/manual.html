@@ -2700,8 +2700,8 @@ editor.setOption("extraKeys", {
       Defines <code>editor.showHint</code>, which takes an optional
       options object, and pops up a widget that allows the user to
       select a completion. Finding hints is done with a hinting
-      functions (the <code>hint</code> option), which is a function
-      that take an editor instance and options object, and return
+      function (the <code>hint</code> option). This function
+      takes an editor instance and an options object, and returns
       a <code>{list, from, to}</code> object, where <code>list</code>
       is an array of strings or objects (the completions),
       and <code>from</code> and <code>to</code> give the start and end
@@ -2771,9 +2771,22 @@ editor.setOption("extraKeys", {
         <dt><code><strong>alignWithWord</strong>: boolean</code></dt>
         <dd>Whether the pop-up should be horizontally aligned with the
         start of the word (true, default), or with the cursor (false).</dd>
+        <dt><code><strong>closeCharacters</strong>: RegExp</code></dt>
+        <dd>A regular expression object used to match characters which
+        cause the pop up to be closed (default: <code>/[\s()\[\]{};:>,]/</code>).
+        If the user types one of these characters, the pop up will close, and
+        the <code>endCompletion</code> event is fired on the editor instance.</dd>
         <dt><code><strong>closeOnUnfocus</strong>: boolean</code></dt>
         <dd>When enabled (which is the default), the pop-up will close
         when the editor is unfocused.</dd>
+        <dt><code><strong>completeOnSingleClick</strong>: boolean</code></dt>
+        <dd>Whether a single click on a list item suffices to trigger the
+        completion (which is the default), or if the user has to use a
+        doubleclick.</dd>
+        <dt><code><strong>container</strong>: Element|null</code></dt>
+        <dd>Can be used to define a custom container for the widget. The default
+        is <code>null</code>, in which case the <code>body</code>-element will
+        be used.</dd>
         <dt><code><strong>customKeys</strong>: keymap</code></dt>
         <dd>Allows you to provide a custom key map of keys to be active
         when the pop-up is active. The handlers will be called with an
@@ -2808,6 +2821,14 @@ editor.setOption("extraKeys", {
         (string or object).</dd>
         <dt><code><strong>"close"</strong> ()</code></dt>
         <dd>Fired when the completion is finished.</dd>
+      </dl>
+      The following events will be fired on the editor instance during
+      completion:
+      <dl>
+        <dt><code><strong>"endCompletion"</strong> ()</code></dt>
+        <dd>Fired when the pop-up is being closed programmatically, e.g., when
+        the user types a character which matches the
+        <code>closeCharacters</code> option.</dd>
       </dl>
       This addon depends on styles
       from <code>addon/hint/show-hint.css</code>. Check
