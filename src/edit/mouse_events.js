@@ -149,7 +149,10 @@ function leftButtonStartDrag(cm, event, pos, behavior) {
   let dragEnd = operation(cm, e => {
     if (webkit) display.scroller.draggable = false
     cm.state.draggingText = false
-    if (cm.state.delayingBlurEvent) delayBlurEvent(cm)
+    if (cm.state.delayingBlurEvent) {
+      if (cm.hasFocus()) cm.state.delayingBlurEvent = false
+      else delayBlurEvent(cm)
+    }
     off(display.wrapper.ownerDocument, "mouseup", dragEnd)
     off(display.wrapper.ownerDocument, "mousemove", mouseMove)
     off(display.scroller, "dragstart", dragStart)
