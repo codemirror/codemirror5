@@ -1,3 +1,5 @@
+rollup.config.js
+
 root = true
 
 [*]
