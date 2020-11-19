@@ -71,7 +71,7 @@ CodeMirror.defineMode('shell', function() {
       return 'attribute';
     }
     if (ch == "<") {
-      var heredoc = stream.match(/^<-?\s+(.*)/)
+      var heredoc = stream.match(/^<-?\s*['"]?([^'"]*)['"]?/)
       if (heredoc) {
         state.tokens.unshift(tokenHeredoc(heredoc[1]))
         return 'string-2'
