@@ -1,3 +1,15 @@
+## 5.58.3 (2020-11-19)
+
+### Bug fixes
+
+Suppress quick-firing of blur-focus events when dragging and clicking on Internet Explorer.
+
+Fix the `insertAt` option to `addLineWidget` to actually allow the widget to be placed after all widgets for the line.
+
+[soy mode](https://codemirror.net/mode/soy/): Support `@Attribute` and element composition.
+
+[shell mode](https://codemirror.net/mode/shell/): Support heredoc quoting.
+
 ## 5.58.2 (2020-10-23)
 
 ### Bug fixes
