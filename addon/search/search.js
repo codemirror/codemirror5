@@ -19,14 +19,8 @@
 })(function(CodeMirror) {
   "use strict";
 
-  // default search panel location 
-  var bottom = false;
-
-  CodeMirror.defineOption("search", false, function(cm, val, old) {
-    if (val && val.bottom) {
-      bottom = true;
-    }
-  });
+  // default search panel location
+  CodeMirror.defineOption("search", {bottom: false});
 
   function searchOverlay(query, caseInsensitive) {
     if (typeof query == "string")
@@ -73,12 +67,12 @@
       closeOnEnter: false,
       onClose: function() { clearSearch(cm); },
       onKeyDown: onkeydown,
-      bottom: bottom
+      bottom: cm.options.search.bottom
     });
   }
 
   function dialog(cm, text, shortText, deflt, f) {
-    if (cm.openDialog) cm.openDialog(text, f, {value: deflt, selectValueOnOpen: true, bottom: bottom});
+    if (cm.openDialog) cm.openDialog(text, f, {value: deflt, selectValueOnOpen: true, bottom: cm.options.search.bottom});
     else f(prompt(shortText, deflt));
   }
 
