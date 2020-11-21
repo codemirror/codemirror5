@@ -19,6 +19,15 @@
 })(function(CodeMirror) {
   "use strict";
 
+  // default search panel location 
+  var bottom = false;
+
+  CodeMirror.defineOption("search", false, function(cm, val, old) {
+    if (val && val.bottom) {
+      bottom = true;
+    }
+  });
+
   function searchOverlay(query, caseInsensitive) {
     if (typeof query == "string")
       query = new RegExp(query.replace(/[\-\[\]\/\{\}\(\)\*\+\?\.\\\^\$\|]/g, "\\$&"), caseInsensitive ? "gi" : "g");
@@ -63,12 +72,13 @@
       selectValueOnOpen: true,
       closeOnEnter: false,
       onClose: function() { clearSearch(cm); },
-      onKeyDown: onKeyDown
+      onKeyDown: onkeydown,
+      bottom: bottom
     });
   }
 
   function dialog(cm, text, shortText, deflt, f) {
-    if (cm.openDialog) cm.openDialog(text, f, {value: deflt, selectValueOnOpen: true});
+    if (cm.openDialog) cm.openDialog(text, f, {value: deflt, selectValueOnOpen: true, bottom: bottom});
     else f(prompt(shortText, deflt));
   }
 
