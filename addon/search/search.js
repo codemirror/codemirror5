@@ -66,7 +66,7 @@
       selectValueOnOpen: true,
       closeOnEnter: false,
       onClose: function() { clearSearch(cm); },
-      onKeyDown: onkeydown,
+      onKeyDown: onKeyDown,
       bottom: cm.options.search.bottom
     });
   }
