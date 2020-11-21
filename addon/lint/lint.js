@@ -172,7 +172,7 @@
 
       // filter out duplicate messages
       var message = [];
-      anns = anns.filter(item => message.indexOf(item.message) > -1 ? false : message.push(item.message));
+      anns = anns.filter(function(item) { return message.indexOf(item.message) > -1 ? false : message.push(item.message) });
 
       var maxSeverity = null;
       var tipLabel = state.hasGutter && document.createDocumentFragment();
