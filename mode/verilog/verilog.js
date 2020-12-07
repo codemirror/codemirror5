@@ -106,7 +106,7 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
   }
 
   // Keywords which open statements that are ended with a semi-colon
-  var statementKeywords = words("always always_comb always_ff always_latch assert assign assume else export for foreach forever if import initial repeat while");
+  var statementKeywords = words("always always_comb always_ff always_latch assert assign assume else export for foreach forever if import initial repeat while extern typedef");
 
   function tokenBase(stream, state) {
     var ch = stream.peek(), style;
@@ -365,6 +365,8 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
           // Do nothing in this case
         } else if (curKeyword == "task" && ctx && ctx.type == "statement") {
           // Same thing for task
+        } else if (curKeyword == "class" && ctx && ctx.type == "statement") {
+          // Same thing for class (e.g. typedef)
         } else {
           var close = openClose[curKeyword];
           pushContext(state, stream.column(), close);
