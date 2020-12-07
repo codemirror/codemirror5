@@ -62,7 +62,7 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
      binary_module_path_operator ::=
        == | != | && | || | & | | | ^ | ^~ | ~^
   */
-  var isOperatorChar = /[\+\-\*\/!~&|^%=?:]/;
+  var isOperatorChar = /[\+\-\*\/!~&|^%=?:<>]/;
   var isBracketChar = /[\[\]{}()]/;
 
   var unsignedNumber = /\d[0-9_]*/;
