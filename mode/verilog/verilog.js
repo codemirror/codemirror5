@@ -208,6 +208,15 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
       if (keywords[cur]) {
         if (openClose[cur]) {
           curPunc = "newblock";
+          if (cur === "fork") {
+            // Fork can be a statement instead of block in cases of:
+            // "disable fork;" and "wait fork;" (trailing semicolon)
+            stream.eatSpace()
+            if (stream.peek() == ';') {
+              curPunc = "newstatement";
+            }
+            stream.backUp(stream.current().length - cur.length);    
+          }
         }
         if (statementKeywords[cur]) {
           curPunc = "newstatement";
