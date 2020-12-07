@@ -576,12 +576,11 @@
           return "keyword";
         } else if (match = stream.match(/^<\{/)) {
           state.soyState.push("template-call-expression");
-          state.tag = "print";
           state.indent += 2 * config.indentUnit;
           state.soyState.push("tag");
           return "keyword";
         } else if (match = stream.match(/^<\/>/)) {
-          state.indent -= 2 * config.indentUnit;
+          state.indent -= 1 * config.indentUnit;
           return "keyword";
         }
 
