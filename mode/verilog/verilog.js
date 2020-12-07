@@ -72,7 +72,7 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
   var hexLiteral = /\d*\s*'s?h\s*[0-9a-fxz?][0-9a-fxz?_]*/i;
   var realLiteral = /(\d[\d_]*(\.\d[\d_]*)?E-?[\d_]+)|(\d[\d_]*\.\d[\d_]*)/i;
 
-  var closingBracketOrWord = /^((\w+)|[)}\]])/;
+  var closingBracketOrWord = /^((`?\w+)|[)}\]])/;
   var closingBracket = /[)}\]]/;
 
   var curPunc;
@@ -96,6 +96,7 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
   openClose["do"   ] = "while";
   openClose["fork" ] = "join;join_any;join_none";
   openClose["covergroup"] = "endgroup";
+  openClose["macro_begin"] = "macro_end";
 
   for (var i in noIndentKeywords) {
     var keyword = noIndentKeywords[i];
@@ -125,6 +126,25 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
     if (ch == '`') {
       stream.next();
       if (stream.eatWhile(/[\w\$_]/)) {
+        var cur = stream.current();
+        // Macros that end in _begin, are start of block and end with _end
+        if (cur.startsWith("`uvm_") && cur.endsWith("_begin")) {
+          curKeyword = cur;
+          const keywordClose = curKeyword.substr(0,curKeyword.length - 5) + "end";
+          openClose[cur] = keywordClose;
+          curPunc = "newblock";
+        } else if (cur.startsWith("`uvm_") && cur.endsWith("_end")) {
+          curKeyword = cur;
+        } else {
+          stream.eatSpace()
+          if (stream.peek() == '(') {
+            // Check if this is a block
+            curPunc = "newmacro";
+          }
+          var withSpace = stream.current();
+          // Move the stream back before the spaces
+          stream.backUp(withSpace.length - cur.length);
+        }
         return "def";
       } else {
         return null;
@@ -317,7 +337,13 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
       if (ctx.align == null) ctx.align = true;
 
       if (curPunc == ctx.type) {
-        popContext(state);
+        ctx = popContext(state);
+        if (curPunc == ")") {
+          if (ctx && (ctx.type == "macro")) {
+            ctx = popContext(state);
+            while (ctx && (ctx.type == "statement")) ctx = popContext(state);
+          }
+        }
       } else if ((curPunc == ";" && ctx.type == "statement") ||
                (ctx.type && isClosing(curKeyword, ctx.type))) {
         ctx = popContext(state);
@@ -343,6 +369,10 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
           var close = openClose[curKeyword];
           pushContext(state, stream.column(), close);
         }
+      } else if (curPunc == "newmacro") {
+        // Macros (especially if they have parenthesis) potentially have a semicolon
+        // or complete statement/block inside, and should be treated as such.
+        pushContext(state, stream.column(), "macro");
       }
 
       state.startOfLine = false;
