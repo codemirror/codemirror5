@@ -80,11 +80,11 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
 
   var closingBracketOrWord = /^((`?\w+)|[)}\]])/;
   var closingBracket = /[)}\]]/;
-  const compilerDirectiveRegex      = new RegExp(
+  var compilerDirectiveRegex      = new RegExp(
     "^(`(?:ifdef|ifndef|elsif|else|endif|undef|undefineall|define|include|begin_keywords|celldefine|default|" +
     "nettype|end_keywords|endcelldefine|line|nounconnected_drive|pragma|resetall|timescale|unconnected_drive))\\b");
-  const compilerDirectiveBeginRegex = /^(`(?:ifdef|ifndef|elsif|else))\b/;
-  const compilerDirectiveEndRegex   = /^(`(?:elsif|else|endif))\b/;
+  var compilerDirectiveBeginRegex = /^(`(?:ifdef|ifndef|elsif|else))\b/;
+  var compilerDirectiveEndRegex   = /^(`(?:elsif|else|endif))\b/;
 
   var curPunc;
   var curKeyword;
@@ -141,7 +141,7 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
         curKeyword = cur;
         // Macros that end in _begin, are start of block and end with _end
         if (cur.startsWith("`uvm_") && cur.endsWith("_begin")) {
-          const keywordClose = curKeyword.substr(0,curKeyword.length - 5) + "end";
+          var keywordClose = curKeyword.substr(0,curKeyword.length - 5) + "end";
           openClose[cur] = keywordClose;
           curPunc = "newblock";
         } else if (cur.startsWith("`uvm_") && cur.endsWith("_end")) {
@@ -225,7 +225,7 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
             if (stream.peek() == ';') {
               curPunc = "newstatement";
             }
-            stream.backUp(stream.current().length - cur.length);    
+            stream.backUp(stream.current().length - cur.length);
           }
         }
         if (statementKeywords[cur]) {
@@ -275,12 +275,12 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
     this.prev = prev;
   }
   function pushContext(state, col, type, scopekind) {
-    const indent = state.indented;
-    const c = new Context(indent, col, type, scopekind ? scopekind : "", null, state.context);
+    var indent = state.indented;
+    var c = new Context(indent, col, type, scopekind ? scopekind : "", null, state.context);
     return state.context = c;
   }
   function popContext(state) {
-    const t = state.context.type;
+    var t = state.context.type;
     if (t == ")" || t == "]" || t == "}") {
       state.indented = state.context.indented;
     }
@@ -377,7 +377,7 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
       }
       if (ctx.align == null) ctx.align = true;
 
-      const isClosingAssignment = ctx.type == "assignment" &&
+      var isClosingAssignment = ctx.type == "assignment" &&
         closingBracket.test(curPunc) && ctx.prev && ctx.prev.type === curPunc;
       if (curPunc == ctx.type || isClosingAssignment) {
         if (isClosingAssignment) {
@@ -391,7 +391,7 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
             while (ctx && (ctx.type == "statement" || ctx.type == "assignment")) ctx = popContext(state);
           }
         } else if (curPunc == "}") {
-          // Handle closing statements like constraint block: "foreach () {}" which 
+          // Handle closing statements like constraint block: "foreach () {}" which
           // do not have semicolon at end.
           if (ctx && (ctx.type === "statement")) {
             while (ctx && (ctx.type == "statement")) ctx = popContext(state);
@@ -451,7 +451,7 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
       var ctx = state.context, firstChar = textAfter && textAfter.charAt(0);
       if (ctx.type == "statement" && firstChar == "}") ctx = ctx.prev;
       var closing = false;
-      const possibleClosing = textAfter.match(closingBracketOrWord);
+      var possibleClosing = textAfter.match(closingBracketOrWord);
       if (possibleClosing)
         closing = isClosing(possibleClosing[0], ctx.type);
       if (!compilerDirectivesUseRegularIndentation && textAfter.match(compilerDirectiveRegex)) {
