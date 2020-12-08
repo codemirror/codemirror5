@@ -144,7 +144,6 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
           var keywordClose = curKeyword.substr(0,curKeyword.length - 5) + "end";
           openClose[cur] = keywordClose;
           curPunc = "newblock";
-        } else if (cur.startsWith("`uvm_") && cur.endsWith("_end")) {
         } else {
           stream.eatSpace();
           if (stream.peek() == '(') {
