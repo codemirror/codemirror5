@@ -152,7 +152,7 @@
       *       8'b0 + 8'b1;
       * end
       */
-     "[keyword always] @[bracket (][keyword posedge] [variable clk][bracket )] [keyword begin]",
+     "[keyword always] [def @][bracket (][keyword posedge] [variable clk][bracket )] [keyword begin]",
      "    [keyword if] [bracket (][variable rst][bracket )]",
      "        [variable data_out] [meta <=] [number 8'b0] [meta +]",
      "                    [number 8'b1];",

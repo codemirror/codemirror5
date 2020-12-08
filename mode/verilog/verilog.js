@@ -175,6 +175,12 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
       stream.eatWhile(/[\d_.]/);
       return "def";
     }
+    // Event
+    if (ch == '@') {
+      stream.next();
+      stream.eatWhile(/[@]/);
+      return "def";
+    }
     // Strings
     if (ch == '"') {
       stream.next();
