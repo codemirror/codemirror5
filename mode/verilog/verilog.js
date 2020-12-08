@@ -16,6 +16,12 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
   var indentUnit = config.indentUnit,
       statementIndentUnit = parserConfig.statementIndentUnit || indentUnit,
       dontAlignCalls = parserConfig.dontAlignCalls,
+      // compilerDirectivesUseRegularIndentation - If set, Compiler directive
+      // indentation follows the same rules as everything else. Otherwise if
+      // false, compiler directives will track their own indentation.
+      // For example, `ifdef nested inside another `ifndef will be indented,
+      // but a `ifdef inside a function block may not be indented.
+      compilerDirectivesUseRegularIndentation = parserConfig.compilerDirectivesUseRegularIndentation,
       noIndentKeywords = parserConfig.noIndentKeywords || [],
       multiLineStrings = parserConfig.multiLineStrings,
       hooks = parserConfig.hooks || {};
@@ -74,6 +80,11 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
 
   var closingBracketOrWord = /^((`?\w+)|[)}\]])/;
   var closingBracket = /[)}\]]/;
+  const compilerDirectiveRegex      = new RegExp(
+    "^(`(?:ifdef|ifndef|elsif|else|endif|undef|undefineall|define|include|begin_keywords|celldefine|default|" +
+    "nettype|end_keywords|endcelldefine|line|nounconnected_drive|pragma|resetall|timescale|unconnected_drive))\\b");
+  const compilerDirectiveBeginRegex = /^(`(?:ifdef|ifndef|elsif|else))\b/;
+  const compilerDirectiveEndRegex   = /^(`(?:elsif|else|endif))\b/;
 
   var curPunc;
   var curKeyword;
@@ -127,16 +138,15 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
       stream.next();
       if (stream.eatWhile(/[\w\$_]/)) {
         var cur = stream.current();
+        curKeyword = cur;
         // Macros that end in _begin, are start of block and end with _end
         if (cur.startsWith("`uvm_") && cur.endsWith("_begin")) {
-          curKeyword = cur;
           const keywordClose = curKeyword.substr(0,curKeyword.length - 5) + "end";
           openClose[cur] = keywordClose;
           curPunc = "newblock";
         } else if (cur.startsWith("`uvm_") && cur.endsWith("_end")) {
-          curKeyword = cur;
         } else {
-          stream.eatSpace()
+          stream.eatSpace();
           if (stream.peek() == '(') {
             // Check if this is a block
             curPunc = "newmacro";
@@ -256,20 +266,21 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
     return "comment";
   }
 
-  function Context(indented, column, type, align, prev) {
+  function Context(indented, column, type, scopekind, align, prev) {
     this.indented = indented;
     this.column = column;
     this.type = type;
+    this.scopekind = scopekind;
     this.align = align;
     this.prev = prev;
   }
-  function pushContext(state, col, type) {
-    var indent = state.indented;
-    var c = new Context(indent, col, type, null, state.context);
+  function pushContext(state, col, type, scopekind) {
+    const indent = state.indented;
+    const c = new Context(indent, col, type, scopekind ? scopekind : "", null, state.context);
     return state.context = c;
   }
   function popContext(state) {
-    var t = state.context.type;
+    const t = state.context.type;
     if (t == ")" || t == "]" || t == "}") {
       state.indented = state.context.indented;
     }
@@ -289,6 +300,16 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
       }
       return false;
     }
+  }
+
+  function isInsideScopeKind(ctx, scopekind) {
+    if (ctx == null) {
+      return false;
+    }
+    if (ctx.scopekind === scopekind) {
+      return true;
+    }
+    return isInsideScopeKind(ctx.prev, scopekind);
   }
 
   function buildElectricInputRegEx() {
@@ -317,8 +338,9 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
     startState: function(basecolumn) {
       var state = {
         tokenize: null,
-        context: new Context((basecolumn || 0) - indentUnit, 0, "top", false),
+        context: new Context((basecolumn || 0) - indentUnit, 0, "top", "top", false),
         indented: 0,
+        compilerDirectiveIndented: 0,
         startOfLine: true
       };
       if (hooks.startState) hooks.startState(state);
@@ -344,12 +366,11 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
       curKeyword = null;
       var style = (state.tokenize || tokenBase)(stream, state);
       if (style == "comment" || style == "meta" || style == "variable") {
-        if ((curPunc === "=") || (curPunc === "<=")) {
+        if (((curPunc === "=") || (curPunc === "<=")) && !isInsideScopeKind(ctx, "assignment")) {
           // '<=' could be nonblocking assignment or lessthan-equals (which shouldn't cause indent)
-          //      TODO: Search through the context to see if we are already in an assignment.
-          //            This will likely require some sort of additional state.
+          //      Search through the context to see if we are already in an assignment.
           // '=' could be inside port declaration with comma or ')' afterward, or inside for(;;) block.
-          pushContext(state, stream.column(), "assignment");
+          pushContext(state, stream.column() + curPunc.length, "assignment", "assignment");
           if (ctx.align == null) ctx.align = true;
         }
         return style;
@@ -364,9 +385,16 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
         }
         ctx = popContext(state);
         if (curPunc == ")") {
-          if (ctx && (ctx.type == "macro")) {
+          // Handle closing macros, assuming they could have a semicolon or begin/end block inside.
+          if (ctx && (ctx.type === "macro")) {
             ctx = popContext(state);
             while (ctx && (ctx.type == "statement" || ctx.type == "assignment")) ctx = popContext(state);
+          }
+        } else if (curPunc == "}") {
+          // Handle closing statements like constraint block: "foreach () {}" which 
+          // do not have semicolon at end.
+          if (ctx && (ctx.type === "statement")) {
+            while (ctx && (ctx.type == "statement")) ctx = popContext(state);
           }
         }
       } else if (((curPunc == ";" || curPunc == ",") && (ctx.type == "statement" || ctx.type == "assignment")) ||
@@ -380,9 +408,9 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
       } else if (curPunc == "(") {
         pushContext(state, stream.column(), ")");
       } else if (ctx && ctx.type == "endcase" && curPunc == ":") {
-        pushContext(state, stream.column(), "statement");
+        pushContext(state, stream.column(), "statement", "case");
       } else if (curPunc == "newstatement") {
-        pushContext(state, stream.column(), "statement");
+        pushContext(state, stream.column(), "statement", curKeyword);
       } else if (curPunc == "newblock") {
         if (curKeyword == "function" && ctx && (ctx.type == "statement" || ctx.type == "endgroup")) {
           // The 'function' keyword can appear in some other contexts where it actually does not
@@ -394,12 +422,20 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
           // Same thing for class (e.g. typedef)
         } else {
           var close = openClose[curKeyword];
-          pushContext(state, stream.column(), close);
+          pushContext(state, stream.column(), close, curKeyword);
         }
-      } else if (curPunc == "newmacro") {
-        // Macros (especially if they have parenthesis) potentially have a semicolon
-        // or complete statement/block inside, and should be treated as such.
-        pushContext(state, stream.column(), "macro");
+      } else if (curPunc == "newmacro" || (curKeyword && curKeyword.match(compilerDirectiveRegex))) {
+        if (curPunc == "newmacro") {
+          // Macros (especially if they have parenthesis) potentially have a semicolon
+          // or complete statement/block inside, and should be treated as such.
+          pushContext(state, stream.column(), "macro", "macro");
+        }
+        if (curKeyword.match(compilerDirectiveEndRegex)) {
+          state.compilerDirectiveIndented -= statementIndentUnit;
+        }
+        if (curKeyword.match(compilerDirectiveBeginRegex)) {
+          state.compilerDirectiveIndented += statementIndentUnit;
+        }
       }
 
       state.startOfLine = false;
@@ -415,9 +451,15 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
       var ctx = state.context, firstChar = textAfter && textAfter.charAt(0);
       if (ctx.type == "statement" && firstChar == "}") ctx = ctx.prev;
       var closing = false;
-      var possibleClosing = textAfter.match(closingBracketOrWord);
+      const possibleClosing = textAfter.match(closingBracketOrWord);
       if (possibleClosing)
         closing = isClosing(possibleClosing[0], ctx.type);
+      if (!compilerDirectivesUseRegularIndentation && textAfter.match(compilerDirectiveRegex)) {
+        if (textAfter.match(compilerDirectiveEndRegex)) {
+          return state.compilerDirectiveIndented - statementIndentUnit;
+        }
+        return state.compilerDirectiveIndented;
+      }
       if (ctx.type == "statement") return ctx.indented + (firstChar == "{" ? 0 : statementIndentUnit);
       else if ((closingBracket.test(ctx.type) || ctx.type == "assignment")
         && ctx.align && !dontAlignCalls) return ctx.column + (closing ? 0 : 1);

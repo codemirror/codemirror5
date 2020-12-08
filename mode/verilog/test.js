@@ -139,6 +139,32 @@
      ""
   );
 
+  MT("align_assignments",
+     /**
+      * always @(posedge clk) begin
+      *    if (rst)
+      *       data_out <= 8'b0 +
+      *                   8'b1;
+      *    else
+      *       data_out = 8'b0 +
+      *                  8'b1;
+      *    data_out =
+      *       8'b0 + 8'b1;
+      * end
+      */
+     "[keyword always] @[bracket (][keyword posedge] [variable clk][bracket )] [keyword begin]",
+     "    [keyword if] [bracket (][variable rst][bracket )]",
+     "        [variable data_out] [meta <=] [number 8'b0] [meta +]",
+     "                    [number 8'b1];",
+     "    [keyword else]",
+     "        [variable data_out] [meta =] [number 8'b0] [meta +]",
+     "                   [number 8'b1];",
+     "    [variable data_out] [meta =] [number 8'b0] [meta +]",
+     "               [number 8'b1];",
+     "[keyword end]",
+     ""
+  );
+
   // Indentation tests
   MT("indent_single_statement_if",
       "[keyword if] [bracket (][variable foo][bracket )]",
@@ -279,7 +305,6 @@
      "[def `uvm_object_utils_begin][bracket (][variable foo][bracket )]",
      "    [def `uvm_field_event][bracket (][variable foo], [variable UVM_ALL_ON][bracket )]",
      "[def `uvm_object_utils_end]",
-     "[variable foo][bracket ()];",
      ""
   );
 
@@ -292,7 +317,6 @@
      "[def `uvm_do_with][bracket (][variable mem_read],[bracket {]",
      "    [variable bar_nb] [meta ==] [number 0];",
      "[bracket })]",
-     "[variable foo][bracket ()];",
      ""
   );
 
@@ -307,7 +331,6 @@
       *    wait fork;
       *    disable fork;
       * endtask : body
-
       */
      "[keyword virtual] [keyword task] [variable body][bracket ()];",
      "    [keyword repeat] [bracket (][number 20][bracket )] [keyword begin]",
@@ -362,6 +385,58 @@
       */
      "[keyword extern] [keyword virtual] [keyword function] [keyword void] [variable do1][bracket (][keyword ref] [variable packet] [variable trans][bracket )];",
      "[keyword extern] [keyword virtual] [keyword function] [keyword void] [variable do2][bracket (][keyword ref] [variable packet] [variable trans][bracket )];",
+     ""
+  );
+
+  MT("indent_assignment",
+     /**
+      * for (int i=1;i < fun;i++) begin
+      *    foo = 2 << asdf || 11'h35 >> abcd
+      *          && 8'h6 | 1'b1;
+      * end
+      */
+     "[keyword for] [bracket (][keyword int] [variable i][meta =][number 1];[variable i] [meta <] [variable fun];[variable i][meta ++][bracket )] [keyword begin]",
+     "    [variable foo] [meta =] [number 2] [meta <<] [variable asdf] [meta ||] [number 11'h35] [meta >>] [variable abcd]",
+     "          [meta &&] [number 8'h6] [meta |] [number 1'b1];",
+     "[keyword end]",
+     ""
+  );
+
+  MT("indent_foreach_constraint",
+     /**
+      * `uvm_rand_send_with(wrTlp, {
+      *    length ==1;
+      *    foreach (Data[i]) {
+      *       payload[i] == Data[i];
+      *    }
+      * })
+      */
+     "[def `uvm_rand_send_with][bracket (][variable wrTlp], [bracket {]",
+     "    [variable length] [meta ==][number 1];",
+     "    [keyword foreach] [bracket (][variable Data][bracket [[][variable i][bracket ]])] [bracket {]",
+     "        [variable payload][bracket [[][variable i][bracket ]]] [meta ==] [variable Data][bracket [[][variable i][bracket ]]];",
+     "    [bracket }]",
+     "[bracket })]",
+     ""
+  );
+
+  MT("indent_compiler_directives",
+     /**
+      * `ifdef DUT
+      * `else
+      *     `ifndef FOO
+      *         `define FOO
+      *     `endif
+      * `endif
+      * `timescale 1ns/1ns
+      */
+     "[def `ifdef] [variable DUT]",
+     "[def `else]",
+     "    [def `ifndef] [variable FOO]",
+     "        [def `define] [variable FOO]",
+     "    [def `endif]",
+     "[def `endif]",
+     "[def `timescale] [number 1][variable ns][meta /][number 1][variable ns]",
      ""
   );
 
