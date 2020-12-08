@@ -35,7 +35,7 @@
     for (; at > 0; --at)
       if (wrapOn.test(text.slice(at - 1, at + 1))) break;
 
-    if (at == 0 && !forceBreak) {
+    if (!forceBreak && at <= text.match(/^[ \t]*/)[0].length) {
       // didn't find a break point before column, in non-forceBreak mode try to
       // find one after 'column'.
       for (at = column + 1; at < text.length - 1; ++at) {
