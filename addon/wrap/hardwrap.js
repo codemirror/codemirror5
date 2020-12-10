@@ -91,7 +91,8 @@
       }
       while (curLine.length > column) {
         var bp = findBreakPoint(curLine, column, wrapOn, killTrailing, forceBreak);
-        if (bp.from != bp.to || forceBreak) {
+        if (bp.from != bp.to ||
+            forceBreak && leadingSpace !== curLine.slice(0, bp.to)) {
           changes.push({text: ["", leadingSpace],
                         from: Pos(curNo, bp.from),
                         to: Pos(curNo, bp.to)});
