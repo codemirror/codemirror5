@@ -512,6 +512,15 @@
       which causes the cursor to not reach all the way to the bottom
       of the line, looks better</dd>
 
+      <dt id="option_singleCursorHeightPerLine"><code><strong>singleCursorHeightPerLine</strong>: boolean</code></dt>
+      <dd>Determines if CodeMirror can expect all lines to be of the
+      same height (<code>true</code>, the default) and the cursor-size
+      can therefore be lazily evaluated. In case your editor contains
+      multiple line-sizes, for instance, if <a href="#addLineClass"><code>addLineClass</code></a>
+      sets classes which contain <code>line-height</code>-rules, you
+      should consider setting this to <code>false</code> to prevent
+      visual artefacts.
+
       <dt id="option_resetSelectionOnContextMenu"><code><strong>resetSelectionOnContextMenu</strong>: boolean</code></dt>
       <dd>Controls whether, when the context menu is opened with a
       click outside of the current selection, the cursor is moved to
