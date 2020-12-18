@@ -21,7 +21,8 @@
      '[string "foo #\\"# bar"]');
 
   MT('atom-test',
-     '[atom anyfunc]',
+     '[atom funcref]',
+     '[atom externref]',
      '[atom i32]',
      '[atom i64]',
      '[atom f32]',
@@ -42,9 +43,11 @@
      '[keyword br_table] [variable-2 $label0] [variable-2 $label1] [variable-2 $label3]',
      '[keyword return]',
      '[keyword call] [variable-2 $func0]',
-     '[keyword call_indirect] ([keyword param] [atom f32] [atom f64]) ([keyword result] [atom i32] [atom i64])',
+     '[keyword call_indirect] [variable-2 $table] ([keyword param] [atom f32] [atom f64]) ([keyword result] [atom i32] [atom i64])',
      '[keyword return_call] [variable-2 $func0]',
-     '[keyword return_call_indirect] ([keyword param] [atom f32] [atom f64]) ([keyword result] [atom i32] [atom i64])');
+     '[keyword return_call_indirect] ([keyword param] [atom f32] [atom f64]) ([keyword result] [atom i32] [atom i64])',
+     '[keyword select] ([keyword local.get] [number 1]) ([keyword local.get] [number 2]) ([keyword local.get] [number 3])');
+
 
   MT('memory-instructions',
      '[keyword i32.load] [keyword offset]=[number 4] [keyword align]=[number 4]',
@@ -318,4 +321,20 @@
      '[keyword i32x4.trunc_sat_f32x4_u]',
      '[keyword f32x4.convert_i32x4_s]',
      '[keyword f32x4.convert_i32x4_u]');
+
+     MT('reference-type-instructions',
+     '[keyword ref.null] [keyword extern]',
+     '[keyword ref.null] [keyword func]',
+     '[keyword ref.is_null] ([keyword ref.func] [variable-2 $f])',
+     '[keyword ref.func] [variable-2 $f]');
+
+     MT('table-instructions',
+     '[keyword table.get] [variable-2 $t] ([keyword i32.const] [number 5])',
+     '[keyword table.set] [variable-2 $t] ([keyword i32.const] [number 5]) ([keyword ref.func] [variable-2 $f])',
+     '[keyword table.size] [variable-2 $t]',
+     '[keyword table.grow] [variable-2 $t] ([keyword ref.null] [keyword extern]) ([keyword i32.const] [number 5])',
+     '[keyword table.fill] [variable-2 $t] ([keyword i32.const] [number 5]) ([keyword param] [variable-2 $r] [atom externref]) ([keyword i32.const] [number 5])',
+     '[keyword table.init] [variable-2 $t] [number 1] ([keyword i32.const] [number 5]) ([keyword i32.const] [number 10]) ([keyword i32.const] [number 15])',
+     '[keyword table.copy] [variable-2 $t] [variable-2 $t2] ([keyword i32.const] [number 5]) ([keyword i32.const] [number 10]) ([keyword i32.const] [number 15])'
+     );
 })();
