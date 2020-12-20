@@ -14,7 +14,7 @@ Fix platform detection on recent iPadOS.
 
 ### New features
 
-[search addon](https://codemirror.net/demo/search/): Make it possible to configure the search addon to show the dialog at the bottom of the editor.
+[search addon](https://codemirror.net/demo/search.html): Make it possible to configure the search addon to show the dialog at the bottom of the editor.
 
 ## 5.58.3 (2020-11-19)
 
