@@ -513,13 +513,10 @@
       of the line, looks better</dd>
 
       <dt id="option_singleCursorHeightPerLine"><code><strong>singleCursorHeightPerLine</strong>: boolean</code></dt>
-      <dd>If set to <code>true</code> (the default), CodeMirror will
-      calculate the cursor height from the adjacent characters or
-      text markers. If set to <code>false</code>, the cursor height
-      will be calculated based off the height of all bounding boxes
-      on the current (wrapped) line, keeping the height consistent.
-      This is visible especially if you use text markers that are
-      bigger than the font-size of the characters on the line.
+      <dd>If set to <code>true</code> (the default), will keep the
+      cursor height constant for an entire line (or wrapped part of a
+      line). When <code>false</code>, the cursor's height is based on
+      the height of the adjacent reference character.</dd>
 
       <dt id="option_resetSelectionOnContextMenu"><code><strong>resetSelectionOnContextMenu</strong>: boolean</code></dt>
       <dd>Controls whether, when the context menu is opened with a
