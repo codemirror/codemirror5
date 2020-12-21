@@ -99,7 +99,7 @@
 
   function moveSel(cm, dir) {
     var newRanges = [], ranges = cm.listSelections(), primary = 0
-    for (let i = 0; i < ranges.length; i++) {
+    for (var i = 0; i < ranges.length; i++) {
       var range = ranges[i]
       if (range.head == cm.getCursor()) primary = i
       var pos = {line: range.head.line, ch: range.head.ch + dir}
