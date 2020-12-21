@@ -98,11 +98,11 @@
   }
 
   function moveSel(cm, dir) {
-    let newRanges = [], ranges = cm.listSelections(), primary = 0
+    var newRanges = [], ranges = cm.listSelections(), primary = 0
     for (let i = 0; i < ranges.length; i++) {
-      let range = ranges[i]
+      var range = ranges[i]
       if (range.head == cm.getCursor()) primary = i
-      let pos = {line: range.head.line, ch: range.head.ch + dir}
+      var pos = {line: range.head.line, ch: range.head.ch + dir}
       newRanges.push({anchor: pos, head: pos})
     }
     cm.setSelections(newRanges, primary)
