@@ -697,7 +697,7 @@ CodeMirror.defineMode("perl",function(){
                                         return "variable-2";}
                         stream.pos=p;}
                 if(/[$@%&]/.test(ch)){
-                        if(stream.eatWhile(/[\w$\[\]]/)||stream.eat("{")&&stream.eatWhile(/[\w$\[\]]/)&&stream.eat("}")){
+                        if(stream.eatWhile(/[\w$]/)||stream.eat("{")&&stream.eatWhile(/[\w$]/)&&stream.eat("}")){
                                 var c=stream.current();
                                 if(PERL[c])
                                         return "variable-2";
