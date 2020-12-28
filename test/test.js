@@ -1807,8 +1807,8 @@ testCM("atomicMarker", function(cm) {
       inclusiveRight: ri
     };
 
-    if (ls === true || ls === false) options["selectLeft"] = ls;
-    if (rs === true || rs === false) options["selectRight"] = rs;
+    if (ls === true || ls === false) options.selectLeft = ls;
+    if (rs === true || rs === false) options.selectRight = rs;
 
     return cm.markText(Pos(ll, cl), Pos(lr, cr), options);
   }

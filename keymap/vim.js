@@ -984,7 +984,7 @@
                 cm.state.vim = undefined;
                 maybeInitVimState(cm);
                 if (!CodeMirror.Vim.suppressErrorLogging) {
-                  console['log'](e);
+                  console.log(e);
                 }
                 throw e;
               }
