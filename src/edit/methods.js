@@ -480,9 +480,12 @@ function findPosH(doc, pos, dir, unit, visually) {
     let next
     if (unit == "codepoint") {
       let ch = lineObj.text.charCodeAt(pos.ch + (unit > 0 ? 0 : -1))
-      if (isNaN(ch)) next = null
-      else next = new Pos(pos.line, Math.max(0, Math.min(lineObj.text.length, pos.ch + dir * (ch >= 0xD800 && ch < 0xDC00 ? 2 : 1))),
-                          -dir)
+      if (isNaN(ch)) {
+        next = null
+      } else {
+        let astral = dir > 0 ? ch >= 0xD800 && ch < 0xDC00 : ch >= 0xDC00 && ch < 0xDFFF
+        next = new Pos(pos.line, Math.max(0, Math.min(lineObj.text.length, pos.ch + dir * (astral ? 2 : 1))), -dir)
+      }
     } else if (visually) {
       next = moveVisually(doc.cm, lineObj, pos, dir)
     } else {
