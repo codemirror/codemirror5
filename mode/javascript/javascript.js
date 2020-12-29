@@ -640,6 +640,8 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
       return cont(expect("variable"), maybetypeOrIn, expect("]"), typeprop)
     } else if (type == "(") {
       return pass(functiondecl, typeprop)
+    } else {
+      return cont()
     }
   }
   function typearg(type, value) {
