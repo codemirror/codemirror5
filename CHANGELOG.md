@@ -1,3 +1,9 @@
+## 5.59.1 (2020-12-31)
+
+### Bug fixes
+
+Fix an issue where some Chrome browsers were detected as iOS.
+
 ## 5.59.0 (2020-12-20)
 
 ### Bug fixes
