@@ -479,7 +479,7 @@ function findPosH(doc, pos, dir, unit, visually) {
   function moveOnce(boundToLine) {
     let next
     if (unit == "codepoint") {
-      let ch = lineObj.text.charCodeAt(pos.ch + (unit > 0 ? 0 : -1))
+      let ch = lineObj.text.charCodeAt(pos.ch + (dir > 0 ? 0 : -1))
       if (isNaN(ch)) {
         next = null
       } else {
