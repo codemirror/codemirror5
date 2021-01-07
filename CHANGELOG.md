@@ -996,7 +996,7 @@ New event: [`optionChange`](https://codemirror.net/doc/manual.html#event_optionC
 
 Tapping/clicking the editor in [contentEditable mode](https://codemirror.net/doc/manual.html#option_inputStyle) on Chrome now puts the cursor at the tapped position.
 
-Fix various crashes and misbehaviors when reading composition events in [contentEditable mode](https://codemirror.net/doc/manual.html#option_inputStyle).
+Fix various crashes and misbehavior when reading composition events in [contentEditable mode](https://codemirror.net/doc/manual.html#option_inputStyle).
 
 Catches and ignores an IE 'Unspecified Error' when creating an editor in an iframe before there is a `<body>`.
 
