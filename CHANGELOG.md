@@ -490,7 +490,7 @@ Add `hintWords` (basic completion) helper to [clojure](https://codemirror.net/mo
 
 [panel addon](https://codemirror.net/doc/manual.html#addon_panel): Fix problem where replacing the last remaining panel dropped the newly added panel.
 
-[hardwrap addon](https://codemirror.net/doc/manual.html#addon_hardwrap): Fix an infinite loop when the indention is greater than the target column.
+[hardwrap addon](https://codemirror.net/doc/manual.html#addon_hardwrap): Fix an infinite loop when the indentation is greater than the target column.
 
 [jinja2](https://codemirror.net/mode/jinja2/) and [markdown](https://codemirror.net/mode/markdown/) modes: Add comment metadata.
 
