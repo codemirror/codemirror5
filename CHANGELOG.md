@@ -1818,7 +1818,7 @@ Emergency fix for a bug where an editor with line wrapping on IE will break when
 *   Slightly incompatible API changes. Read [this](https://codemirror.net/doc/upgrade_v2.2.html).
 *   New approach to [binding](https://codemirror.net/doc/manual.html#option_extraKeys) keys, support for [custom bindings](https://codemirror.net/doc/manual.html#option_keyMap).
 *   Support for overwrite (insert).
-*   [Custom-width](https://codemirror.net/doc/manual.html#option_tabSize) and [stylable](https://codemirror.net/demo/visibletabs.html) tabs.
+*   [Custom-width](https://codemirror.net/doc/manual.html#option_tabSize) and [styleable](https://codemirror.net/demo/visibletabs.html) tabs.
 *   Moved more code into [add-on scripts](https://codemirror.net/doc/manual.html#addons).
 *   Support for sane vertical cursor movement in wrapped lines.
 *   More reliable handling of editing [marked text](https://codemirror.net/doc/manual.html#markText).
