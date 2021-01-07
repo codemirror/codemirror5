@@ -370,7 +370,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
       "$":   hookVar,
       // The preferred way to escape Identifiers is using double quotes, ref: http://sqlite.org/lang_keywords.html
       "\"":   hookIdentifierDoublequote,
-      // there is also support for backtics, ref: http://sqlite.org/lang_keywords.html
+      // there is also support for backticks, ref: http://sqlite.org/lang_keywords.html
       "`":   hookIdentifier
     }
   });
