@@ -234,7 +234,7 @@ Make Shift-Delete to cut work on Firefox.
 
 [handlebars mode](https://codemirror.net/mode/handlebars/): Fix triple-brace support.
 
-[searchcursor addon](https://codemirror.net/doc/manual.html#addon_searchcursor): Support mathing `$` in reverse regexp search.
+[searchcursor addon](https://codemirror.net/doc/manual.html#addon_searchcursor): Support matching `$` in reverse regexp search.
 
 [panel addon](https://codemirror.net/doc/manual.html#addon_panel): Don't get confused by changing panel sizes.
 
