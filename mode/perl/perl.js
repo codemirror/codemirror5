@@ -441,7 +441,7 @@ CodeMirror.defineMode("perl",function(){
                 state                           :1,     // - declare and assign a state variable (persistent lexical scoping)
                 study                           :1,     // - optimize input data for repeated searches
                 'sub'                           :1,     // - declare a subroutine, possibly anonymously
-                'substr'                        :1,     // - get or alter a portion of a stirng
+                'substr'                        :1,     // - get or alter a portion of a string
                 symlink                         :1,     // - create a symbolic link to a file
                 syscall                         :1,     // - execute an arbitrary system call
                 sysopen                         :1,     // - open a file, pipe, or descriptor
