@@ -1832,7 +1832,7 @@ Fixes `TextMarker.clear`, which is broken in 2.17.
 ## 2.17.0 (2011-11-21)
 
 *   Add support for [line wrapping](https://codemirror.net/doc/manual.html#option_lineWrapping) and [code folding](https://codemirror.net/doc/manual.html#hideLine).
-*   Add [Github-style Markdown](https://codemirror.net/mode/gfm/index.html) mode.
+*   Add [GitHub-style Markdown](https://codemirror.net/mode/gfm/index.html) mode.
 *   Add [Monokai](https://codemirror.net/theme/monokai.css) and [Rubyblue](https://codemirror.net/theme/rubyblue.css) themes.
 *   Add [`setBookmark`](https://codemirror.net/doc/manual.html#setBookmark) method.
 *   Move some of the demo code into reusable components under [`lib/util`](https://codemirror.net/addon/).
