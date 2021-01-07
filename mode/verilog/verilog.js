@@ -542,7 +542,7 @@ CodeMirror.defineMode("verilog", function(config, parserConfig) {
   };
   var tlvIndentUnit = 3;
   var tlvTrackStatements = false;
-  var tlvIdentMatch = /^([~!@#\$%\^&\*-\+=\?\/\\\|'"<>]+)([\d\w_]*)/;  // Matches an identifiere.
+  var tlvIdentMatch = /^([~!@#\$%\^&\*-\+=\?\/\\\|'"<>]+)([\d\w_]*)/;  // Matches an identifier.
   // Note that ':' is excluded, because of it's use in [:].
   var tlvFirstLevelIndentMatch = /^[! ]  /;
   var tlvLineIndentationMatch = /^[! ] */;
