@@ -878,7 +878,7 @@ Add `role=presentation` to more DOM elements to improve screen reader support.
 
 [merge addon](https://codemirror.net/doc/manual.html#addon_merge): Make aligning of unchanged chunks more robust.
 
-[comment addon](https://codemirror.net/doc/manual.html#addon_comment): Fix comment-toggling on a block of text that starts and ends in a (differnet) block comment.
+[comment addon](https://codemirror.net/doc/manual.html#addon_comment): Fix comment-toggling on a block of text that starts and ends in a (different) block comment.
 
 [javascript mode](https://codemirror.net/mode/javascript/): Improve support for TypeScript syntax.
 
