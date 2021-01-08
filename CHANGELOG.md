@@ -234,7 +234,7 @@ Make Shift-Delete to cut work on Firefox.
 
 [handlebars mode](https://codemirror.net/mode/handlebars/): Fix triple-brace support.
 
-[searchcursor addon](https://codemirror.net/doc/manual.html#addon_searchcursor): Support mathing `$` in reverse regexp search.
+[searchcursor addon](https://codemirror.net/doc/manual.html#addon_searchcursor): Support matching `$` in reverse regexp search.
 
 [panel addon](https://codemirror.net/doc/manual.html#addon_panel): Don't get confused by changing panel sizes.
 
@@ -490,7 +490,7 @@ Add `hintWords` (basic completion) helper to [clojure](https://codemirror.net/mo
 
 [panel addon](https://codemirror.net/doc/manual.html#addon_panel): Fix problem where replacing the last remaining panel dropped the newly added panel.
 
-[hardwrap addon](https://codemirror.net/doc/manual.html#addon_hardwrap): Fix an infinite loop when the indention is greater than the target column.
+[hardwrap addon](https://codemirror.net/doc/manual.html#addon_hardwrap): Fix an infinite loop when the indentation is greater than the target column.
 
 [jinja2](https://codemirror.net/mode/jinja2/) and [markdown](https://codemirror.net/mode/markdown/) modes: Add comment metadata.
 
@@ -878,7 +878,7 @@ Add `role=presentation` to more DOM elements to improve screen reader support.
 
 [merge addon](https://codemirror.net/doc/manual.html#addon_merge): Make aligning of unchanged chunks more robust.
 
-[comment addon](https://codemirror.net/doc/manual.html#addon_comment): Fix comment-toggling on a block of text that starts and ends in a (differnet) block comment.
+[comment addon](https://codemirror.net/doc/manual.html#addon_comment): Fix comment-toggling on a block of text that starts and ends in a (different) block comment.
 
 [javascript mode](https://codemirror.net/mode/javascript/): Improve support for TypeScript syntax.
 
@@ -996,7 +996,7 @@ New event: [`optionChange`](https://codemirror.net/doc/manual.html#event_optionC
 
 Tapping/clicking the editor in [contentEditable mode](https://codemirror.net/doc/manual.html#option_inputStyle) on Chrome now puts the cursor at the tapped position.
 
-Fix various crashes and misbehaviors when reading composition events in [contentEditable mode](https://codemirror.net/doc/manual.html#option_inputStyle).
+Fix various crashes and misbehavior when reading composition events in [contentEditable mode](https://codemirror.net/doc/manual.html#option_inputStyle).
 
 Catches and ignores an IE 'Unspecified Error' when creating an editor in an iframe before there is a `<body>`.
 
@@ -1331,7 +1331,7 @@ Fix a [bug](https://github.com/codemirror/CodeMirror/issues/3834) that caused ph
 * New modes: [Vue](https://codemirror.net/mode/vue/index.html), [Oz](https://codemirror.net/mode/oz/index.html), [MscGen](https://codemirror.net/mode/mscgen/index.html) (and dialects), [Closure Stylesheets](https://codemirror.net/mode/css/gss.html)
 * Implement [CommonMark](http://commonmark.org)-style flexible list indent and cross-line code spans in [Markdown](https://codemirror.net/mode/markdown/index.html) mode
 * Add a replace-all button to the [search addon](https://codemirror.net/doc/manual.html#addon_search), and make the persistent search dialog transparent when it obscures the match
-* Handle `acync`/`await` and ocal and binary numbers in [JavaScript mode](https://codemirror.net/mode/javascript/index.html)
+* Handle `async`/`await` and ocal and binary numbers in [JavaScript mode](https://codemirror.net/mode/javascript/index.html)
 * Fix various issues with the [Haxe mode](https://codemirror.net/mode/haxe/index.html)
 * Make the [closebrackets addon](https://codemirror.net/doc/manual.html#addon_closebrackets) select only the wrapped text when wrapping selection in brackets
 * Tokenize properties as properties in the [CoffeeScript mode](https://codemirror.net/mode/coffeescript/index.html)
@@ -1818,7 +1818,7 @@ Emergency fix for a bug where an editor with line wrapping on IE will break when
 *   Slightly incompatible API changes. Read [this](https://codemirror.net/doc/upgrade_v2.2.html).
 *   New approach to [binding](https://codemirror.net/doc/manual.html#option_extraKeys) keys, support for [custom bindings](https://codemirror.net/doc/manual.html#option_keyMap).
 *   Support for overwrite (insert).
-*   [Custom-width](https://codemirror.net/doc/manual.html#option_tabSize) and [stylable](https://codemirror.net/demo/visibletabs.html) tabs.
+*   [Custom-width](https://codemirror.net/doc/manual.html#option_tabSize) and [styleable](https://codemirror.net/demo/visibletabs.html) tabs.
 *   Moved more code into [add-on scripts](https://codemirror.net/doc/manual.html#addons).
 *   Support for sane vertical cursor movement in wrapped lines.
 *   More reliable handling of editing [marked text](https://codemirror.net/doc/manual.html#markText).
@@ -1832,7 +1832,7 @@ Fixes `TextMarker.clear`, which is broken in 2.17.
 ## 2.17.0 (2011-11-21)
 
 *   Add support for [line wrapping](https://codemirror.net/doc/manual.html#option_lineWrapping) and [code folding](https://codemirror.net/doc/manual.html#hideLine).
-*   Add [Github-style Markdown](https://codemirror.net/mode/gfm/index.html) mode.
+*   Add [GitHub-style Markdown](https://codemirror.net/mode/gfm/index.html) mode.
 *   Add [Monokai](https://codemirror.net/theme/monokai.css) and [Rubyblue](https://codemirror.net/theme/rubyblue.css) themes.
 *   Add [`setBookmark`](https://codemirror.net/doc/manual.html#setBookmark) method.
 *   Move some of the demo code into reusable components under [`lib/util`](https://codemirror.net/addon/).

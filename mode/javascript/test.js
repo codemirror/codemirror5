@@ -252,7 +252,7 @@
   MT("async_object",
      "[keyword let] [def obj] [operator =] { [property async]: [atom false] };");
 
-  // async be highlighet as keyword and foo as def, but it requires potentially expensive look-ahead. See #4173
+  // async be highlighted as keyword and foo as def, but it requires potentially expensive look-ahead. See #4173
   MT("async_object_function",
      "[keyword let] [def obj] [operator =] { [property async] [property foo]([def args]) { [keyword return] [atom true]; } };");
 

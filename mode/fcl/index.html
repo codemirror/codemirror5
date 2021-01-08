@@ -61,7 +61,7 @@
       END_FUZZIFY
 
       DEFUZZIFY ProbabilityAccess
-          TERM hight := 1;
+          TERM height := 1;
           TERM medium := 0.5;
           TERM low := 0;
           ACCU: MAX;
@@ -70,7 +70,7 @@
       END_DEFUZZIFY
 
       DEFUZZIFY ProbabilityDistribution
-          TERM hight := 1;
+          TERM height := 1;
           TERM medium := 0.5;
           TERM low := 0;
           ACCU: MAX;
@@ -80,14 +80,14 @@
 
       RULEBLOCK No1
           AND : MIN;
-          RULE 1 : IF TimeDay IS outside AND ApplicateHost IS few THEN ProbabilityAccess IS hight;
-          RULE 2 : IF ApplicateHost IS many THEN ProbabilityAccess IS hight;
+          RULE 1 : IF TimeDay IS outside AND ApplicateHost IS few THEN ProbabilityAccess IS height;
+          RULE 2 : IF ApplicateHost IS many THEN ProbabilityAccess IS height;
           RULE 3 : IF TimeDay IS inside AND ApplicateHost IS few THEN ProbabilityAccess IS low;
       END_RULEBLOCK
 
       RULEBLOCK No2
           AND : MIN;
-          RULE 1 : IF ApplicateHost IS many THEN ProbabilityDistribution IS hight;
+          RULE 1 : IF ApplicateHost IS many THEN ProbabilityDistribution IS height;
       END_RULEBLOCK
 
   END_FUNCTION_BLOCK

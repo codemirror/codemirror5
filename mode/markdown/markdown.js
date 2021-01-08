@@ -223,7 +223,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
 
       // Add this list item's content's indentation to the stack
       state.listStack.push(state.indentation);
-      // Reset inline styles which shouldn't propagate aross list items
+      // Reset inline styles which shouldn't propagate across list items
       state.em = false;
       state.strong = false;
       state.code = false;

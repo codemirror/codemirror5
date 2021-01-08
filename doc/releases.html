@@ -193,7 +193,7 @@
     <li>Make Shift-Delete to cut work on Firefox.</li>
     <li><a href="https://codemirror.net/demo/closetag.html">closetag addon</a>: Properly handle self-closing tags.</li>
     <li><a href="https://codemirror.net/mode/handlebars/">handlebars mode</a>: Fix triple-brace support.</li>
-    <li><a href="https://codemirror.net/doc/manual.html#addon_searchcursor">searchcursor addon</a>: Support mathing <code>$</code> in reverse regexp search.</li>
+    <li><a href="https://codemirror.net/doc/manual.html#addon_searchcursor">searchcursor addon</a>: Support matching <code>$</code> in reverse regexp search.</li>
     <li><a href="https://codemirror.net/doc/manual.html#addon_panel">panel addon</a>: Don’t get confused by changing panel sizes.</li>
     <li><a href="https://codemirror.net/doc/manual.html#addon_javascript-hint">javascript-hint addon</a>: Complete variables defined in outer scopes.</li>
     <li><a href="https://codemirror.net/demo/sublime.html">sublime bindings</a>: Make by-subword motion more consistent with Sublime Text.</li>
@@ -354,7 +354,7 @@
     <li>New method <a href="https://codemirror.net/doc/manual.html#phrase"><code>phrase</code></a> and option <a href="https://codemirror.net/doc/manual.html#option_phrases"><code>phrases</code></a> to make translating UI text in addons easier.</li>
     <li><a href="https://codemirror.net/doc/manual.html#addon_closebrackets">closebrackets addon</a>: Fix issue where bracket-closing wouldn't work before punctuation.</li>
     <li><a href="https://codemirror.net/doc/manual.html#addon_panel">panel addon</a>: Fix problem where replacing the last remaining panel dropped the newly added panel.</li>
-    <li><a href="https://codemirror.net/doc/manual.html#addon_hardwrap">hardwrap addon</a>: Fix an infinite loop when the indention is greater than the target column.</li>
+    <li><a href="https://codemirror.net/doc/manual.html#addon_hardwrap">hardwrap addon</a>: Fix an infinite loop when the indentation is greater than the target column.</li>
     <li><a href="https://codemirror.net/mode/jinja2/">jinja2</a> and <a href="https://codemirror.net/mode/markdown/">markdown</a> modes: Add comment metadata.</li>
   </ul>
 
@@ -588,7 +588,7 @@
     <li>Fix handling of shadow DOM roots when finding the active element.</li>
     <li>Add <code>role=presentation</code> to more DOM elements to improve screen reader support.</li>
     <li><a href="https://codemirror.net/doc/manual.html#addon_merge">merge addon</a>: Make aligning of unchanged chunks more robust.</li>
-    <li><a href="https://codemirror.net/doc/manual.html#addon_comment">comment addon</a>: Fix comment-toggling on a block of text that starts and ends in a (differnet) block comment.</li>
+    <li><a href="https://codemirror.net/doc/manual.html#addon_comment">comment addon</a>: Fix comment-toggling on a block of text that starts and ends in a (different) block comment.</li>
     <li><a href="https://codemirror.net/mode/javascript/">javascript mode</a>: Improve support for TypeScript syntax.</li>
     <li><a href="https://codemirror.net/mode/r/">r mode</a>: Fix indentation after semicolon-less statements.</li>
     <li><a href="https://codemirror.net/mode/shell/">shell mode</a>: Properly handle escaped parentheses in parenthesized expressions.</li>
@@ -653,7 +653,7 @@
 
   <ul class=rel-note>
     <li>Tapping/clicking the editor in <a href="https://codemirror.net/doc/manual.html#option_inputStyle">contentEditable mode</a> on Chrome now puts the cursor at the tapped position.</li>
-    <li>Fix various crashes and misbehaviors when reading composition events in <a href="https://codemirror.net/doc/manual.html#option_inputStyle">contentEditable mode</a>.</li>
+    <li>Fix various crashes and misbehavior when reading composition events in <a href="https://codemirror.net/doc/manual.html#option_inputStyle">contentEditable mode</a>.</li>
     <li>Catches and ignores an IE 'Unspecified Error' when creating an editor in an iframe before there is a <code>&lt;body&gt;</code>.</li>
     <li><a href="https://codemirror.net/doc/manual.html#addon_merge">merge addon</a>: Fix several issues in the chunk-aligning feature.</li>
     <li><a href="https://codemirror.net/mode/verilog">verilog mode</a>: Rewritten to address various issues.</li>
@@ -876,7 +876,7 @@
     <li>New modes: <a href="../mode/vue/index.html">Vue</a>, <a href="../mode/oz/index.html">Oz</a>, <a href="../mode/mscgen/index.html">MscGen</a> (and dialects), <a href="../mode/css/gss.html">Closure Stylesheets</a></li>
     <li>Implement <a href="http://commonmark.org">CommonMark</a>-style flexible list indent and cross-line code spans in <a href="../mode/markdown/index.html">Markdown</a> mode</li>
     <li>Add a replace-all button to the <a href="manual.html#addon_search">search addon</a>, and make the persistent search dialog transparent when it obscures the match</li>
-    <li>Handle <code>acync</code>/<code>await</code> and ocal and binary numbers in <a href="../mode/javascript/index.html">JavaScript mode</a></li>
+    <li>Handle <code>async</code>/<code>await</code> and ocal and binary numbers in <a href="../mode/javascript/index.html">JavaScript mode</a></li>
     <li>Fix various issues with the <a href="../mode/haxe/index.html">Haxe mode</a></li>
     <li>Make the <a href="manual.html#addon_closebrackets">closebrackets addon</a> select only the wrapped text when wrapping selection in brackets</li>
     <li>Tokenize properties as properties in the <a href="../mode/coffeescript/index.html">CoffeeScript mode</a></li>
@@ -1683,7 +1683,7 @@
     bindings</a>.</li>
     <li>Support for overwrite (insert).</li>
     <li><a href="manual.html#option_tabSize">Custom-width</a>
-    and <a href="../demo/visibletabs.html">stylable</a> tabs.</li>
+    and <a href="../demo/visibletabs.html">styleable</a> tabs.</li>
     <li>Moved more code into <a href="manual.html#addons">add-on scripts</a>.</li>
     <li>Support for sane vertical cursor movement in wrapped lines.</li>
     <li>More reliable handling of
@@ -1704,7 +1704,7 @@
     <li>Add support for <a href="manual.html#option_lineWrapping">line
     wrapping</a> and <a href="manual.html#hideLine">code
     folding</a>.</li>
-    <li>Add <a href="../mode/gfm/index.html">Github-style Markdown</a> mode.</li>
+    <li>Add <a href="../mode/gfm/index.html">GitHub-style Markdown</a> mode.</li>
     <li>Add <a href="../theme/monokai.css">Monokai</a>
     and <a href="../theme/rubyblue.css">Rubyblue</a> themes.</li>
     <li>Add <a href="manual.html#setBookmark"><code>setBookmark</code></a> method.</li>

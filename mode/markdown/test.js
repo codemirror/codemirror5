@@ -315,7 +315,7 @@
      "[header&header-2 bar]",
      "[header&header-2 ---]");
 
-  MT("setextAferATX",
+  MT("setextAfterATX",
      "[header&header-1 # foo]",
      "[header&header-2 bar]",
      "[header&header-2 ---]");
@@ -659,7 +659,7 @@
      "  [variable-2 text after fenced code]");
 
   // should correctly parse numbered list content indentation
-  MT("listCommonMark_NumeberedListIndent",
+  MT("listCommonMark_NumberedListIndent",
      "[variable-2 1000. list with base indent of 6]",
      "",
      "      [variable-2 text must be indented 6 spaces at minimum]",

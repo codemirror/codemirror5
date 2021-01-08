@@ -749,7 +749,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
                 "gl_ModelViewMatrix gl_ProjectionMatrix gl_ModelViewProjectionMatrix " +
                 "gl_TextureMatrix gl_NormalMatrix gl_ModelViewMatrixInverse " +
                 "gl_ProjectionMatrixInverse gl_ModelViewProjectionMatrixInverse " +
-                "gl_TexureMatrixTranspose gl_ModelViewMatrixInverseTranspose " +
+                "gl_TextureMatrixTranspose gl_ModelViewMatrixInverseTranspose " +
                 "gl_ProjectionMatrixInverseTranspose " +
                 "gl_ModelViewProjectionMatrixInverseTranspose " +
                 "gl_TextureMatrixInverseTranspose " +
