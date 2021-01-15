@@ -243,9 +243,9 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     // varName can be quoted with ` or ' or "
     // ref: http://dev.mysql.com/doc/refman/5.5/en/user-variables.html
     if (stream.eat("@")) {
-      stream.match(/^session\./);
-      stream.match(/^local\./);
-      stream.match(/^global\./);
+      stream.match('session.');
+      stream.match('local.');
+      stream.match('global.');
     }
 
     if (stream.eat("'")) {
