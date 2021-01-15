@@ -80,12 +80,12 @@ CodeMirror.defineMode("rpm-spec", function() {
 
       // Macros like '%make_install' or '%attr(0775,root,root)'
       if (stream.match(/^%[\w]+/)) {
-        if (stream.match(/^\(/)) { state.macroParameters = true; }
+        if (stream.match('(')) { state.macroParameters = true; }
         return "keyword";
       }
       if (state.macroParameters) {
         if (stream.match(/^\d+/)) { return "number";}
-        if (stream.match(/^\)/)) {
+        if (stream.match(')')) {
           state.macroParameters = false;
           return "keyword";
         }

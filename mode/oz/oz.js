@@ -45,7 +45,7 @@ CodeMirror.defineMode("oz", function (conf) {
     }
 
     // Special [] keyword
-    if (stream.match(/(\[])/)) {
+    if (stream.match('[]')) {
         return "keyword"
     }
 
