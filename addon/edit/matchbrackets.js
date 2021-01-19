@@ -38,7 +38,7 @@
     if (config && config.strict && (dir > 0) != (pos == where.ch)) return null;
     var style = cm.getTokenTypeAt(Pos(where.line, pos + 1));
 
-    var found = scanForBracket(cm, Pos(where.line, pos + (dir > 0 ? 1 : 0)), dir, style || null, config);
+    var found = scanForBracket(cm, Pos(where.line, pos + (dir > 0 ? 1 : 0)), dir, style, config);
     if (found == null) return null;
     return {from: Pos(where.line, pos), to: found && found.pos,
             match: found && found.ch == match.charAt(0), forward: dir > 0};
