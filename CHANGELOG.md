@@ -1,3 +1,15 @@
+## 5.59.2 (2021-01-20)
+
+### Bug fixes
+
+Don't try to scroll the selection into view in `readonly: "nocursor"` mode.
+
+[closebrackets addon](https://codemirror.net/doc/manual.html#addon_closebrackets): Fix a regression in the behavior of pressing enter between brackets.
+
+[javascript mode](https://codemirror.net/mode/javascript/): Fix an infinite loop on specific syntax errors in object types.
+
+various modes: Fix inefficient RegExp matching.
+
 ## 5.59.1 (2020-12-31)
 
 ### Bug fixes
