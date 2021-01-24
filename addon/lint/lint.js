@@ -76,6 +76,7 @@
     this.timeout = null;
     this.hasGutter = hasGutter;
     this.onMouseOver = function(e) { onMouseOver(cm, e); };
+    this.onClick = function(e) { onClick(cm, e); };
     this.waitingFor = 0
   }
 
@@ -235,7 +236,18 @@
       var ann = spans[i].__annotation;
       if (ann) annotations.push(ann);
     }
-    if (annotations.length) popupTooltips(cm, annotations, e);
+
+    if (annotations.length) cb(cm, annotations, e)
+  }
+
+  function onMouseOver(cm, e) {
+    handleMarkerAction(cm, e, popupTooltips)
+  }
+  
+  function onClick (cm, e) {
+    handleMarkerAction(cm, e, function popupContextMenu (cm, annotations, e) {
+      console.log(`WIP: click action, ${JSON.stringify(annotations)}`)
+    })
   }
 
   CodeMirror.defineOption("lint", false, function(cm, val, old) {
@@ -256,6 +268,9 @@
         cm.on("change", onChange);
       if (state.options.tooltips != false && state.options.tooltips != "gutter")
         CodeMirror.on(cm.getWrapperElement(), "mouseover", state.onMouseOver);
+      if (state.options.contextmenu) {
+        CodeMirror.on(cm.getWrapperElement(), "click", state.onClick);
+      }
 
       startLinting(cm);
     }
