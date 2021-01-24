@@ -12,7 +12,7 @@
   "use strict";
   var GUTTER_ID = "CodeMirror-lint-markers";
 
-  function showTooltip(cm, e, content) {
+  function showTooltip(cm, e, content, node) {
     var tt = document.createElement("div");
     tt.className = "CodeMirror-lint-tooltip cm-s-" + cm.options.theme;
     tt.appendChild(content.cloneNode(true));
@@ -21,13 +21,21 @@
     else
       document.body.appendChild(tt);
 
-    function position(e) {
-      if (!tt.parentNode) return CodeMirror.off(document, "mousemove", position);
-      tt.style.top = Math.max(0, e.clientY - tt.offsetHeight - 5) + "px";
-      tt.style.left = (e.clientX + 5) + "px";
+    if (cm.state.lint.options.fixedTooltip) {
+      const { top, left } = node.getBoundingClientRect()
+
+      tt.style.top = top - 5 + 'px'
+      tt.style.left = left + 20 + 'px'
+    } else {
+      function position(e) {
+        if (!tt.parentNode) return CodeMirror.off(document, "mousemove", position);
+        tt.style.top = Math.max(0, e.clientY - tt.offsetHeight - 5) + "px";
+        tt.style.left = (e.clientX + 5) + "px";
+      }
+      CodeMirror.on(document, "mousemove", position);
+      position(e);
     }
-    CodeMirror.on(document, "mousemove", position);
-    position(e);
+
     if (tt.style.opacity != null) tt.style.opacity = 1;
     return tt;
   }
@@ -42,19 +50,23 @@
   }
 
   function showTooltipFor(cm, e, content, node) {
-    var tooltip = showTooltip(cm, e, content);
+    var tooltip = showTooltip(cm, e, content, node);
     function hide() {
       CodeMirror.off(node, "mouseout", hide);
       if (tooltip) { hideTooltip(tooltip); tooltip = null; }
     }
-    var poll = setInterval(function() {
-      if (tooltip) for (var n = node;; n = n.parentNode) {
-        if (n && n.nodeType == 11) n = n.host;
-        if (n == document.body) return;
-        if (!n) { hide(); break; }
-      }
-      if (!tooltip) return clearInterval(poll);
-    }, 400);
+
+    if (!cm.state.lint.options.fixedTooltip) {
+      var poll = setInterval(function() {
+        if (tooltip) for (var n = node;; n = n.parentNode) {
+          if (n && n.nodeType == 11) n = n.host;
+          if (n == document.body) return;
+          if (!n) { hide(); break; }
+        }
+        if (!tooltip) return clearInterval(poll);
+      }, 400);
+    }
+
     CodeMirror.on(node, "mouseout", hide);
   }
 
