@@ -80,6 +80,10 @@
     var target = e.target || e.srcElement;
     var state = cm.state.lint
 
+    if (state.hints) {
+      remove(state.hints)
+    }
+
     if (!menus && menus.length > 0) {
       return
     }
@@ -104,19 +108,19 @@
         if (typeof onClick === 'function') {
           onClick(e) 
         }
-        remove() 
+        remove(hints) 
       })
     }
 
-    function remove () {
+    var removal = function () { setTimeout(function () { remove(hints) }, 100) }
+    function remove (hints) {
       if (hints.parentNode) {
         hints.parentNode.removeChild(hints)
       }
       state.hints = null
-    }
-    
-    if (state.hints) {
-      remove()
+
+      cm.off("mousedown", removal)
+      cm.off("scroll", removal)
     }
     
     state.hints = hints
@@ -125,6 +129,10 @@
     
     hints.style.top = top + 5 + 'px'
     hints.style.left = left + 20 + 'px'
+    
+
+    cm.on("mousedown", removal)
+    cm.on("scroll", removal)
   }
 
   function LintState(cm, options, hasGutter) {
