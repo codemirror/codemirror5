@@ -6,6 +6,7 @@
 
 <link rel="stylesheet" href="../lib/codemirror.css">
 <link rel="stylesheet" href="../addon/lint/lint.css">
+<link rel="stylesheet" href="../addon/hint/show-hint.css">
 <script src="../lib/codemirror.js"></script>
 <script src="../mode/javascript/javascript.js"></script>
 <script src="../mode/css/css.js"></script>
@@ -164,7 +165,23 @@ li.last {
     lineNumbers: true,
     mode: "css",
     gutters: ["CodeMirror-lint-markers"],
-    lint: true
+    lint: {
+      fixedTooltip: true,
+      contextmenu: annotations => ([
+        {
+          html: 'Hello World <code>code inside</code>',
+          onClick (e) {
+            console.log(annotations)
+          }
+        },
+        {
+          content: 'Another fixed me',
+          onClick (e) {
+            console.log(annotations)
+          }
+        }
+      ])
+    }
   });
 </script>
 

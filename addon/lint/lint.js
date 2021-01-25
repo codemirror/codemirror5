@@ -12,7 +12,7 @@
   "use strict";
   var GUTTER_ID = "CodeMirror-lint-markers";
 
-  function showTooltip(cm, e, content) {
+  function showTooltip(cm, e, content, node) {
     var tt = document.createElement("div");
     tt.className = "CodeMirror-lint-tooltip cm-s-" + cm.options.theme;
     tt.appendChild(content.cloneNode(true));
@@ -21,13 +21,21 @@
     else
       document.body.appendChild(tt);
 
-    function position(e) {
-      if (!tt.parentNode) return CodeMirror.off(document, "mousemove", position);
-      tt.style.top = Math.max(0, e.clientY - tt.offsetHeight - 5) + "px";
-      tt.style.left = (e.clientX + 5) + "px";
+    if (cm.state.lint.options.fixedTooltip) {
+      const { top, left } = node.getBoundingClientRect()
+
+      tt.style.top = top - 5 + 'px'
+      tt.style.left = left + 20 + 'px'
+    } else {
+      function position(e) {
+        if (!tt.parentNode) return CodeMirror.off(document, "mousemove", position);
+        tt.style.top = Math.max(0, e.clientY - tt.offsetHeight - 5) + "px";
+        tt.style.left = (e.clientX + 5) + "px";
+      }
+      CodeMirror.on(document, "mousemove", position);
+      position(e);
     }
-    CodeMirror.on(document, "mousemove", position);
-    position(e);
+
     if (tt.style.opacity != null) tt.style.opacity = 1;
     return tt;
   }
@@ -42,20 +50,89 @@
   }
 
   function showTooltipFor(cm, e, content, node) {
-    var tooltip = showTooltip(cm, e, content);
+    var tooltip = showTooltip(cm, e, content, node);
     function hide() {
       CodeMirror.off(node, "mouseout", hide);
       if (tooltip) { hideTooltip(tooltip); tooltip = null; }
     }
-    var poll = setInterval(function() {
-      if (tooltip) for (var n = node;; n = n.parentNode) {
-        if (n && n.nodeType == 11) n = n.host;
-        if (n == document.body) return;
-        if (!n) { hide(); break; }
-      }
-      if (!tooltip) return clearInterval(poll);
-    }, 400);
+
+    if (!cm.state.lint.options.fixedTooltip) {
+      var poll = setInterval(function() {
+        if (tooltip) for (var n = node;; n = n.parentNode) {
+          if (n && n.nodeType == 11) n = n.host;
+          if (n == document.body) return;
+          if (!n) { hide(); break; }
+        }
+        if (!tooltip) return clearInterval(poll);
+      }, 400);
+    }
+
     CodeMirror.on(node, "mouseout", hide);
+  }
+  
+  /**
+   * 
+   * @param {*} cm 
+   * @param {Array<{ content: string, html: string, onClick: any }>} menus 
+   * @param {*} e 
+   */
+  function showMenu (cm, menus, e) {
+    var target = e.target || e.srcElement;
+    var state = cm.state.lint
+
+    if (state.hints) {
+      remove(state.hints)
+    }
+
+    if (!menus && menus.length > 0) {
+      return
+    }
+
+    // build menu
+    var hints = document.createElement("ul");
+    var theme = cm.options.theme;
+    hints.className = "CodeMirror-hints " + theme;
+    hints.style.position = 'fixed'
+    hints.style.zIndex = '999'
+    
+    for (let item of menus) {
+      const elt = hints.appendChild(document.createElement('li'))
+      elt.className = 'CodeMirror-hint'
+      if (item.content) {
+        elt.textContent = item.content
+      } else {
+        elt.innerHTML = item.html
+      }
+      const onClick = item.onClick
+      elt.addEventListener('click', (e) => {
+        if (typeof onClick === 'function') {
+          onClick(e) 
+        }
+        remove(hints) 
+      })
+    }
+
+    var removal = function () { setTimeout(function () { remove(hints) }, 100) }
+    function remove (hints) {
+      if (hints.parentNode) {
+        hints.parentNode.removeChild(hints)
+      }
+      state.hints = null
+
+      cm.off("mousedown", removal)
+      cm.off("scroll", removal)
+    }
+    
+    state.hints = hints
+    document.body.appendChild(hints)
+    const { left, top } = target.getBoundingClientRect()
+    
+    hints.style.top = top + 5 + 'px'
+    hints.style.left = left + 20 + 'px'
+    
+
+    cm.on("mousedown", removal)
+    cm.on("scroll", removal)
   }
 
   function LintState(cm, options, hasGutter) {
@@ -64,7 +141,10 @@
     this.timeout = null;
     this.hasGutter = hasGutter;
     this.onMouseOver = function(e) { onMouseOver(cm, e); };
+    this.onClick = function(e) { onClick(cm, e); };
     this.waitingFor = 0
+    
+    this.contextMenuEnable = typeof options.contextmenu === 'function'
   }
 
   function parseOptions(_cm, options) {
@@ -81,7 +161,7 @@
     state.marked.length = 0;
   }
 
-  function makeMarker(cm, labels, severity, multiple, tooltips) {
+  function makeMarker(cm, labels, severity, multiple, tooltips, annotations) {
     var marker = document.createElement("div"), inner = marker;
     marker.className = "CodeMirror-lint-marker-" + severity;
     if (multiple) {
@@ -92,6 +172,13 @@
     if (tooltips != false) CodeMirror.on(inner, "mouseover", function(e) {
       showTooltipFor(cm, e, labels, inner);
     });
+
+    if (cm.state.lint.contextMenuEnable) {
+      marker.addEventListener('click', function (e) {
+        const menus = cm.state.lint.options.contextmenu(annotations)
+        showMenu(cm, menus, e)
+      })
+    }
 
     return marker;
   }
@@ -190,7 +277,7 @@
 
       if (state.hasGutter)
         cm.setGutterMarker(line, GUTTER_ID, makeMarker(cm, tipLabel, maxSeverity, anns.length > 1,
-                                                       state.options.tooltips));
+                                                       state.options.tooltips, anns));
     }
     if (options.onUpdateLinting) options.onUpdateLinting(annotationsNotSorted, annotations, cm);
   }
@@ -211,8 +298,8 @@
     }
     showTooltipFor(cm, e, tooltip, target);
   }
-
-  function onMouseOver(cm, e) {
+  
+  function handleMarkerAction (cm, e, cb) {
     var target = e.target || e.srcElement;
     if (!/\bCodeMirror-lint-mark-/.test(target.className)) return;
     var box = target.getBoundingClientRect(), x = (box.left + box.right) / 2, y = (box.top + box.bottom) / 2;
@@ -223,7 +310,19 @@
       var ann = spans[i].__annotation;
       if (ann) annotations.push(ann);
     }
-    if (annotations.length) popupTooltips(cm, annotations, e);
+
+    if (annotations.length) cb(cm, annotations, e)
+  }
+
+  function onMouseOver(cm, e) {
+    handleMarkerAction(cm, e, popupTooltips)
+  }
+  
+  function onClick (cm, e) {
+    handleMarkerAction(cm, e, function (cm, annotations, e) {
+      const menus = cm.state.lint.options.contextmenu(annotations)
+      showMenu(cm, menus, e)
+    })
   }
 
   CodeMirror.defineOption("lint", false, function(cm, val, old) {
@@ -244,6 +343,9 @@
         cm.on("change", onChange);
       if (state.options.tooltips != false && state.options.tooltips != "gutter")
         CodeMirror.on(cm.getWrapperElement(), "mouseover", state.onMouseOver);
+      if (state.contextMenuEnable) {
+        CodeMirror.on(cm.getWrapperElement(), "click", state.onClick);
+      }
 
       startLinting(cm);
     }
