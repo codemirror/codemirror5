@@ -70,16 +70,19 @@
     CodeMirror.on(node, "mouseout", hide);
   }
   
-  function showMenu (cm, annotations, e) {
+  /**
+   * 
+   * @param {*} cm 
+   * @param {Array<{ content: string, html: string, onClick: any }>} menus 
+   * @param {*} e 
+   */
+  function showMenu (cm, menus, e) {
     var target = e.target || e.srcElement;
     var state = cm.state.lint
 
-    if (!(state.options.menus && state.options.menus.length > 0)) {
+    if (!menus && menus.length > 0) {
       return
     }
-    
-    /** @type {Array<{ content: string, html: string, onClick: any }>} */
-    const menus = state.options.menus
 
     // build menu
     var hints = document.createElement("ul");
@@ -98,7 +101,9 @@
       }
       const onClick = item.onClick
       elt.addEventListener('click', (e) => {
-        onClick(e, annotations) 
+        if (typeof onClick === 'function') {
+          onClick(e) 
+        }
         remove() 
       })
     }
@@ -130,6 +135,8 @@
     this.onMouseOver = function(e) { onMouseOver(cm, e); };
     this.onClick = function(e) { onClick(cm, e); };
     this.waitingFor = 0
+    
+    this.contextMenuEnable = typeof options.contextmenu === 'function'
   }
 
   function parseOptions(_cm, options) {
@@ -158,12 +165,10 @@
       showTooltipFor(cm, e, labels, inner);
     });
 
-    if (cm.state.lint.options.contextmenu) {
+    if (cm.state.lint.contextMenuEnable) {
       marker.addEventListener('click', function (e) {
-        if (typeof cm.state.lint.options.onClick === 'function') {
-          cm.state.lint.options.onClick(cm, e)
-        }
-        showMenu(cm, annotations, e)
+        const menus = cm.state.lint.options.contextmenu(annotations)
+        showMenu(cm, menus, e)
       })
     }
 
@@ -306,10 +311,10 @@
   }
   
   function onClick (cm, e) {
-    if (typeof cm.state.lint.options.onClick === 'function') {
-      cm.state.lint.options.onClick(cm, e)
-    }
-    handleMarkerAction(cm, e, showMenu)
+    handleMarkerAction(cm, e, function (cm, annotations, e) {
+      const menus = cm.state.lint.options.contextmenu(annotations)
+      showMenu(cm, menus, e)
+    })
   }
 
   CodeMirror.defineOption("lint", false, function(cm, val, old) {
@@ -330,7 +335,7 @@
         cm.on("change", onChange);
       if (state.options.tooltips != false && state.options.tooltips != "gutter")
         CodeMirror.on(cm.getWrapperElement(), "mouseover", state.onMouseOver);
-      if (state.options.contextmenu) {
+      if (state.contextMenuEnable) {
         CodeMirror.on(cm.getWrapperElement(), "click", state.onClick);
       }
 

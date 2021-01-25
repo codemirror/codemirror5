@@ -167,8 +167,7 @@ li.last {
     gutters: ["CodeMirror-lint-markers"],
     lint: {
       fixedTooltip: true,
-      contextmenu: true,
-      menus: [
+      contextmenu: annotations => ([
         {
           content: 'Fix me',
           onClick (e, annotations) {
@@ -181,7 +180,7 @@ li.last {
             console.log(annotations)
           }
         }
-      ]
+      ])
     }
   });
 </script>
