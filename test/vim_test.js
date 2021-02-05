@@ -197,13 +197,13 @@ function testVim(name, run, opts, expectedFail) {
       }
     }
     function fakeOpenDialog(result) {
-      return function(text, callback) {
+      return function(template, callback) {
         return callback(result);
       }
     }
     function fakeOpenNotification(matcher) {
-      return function(text) {
-        matcher(text);
+      return function(template) {
+        matcher(template.innerHTML);
       }
     }
     var helpers = {
@@ -3168,6 +3168,13 @@ testVim(':_register', function(cm,vim,helpers) {
   });
   helpers.doKeys(':');
 }, {value: ''});
+testVim('registers_html_encoding', function(cm,vim,helpers) {
+  helpers.doKeys('y', 'y');
+  cm.openNotification = helpers.fakeOpenNotification(function(text) {
+    is(/"\s+&lt;script&gt;throw "&amp;amp;"&lt;\/script&gt;/.test(text));
+  });
+  helpers.doEx('registers');
+}, {value: '<script>throw "&amp;"</script>'});
 testVim('search_register_escape', function(cm, vim, helpers) {
   // Check that the register is restored if the user escapes rather than confirms.
   cm.openDialog = helpers.fakeOpenDialog('waldo');
