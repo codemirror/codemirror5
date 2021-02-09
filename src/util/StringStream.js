@@ -45,7 +45,7 @@ class StringStream {
     if (found > -1) {this.pos = found; return true}
   }
   backUp(n) {this.pos -= n}
-  comsume(n) {this.pos += n}
+  consume(n) {this.pos += n}
   column() {
     if (this.lastColumnPos < this.start) {
       this.lastColumnValue = countColumn(this.string, this.start, this.tabSize, this.lastColumnPos, this.lastColumnValue)
