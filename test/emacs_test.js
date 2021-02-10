@@ -39,6 +39,8 @@
     }, {keyMap: "emacs", value: start, mode: "javascript"});
   }
 
+  function dialog(answer) { return function(cm) { cm.openDialog = function(_, cb) { cb(answer); }; }; }
+
   function at(line, ch, sticky) { return function(cm) { eqCursorPos(cm.getCursor(), Pos(line, ch, sticky)); }; }
   function txt(str) { return function(cm) { eq(cm.getValue(), str); }; }
 
@@ -133,6 +135,19 @@
 
   sim("backspaceDoesntAddToRing", "foobar", "Ctrl-F", "Ctrl-F", "Ctrl-F", "Ctrl-K", "Backspace", "Backspace", "Ctrl-Y", txt("fbar"));
 
+  sim("gotoLine", "0\n1\n2\n3", dialog("3"), "Alt-G", "G", at(2, 0));
+  sim("gotoInvalidLineFloat", "0\n1\n2\n3", dialog("2.2"), "Alt-G", "G", at(0, 0));
+
+  testCM("gotoDialogTemplate", function(cm) {
+    cm.openDialog = function(template, cb) {
+      var input = template.querySelector("input");
+      eq(template.textContent, "Goto line: ");
+      eq(input.tagName, "INPUT");
+    };
+    cm.triggerOnKeyDown(fakeEvent("Alt-G"));
+    cm.triggerOnKeyDown(fakeEvent("G"));
+  }, {value: "", keyMap: "emacs"});
+
   testCM("save", function(cm) {
     var saved = false;
     CodeMirror.commands.save = function(cm) { saved = cm.getValue(); };
@@ -140,10 +155,4 @@
     cm.triggerOnKeyDown(fakeEvent("Ctrl-S"));
     is(saved, "hi");
   }, {value: "hi", keyMap: "emacs"});
-
-  testCM("gotoInvalidLineFloat", function(cm) {
-    cm.openDialog = function(_, cb) { cb("2.2"); };
-    cm.triggerOnKeyDown(fakeEvent("Alt-G"));
-    cm.triggerOnKeyDown(fakeEvent("G"));
-  }, {value: "1\n2\n3\n4", keyMap: "emacs"});
 })();
