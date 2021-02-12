@@ -198,7 +198,7 @@ Doc.prototype = createObj(BranchChunk.prototype, {
     return {undo: done, redo: undone}
   },
   clearHistory: function() {
-    this.history = new History(this.history.maxGeneration)
+    this.history = new History(this.history)
     linkedDocs(this, doc => doc.history = this.history, true)
   },
 
@@ -219,7 +219,7 @@ Doc.prototype = createObj(BranchChunk.prototype, {
             undone: copyHistoryArray(this.history.undone)}
   },
   setHistory: function(histData) {
-    let hist = this.history = new History(this.history.maxGeneration)
+    let hist = this.history = new History(this.history)
     hist.done = copyHistoryArray(histData.done.slice(0), null, true)
     hist.undone = copyHistoryArray(histData.undone.slice(0), null, true)
   },
