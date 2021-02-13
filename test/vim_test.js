@@ -4311,6 +4311,10 @@ testSubstitute('ex_substitute_newline_join_global', {
   value: 'one,two \n three,four \n five \n six',
   expectedValue: 'one,two \n three,four , five \n six',
   expr: '2s/\\n/,/g'});
+testSubstitute('ex_substitute_newline_join_noglobal', {
+  value: 'one,two \n three,four \n five \n six\n',
+  expectedValue: 'one,two \n three,four , five , six\n',
+  expr: '2,3s/\\n/,/'});
 testSubstitute('ex_substitute_newline_replacement', {
   value: 'one,two, \n three,four,',
   expectedValue: 'one\ntwo\n \n three\nfour\n',
