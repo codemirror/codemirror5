@@ -5268,7 +5268,7 @@
       // Set up all the functions.
       cm.state.vim.exMode = true;
       var done = false;
-      var lastPos, modifiedLineNumber;
+      var lastPos, modifiedLineNumber, joined;
       function replaceAll() {
         cm.operation(function() {
           while (!done) {
@@ -5285,13 +5285,14 @@
         searchCursor.replace(newText);
         modifiedLineNumber = searchCursor.to().line;
         lineEnd += modifiedLineNumber - unmodifiedLineNumber;
+        joined = modifiedLineNumber < unmodifiedLineNumber;
       }
       function next() {
         // The below only loops to skip over multiple occurrences on the same
         // line when 'global' is not true.
         while(searchCursor.findNext() &&
               isInRange(searchCursor.from(), lineStart, lineEnd)) {
-          if (!global && searchCursor.from().line == modifiedLineNumber) {
+          if (!global && searchCursor.from().line == modifiedLineNumber && !joined) {
             continue;
           }
           cm.scrollIntoView(searchCursor.from(), 30);
