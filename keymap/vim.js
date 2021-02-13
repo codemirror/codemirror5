@@ -4527,7 +4527,7 @@
       if (start instanceof Array) {
         return inArray(pos, start);
       } else {
-        if (end) {
+        if (typeof end == 'number') {
           return (pos >= start && pos <= end);
         } else {
           return pos == start;
@@ -5268,7 +5268,7 @@
       // Set up all the functions.
       cm.state.vim.exMode = true;
       var done = false;
-      var lastPos = searchCursor.from();
+      var lastPos, modifiedLineNumber;
       function replaceAll() {
         cm.operation(function() {
           while (!done) {
@@ -5281,14 +5281,17 @@
       function replace() {
         var text = cm.getRange(searchCursor.from(), searchCursor.to());
         var newText = text.replace(query, replaceWith);
+        var unmodifiedLineNumber = searchCursor.to().line;
         searchCursor.replace(newText);
+        modifiedLineNumber = searchCursor.to().line;
+        lineEnd += modifiedLineNumber - unmodifiedLineNumber;
       }
       function next() {
         // The below only loops to skip over multiple occurrences on the same
         // line when 'global' is not true.
         while(searchCursor.findNext() &&
               isInRange(searchCursor.from(), lineStart, lineEnd)) {
-          if (!global && lastPos && searchCursor.from().line == lastPos.line) {
+          if (!global && searchCursor.from().line == modifiedLineNumber) {
             continue;
           }
           cm.scrollIntoView(searchCursor.from(), 30);

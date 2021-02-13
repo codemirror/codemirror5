@@ -4307,10 +4307,22 @@ testSubstitute('ex_substitute_newline_match', {
   value: 'one,two \n three,four',
   expectedValue: 'one,two , three,four',
   expr: '%s/\\n/,/g'});
+testSubstitute('ex_substitute_newline_join_global', {
+  value: 'one,two \n three,four \n five \n six',
+  expectedValue: 'one,two \n three,four , five \n six',
+  expr: '2s/\\n/,/g'});
 testSubstitute('ex_substitute_newline_replacement', {
-  value: 'one,two \n three,four',
-  expectedValue: 'one\ntwo \n three\nfour',
+  value: 'one,two, \n three,four,',
+  expectedValue: 'one\ntwo\n \n three\nfour\n',
   expr: '%s/,/\\n/g'});
+testSubstitute('ex_substitute_newline_multiple_splits', {
+  value: 'one,two, \n three,four,five,six, \n seven,',
+  expectedValue: 'one,two, \n three\nfour\nfive\nsix\n \n seven,',
+  expr: '2s/,/\\n/g'});
+testSubstitute('ex_substitute_newline_first_occurrences', {
+  value: 'one,two, \n three,four,five,six, \n seven,',
+  expectedValue: 'one\ntwo, \n three\nfour,five,six, \n seven\n',
+  expr: '%s/,/\\n/'});
 testSubstitute('ex_substitute_braces_word', {
   value: 'ababab abb ab{2}',
   expectedValue: 'ab abb ab{2}',
