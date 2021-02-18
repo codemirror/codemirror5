@@ -4113,6 +4113,15 @@ testVim('ex_global_confirm', function(cm, vim, helpers) {
   onKeyDown({keyCode: KEYCODES.y}, '', close);
   eq('one two\n two two\n one one\n two one\n one one', cm.getValue());
 }, {value: 'one one\n one one\n one one\n one one\n one one'});
+// test for :vglobal command
+testVim('ex_vglobal', function(cm, vim, helpers) {
+  helpers.doEx('v/e/s/o/e');
+  eq('one\n twe\n three\n feur\n five\n', cm.getValue());
+  cm.openNotification = helpers.fakeOpenNotification(function(text) {
+    eq('one\n three\n feur\n', text);
+  });
+  helpers.doEx('v/[vw]');
+}, {value: 'one\n two\n three\n four\n five\n'});
 // Basic substitute tests.
 testVim('ex_substitute_same_line', function(cm, vim, helpers) {
   cm.setCursor(1, 0);

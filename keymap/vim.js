@@ -244,6 +244,7 @@
     { name: 'yank', shortName: 'y' },
     { name: 'delmarks', shortName: 'delm' },
     { name: 'registers', shortName: 'reg', excludeFromCommandHistory: true },
+    { name: 'vglobal', shortName: 'v' },
     { name: 'global', shortName: 'g' }
   ];
 
@@ -5018,6 +5019,10 @@
         }
         cm.replaceRange(text.join('\n'), curStart, curEnd);
       },
+      vglobal: function(cm, params) {
+        // global inspects params.commandName
+        this.global(cm, params);
+      },
       global: function(cm, params) {
         // a global command is of the form
         // :[range]g/pattern/[cmd]
@@ -5027,6 +5032,7 @@
           showConfirm(cm, 'Regular Expression missing from global');
           return;
         }
+        var inverted = params.commandName[0] === 'v';
         // range is specified here
         var lineStart = (params.line !== undefined) ? params.line : cm.firstLine();
         var lineEnd = params.lineEnd || params.line || cm.lastLine();
@@ -5055,7 +5061,7 @@
         for (var i = lineStart; i <= lineEnd; i++) {
           var line = cm.getLineHandle(i);
           var matched = query.test(line.text);
-          if (matched) {
+          if (matched !== inverted) {
             matchedLines.push(cmd ? line : line.text);
           }
         }
