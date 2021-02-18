@@ -5051,28 +5051,33 @@
         // now that we have the regexPart, search for regex matches in the
         // specified range of lines
         var query = getSearchState(cm).getQuery();
-        var matchedLines = [], content = '';
+        var matchedLines = [];
         for (var i = lineStart; i <= lineEnd; i++) {
-          var matched = query.test(cm.getLine(i));
+          var line = cm.getLineHandle(i);
+          var matched = query.test(line.text);
           if (matched) {
-            matchedLines.push(i+1);
-            content+= cm.getLine(i) + '\n';
+            matchedLines.push(cmd ? line : line.text);
           }
         }
         // if there is no [cmd], just display the list of matched lines
         if (!cmd) {
-          showConfirm(cm, content);
+          showConfirm(cm, matchedLines.join('\n'));
           return;
         }
         var index = 0;
         var nextCommand = function() {
           if (index < matchedLines.length) {
-            var command = matchedLines[index] + cmd;
+            var line = matchedLines[index++];
+            var lineNum = cm.getLineNumber(line);
+            if (lineNum == null) {
+              nextCommand();
+              return;
+            }
+            var command = (lineNum + 1) + cmd;
             exCommandDispatcher.processCommand(cm, command, {
               callback: nextCommand
             });
           }
-          index++;
         };
         nextCommand();
       },

@@ -4070,10 +4070,22 @@ testVim('ex_sort_pattern_alpha_num', function(cm, vim, helpers) {
 testVim('ex_global', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doEx('g/one/s//two');
-  eq('two two\n two two\n two two', cm.getValue());
+  eq('two one\n two one\n two one', cm.getValue());
   helpers.doEx('1,2g/two/s//one');
-  eq('one one\n one one\n two two', cm.getValue());
+  eq('one one\n one one\n two one', cm.getValue());
+  cm.openNotification = helpers.fakeOpenNotification(function(text) {
+    eq(' one one\n two one', text);
+  });
+  helpers.doEx('g/^ /');
 }, {value: 'one one\n one one\n one one'});
+testVim('ex_global_substitute_join', function(cm, vim, helpers) {
+  helpers.doEx('g/o/s/\\n/;');
+  eq('one;two\nthree\nfour;five\n', cm.getValue());
+}, {value: 'one\ntwo\nthree\nfour\nfive\n'});
+testVim('ex_global_substitute_split', function(cm, vim, helpers) {
+  helpers.doEx('g/e/s/[or]/\\n');
+  eq('\nne\ntwo\nth\nee\nfour\nfive\n', cm.getValue());
+}, {value: 'one\ntwo\nthree\nfour\nfive\n'});
 testVim('ex_global_confirm', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   var onKeyDown;
