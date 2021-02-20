@@ -4311,10 +4311,14 @@ testSubstitute('ex_substitute_multibackslash_replacement', {
   value: 'one,two \n three,four',
   expectedValue: 'one\\\\\\\\two \n three\\\\\\\\four', // 2*8 backslashes.
   expr: '%s/,/\\\\\\\\\\\\\\\\/g'}); // 16 backslashes.
-testSubstitute('ex_substitute_dollar_match', {
+testSubstitute('ex_substitute_dollar_assertion', {
   value: 'one,two \n three,four',
-  expectedValue: 'one,two ,\n three,four',
+  expectedValue: 'one,two ,\n three,four', // TODO: should match at end of doc.
   expr: '%s/$/,/g'});
+testSubstitute('ex_substitute_dollar_literal', {
+  value: 'one$two\n$three\nfour$\n$',
+  expectedValue: 'one,two\n,three\nfour,\n,',
+  expr: '%s/\\$/,/g'});
 testSubstitute('ex_substitute_newline_match', {
   value: 'one,two \n three,four',
   expectedValue: 'one,two , three,four',
