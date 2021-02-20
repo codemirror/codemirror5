@@ -1,3 +1,13 @@
+## 5.59.3 (2021-02-20)
+
+### Bug fixes
+
+Don't override the way zero-with non-joiners are rendered.
+
+Fix an issue where resetting the history cleared the `undoDepth` option's value.
+
+[vim bindings](https://codemirror.net/demo/vim.html): Fix substitute command when joining and splitting lines, fix global command when line number change, add support for `:vglobal`, properly treat caps lock as a modifier key.
+
 ## 5.59.2 (2021-01-20)
 
 ### Bug fixes
