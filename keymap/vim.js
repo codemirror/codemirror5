@@ -5097,9 +5097,11 @@
               regexPart = new RegExp(regexPart).source; //normalize not escaped characters
           }
           replacePart = tokens[1];
-          if (regexPart && regexPart[regexPart.length - 1] === '$') {
-            regexPart = regexPart.slice(0, regexPart.length - 1) + '\\n';
-            replacePart = replacePart ? replacePart + '\n' : '\n';
+          // If the pattern ends with $ (line boundary assertion), change $ to \n.
+          // Caveat: this workaround cannot match on the last line of the document.
+          if (/(^|[^\\])(\\\\)*\$$/.test(regexPart)) {
+            regexPart = regexPart.slice(0, -1) + '\\n';
+            replacePart = (replacePart || '') + '\n';
           }
           if (replacePart !== undefined) {
             if (getOption('pcre')) {
@@ -5128,11 +5130,9 @@
           if (flagsPart) {
             if (flagsPart.indexOf('c') != -1) {
               confirm = true;
-              flagsPart.replace('c', '');
             }
             if (flagsPart.indexOf('g') != -1) {
               global = true;
-              flagsPart.replace('g', '');
             }
             if (getOption('pcre')) {
                regexPart = regexPart + '/' + flagsPart;
