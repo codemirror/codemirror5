@@ -137,7 +137,7 @@ Doc.prototype = createObj(BranchChunk.prototype, {
     let out = []
     for (let i = 0; i < ranges.length; i++)
       out[i] = new Range(clipPos(this, ranges[i].anchor),
-                         clipPos(this, ranges[i].head))
+                         clipPos(this, ranges[i].head || ranges[i].anchor))
     if (primary == null) primary = Math.min(ranges.length - 1, this.sel.primIndex)
     setSelection(this, normalizeSelection(this.cm, out, primary), options)
   }),
