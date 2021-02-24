@@ -1,3 +1,9 @@
+## 5.59.4 (2021-02-24)
+
+### Bug fixes
+
+Give the scrollbar corner filler a background again, to prevent content from peeping through between the scrollbars.
+
 ## 5.59.3 (2021-02-20)
 
 ### Bug fixes
