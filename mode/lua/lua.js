@@ -64,8 +64,9 @@ CodeMirror.defineMode("lua", function(config, parserConfig) {
                          "while", "repeat", "until", "for", "in", "local" ]);
 
   var indentTokens = wordRE(["function", "if","repeat","do", "\\(", "{"]);
-  var dedentTokens = wordRE(["end", "until", "\\)", "}"]);
-  var dedentPartial = prefixRE(["end", "until", "\\)", "}", "else", "elseif"]);
+  var dedentKeywords = ["end", "until", "\\)", "}", "else", "elseif"];
+  var dedentTokens = wordRE(dedentKeywords);
+  var dedentPartial = prefixRE(dedentKeywords);
 
   function readBracket(stream) {
     var level = 0;
@@ -148,6 +149,7 @@ CodeMirror.defineMode("lua", function(config, parserConfig) {
       return state.basecol + indentUnit * (state.indentDepth - (closing ? 1 : 0));
     },
 
+    electricInput: new RegExp("\\b" + dedentKeywords.join("|") + "\\b", "gi"),
     lineComment: "--",
     blockCommentStart: "--[[",
     blockCommentEnd: "]]"
