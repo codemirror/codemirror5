@@ -337,4 +337,27 @@
      '[keyword table.init] [variable-2 $t] [number 1] ([keyword i32.const] [number 5]) ([keyword i32.const] [number 10]) ([keyword i32.const] [number 15])',
      '[keyword table.copy] [variable-2 $t] [variable-2 $t2] ([keyword i32.const] [number 5]) ([keyword i32.const] [number 10]) ([keyword i32.const] [number 15])'
      );
+     MT('gc-proposal',
+     '[keyword call_ref] [keyword return_call_ref]',
+     '[keyword ref.as_non_null] [keyword br_on_null] [keyword ref.eq]');
+     MT('gc-proposal-structs',
+     '[keyword struct.new_with_rtt] [keyword struct.new_default_with_rtt]',
+     '[keyword struct.get] [keyword struct.get_s] [keyword struct.get_u]',
+     '[keyword struct.set]');
+     MT('gc-proposal-arrays',
+     '[keyword array.new_with_rtt] [keyword array.new_default_with_rtt]',
+     '[keyword array.get] [keyword array.get_s] [keyword array.get_u]',
+     '[keyword array.len] [keyword array.set]');
+     MT('gc-proposal-i31',
+     '[keyword i31.new] [keyword i31.get_s] [keyword i31.get_u]');
+     MT('gc-proposal-rtt',
+     '[keyword rtt.canon] [keyword rtt.sub]');
+     MT('gc-proposal-typechecks',
+     '[keyword ref.test] [keyword ref.cast] [keyword br_on_cast]',
+     '[keyword ref.is_func] [keyword ref.is_data] [keyword ref.is_i31]',
+     '[keyword ref.as_func] [keyword ref.as_data] [keyword ref.as_i31]',
+     '[keyword br_on_func] [keyword br_on_data] [keyword br_on_i31]');
+     MT('gc-proposal-types',
+     '[atom i8] [atom i16]',
+     '[atom anyref] [atom dataref] [atom eqref] [atom i31ref]');
 })();
