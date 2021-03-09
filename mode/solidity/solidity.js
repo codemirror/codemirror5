@@ -12,16 +12,16 @@
 "use strict";
 
 CodeMirror.defineMode('solidity', function(config) {
-  let indentUnit = config.indentUnit
+  var indentUnit = config.indentUnit
 
-  // let functionKeyword = 'function'
-  // let functionNameKeyword = 'Name'
-  // let leftBracketSign = '('
-  // let rightBracketSign = ')'
-  // let functionVariableName = 'variable'
-  // let keyWordContract = 'contract'
+  // var functionKeyword = 'function'
+  // var functionNameKeyword = 'Name'
+  // var leftBracketSign = '('
+  // var rightBracketSign = ')'
+  // var functionVariableName = 'variable'
+  // var keyWordContract = 'contract'
 
-  let keywords = {
+  var keywords = {
     pragma: true,
     solidity: true,
     import: true,
@@ -62,7 +62,7 @@ CodeMirror.defineMode('solidity', function(config) {
     final: true,
     in: true,
     inline: true,
-    let: true,
+    var: true,
     match: true,
     null: true,
     of: true,
@@ -73,7 +73,7 @@ CodeMirror.defineMode('solidity', function(config) {
     var: true,
   }
 
-  let keywordsSpecial = {
+  var keywordsSpecial = {
     pragma: true,
     returns: true,
     address: true,
@@ -82,36 +82,36 @@ CodeMirror.defineMode('solidity', function(config) {
     struct: true,
   }
 
-  let keywordsEtherUnit = {
+  var keywordsEtherUnit = {
     wei: true,
     szabo: true,
     finney: true,
     ether: true,
   }
-  let keywordsTimeUnit = {
+  var keywordsTimeUnit = {
     seconds: true,
     minutes: true,
     hours: true,
     days: true,
     weeks: true,
   }
-  let keywordsBlockAndTransactionProperties = {
-    ['block']: ['coinbase', 'difficulty', 'gaslimit', 'number', 'timestamp'],
-    ['msg']: ['data', 'sender', 'sig', 'value'],
-    ['tx']: ['gasprice', 'origin'],
+  var keywordsBlockAndTransactionProperties = {
+    block: ['coinbase', 'difficulty', 'gaslimit', 'number', 'timestamp'],
+    msg: ['data', 'sender', 'sig', 'value'],
+    tx: ['gasprice', 'origin'],
   }
-  let keywordsMoreBlockAndTransactionProperties = {
+  var keywordsMoreBlockAndTransactionProperties = {
     now: true,
     gasleft: true,
     blockhash: true,
   }
-  let keywordsErrorHandling = {
+  var keywordsErrorHandling = {
     assert: true,
     require: true,
     revert: true,
     throw: true,
   }
-  let keywordsMathematicalAndCryptographicFuctions = {
+  var keywordsMathematicalAndCryptographicFuctions = {
     addmod: true,
     mulmod: true,
     keccak256: true,
@@ -119,15 +119,15 @@ CodeMirror.defineMode('solidity', function(config) {
     ripemd160: true,
     ecrecover: true,
   }
-  let keywordsContractRelated = {
+  var keywordsContractRelated = {
     this: true,
     selfdestruct: true,
     super: true,
   }
-  let keywordsTypeInformation = { type: true }
-  let keywordsContractList = {}
+  var keywordsTypeInformation = { type: true }
+  var keywordsContractList = {}
 
-  let keywordsControlStructures = {
+  var keywordsControlStructures = {
     if: true,
     else: true,
     while: true,
@@ -140,7 +140,7 @@ CodeMirror.defineMode('solidity', function(config) {
     default: true,
   }
 
-  let keywordsValueTypes = {
+  var keywordsValueTypes = {
     bool: true,
     byte: true,
     string: true,
@@ -148,7 +148,7 @@ CodeMirror.defineMode('solidity', function(config) {
     address: true,
   }
 
-  let keywordsV0505NewReserve = {
+  var keywordsV0505NewReserve = {
     alias: true,
     apply: true,
     auto: true,
@@ -169,8 +169,8 @@ CodeMirror.defineMode('solidity', function(config) {
     unchecked: true,
   }
 
-  let keywordsAbiEncodeDecodeFunctions = {
-    ['abi']: [
+  var keywordsAbiEncodeDecodeFunctions = {
+    abi: [
       'decode',
       'encodePacked',
       'encodeWithSelector',
@@ -179,7 +179,7 @@ CodeMirror.defineMode('solidity', function(config) {
     ],
   }
 
-  let keywordsMembersOfAddressType = [
+  var keywordsMembersOfAddressType = [
     'transfer',
     'send',
     'balance',
@@ -188,9 +188,9 @@ CodeMirror.defineMode('solidity', function(config) {
     'staticcall',
   ]
 
-  let natSpecTags = ['title', 'author', 'notice', 'dev', 'param', 'return']
+  var natSpecTags = ['title', 'author', 'notice', 'dev', 'param', 'return']
 
-  // let functionStructureStage = [{
+  // var functionStructureStage = [{
   //   function: ['function', 'returns']
   // },
   //   leftBracketSign,
@@ -199,8 +199,8 @@ CodeMirror.defineMode('solidity', function(config) {
   //   rightBracketSign,
   // ];
 
-  let atoms = {
-    delete: true,
+  var atoms = {
+    devare: true,
     new: true,
     true: true,
     false: true,
@@ -210,13 +210,13 @@ CodeMirror.defineMode('solidity', function(config) {
     // "println": true, "real": true, "recover": true
   }
 
-  let isOperatorChar = /[+\-*&^%:=<>!|\/~]/
-  let isNegativeChar = /[-]/
+  var isOperatorChar = /[+\-*&^%:=<>!|\/~]/
+  var isNegativeChar = /[-]/
 
-  let curPunc
+  var curPunc
 
   function tokenBase(stream, state) {
-    let ch = stream.next()
+    var ch = stream.next()
 
     if (ch == '"' || ch == "'" || ch == '`') {
       state.tokenize = tokenString(ch)
@@ -228,7 +228,7 @@ CodeMirror.defineMode('solidity', function(config) {
     if (
       ch == '.' &&
       keywordsMembersOfAddressType.some(function(item) {
-        return stream.match(`${item}`)
+        return stream.match(String(item))
       })
     )
       return 'addressFunction'
@@ -272,12 +272,12 @@ CodeMirror.defineMode('solidity', function(config) {
     }
     stream.eatWhile(/[\w\$_\xa1-\uffff]/)
 
-    let cur = stream.current()
+    var cur = stream.current()
 
     if (state.grammar == 'doc') {
       if (
         natSpecTags.some(function(item) {
-          return cur == `@${item}`
+          return cur == '@' + item
         })
       )
         return 'docReserve'
@@ -324,7 +324,7 @@ CodeMirror.defineMode('solidity', function(config) {
       keywordsMoreBlockAndTransactionProperties.propertyIsEnumerable(cur) ||
       (keywordsBlockAndTransactionProperties[cur] &&
         keywordsBlockAndTransactionProperties[cur].some(function(item) {
-          return stream.match(`.${item}`)
+          return stream.match('.' + item)
         }))
     )
       return 'variable-2'
@@ -332,12 +332,12 @@ CodeMirror.defineMode('solidity', function(config) {
     if (
       keywordsAbiEncodeDecodeFunctions[cur] &&
       keywordsAbiEncodeDecodeFunctions[cur].some(function(item) {
-        return stream.match(`.${item}`)
+        return stream.match('.' + item)
       })
     )
       return 'abi'
 
-    let style = updateHexLiterals(cur, stream)
+    var style = updateHexLiterals(cur, stream)
     if (style != null) return style
 
     if (
@@ -384,7 +384,7 @@ CodeMirror.defineMode('solidity', function(config) {
 
   function tokenString(quote) {
     return function(stream, state) {
-      let escaped = false,
+      var escaped = false,
         next,
         end = false
       while ((next = stream.next()) != null) {
@@ -400,7 +400,7 @@ CodeMirror.defineMode('solidity', function(config) {
   }
 
   function tokenComment(stream, state) {
-    let maybeEnd = false,
+    var maybeEnd = false,
       ch
     while ((ch = stream.next())) {
       if (ch == '/' && maybeEnd) {
@@ -439,7 +439,7 @@ CodeMirror.defineMode('solidity', function(config) {
   function isValidInteger(token) {
     if (token.match(/^[u]?int/)) {
       if (token.indexOf('t') + 1 == token.length) return true
-      let numberPart = token.substr(token.indexOf('t') + 1, token.length)
+      var numberPart = token.substr(token.indexOf('t') + 1, token.length)
       return numberPart % 8 === 0 && numberPart <= 256
     }
   }
@@ -447,7 +447,7 @@ CodeMirror.defineMode('solidity', function(config) {
   function isValidBytes(token) {
     if (token.match(/^bytes/)) {
       if (token.indexOf('s') + 1 == token.length) return true
-      let bytesPart = token.substr(token.indexOf('s') + 1, token.length)
+      var bytesPart = token.substr(token.indexOf('s') + 1, token.length)
       return bytesPart <= 32
     }
   }
@@ -455,7 +455,7 @@ CodeMirror.defineMode('solidity', function(config) {
   function isValidFixed(token) {
     if (token.match(/^[u]?fixed([0-9]+x[0-9]+)?/)) {
       if (token.indexOf('d') + 1 == token.length) return true
-      let numberPart = token
+      var numberPart = token
         .substr(token.indexOf('d') + 1, token.length)
         .split('x')
       return (
@@ -466,7 +466,7 @@ CodeMirror.defineMode('solidity', function(config) {
 
   function updateHexLiterals(token, stream) {
     if (token.match(/^hex/) && stream.peek() == '"') {
-      let maybeEnd = false,
+      var maybeEnd = false,
         ch,
         hexValue = '',
         stringAfterHex = ''
@@ -538,7 +538,7 @@ CodeMirror.defineMode('solidity', function(config) {
   }
   function popContext(state) {
     if (!state.context.prev) return
-    let t = state.context.type
+    var t = state.context.type
     if (t == ')' || t == ']' || t == '}')
       state.indented = state.context.indented
     return (state.context = state.context.prev)
@@ -556,7 +556,7 @@ CodeMirror.defineMode('solidity', function(config) {
     },
 
     token: function(stream, state) {
-      let ctx = state.context
+      var ctx = state.context
       if (stream.sol()) {
         if (ctx.align == null) ctx.align = false
         state.indented = stream.indentation()
@@ -566,7 +566,7 @@ CodeMirror.defineMode('solidity', function(config) {
       }
       if (stream.eatSpace()) return null
       curPunc = null
-      let style = (state.tokenize || tokenBase)(stream, state)
+      var style = (state.tokenize || tokenBase)(stream, state)
 
       if (style == 'comment') return style
       if (ctx.align == null) ctx.align = true
@@ -584,13 +584,13 @@ CodeMirror.defineMode('solidity', function(config) {
     indent: function(state, textAfter) {
       if (state.tokenize != tokenBase && state.tokenize != null)
         return CodeMirror.Pass
-      let ctx = state.context,
+      var ctx = state.context,
         firstChar = textAfter && textAfter.charAt(0)
       if (ctx.type == 'case' && /^(?:case|default)\b/.test(textAfter)) {
         state.context.type = '}'
         return ctx.indented
       }
-      let closing = firstChar == ctx.type
+      var closing = firstChar == ctx.type
       if (ctx.align) return ctx.column + (closing ? 0 : 1)
       else return ctx.indented + (closing ? 0 : indentUnit)
     },
