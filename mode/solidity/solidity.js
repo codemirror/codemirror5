@@ -223,7 +223,10 @@ CodeMirror.defineMode('solidity', function(config) {
       return state.tokenize(stream, state)
     }
 
-    if (isVersion(stream, state)) return 'version'
+    if (isVersion(stream, state)) {
+      // cm-solidity: return 'version'
+      return 'string-2'
+    }
 
     if (
       ch == '.' &&
@@ -252,7 +255,8 @@ CodeMirror.defineMode('solidity', function(config) {
             break
           }
         }
-        return 'doc'
+        // cm-solidity: return 'doc'
+        return 'variable-2'
       }
 
       if (stream.eat('/')) {
@@ -279,9 +283,12 @@ CodeMirror.defineMode('solidity', function(config) {
         natSpecTags.some(function(item) {
           return cur == '@' + item
         })
-      )
-        return 'docReserve'
-      return 'doc'
+        ) {
+        // cm-solidity: return 'docReserve'
+        return 'builtin'
+      }
+      // cm-solidity: return 'doc'
+      return 'variable-2'
     }
 
     if (cur === 'solidity' && state.lastToken == 'pragma') {
@@ -295,9 +302,14 @@ CodeMirror.defineMode('solidity', function(config) {
       return 'keyword'
     }
 
-    if (keywordsEtherUnit.propertyIsEnumerable(cur)) return 'etherUnit'
-    if (keywordsContractRelated.propertyIsEnumerable(cur))
-      return 'contractRelated'
+    if (keywordsEtherUnit.propertyIsEnumerable(cur)) {
+      // cm-solidity: return 'etherUnit'
+      return 'number'
+    }
+    if (keywordsContractRelated.propertyIsEnumerable(cur)) {
+      // cm-solidity: return 'contractRelated'
+      return 'def'
+    }
     if (
       keywordsControlStructures.propertyIsEnumerable(cur) ||
       keywordsTypeInformation.propertyIsEnumerable(cur) ||
@@ -312,13 +324,19 @@ CodeMirror.defineMode('solidity', function(config) {
       isValidFixed(cur)
     ) {
       state.lastToken = state.lastToken + 'variable'
-      return 'keyword'
+      // cm-solidity: return 'keyword'
+      return 'type'
     }
 
     if (atoms.propertyIsEnumerable(cur)) return 'atom'
-    if (keywordsErrorHandling.propertyIsEnumerable(cur)) return 'errorHandling'
-    if (keywordsMathematicalAndCryptographicFuctions.propertyIsEnumerable(cur))
-      return 'mathematicalAndCryptographic'
+    if (keywordsErrorHandling.propertyIsEnumerable(cur)) {
+      // cm-solidity: return 'errorHandling'
+      return 'atom'
+    }
+    if (keywordsMathematicalAndCryptographicFuctions.propertyIsEnumerable(cur)) {
+      // cm-solidity: return 'mathematicalAndCryptographic'
+      return 'variable-2'
+    }
 
     if (
       keywordsMoreBlockAndTransactionProperties.propertyIsEnumerable(cur) ||
@@ -326,16 +344,19 @@ CodeMirror.defineMode('solidity', function(config) {
         keywordsBlockAndTransactionProperties[cur].some(function(item) {
           return stream.match('.' + item)
         }))
-    )
+    ) {
       return 'variable-2'
+    }
 
     if (
       keywordsAbiEncodeDecodeFunctions[cur] &&
       keywordsAbiEncodeDecodeFunctions[cur].some(function(item) {
         return stream.match('.' + item)
       })
-    )
-      return 'abi'
+    ) {
+      // cm-solidity: return 'abi'
+      return 'variable-2'
+    }
 
     var style = updateHexLiterals(cur, stream)
     if (style != null) return style
@@ -360,12 +381,14 @@ CodeMirror.defineMode('solidity', function(config) {
 
     if (state.lastToken == 'functionName(variable') {
       state.lastToken = 'functionName('
-      return 'parameterValue'
+      // cm-solidity: return 'parameterValue'
+      return 'def'
     }
 
     if (state.lastToken == 'returns(variable') {
       state.lastToken = 'returns('
-      return 'parameterValue'
+      // cm-solidity: return 'parameterValue'
+      return 'def'
     }
 
     if (state.lastToken == 'address' && cur == 'payable') {
@@ -376,7 +399,8 @@ CodeMirror.defineMode('solidity', function(config) {
       state.lastToken = null
     }
     if (state.grammar == 'function') {
-      return 'parameterValue'
+      // cm-solidity: return 'parameterValue'
+      return 'def'
     }
 
     return 'variable'
