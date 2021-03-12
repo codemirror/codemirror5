@@ -605,7 +605,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     }
   }
   function typeexpr(type, value) {
-    if (value == "keyof" || value == "typeof" || value == "infer") {
+    if (value == "keyof" || value == "typeof" || value == "infer" || value == "readonly") {
       cx.marked = "keyword"
       return cont(value == "typeof" ? expressionNoComma : typeexpr)
     }
