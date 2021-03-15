@@ -148,29 +148,29 @@ function registerEventHandlers(cm) {
   on(d.scroller, "touchstart", function (e) {
       // alert("touch start", e.touches)
       if (!signalDOMEvent(cm, e) && !isMouseLikeTouchEvent(e) && !clickInGutter(cm, e)) {
-        d.input.ensurePolled();
-        clearTimeout(touchFinished);
-        var now = +new Date;
+        d.input.ensurePolled()
+        clearTimeout(touchFinished)
+        var now = +new Date
         d.activeTouch = {start: now, moved: false,
-                         prev: now - prevTouch.end <= 300 ? prevTouch : null};
+                         prev: now - prevTouch.end <= 300 ? prevTouch : null}
         if (e.touches.length == 1) {
-          d.activeTouch.left = e.touches[0].pageX;
-          d.activeTouch.top = e.touches[0].pageY;
+          d.activeTouch.left = e.touches[0].pageX
+          d.activeTouch.top = e.touches[0].pageY
         } else {
-          d.activeTouch.left = 0;
-          d.activeTouch.top = 0;
+          d.activeTouch.left = 0
+          d.activeTouch.top = 0
         }
       }
-      finishTouch();
+      finishTouch()
     });
     // on(d.scroller, "touchmove", function () {
     //   if (d.activeTouch) { d.activeTouch.moved = true; }
     // });
     on(d.scroller, "touchend", function (e) {
       // alert("touch end")
-      var touch = d.activeTouch;
+      var touch = d.activeTouch
       if (touch && !eventInWidget(d, e) && touch.left != null && !touch.moved && new Date - touch.start < 300) {
-        var pos = cm.coordsChar(d.activeTouch, "page"), range;
+        var pos = cm.coordsChar(d.activeTouch, "page"), range
         if (!touch.prev || farAway(touch, touch.prev)) // Single tap
           { range = new Range(pos, pos); }
         else if (!touch.prev.prev || farAway(touch, touch.prev.prev)) // Double tap
@@ -180,12 +180,12 @@ function registerEventHandlers(cm) {
         alert(range.anchor, range.head)
         // cm.setSelection(range.anchor, range.head);
         cm.setSelectText()
-        cm.focus();
+        cm.focus()
         // e_preventDefault(e);
       }
-      finishTouch();
+      finishTouch()
     });
-    on(d.scroller, "touchcancel", finishTouch);
+    on(d.scroller, "touchcancel", finishTouch)
 
   // Sync scrolling between fake scrollbars and real scrollable
   // area, ensure viewport is updated when scrolling.
