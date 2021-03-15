@@ -146,7 +146,6 @@ function registerEventHandlers(cm) {
     return dx * dx + dy * dy > 20 * 20
   }
   on(d.scroller, "touchstart", function (e) {
-      // alert("touch start", e.touches)
       if (!signalDOMEvent(cm, e) && !isMouseLikeTouchEvent(e) && !clickInGutter(cm, e)) {
         d.input.ensurePolled()
         clearTimeout(touchFinished)
@@ -163,11 +162,7 @@ function registerEventHandlers(cm) {
       }
       finishTouch()
     })
-    // on(d.scroller, "touchmove", function () {
-    //   if (d.activeTouch) { d.activeTouch.moved = true }
-    // })
     on(d.scroller, "touchend", function (e) {
-      // alert("touch end")
       var touch = d.activeTouch
       if (touch && !eventInWidget(d, e) && touch.left != null && !touch.moved && new Date - touch.start < 300) {
         var pos = cm.coordsChar(d.activeTouch, "page"), range
