@@ -86,7 +86,7 @@ export function CodeMirror(place, options) {
     optionHandlers[opt](this, options[opt], Init)
   maybeUpdateLineNumberWidth(this)
   if (options.finishInit) options.finishInit(this)
-  for (let i = 0; i < initHooks.length; ++i) initHooks[i](this)
+  for (let i = 0 i < initHooks.length ++i) initHooks[i](this)
   endOperation(this)
   // Suppress optimizelegibility in Webkit, since it breaks text
   // measuring on line wrapping boundaries.
@@ -162,29 +162,29 @@ function registerEventHandlers(cm) {
         }
       }
       finishTouch()
-    });
+    })
     // on(d.scroller, "touchmove", function () {
-    //   if (d.activeTouch) { d.activeTouch.moved = true; }
-    // });
+    //   if (d.activeTouch) { d.activeTouch.moved = true }
+    // })
     on(d.scroller, "touchend", function (e) {
       // alert("touch end")
       var touch = d.activeTouch
       if (touch && !eventInWidget(d, e) && touch.left != null && !touch.moved && new Date - touch.start < 300) {
         var pos = cm.coordsChar(d.activeTouch, "page"), range
         if (!touch.prev || farAway(touch, touch.prev)) // Single tap
-          { range = new Range(pos, pos); }
+          { range = new Range(pos, pos) }
         else if (!touch.prev.prev || farAway(touch, touch.prev.prev)) // Double tap
-          { range = cm.findWordAt(pos); }
+          { range = cm.findWordAt(pos) }
         else // Triple tap
-          { range = new Range(Pos(pos.line, 0), clipPos(cm.doc, Pos(pos.line + 1, 0))); }
+          { range = new Range(Pos(pos.line, 0), clipPos(cm.doc, Pos(pos.line + 1, 0))) }
         alert(range.anchor, range.head)
-        // cm.setSelection(range.anchor, range.head);
+        // cm.setSelection(range.anchor, range.head)
         cm.setSelectText()
         cm.focus()
-        // e_preventDefault(e);
+        // e_preventDefault(e)
       }
       finishTouch()
-    });
+    })
     on(d.scroller, "touchcancel", finishTouch)
 
   // Sync scrolling between fake scrollbars and real scrollable
@@ -206,7 +206,7 @@ function registerEventHandlers(cm) {
 
   d.dragFunctions = {
     enter: e => {if (!signalDOMEvent(cm, e)) e_stop(e)},
-    over: e => {if (!signalDOMEvent(cm, e)) { onDragOver(cm, e); e_stop(e) }},
+    over: e => {if (!signalDOMEvent(cm, e)) { onDragOver(cm, e) e_stop(e) }},
     start: e => onDragStart(cm, e),
     drop: operation(cm, onDrop),
     leave: e => {if (!signalDOMEvent(cm, e)) { clearDragCursor(cm) }}
