@@ -339,7 +339,7 @@ CodeMirror.defineMode("erlang", function(cmCfg) {
   }
 
   function lookahead(stream) {
-    let m = stream.match(/^\s*([^\s%])/, false)
+    var m = stream.match(/^\s*([^\s%])/, false)
     return m ? m[1] : "";
   }
 
