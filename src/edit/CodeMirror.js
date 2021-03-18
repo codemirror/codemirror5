@@ -145,8 +145,7 @@ function registerEventHandlers(cm) {
     let dx = other.left - touch.left, dy = other.top - touch.top
     return dx * dx + dy * dy > 20 * 20
   }
-  on(d.scroller, "touchstart", function (e) {
-      // alert("touch start", e.touches)
+  on(d.scroller, "touchstart", (e) => {
       if (!signalDOMEvent(cm, e) && !isMouseLikeTouchEvent(e) && !clickInGutter(cm, e)) {
         d.input.ensurePolled()
         clearTimeout(touchFinished)
@@ -166,8 +165,7 @@ function registerEventHandlers(cm) {
     // on(d.scroller, "touchmove", function () {
     //   if (d.activeTouch) { d.activeTouch.moved = true; }
     // });
-    on(d.scroller, "touchend", function (e) {
-      // alert("touch end")
+    on(d.scroller, "touchend", (e) => {
       var touch = d.activeTouch
       if (touch && !eventInWidget(d, e) && touch.left != null && !touch.moved && new Date - touch.start < 300) {
         var pos = cm.coordsChar(d.activeTouch, "page"), range
@@ -177,11 +175,8 @@ function registerEventHandlers(cm) {
           { range = cm.findWordAt(pos); }
         else // Triple tap
           { range = new Range(Pos(pos.line, 0), clipPos(cm.doc, Pos(pos.line + 1, 0))); }
-        alert(range.anchor, range.head)
-        // cm.setSelection(range.anchor, range.head);
         cm.setSelectText()
         cm.focus()
-        // e_preventDefault(e);
       }
       finishTouch()
     })
