@@ -164,9 +164,9 @@
 
   MT("indent_for",
      "[keyword for] ([keyword var] [def i] [operator =] [number 0];",
-     "     [variable i] [operator <] [number 100];",
-     "     [variable i][operator ++])",
-     "  [variable doSomething]([variable i]);",
+     "     [variable-2 i] [operator <] [number 100];",
+     "     [variable-2 i][operator ++])",
+     "  [variable doSomething]([variable-2 i]);",
      "[keyword debugger];");
 
   MT("indent_c_style",
