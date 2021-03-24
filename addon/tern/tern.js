@@ -644,8 +644,8 @@
     container.appendChild(node);
 
     var pos = cm.cursorCoords();
-    var winW = window.innerWidth || Math.max(ownerDocument.body.offsetWidth, ownerDocument.documentElement.offsetWidth);
-    var winH = window.innerHeight || Math.max(ownerDocument.body.offsetHeight, ownerDocument.documentElement.offsetHeight);
+    var winW = window.innerWidth;
+    var winH = window.innerHeight;
     var box = node.getBoundingClientRect();
     var hints = document.querySelector(".CodeMirror-hints");
     var overlapY = box.bottom - winH;
