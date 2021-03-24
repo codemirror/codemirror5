@@ -268,8 +268,10 @@
     var winH = parentWindow.innerHeight || Math.max(ownerDocument.body.offsetHeight, ownerDocument.documentElement.offsetHeight);
     container.appendChild(hints);
 
-    var box = completion.options.moveOnOverlap ? hints.getBoundingClientRect() : new DOMRect();
     var scrolls = completion.options.paddingForScrollbar ? hints.scrollHeight > hints.clientHeight + 1 : false;
+    if (scrolls) for (var node = hints.firstChild; node; node = node.nextSibling)
+      node.style.paddingRight = cm.display.nativeBarWidth + "px"
+    var box = completion.options.moveOnOverlap ? hints.getBoundingClientRect() : new DOMRect();
 
     // Compute in the timeout to avoid reflow on init
     var startScroll;
@@ -300,8 +302,6 @@
       }
       hints.style.left = (left = pos.left - overlapX - offsetLeft) + "px";
     }
-    if (scrolls) for (var node = hints.firstChild; node; node = node.nextSibling)
-      node.style.paddingRight = cm.display.nativeBarWidth + "px"
 
     cm.addKeyMap(this.keyMap = buildKeyMap(completion, {
       moveFocus: function(n, avoidWrap) { widget.changeActive(widget.selectedHint + n, avoidWrap); },
