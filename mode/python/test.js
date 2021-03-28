@@ -41,4 +41,8 @@
   MT("bracesInFString", "[string f']{[variable x] [operator +] {}}[string !']")
 
   MT("nestedFString", "[string f']{[variable b][[ [string f\"c\"] ]]}[string f'] [comment # oops]")
+
+  MT("dontIndentTypeDecl",
+     "[variable i]: [builtin int] [operator =] [number 32]",
+     "[builtin print]([variable i])")
 })();
