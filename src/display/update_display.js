@@ -5,6 +5,7 @@ import { displayHeight, displayWidth, getDimensions, paddingVert, scrollGap } fr
 import { mac, webkit } from "../util/browser.js"
 import { activeElt, removeChildren, contains } from "../util/dom.js"
 import { hasHandler, signal } from "../util/event.js"
+import { signalLater } from "../util/operation_group.js"
 import { indexOf } from "../util/misc.js"
 
 import { buildLineElement, updateLineForChanges } from "./update_line.js"
@@ -254,6 +255,8 @@ function patchDisplay(cm, updateNumbersFrom, dims) {
 export function updateGutterSpace(display) {
   let width = display.gutters.offsetWidth
   display.sizer.style.marginLeft = width + "px"
+  // Send an event to consumers responding to changes in gutter width.
+  signalLater(display, "gutterChanged", display)
 }
 
 export function setDocumentHeight(cm, measure) {
