@@ -11,6 +11,7 @@
 })(function(CodeMirror) {
   "use strict";
 
+  var cmds = CodeMirror.commands;
   var Pos = CodeMirror.Pos;
   function posEq(a, b) { return a.line == b.line && a.ch == b.ch; }
 
@@ -30,7 +31,8 @@
 
   var lastKill = null;
 
-  function kill(cm, from, to, ring, text) {
+  // Internal generic kill function, used by several mapped kill "family" functions.
+  function _kill(cm, from, to, ring, text) {
     if (text == null) text = cm.getRange(from, to);
 
     if (ring == "grow" && lastKill && lastKill.cm == cm && posEq(from, lastKill.pos) && cm.isClean(lastKill.gen))
@@ -156,17 +158,17 @@
     var i = selections.length;
     while (i--) {
       cursor = selections[i].head;
-      kill(cm, cursor, findEnd(cm, cursor, by, dir), ring);
+      _kill(cm, cursor, findEnd(cm, cursor, by, dir), ring);
     }
   }
 
-  function killRegion(cm, ring) {
+  function _killRegion(cm, ring) {
     if (cm.somethingSelected()) {
       var selections = cm.listSelections(), selection;
       var i = selections.length;
       while (i--) {
         selection = selections[i];
-        kill(cm, selection.anchor, selection.head, ring);
+        _kill(cm, selection.anchor, selection.head, ring);
       }
       return true;
     }
@@ -222,7 +224,7 @@
 
   // Utilities
 
-  function setMark(cm) {
+  cmds.setMark = function (cm) {
     cm.setCursor(cm.getCursor());
     cm.setExtending(!cm.getExtending());
     cm.on("change", function() { cm.setExtending(false); });
@@ -276,58 +278,97 @@
     }
   }
 
+  cmds.killRegion = function(cm) {_kill(cm, cm.getCursor("start"), cm.getCursor("end"), true);};
+
+  cmds.killLine = repeated(function(cm) {
+    var start = cm.getCursor(), end = cm.clipPos(Pos(start.line));
+    var text = cm.getRange(start, end);
+    if (!/\S/.test(text)) {
+      text += "\n";
+      end = Pos(start.line + 1, 0);
+    }
+    _kill(cm, start, end, "grow", text);
+  });
+
+  cmds.killRingSave = function(cm) {
+    addToRing(cm.getSelection());
+    clearMark(cm);
+  };
+
+  cmds.yank = function(cm) {
+    var start = cm.getCursor();
+    cm.replaceRange(getFromRing(getPrefix(cm)), start, start, "paste");
+    cm.setSelection(start, cm.getCursor());
+  };
+
+  cmds.yankPop = function(cm) {cm.replaceSelection(popFromRing(), "around", "paste");};
+
+  cmds.forwardChar = function(cm) { move(byChar, 1);};
+  cmds.backwardChar = function(cm) { move(byChar, -1)};
+
+  cmds.deleteChar = function(cm) { killTo(cm, byChar, 1, false); };
+  cmds.deleteForwardChar = function(cm) { _killRegion(cm, false) || killTo(cm, byChar, 1, false); };
+  cmds.deleteBackwardChar = function(cm) { _killRegion(cm, false) || killTo(cm, byChar, -1, false); };
+
+  cmds.forwardWord = function(cm) { move(byWord, 1);};
+  cmds.backwardWord = function(cm) { move(byWord, -1);};
+
+  cmds.killWord = function(cm) { killTo(cm, byWord, 1, "grow"); };
+  cmds.backwardKillWord = function(cm) { killTo(cm, byWord, -1, "grow"); };
+
+  cmds.nextLine = function(cm) { move(byLine, 1); };
+  cmds.previousLine = function(cm) { move(byLine, -1); };
+
+  cmds.scrollDownCommand = function(cm) { move(byPage, 1)};
+  cmds.scrollUpCommand = function(cm) { move(byPage, -1) };
+
+//  cmds. = function(cm) { };
+
   function quit(cm) {
     cm.execCommand("clearSearch");
     clearMark(cm);
   }
 
-  CodeMirror.emacs = {kill: kill, killRegion: killRegion, repeated: repeated};
+  //CodeMirror.emacs = {kill: _kill, killRegion: _killRegion, repeated: repeated};
 
   // Actual keymap
-
   var keyMap = CodeMirror.keyMap.emacs = CodeMirror.normalizeKeyMap({
-    "Ctrl-W": function(cm) {kill(cm, cm.getCursor("start"), cm.getCursor("end"), true);},
-    "Ctrl-K": repeated(function(cm) {
-      var start = cm.getCursor(), end = cm.clipPos(Pos(start.line));
-      var text = cm.getRange(start, end);
-      if (!/\S/.test(text)) {
-        text += "\n";
-        end = Pos(start.line + 1, 0);
-      }
-      kill(cm, start, end, "grow", text);
-    }),
-    "Alt-W": function(cm) {
-      addToRing(cm.getSelection());
-      clearMark(cm);
-    },
-    "Ctrl-Y": function(cm) {
-      var start = cm.getCursor();
-      cm.replaceRange(getFromRing(getPrefix(cm)), start, start, "paste");
-      cm.setSelection(start, cm.getCursor());
-    },
-    "Alt-Y": function(cm) {cm.replaceSelection(popFromRing(), "around", "paste");},
+    "Ctrl-W": "killRegion",
+    "Ctrl-K": "killLine",
+    "Alt-W": "killRingSave",
+    "Ctrl-Y": "yank",
+    "Alt-Y": "yankPop",
 
-    "Ctrl-Space": setMark, "Ctrl-Shift-2": setMark,
+    "Ctrl-Space": "setMark",
+    "Ctrl-Shift-2": "setMark",
 
-    "Ctrl-F": move(byChar, 1), "Ctrl-B": move(byChar, -1),
-    "Right": move(byChar, 1), "Left": move(byChar, -1),
-    "Ctrl-D": function(cm) { killTo(cm, byChar, 1, false); },
-    "Delete": function(cm) { killRegion(cm, false) || killTo(cm, byChar, 1, false); },
-    "Ctrl-H": function(cm) { killTo(cm, byChar, -1, false); },
-    "Backspace": function(cm) { killRegion(cm, false) || killTo(cm, byChar, -1, false); },
+    "Ctrl-F": "forwardChar",
+    "Ctrl-B": "backwardChar",
+    "Right": "forwardChar",
+    "Left": "backwardChar",
+    "Ctrl-D": "deleteChar",
+    "Delete": "deleteForwardChar",
+    "Ctrl-H": "deleteBackwardChar",
+    "Backspace": "deleteBackwardChar",
 
-    "Alt-F": move(byWord, 1), "Alt-B": move(byWord, -1),
-    "Alt-Right": move(byWord, 1), "Alt-Left": move(byWord, -1),
-    "Alt-D": function(cm) { killTo(cm, byWord, 1, "grow"); },
-    "Alt-Backspace": function(cm) { killTo(cm, byWord, -1, "grow"); },
+    "Alt-F": "forwardWord",
+    "Alt-B": "backwardWord",
+    "Alt-Right": "forwardWord",
+    "Alt-Left": "backwardWord",
+    "Alt-D": "killWord",
+    "Alt-Backspace": "backwardKillWord",
 
-    "Ctrl-N": move(byLine, 1), "Ctrl-P": move(byLine, -1),
-    "Down": move(byLine, 1), "Up": move(byLine, -1),
+    "Ctrl-N": "nextLine",
+    "Ctrl-P": "previousLine",
+    "Down": "nextLine",
+    "Up": "previousLine",
     "Ctrl-A": "goLineStart", "Ctrl-E": "goLineEnd",
     "End": "goLineEnd", "Home": "goLineStart",
 
-    "Alt-V": move(byPage, -1), "Ctrl-V": move(byPage, 1),
-    "PageUp": move(byPage, -1), "PageDown": move(byPage, 1),
+    "Alt-V": "scrollDownCommand",
+    "Ctrl-V": "scrollUpCommand",
+    "PageUp": "scrollUpCommand",
+    "PageDown": "scrollDownCommand",
 
     "Ctrl-Up": move(byParagraph, -1), "Ctrl-Down": move(byParagraph, 1),
 
@@ -410,7 +451,7 @@
     "Ctrl-X F": "open",
     "Ctrl-X U": repeated("undo"),
     "Ctrl-X K": "close",
-    "Ctrl-X Delete": function(cm) { kill(cm, cm.getCursor(), bySentence(cm, cm.getCursor(), 1), "grow"); },
+    "Ctrl-X Delete": function(cm) { _kill(cm, cm.getCursor(), bySentence(cm, cm.getCursor(), 1), "grow"); },
     "Ctrl-X H": "selectAll",
 
     "Ctrl-Q Tab": repeated("insertTab"),
