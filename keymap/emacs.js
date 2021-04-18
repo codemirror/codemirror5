@@ -303,24 +303,24 @@
 
   cmds.yankPop = function(cm) {cm.replaceSelection(popFromRing(), "around", "paste");};
 
-  cmds.forwardChar = function(cm) { move(byChar, 1);};
-  cmds.backwardChar = function(cm) { move(byChar, -1)};
+  cmds.forwardChar = move(byChar, 1);
+  cmds.backwardChar = move(byChar, -1)
 
   cmds.deleteChar = function(cm) { killTo(cm, byChar, 1, false); };
   cmds.deleteForwardChar = function(cm) { _killRegion(cm, false) || killTo(cm, byChar, 1, false); };
   cmds.deleteBackwardChar = function(cm) { _killRegion(cm, false) || killTo(cm, byChar, -1, false); };
 
-  cmds.forwardWord = function(cm) { move(byWord, 1);};
-  cmds.backwardWord = function(cm) { move(byWord, -1);};
+  cmds.forwardWord = move(byWord, 1);
+  cmds.backwardWord = move(byWord, -1);
 
   cmds.killWord = function(cm) { killTo(cm, byWord, 1, "grow"); };
   cmds.backwardKillWord = function(cm) { killTo(cm, byWord, -1, "grow"); };
 
-  cmds.nextLine = function(cm) { move(byLine, 1); };
-  cmds.previousLine = function(cm) { move(byLine, -1); };
+  cmds.nextLine = move(byLine, 1);
+  cmds.previousLine = move(byLine, -1);
 
-  cmds.scrollDownCommand = function(cm) { move(byPage, 1)};
-  cmds.scrollUpCommand = function(cm) { move(byPage, -1) };
+  cmds.scrollDownCommand = move(byPage, 1);
+  cmds.scrollUpCommand = move(byPage, -1);
 
 //  cmds. = function(cm) { };
 
