@@ -271,6 +271,8 @@
     }
   }
 
+  // Commands. Names should match emacs function names wherever possible.
+
   cmds.killRegion = function(cm) {_kill(cm, cm.getCursor("start"), cm.getCursor("end"), true);};
 
   cmds.killLine = repeated(function(cm) {
@@ -320,8 +322,9 @@
 
   cmds.backwardSentence = move(bySentence, -1);
   cmds.forwardSentence = move(bySentence, 1);
-
   cmds.killSentence = function(cm) { killTo(cm, bySentence, 1, "grow"); };
+  cmds.backwardKillSentence = function(cm) { _kill(cm, cm.getCursor(), bySentence(cm, cm.getCursor(), 1), "grow"); };
+
   cmds.killSexp = function(cm) { killTo(cm, byExpr, 1, "grow"); };
   cmds.backwardKillSexp = function(cm) { killTo(cm, byExpr, -1, "grow"); };
   cmds.forwardSexp = move(byExpr, 1);
@@ -336,15 +339,19 @@
     cm.replaceRange(cm.getRange(rightStart, rightEnd) + cm.getRange(leftEnd, rightStart) +
                     cm.getRange(leftStart, leftEnd), leftStart, rightEnd);
   };
+
   cmds.backwardUpList = repeated(toEnclosingExpr);
+
   cmds.justOneSpace = function(cm) {
     var pos = cm.getCursor(), from = pos.ch, to = pos.ch, text = cm.getLine(pos.line);
     while (from && /\s/.test(text.charAt(from - 1))) --from;
     while (to < text.length && /\s/.test(text.charAt(to))) ++to;
     cm.replaceRange(" ", Pos(pos.line, from), Pos(pos.line, to));
   };
+
   cmds.openLine = repeated(function(cm) { cm.replaceSelection("\n", "start"); });
-  cmds.transposeChars = repeated(function(cm) {
+
+  cmds.transposeCharsRepeatable = repeated(function(cm) {
     cm.execCommand("transposeChars");
   });
 
@@ -391,8 +398,6 @@
     cm.setSelection(cm.getCursor("head"), cm.getCursor("anchor"));
   };
 
-  cmds.backwardKillSentence = function(cm) { _kill(cm, cm.getCursor(), bySentence(cm, cm.getCursor(), 1), "grow"); };
-
   cmds.quotedInsertTab = repeated("insertTab");
 
   cmds.universalArgument = function addPrefixMap(cm) {
@@ -411,10 +416,8 @@
     "Alt-W": "killRingSave",
     "Ctrl-Y": "yank",
     "Alt-Y": "yankPop",
-
     "Ctrl-Space": "setMark",
     "Ctrl-Shift-2": "setMark",
-
     "Ctrl-F": "forwardChar",
     "Ctrl-B": "backwardChar",
     "Right": "forwardChar",
@@ -423,61 +426,52 @@
     "Delete": "deleteForwardChar",
     "Ctrl-H": "deleteBackwardChar",
     "Backspace": "deleteBackwardChar",
-
     "Alt-F": "forwardWord",
     "Alt-B": "backwardWord",
     "Alt-Right": "forwardWord",
     "Alt-Left": "backwardWord",
     "Alt-D": "killWord",
     "Alt-Backspace": "backwardKillWord",
-
     "Ctrl-N": "nextLine",
     "Ctrl-P": "previousLine",
     "Down": "nextLine",
     "Up": "previousLine",
-    "Ctrl-A": "goLineStart", "Ctrl-E": "goLineEnd",
-    "End": "goLineEnd", "Home": "goLineStart",
-
+    "Ctrl-A": "goLineStart",
+    "Ctrl-E": "goLineEnd",
+    "End": "goLineEnd",
+    "Home": "goLineStart",
     "Alt-V": "scrollDownCommand",
     "Ctrl-V": "scrollUpCommand",
     "PageUp": "scrollUpCommand",
     "PageDown": "scrollDownCommand",
-
     "Ctrl-Up": "backwardParagraph",
     "Ctrl-Down": "forwardParagraph",
     "Alt-{": "backwardParagraph",
     "Alt-}": "forwardParagraph",
-
     "Alt-A": "backwardSentence",
     "Alt-E": "forwardSentence",
     "Alt-K": "killSentence",
-
+    "Ctrl-X Delete": "backwardKillSentence",
     "Ctrl-Alt-K": "killSexp",
     "Ctrl-Alt-Backspace": "backwardKillSexp",
     "Ctrl-Alt-F": "forwardSexp",
     "Ctrl-Alt-B": "backwardSexp",
-
     "Shift-Ctrl-Alt-2": "markSexp",
     "Ctrl-Alt-T": "transposeSexps",
     "Ctrl-Alt-U": "backwardUpList",
-
     "Alt-Space": "justOneSpace",
     "Ctrl-O": "openLine",
-    "Ctrl-T": "transposeChars",
-
+    "Ctrl-T": "transposeCharsRepeatable",
     "Alt-C": "capitalizeWord",
     "Alt-U": "upcaseWord",
     "Alt-L": "downcaseWord",
-
     "Alt-;": "toggleComment",
-
     "Ctrl-/": "repeatableUndo",
     "Shift-Ctrl--": "repeatableUndo",
     "Ctrl-Z": "repeatableUndo",
     "Cmd-Z": "repeatableUndo",
     "Ctrl-X U": "repeatableUndo",
     "Shift-Ctrl-Z": "redo",
-
     "Shift-Alt-,": "goDocStart",
     "Shift-Alt-.": "goDocEnd",
     "Ctrl-S": "findPersistentNext",
@@ -488,9 +482,7 @@
     "Enter": "newlineAndIndent",
     "Ctrl-J": "newline",
     "Tab": "indentAuto",
-
     "Alt-G G": "gotoLine",
-
     "Ctrl-X Tab": "indentRigidly",
     "Ctrl-X Ctrl-X": "exchangePointAndMark",
     "Ctrl-X Ctrl-S": "save",
@@ -498,9 +490,7 @@
     "Ctrl-X S": "saveAll",
     "Ctrl-X F": "open",
     "Ctrl-X K": "close",
-    "Ctrl-X Delete": "backwardKillSentence",
     "Ctrl-X H": "selectAll",
-
     "Ctrl-Q Tab": "quotedInsertTab",
     "Ctrl-U": "universalArgument",
     "fallthrough": "default"
