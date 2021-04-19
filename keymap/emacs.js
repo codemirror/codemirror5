@@ -271,11 +271,15 @@
     }
   }
 
-  // Commands. Names should match emacs function names wherever possible.
+  // Commands. Names should match emacs function names (albeit in camelCase)
+  // except where emacs function names collide with code mirror core commands.
 
-  cmds.killRegion = function(cm) {_kill(cm, cm.getCursor("start"), cm.getCursor("end"), true);};
+  cmds.killRegion = function(cm) {
+    _kill(cm, cm.getCursor("start"), cm.getCursor("end"), true);
+  };
 
-  cmds.killLine = repeated(function(cm) {
+  // Maps to emacs kill-line
+  cmds.killLineEmacs = repeated(function(cm) {
     var start = cm.getCursor(), end = cm.clipPos(Pos(start.line));
     var text = cm.getRange(start, end);
     if (!/\S/.test(text)) {
@@ -296,61 +300,92 @@
     cm.setSelection(start, cm.getCursor());
   };
 
-  cmds.yankPop = function(cm) {cm.replaceSelection(popFromRing(), "around", "paste");};
+  cmds.yankPop = function(cm) {
+    cm.replaceSelection(popFromRing(), "around", "paste");
+  };
 
   cmds.forwardChar = move(byChar, 1);
+
   cmds.backwardChar = move(byChar, -1)
 
   cmds.deleteChar = function(cm) { killTo(cm, byChar, 1, false); };
-  cmds.deleteForwardChar = function(cm) { _killRegion(cm, false) || killTo(cm, byChar, 1, false); };
-  cmds.deleteBackwardChar = function(cm) { _killRegion(cm, false) || killTo(cm, byChar, -1, false); };
+
+  cmds.deleteForwardChar = function(cm) {
+    _killRegion(cm, false) || killTo(cm, byChar, 1, false);
+  };
+
+  cmds.deleteBackwardChar = function(cm) {
+    _killRegion(cm, false) || killTo(cm, byChar, -1, false);
+  };
 
   cmds.forwardWord = move(byWord, 1);
+
   cmds.backwardWord = move(byWord, -1);
 
   cmds.killWord = function(cm) { killTo(cm, byWord, 1, "grow"); };
+
   cmds.backwardKillWord = function(cm) { killTo(cm, byWord, -1, "grow"); };
 
   cmds.nextLine = move(byLine, 1);
+
   cmds.previousLine = move(byLine, -1);
 
   cmds.scrollDownCommand = move(byPage, 1);
+
   cmds.scrollUpCommand = move(byPage, -1);
 
   cmds.backwardParagraph = move(byParagraph, -1);
+
   cmds.forwardParagraph = move(byParagraph, 1);
 
   cmds.backwardSentence = move(bySentence, -1);
+
   cmds.forwardSentence = move(bySentence, 1);
+
   cmds.killSentence = function(cm) { killTo(cm, bySentence, 1, "grow"); };
-  cmds.backwardKillSentence = function(cm) { _kill(cm, cm.getCursor(), bySentence(cm, cm.getCursor(), 1), "grow"); };
+
+  cmds.backwardKillSentence = function(cm) {
+    _kill(cm, cm.getCursor(), bySentence(cm, cm.getCursor(), 1), "grow");
+  };
 
   cmds.killSexp = function(cm) { killTo(cm, byExpr, 1, "grow"); };
+
   cmds.backwardKillSexp = function(cm) { killTo(cm, byExpr, -1, "grow"); };
+
   cmds.forwardSexp = move(byExpr, 1);
+
   cmds.backwardSexp = move(byExpr, -1);
+
   cmds.markSexp = function(cm) {
     var cursor = cm.getCursor();
     cm.setSelection(findEnd(cm, cursor, byExpr, 1), cursor);
   };
+
   cmds.transposeSexps = function(cm) {
-    var leftStart = byExpr(cm, cm.getCursor(), -1), leftEnd = byExpr(cm, leftStart, 1);
-    var rightEnd = byExpr(cm, leftEnd, 1), rightStart = byExpr(cm, rightEnd, -1);
-    cm.replaceRange(cm.getRange(rightStart, rightEnd) + cm.getRange(leftEnd, rightStart) +
+    var leftStart = byExpr(cm, cm.getCursor(), -1);
+    var leftEnd = byExpr(cm, leftStart, 1);
+    var rightEnd = byExpr(cm, leftEnd, 1);
+    var rightStart = byExpr(cm, rightEnd, -1);
+    cm.replaceRange(cm.getRange(rightStart, rightEnd) +
+                    cm.getRange(leftEnd, rightStart) +
                     cm.getRange(leftStart, leftEnd), leftStart, rightEnd);
   };
 
   cmds.backwardUpList = repeated(toEnclosingExpr);
 
   cmds.justOneSpace = function(cm) {
-    var pos = cm.getCursor(), from = pos.ch, to = pos.ch, text = cm.getLine(pos.line);
+    var pos = cm.getCursor(), from = pos.ch;
+    var to = pos.ch, text = cm.getLine(pos.line);
     while (from && /\s/.test(text.charAt(from - 1))) --from;
     while (to < text.length && /\s/.test(text.charAt(to))) ++to;
     cm.replaceRange(" ", Pos(pos.line, from), Pos(pos.line, to));
   };
 
-  cmds.openLine = repeated(function(cm) { cm.replaceSelection("\n", "start"); });
+  cmds.openLine = repeated(function(cm) {
+    cm.replaceSelection("\n", "start");
+  });
 
+  // maps to emacs 'transpose-chars'
   cmds.transposeCharsRepeatable = repeated(function(cm) {
     cm.execCommand("transposeChars");
   });
@@ -359,7 +394,8 @@
     operateOnWord(cm, function(w) {
       var letter = w.search(/\w/);
       if (letter == -1) return w;
-      return w.slice(0, letter) + w.charAt(letter).toUpperCase() + w.slice(letter + 1).toLowerCase();
+      return w.slice(0, letter) + w.charAt(letter).toUpperCase() +
+          w.slice(letter + 1).toLowerCase();
     });
   });
 
@@ -370,7 +406,9 @@
   cmds.downcaseWord = repeated(function(cm) {
     operateOnWord(cm, function(w) { return w.toLowerCase(); });
   });
-  cmds.repeatableUndo = repeated("undo");
+
+  // maps to emacs 'undo'
+  cmds.undoRepeatable = repeated("undo");
 
   cmds.keyboardQuit = function(cm) {
     cm.execCommand("clearSearch");
@@ -412,7 +450,7 @@
   // Actual keymap
   var keyMap = CodeMirror.keyMap.emacs = CodeMirror.normalizeKeyMap({
     "Ctrl-W": "killRegion",
-    "Ctrl-K": "killLine",
+    "Ctrl-K": "killLineEmacs",
     "Alt-W": "killRingSave",
     "Ctrl-Y": "yank",
     "Alt-Y": "yankPop",
@@ -466,11 +504,11 @@
     "Alt-U": "upcaseWord",
     "Alt-L": "downcaseWord",
     "Alt-;": "toggleComment",
-    "Ctrl-/": "repeatableUndo",
-    "Shift-Ctrl--": "repeatableUndo",
-    "Ctrl-Z": "repeatableUndo",
-    "Cmd-Z": "repeatableUndo",
-    "Ctrl-X U": "repeatableUndo",
+    "Ctrl-/": "undoRepeatable",
+    "Shift-Ctrl--": "undoRepeatable",
+    "Ctrl-Z": "undoRepeatable",
+    "Cmd-Z": "undoRepeatable",
+    "Ctrl-X U": "undoRepeatable",
     "Shift-Ctrl-Z": "redo",
     "Shift-Alt-,": "goDocStart",
     "Shift-Alt-.": "goDocEnd",
