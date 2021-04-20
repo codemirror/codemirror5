@@ -4,6 +4,7 @@ import { getLine } from "../line/utils_line.js"
 import { charCoords, cursorCoords, displayWidth, paddingH, wrappedLineExtentChar } from "../measurement/position_measurement.js"
 import { getOrder, iterateBidiSections } from "../util/bidi.js"
 import { elt } from "../util/dom.js"
+import { onBlur } from "./focus.js"
 
 export function updateSelection(cm) {
   cm.display.input.showSelection(cm.display.input.prepareSelection())
@@ -165,8 +166,10 @@ export function restartBlink(cm) {
   let on = true
   display.cursorDiv.style.visibility = ""
   if (cm.options.cursorBlinkRate > 0)
-    display.blinker = setInterval(() => display.cursorDiv.style.visibility = (on = !on) ? "" : "hidden",
-      cm.options.cursorBlinkRate)
+    display.blinker = setInterval(() => {
+      if (!cm.hasFocus()) onBlur(cm)
+      display.cursorDiv.style.visibility = (on = !on) ? "" : "hidden"
+    }, cm.options.cursorBlinkRate)
   else if (cm.options.cursorBlinkRate < 0)
     display.cursorDiv.style.visibility = "hidden"
 }

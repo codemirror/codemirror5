@@ -149,6 +149,10 @@ function leftButtonStartDrag(cm, event, pos, behavior) {
   let dragEnd = operation(cm, e => {
     if (webkit) display.scroller.draggable = false
     cm.state.draggingText = false
+    if (cm.state.delayingBlurEvent) {
+      if (cm.hasFocus()) cm.state.delayingBlurEvent = false
+      else delayBlurEvent(cm)
+    }
     off(display.wrapper.ownerDocument, "mouseup", dragEnd)
     off(display.wrapper.ownerDocument, "mousemove", mouseMove)
     off(display.scroller, "dragstart", dragStart)
@@ -172,15 +176,15 @@ function leftButtonStartDrag(cm, event, pos, behavior) {
   if (webkit) display.scroller.draggable = true
   cm.state.draggingText = dragEnd
   dragEnd.copy = !behavior.moveOnDrag
-  // IE's approach to draggable
-  if (display.scroller.dragDrop) display.scroller.dragDrop()
   on(display.wrapper.ownerDocument, "mouseup", dragEnd)
   on(display.wrapper.ownerDocument, "mousemove", mouseMove)
   on(display.scroller, "dragstart", dragStart)
   on(display.scroller, "drop", dragEnd)
 
-  delayBlurEvent(cm)
+  cm.state.delayingBlurEvent = true
   setTimeout(() => display.input.focus(), 20)
+  // IE's approach to draggable
+  if (display.scroller.dragDrop) display.scroller.dragDrop()
 }
 
 function rangeForUnit(cm, pos, unit) {
@@ -193,6 +197,7 @@ function rangeForUnit(cm, pos, unit) {
 
 // Normal selection, as opposed to text dragging.
 function leftButtonSelect(cm, event, start, behavior) {
+  if (ie) delayBlurEvent(cm)
   let display = cm.display, doc = cm.doc
   e_preventDefault(event)
 

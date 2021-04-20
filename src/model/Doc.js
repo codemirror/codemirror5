@@ -137,7 +137,7 @@ Doc.prototype = createObj(BranchChunk.prototype, {
     let out = []
     for (let i = 0; i < ranges.length; i++)
       out[i] = new Range(clipPos(this, ranges[i].anchor),
-                         clipPos(this, ranges[i].head))
+                         clipPos(this, ranges[i].head || ranges[i].anchor))
     if (primary == null) primary = Math.min(ranges.length - 1, this.sel.primIndex)
     setSelection(this, normalizeSelection(this.cm, out, primary), options)
   }),
@@ -198,7 +198,7 @@ Doc.prototype = createObj(BranchChunk.prototype, {
     return {undo: done, redo: undone}
   },
   clearHistory: function() {
-    this.history = new History(this.history.maxGeneration)
+    this.history = new History(this.history)
     linkedDocs(this, doc => doc.history = this.history, true)
   },
 
@@ -219,7 +219,7 @@ Doc.prototype = createObj(BranchChunk.prototype, {
             undone: copyHistoryArray(this.history.undone)}
   },
   setHistory: function(histData) {
-    let hist = this.history = new History(this.history.maxGeneration)
+    let hist = this.history = new History(this.history)
     hist.done = copyHistoryArray(histData.done.slice(0), null, true)
     hist.undone = copyHistoryArray(histData.undone.slice(0), null, true)
   },

@@ -45,7 +45,7 @@
     {name: "edn", mime: "application/edn", mode: "clojure", ext: ["edn"]},
     {name: "Eiffel", mime: "text/x-eiffel", mode: "eiffel", ext: ["e"]},
     {name: "Elm", mime: "text/x-elm", mode: "elm", ext: ["elm"]},
-    {name: "Embedded Javascript", mime: "application/x-ejs", mode: "htmlembedded", ext: ["ejs"]},
+    {name: "Embedded JavaScript", mime: "application/x-ejs", mode: "htmlembedded", ext: ["ejs"]},
     {name: "Embedded Ruby", mime: "application/x-erb", mode: "htmlembedded", ext: ["erb"]},
     {name: "Erlang", mime: "text/x-erlang", mode: "erlang", ext: ["erl"]},
     {name: "Esper", mime: "text/x-esper", mode: "sql"},
@@ -79,7 +79,7 @@
     {name: "JSON-LD", mime: "application/ld+json", mode: "javascript", ext: ["jsonld"], alias: ["jsonld"]},
     {name: "JSX", mime: "text/jsx", mode: "jsx", ext: ["jsx"]},
     {name: "Jinja2", mime: "text/jinja2", mode: "jinja2", ext: ["j2", "jinja", "jinja2"]},
-    {name: "Julia", mime: "text/x-julia", mode: "julia", ext: ["jl"]},
+    {name: "Julia", mime: "text/x-julia", mode: "julia", ext: ["jl"], alias: ["jl"]},
     {name: "Kotlin", mime: "text/x-kotlin", mode: "clike", ext: ["kt"]},
     {name: "LESS", mime: "text/x-less", mode: "css", ext: ["less"]},
     {name: "LiveScript", mime: "text/x-livescript", mode: "livescript", ext: ["ls"], alias: ["ls"]},
@@ -173,7 +173,8 @@
     {name: "Z80", mime: "text/x-z80", mode: "z80", ext: ["z80"]},
     {name: "mscgen", mime: "text/x-mscgen", mode: "mscgen", ext: ["mscgen", "mscin", "msc"]},
     {name: "xu", mime: "text/x-xu", mode: "mscgen", ext: ["xu"]},
-    {name: "msgenny", mime: "text/x-msgenny", mode: "mscgen", ext: ["msgenny"]}
+    {name: "msgenny", mime: "text/x-msgenny", mode: "mscgen", ext: ["msgenny"]},
+    {name: "WebAssembly", mime: "text/webassembly", mode: "wast", ext: ["wat", "wast"]},
   ];
   // Ensure all modes have a mime property for backwards compatibility
   for (var i = 0; i < CodeMirror.modeInfo.length; i++) {

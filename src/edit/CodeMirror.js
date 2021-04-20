@@ -14,7 +14,7 @@ import { Range } from "../model/selection.js"
 import { extendSelection } from "../model/selection_updates.js"
 import { ie, ie_version, mobile, webkit } from "../util/browser.js"
 import { e_preventDefault, e_stop, on, signal, signalDOMEvent } from "../util/event.js"
-import { bind, copyObj, Delayed } from "../util/misc.js"
+import { copyObj, Delayed } from "../util/misc.js"
 
 import { clearDragCursor, onDragOver, onDragStart, onDrop } from "./drop_events.js"
 import { ensureGlobalHandlers } from "./global_events.js"
@@ -76,7 +76,9 @@ export function CodeMirror(place, options) {
   attachDoc(this, doc)
 
   if ((options.autofocus && !mobile) || this.hasFocus())
-    setTimeout(bind(onFocus, this), 20)
+    setTimeout(() => {
+      if (this.hasFocus() && !this.state.focused) onFocus(this)
+    }, 20)
   else
     onBlur(this)
 

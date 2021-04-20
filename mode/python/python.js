@@ -282,7 +282,7 @@
     }
 
     function pushBracketScope(stream, state, type) {
-      var align = stream.match(/^([\s\[\{\(]|#.*)*$/, false) ? null : stream.column() + 1
+      var align = stream.match(/^[\s\[\{\(]*(?:#|$)/, false) ? null : stream.column() + 1
       state.scopes.push({offset: state.indent + hangingIndent,
                          type: type,
                          align: align})
@@ -318,7 +318,7 @@
         state.dedent += 1;
 
       if (current == "lambda") state.lambda = true;
-      if (current == ":" && !state.lambda && top(state).type == "py")
+      if (current == ":" && !state.lambda && top(state).type == "py" && stream.match(/^\s*(?:#|$)/, false))
         pushPyScope(state);
 
       if (current.length == 1 && !/string|comment/.test(style)) {

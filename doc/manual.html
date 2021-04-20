@@ -70,7 +70,7 @@
 <section class=first id=overview>
     <h2 style="position: relative">
       User manual and reference guide
-      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 5.57.0</span>
+      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 5.61.0</span>
     </h2>
 
     <p>CodeMirror is a code-editor component that can be embedded in
@@ -511,6 +511,12 @@
       some tastes) a smaller height (for example <code>0.85</code>),
       which causes the cursor to not reach all the way to the bottom
       of the line, looks better</dd>
+
+      <dt id="option_singleCursorHeightPerLine"><code><strong>singleCursorHeightPerLine</strong>: boolean</code></dt>
+      <dd>If set to <code>true</code> (the default), will keep the
+      cursor height constant for an entire line (or wrapped part of a
+      line). When <code>false</code>, the cursor's height is based on
+      the height of the adjacent reference character.</dd>
 
       <dt id="option_resetSelectionOnContextMenu"><code><strong>resetSelectionOnContextMenu</strong>: boolean</code></dt>
       <dd>Controls whether, when the context menu is opened with a
@@ -1426,14 +1432,15 @@ editor.setOption("extraKeys", {
         stuck.</dd>
       </dl></dd>
 
-      <dt id="setSelections"><code><strong>doc.setSelections</strong>(ranges: array&lt;{anchor, head}&gt;, ?primary: integer, ?options: object)</code></dt>
+      <dt id="setSelections"><code><strong>doc.setSelections</strong>(ranges: array&lt;{anchor, ?head}&gt;, ?primary: integer, ?options: object)</code></dt>
       <dd>Sets a new set of selections. There must be at least one
       selection in the given array. When <code>primary</code> is a
       number, it determines which selection is the primary one. When
       it is not given, the primary index is taken from the previous
       selection, or set to the last range if the previous selection
       had less ranges than the new one. Supports the same options
-      as <a href="#setSelection"><code>setSelection</code></a>.</dd>
+      as <a href="#setSelection"><code>setSelection</code></a>.
+      <code>head</code> defaults to <code>anchor</code> when not given.</dd>
       <dt id="addSelection"><code><strong>doc.addSelection</strong>(anchor: {line, ch}, ?head: {line, ch})</code></dt>
       <dd>Adds a new selection to the existing set of selections, and
       makes it the primary selection.</dd>
@@ -2399,7 +2406,7 @@ editor.setOption("extraKeys", {
       Accepts <code>linenumber</code>, <code>+/-linenumber</code>, <code>line:char</code>,
       <code>scroll%</code> and <code>:linenumber</code> formats.
       This will make use of <a href="#addon_dialog"><code>openDialog</code></a>
-      when available to make prompting for line number neater.</dd>
+      when available to make prompting for line number neater.</dd> Demo available <a href="https://codemirror.net/demo/search.html">here</a>.
 
       <dt id="addon_matchesonscrollbar"><a href="../addon/search/matchesonscrollbar.js"><code>search/matchesonscrollbar.js</code></a></dt>
       <dd>Adds a <code>showMatchesOnScrollbar</code> method to editor
@@ -2437,6 +2444,8 @@ editor.setOption("extraKeys", {
         <dl>
           <dt><strong><code>afterCursor</code></strong></dt>
           <dd>Only use the character after the start position, never the one before it.</dd>
+          <dt><strong><code>highlightNonMatching</code></strong></dt>
+          <dd>Also highlight pairs of non-matching as well as stray brackets. Enabled by default.</dd>
           <dt><strong><code>strict</code></strong></dt>
           <dd>Causes only matches where both brackets are at the same side of the start position to be considered.</dd>
           <dt><strong><code>maxScanLines</code></strong></dt>
@@ -2700,8 +2709,8 @@ editor.setOption("extraKeys", {
       Defines <code>editor.showHint</code>, which takes an optional
       options object, and pops up a widget that allows the user to
       select a completion. Finding hints is done with a hinting
-      functions (the <code>hint</code> option), which is a function
-      that take an editor instance and options object, and return
+      function (the <code>hint</code> option). This function
+      takes an editor instance and an options object, and returns
       a <code>{list, from, to}</code> object, where <code>list</code>
       is an array of strings or objects (the completions),
       and <code>from</code> and <code>to</code> give the start and end
@@ -2715,7 +2724,7 @@ editor.setOption("extraKeys", {
       the <code>"hint"</code> type to find applicable hinting
       functions, and tries them one by one. If that fails, it looks
       for a <code>"hintWords"</code> helper to fetch a list of
-      completable words for the mode, and
+      completeable words for the mode, and
       uses <code>CodeMirror.hint.fromList</code> to complete from
       those.</dd>
       <dd>When completions aren't simple strings, they should be
@@ -2771,9 +2780,22 @@ editor.setOption("extraKeys", {
         <dt><code><strong>alignWithWord</strong>: boolean</code></dt>
         <dd>Whether the pop-up should be horizontally aligned with the
         start of the word (true, default), or with the cursor (false).</dd>
+        <dt><code><strong>closeCharacters</strong>: RegExp</code></dt>
+        <dd>A regular expression object used to match characters which
+        cause the pop up to be closed (default: <code>/[\s()\[\]{};:>,]/</code>).
+        If the user types one of these characters, the pop up will close, and
+        the <code>endCompletion</code> event is fired on the editor instance.</dd>
         <dt><code><strong>closeOnUnfocus</strong>: boolean</code></dt>
         <dd>When enabled (which is the default), the pop-up will close
         when the editor is unfocused.</dd>
+        <dt><code><strong>completeOnSingleClick</strong>: boolean</code></dt>
+        <dd>Whether a single click on a list item suffices to trigger the
+        completion (which is the default), or if the user has to use a
+        doubleclick.</dd>
+        <dt><code><strong>container</strong>: Element|null</code></dt>
+        <dd>Can be used to define a custom container for the widget. The default
+        is <code>null</code>, in which case the <code>body</code>-element will
+        be used.</dd>
         <dt><code><strong>customKeys</strong>: keymap</code></dt>
         <dd>Allows you to provide a custom key map of keys to be active
         when the pop-up is active. The handlers will be called with an
@@ -2808,6 +2830,14 @@ editor.setOption("extraKeys", {
         (string or object).</dd>
         <dt><code><strong>"close"</strong> ()</code></dt>
         <dd>Fired when the completion is finished.</dd>
+      </dl>
+      The following events will be fired on the editor instance during
+      completion:
+      <dl>
+        <dt><code><strong>"endCompletion"</strong> ()</code></dt>
+        <dd>Fired when the pop-up is being closed programmatically, e.g., when
+        the user types a character which matches the
+        <code>closeCharacters</code> option.</dd>
       </dl>
       This addon depends on styles
       from <code>addon/hint/show-hint.css</code>. Check
@@ -3656,13 +3686,13 @@ editor.setOption("extraKeys", {
       <dt id="vimapi_getRegisterController"><strong><code>getRegisterController()</code></strong></dt>
       <dd>Returns the RegisterController that manages the state of registers
       used by vim mode. For the RegisterController api see its
-      defintion <a href="https://github.com/CodeMirror/CodeMirror/blob/b2d26b4ccb1d0994ae84d18ad8b84018de176da9/keymap/vim.js#L1123">here</a>.
+      definition <a href="https://github.com/CodeMirror/CodeMirror/blob/b2d26b4ccb1d0994ae84d18ad8b84018de176da9/keymap/vim.js#L1123">here</a>.
       </dd>
 
       <dt id='vimapi_buildkeymap'><strong><code>buildKeyMap()</code></strong></dt>
       <dd>
       Not currently implemented. If you would like to contribute this please open
-      a pull request on <a href="https://github.com/codemirror/CodeMirror">Github</a>.
+      a pull request on <a href="https://github.com/codemirror/CodeMirror">GitHub</a>.
       </dd>
 
       <dt id="vimapi_defineRegister"><strong><code>defineRegister()</code></strong></dt>

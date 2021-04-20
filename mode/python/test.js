@@ -31,7 +31,7 @@
   }
 
   MT("fValidStringPrefix", "[string f'this is a]{[variable formatted]}[string string']");
-  MT("fValidExpressioninFString", "[string f'expression ]{[number 100][operator *][number 5]}[string string']");
+  MT("fValidExpressionInFString", "[string f'expression ]{[number 100][operator *][number 5]}[string string']");
   MT("fInvalidFString", "[error f'this is wrong}]");
   MT("fNestedFString", "[string f'expression ]{[number 100] [operator +] [string f'inner]{[number 5]}[string ']}[string string']");
   MT("uValidStringPrefix", "[string u'this is an unicode string']");
@@ -41,4 +41,8 @@
   MT("bracesInFString", "[string f']{[variable x] [operator +] {}}[string !']")
 
   MT("nestedFString", "[string f']{[variable b][[ [string f\"c\"] ]]}[string f'] [comment # oops]")
+
+  MT("dontIndentTypeDecl",
+     "[variable i]: [builtin int] [operator =] [number 32]",
+     "[builtin print]([variable i])")
 })();

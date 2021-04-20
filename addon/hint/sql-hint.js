@@ -97,7 +97,7 @@
     if (name.charAt(0) == ".") {
       name = name.substr(1);
     }
-    // replace doublicated identifierQuotes with single identifierQuotes
+    // replace duplicated identifierQuotes with single identifierQuotes
     // and remove single identifierQuotes
     var nameParts = name.split(identifierQuote+identifierQuote);
     for (var i = 0; i < nameParts.length; i++)
@@ -109,7 +109,7 @@
     var nameParts = getText(name).split(".");
     for (var i = 0; i < nameParts.length; i++)
       nameParts[i] = identifierQuote +
-        // doublicate identifierQuotes
+        // duplicate identifierQuotes
         nameParts[i].replace(new RegExp(identifierQuote,"g"), identifierQuote+identifierQuote) +
         identifierQuote;
     var escaped = nameParts.join(".");
@@ -187,7 +187,7 @@
   function eachWord(lineText, f) {
     var words = lineText.split(/\s+/)
     for (var i = 0; i < words.length; i++)
-      if (words[i]) f(words[i].replace(/[,;]/g, ''))
+      if (words[i]) f(words[i].replace(/[`,;]/g, ''))
   }
 
   function findTableByAlias(alias, editor) {

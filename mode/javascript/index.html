@@ -99,6 +99,10 @@ StringStream.prototype = {
         <li><code>typescript</code> which will activate additional
         syntax highlighting and some other things for TypeScript code
         (<a href="typescript.html">demo</a>).</li>
+        <li><code>trackScope</code> can be set to false to turn off
+        tracking of local variables. This will prevent locals from
+        getting the <code>"variable-2"</code> token type, and will
+        break completion of locals with javascript-hint.</li>
         <li><code>statementIndent</code> which (given a number) will
         determine the amount of indentation to use for statements
         continued on a new line.</li>
@@ -110,5 +114,5 @@ StringStream.prototype = {
       </ul>
     </p>
 
-    <p><strong>MIME types defined:</strong> <code>text/javascript</code>, <code>application/json</code>, <code>application/ld+json</code>, <code>text/typescript</code>, <code>application/typescript</code>.</p>
+    <p><strong>MIME types defined:</strong> <code>text/javascript</code>, <code>application/javascript</code>, <code>application/x-javascript</code>, <code>text/ecmascript</code>, <code>application/ecmascript</code>, <code>application/json</code>, <code>application/x-json</code>, <code>application/manifest+json</code>, <code>application/ld+json</code>, <code>text/typescript</code>, <code>application/typescript</code>.</p>
   </article>

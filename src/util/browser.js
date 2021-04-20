@@ -17,7 +17,7 @@ export let safari = /Apple Computer/.test(navigator.vendor)
 export let mac_geMountainLion = /Mac OS X 1\d\D([8-9]|\d\d)\D/.test(userAgent)
 export let phantom = /PhantomJS/.test(userAgent)
 
-export let ios = !edge && /AppleWebKit/.test(userAgent) && /Mobile\/\w+/.test(userAgent)
+export let ios = safari && (/Mobile\/\w+/.test(userAgent) || navigator.maxTouchPoints > 2)
 export let android = /Android/.test(userAgent)
 // This is woefully incomplete. Suggestions for alternative methods welcome.
 export let mobile = ios || android || /webOS|BlackBerry|Opera Mini|Opera Mobi|IEMobile/i.test(userAgent)

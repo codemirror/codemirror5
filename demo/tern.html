@@ -13,16 +13,16 @@
 <script src="../addon/dialog/dialog.js"></script>
 <script src="../addon/hint/show-hint.js"></script>
 <script src="../addon/tern/tern.js"></script>
-<script src="//ternjs.net/node_modules/acorn/dist/acorn.js"></script>
-<script src="//ternjs.net/node_modules/acorn-loose/dist/acorn-loose.js"></script>
-<script src="//ternjs.net/node_modules/acorn-walk/dist/walk.js"></script>
+<script src="https://unpkg.com/acorn/dist/acorn.js"></script>
+<script src="https://unpkg.com/acorn-loose/dist/acorn-loose.js"></script>
+<script src="https://unpkg.com/acorn-walk/dist/walk.js"></script>
 <script src="//ternjs.net/doc/demo/polyfill.js"></script>
-<script src="//ternjs.net/lib/signal.js"></script>
-<script src="//ternjs.net/lib/tern.js"></script>
-<script src="//ternjs.net/lib/def.js"></script>
-<script src="//ternjs.net/lib/comment.js"></script>
-<script src="//ternjs.net/lib/infer.js"></script>
-<script src="//ternjs.net/plugin/doc_comment.js"></script>
+<script src="https://unpkg.com/tern/lib/signal.js"></script>
+<script src="https://unpkg.com/tern/lib/tern.js"></script>
+<script src="https://unpkg.com/tern/lib/def.js"></script>
+<script src="https://unpkg.com/tern/lib/comment.js"></script>
+<script src="https://unpkg.com/tern/lib/infer.js"></script>
+<script src="https://unpkg.com/tern/plugin/doc_comment.js"></script>
 <style>
       .CodeMirror {border: 1px solid #ddd;}
     </style>
@@ -109,7 +109,7 @@ overview.</p>
   }
 
   var server;
-  getURL("//ternjs.net/defs/ecmascript.json", function(err, code) {
+  getURL("https://unpkg.com/tern/defs/ecmascript.json", function(err, code) {
     if (err) throw new Error("Request for ecmascript.json: " + err);
     server = new CodeMirror.TernServer({defs: [JSON.parse(code)]});
     editor.setOption("extraKeys", {
