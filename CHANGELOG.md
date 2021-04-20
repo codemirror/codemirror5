@@ -1,3 +1,21 @@
+## 5.61.0 (2021-04-20)
+
+### Bug fixes
+
+Improve support for being in a shadow DOM in contenteditable mode.
+
+Prevent line number from being read by screen readers.
+
+[show-hint addon](https://codemirror.net/doc/manual.html#addon_show-hint): Fix a crash caused by a race condition.
+
+[javascript mode](https://codemirror.net/mode/javascript/): Improve scope tracking.
+
+### New features
+
+The library now emits an `"updateGutter"` event when the gutter width changes.
+
+[emacs bindings](https://codemirror.net/demo/emacs.html): Provide named commands for all bindings.
+
 ## 5.60.0 (2021-03-20)
 
 ### Bug fixes
