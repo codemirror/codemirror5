@@ -46,7 +46,14 @@
      '[keyword call_indirect] [variable-2 $table] ([keyword param] [atom f32] [atom f64]) ([keyword result] [atom i32] [atom i64])',
      '[keyword return_call] [variable-2 $func0]',
      '[keyword return_call_indirect] ([keyword param] [atom f32] [atom f64]) ([keyword result] [atom i32] [atom i64])',
-     '[keyword select] ([keyword local.get] [number 1]) ([keyword local.get] [number 2]) ([keyword local.get] [number 3])');
+     '[keyword select] ([keyword local.get] [number 1]) ([keyword local.get] [number 2]) ([keyword local.get] [number 3])',
+     '[keyword try] ([keyword result] [atom i32])',
+     '[keyword throw] [number 0]',
+     '[keyword rethrow] [number 0]',
+     '[keyword catch] [number 0]',
+     '[keyword catch_all]',
+     '[keyword delegate] [number 0]',
+     '[keyword unwind]');
 
 
   MT('memory-instructions',
