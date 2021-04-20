@@ -81,6 +81,7 @@ mode/gherkin/gherkin.js \
 mode/mllike/mllike.js \
 mode/swift/swift.js \
 mode/solidity/solidity.js \
+mode/verilog/verilog.js \
 keymap/emacs.js \
 keymap/sublime.js \
 keymap/vim.js
