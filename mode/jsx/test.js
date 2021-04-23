@@ -73,6 +73,13 @@
   MT("tag_attribute",
      "([bracket&tag <][tag foo] [attribute bar]=[bracket&tag <][tag foo][bracket&tag />/>][operator ++])")
 
+  MT("in_array",
+     "[[",
+     "  [bracket&tag <][tag Something][bracket&tag />],",
+     "  [string-2 `${][variable x][string-2 }`],",
+     "  [variable y]",
+     "]]")
+
   var ts_mode = CodeMirror.getMode({indentUnit: 2}, "text/typescript-jsx")
   function TS(name) { test.mode(name, ts_mode, Array.prototype.slice.call(arguments, 1)) }
 
