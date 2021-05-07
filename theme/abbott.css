@@ -100,11 +100,7 @@
   border-color: #00ff7f /* seafoam_green */;
 }
 
-/*
- * Roughly equivalent to Vim's Visual group. (CodeMirror doesn't allow changing
- * the foreground color of the selected text, so we use a dark green that light
- * text is readable atop instead of a light green with brown text like in Vim.)
- */
+/* Roughly equivalent to Vim's Visual group. */
 .cm-s-abbott .CodeMirror-selected,
 .cm-s-abbott.CodeMirror-focused .CodeMirror-selected {
   background: #273900 /* dark_olive */;
