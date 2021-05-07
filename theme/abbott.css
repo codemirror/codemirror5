@@ -112,7 +112,7 @@
 }
 .cm-s-abbott .CodeMirror-line::-moz-selection,
 .cm-s-abbott .CodeMirror-line > span::-moz-selection,
-.cm-s-abbott .CodeMirror-line > span > span::-moz-selection*/ {
+.cm-s-abbott .CodeMirror-line > span > span::-moz-selection {
   background: #273900 /* dark_olive */;
 }
 
