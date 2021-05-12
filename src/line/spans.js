@@ -28,7 +28,11 @@ export function removeMarkedSpan(spans, span) {
 }
 // Add a span to a line.
 export function addMarkedSpan(line, span) {
-  line.markedSpans = line.markedSpans ? line.markedSpans.concat([span]) : [span]
+  if (line.markedSpans) {
+    line.markedSpans.push(span)
+  } else {
+    line.markedSpans = [span]
+  }
   span.marker.attachLine(line)
 }
 
