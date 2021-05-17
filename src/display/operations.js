@@ -36,7 +36,8 @@ export function startOperation(cm) {
     scrollLeft: null, scrollTop: null, // Intermediate scroll position, not pushed to DOM yet
     scrollToPos: null,       // Used to scroll to a specific position
     focus: false,
-    id: ++nextOpId           // Unique ID
+    id: ++nextOpId,          // Unique ID
+    markArrays: null         // Used by addMarkedSpan
   }
   pushOperation(cm.curOp)
 }

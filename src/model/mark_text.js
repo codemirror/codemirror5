@@ -187,7 +187,7 @@ export function markText(doc, from, to, options, type) {
     if (marker.collapsed && curLine != from.line) updateLineHeight(line, 0)
     addMarkedSpan(line, new MarkedSpan(marker,
                                        curLine == from.line ? from.ch : null,
-                                       curLine == to.line ? to.ch : null))
+                                       curLine == to.line ? to.ch : null), doc.cm && doc.cm.curOp)
     ++curLine
   })
   // lineIsHidden depends on the presence of the spans, so needs a second pass
