@@ -1,3 +1,17 @@
+## 5.61.1 (2021-05-20)
+
+### Bug fixes
+
+Fix a bug where changing the editor's document could confuse text-direction management.
+
+Fix a bug in horizontally scrolling the cursor into view.
+
+Optimize adding lots of marks in a single transaction.
+
+[simple mode addon](https://codemirror.net/demo/simplemode.html): Support regexps with a unicode flag.
+
+[javascript mode](https://codemirror.net/mode/javascript/index.html): Add support for TypeScript template string types, improve integration with JSX mode.
+
 ## 5.61.0 (2021-04-20)
 
 ### Bug fixes
