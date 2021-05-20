@@ -140,7 +140,9 @@
   }
 
   function startLinting(cm) {
-    var state = cm.state.lint, options = state.options;
+    var state = cm.state.lint;
+    if (!state) return;
+    var options = state.options;
     /*
      * Passing rules in `options` property prevents JSHint (and other linters) from complaining
      * about unrecognized rules like `onUpdateLinting`, `delay`, `lintOnChange`, etc.
@@ -161,8 +163,10 @@
   }
 
   function updateLinting(cm, annotationsNotSorted) {
+    var state = cm.state.lint;
+    if (!state) return;
+    var options = state.options;
     clearMarks(cm);
-    var state = cm.state.lint, options = state.options;
 
     var annotations = groupByLine(annotationsNotSorted);
 
@@ -254,6 +258,6 @@
   });
 
   CodeMirror.defineExtension("performLint", function() {
-    if (this.state.lint) startLinting(this);
+    startLinting(this);
   });
 });
