@@ -445,6 +445,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "{") return contCommasep(objprop, "}", null, maybeop);
     if (type == "quasi") return pass(quasi, maybeop);
     if (type == "new") return cont(maybeTarget(noComma));
+    if (type.match(/[;\}\)\]]/)) return pass();
     return cont();
   }
   function maybeexpression(type) {
