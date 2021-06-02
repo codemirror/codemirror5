@@ -445,7 +445,6 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
     if (type == "{") return contCommasep(objprop, "}", null, maybeop);
     if (type == "quasi") return pass(quasi, maybeop);
     if (type == "new") return cont(maybeTarget(noComma));
-    if (type.match(/[;\}\)\]]/) && cx.cc.length > 3) return pass();
     return cont();
   }
   function maybeexpression(type) {
@@ -483,7 +482,7 @@ CodeMirror.defineMode("javascript", function(config, parserConfig) {
   function quasi(type, value) {
     if (type != "quasi") return pass();
     if (value.slice(value.length - 2) != "${") return cont(quasi);
-    return cont(expression, continueQuasi);
+    return cont(maybeexpression, continueQuasi);
   }
   function continueQuasi(type) {
     if (type == "}") {
