@@ -372,7 +372,7 @@
           return state.tokenize.isString ? CodeMirror.Pass : 0;
 
         var scope = top(state)
-        let closing = scope.type == textAfter.charAt(0) ||
+        var closing = scope.type == textAfter.charAt(0) ||
             scope.type == "py" && !state.dedent && /^(else:|elif |except |finally:)/.test(textAfter)
         if (scope.align != null)
           return scope.align - (closing ? 1 : 0)
