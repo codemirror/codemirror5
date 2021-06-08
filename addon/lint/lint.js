@@ -11,6 +11,7 @@
 })(function(CodeMirror) {
   "use strict";
   var GUTTER_ID = "CodeMirror-lint-markers";
+  var LINT_ROW_ID = "CodeMirror-lint-row-error";
 
   function showTooltip(cm, e, content) {
     var tt = document.createElement("div");
@@ -75,7 +76,12 @@
 
   function clearMarks(cm) {
     var state = cm.state.lint;
-    if (state.hasGutter) cm.clearGutter(GUTTER_ID);
+    if (state.hasGutter) {
+      cm.clearGutter(GUTTER_ID);
+      for(var k = 0; k < cm.doc.size; k++) {
+        cm.removeLineClass(k, 'wrap', LINT_ROW_ID);
+      }
+    }
     for (var i = 0; i < state.marked.length; ++i)
       state.marked[i].clear();
     state.marked.length = 0;
@@ -196,9 +202,11 @@
         }));
       }
       // use original annotations[line] to show multiple messages
-      if (state.hasGutter)
+      if (state.hasGutter) {
         cm.setGutterMarker(line, GUTTER_ID, makeMarker(cm, tipLabel, maxSeverity, annotations[line].length > 1,
                                                        state.options.tooltips));
+        cm.addLineClass(line, 'wrap', LINT_ROW_ID);
+      }
     }
     if (options.onUpdateLinting) options.onUpdateLinting(annotationsNotSorted, annotations, cm);
   }
