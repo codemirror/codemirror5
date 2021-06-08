@@ -88,13 +88,13 @@
   }
 
   function clearErrorLines(cm) {
-    for (var k = 0; k < cm.doc.size; k++) {
-      removeErrorLine(k, cm);
+    for (var i = cm.firstLine(), j = cm.lastLine(); i < j; i++) {
+      removeErrorLine(i, cm);
     }
   }
 
   function isHighlightErrorLinesEnabled(state) {
-    return state.marked.length > 0 && state.options.highlightErrorLines;
+    return state.options.highlightErrorLines;
   }
 
   function removeErrorLine(index, cm) {
