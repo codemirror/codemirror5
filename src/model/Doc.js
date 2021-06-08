@@ -86,6 +86,7 @@ Doc.prototype = createObj(BranchChunk.prototype, {
   getRange: function(from, to, lineSep) {
     let lines = getBetween(this, clipPos(this, from), clipPos(this, to))
     if (lineSep === false) return lines
+    if (lineSep === '') return lines.join('')
     return lines.join(lineSep || this.lineSeparator())
   },
 
