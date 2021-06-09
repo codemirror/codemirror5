@@ -69,3 +69,7 @@
   background-position: right bottom;
   width: 100%; height: 100%;
 }
+
+.CodeMirror-lint-line-error {
+  background-color: rgba(183, 76, 81, 0.08);
+}
