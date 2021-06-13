@@ -99,11 +99,13 @@
 
   function findLintLineCssClass(wrapClass) {
     var lintLineClass = '';
-    wrapClass.split(' ').forEach(function (cssClass) {
+    var classes = wrapClass.split(' ');
+    for (var i = 0, clsLength = classes.length; i < clsLength; i++) {
+      var cssClass = classes[i];
       if (cssClass.indexOf(LINT_LINE_ID) > -1) {
         lintLineClass = cssClass;
       }
-    });
+    }
 
     return lintLineClass;
   }
