@@ -11,7 +11,7 @@
 })(function(CodeMirror) {
   "use strict";
   var GUTTER_ID = "CodeMirror-lint-markers";
-  var LINT_ROW_ID = "CodeMirror-lint-line";
+  var LINT_LINE_ID = "CodeMirror-lint-line-";
 
   function showTooltip(cm, e, content) {
     var tt = document.createElement("div");
@@ -84,12 +84,40 @@
   }
 
   function clearErrorLines(cm) {
-    for (var i = cm.firstLine(), j = cm.lastLine(); i <= j; i++)
-      cm.removeLineClass(i, "wrap", LINT_ROW_ID);
+    for (var i = cm.firstLine(), j = cm.lastLine(); i < j; i++) {
+      var wrapClass = cm.lineInfo(i).wrapClass;
+
+      if (wrapClass) {
+        removeErrorLine(i, cm, wrapClass);
+      }
+    }
   }
 
   function isHighlightErrorLinesEnabled(state) {
     return state.options.highlightLines;
+  }
+
+  function findLintLineCssClass(wrapClass) {
+    var lintLineClass = '';
+    var classes = wrapClass.split(' ');
+    for (var i = 0, clsLength = classes.length; i < clsLength; i++) {
+      var cssClass = classes[i];
+      if (cssClass.indexOf(LINT_LINE_ID) > -1) {
+        lintLineClass = cssClass;
+      }
+    }
+
+    return lintLineClass;
+  }
+
+  function removeErrorLine(index, cm, wrapClass) {
+    var lintLineClass = findLintLineCssClass(wrapClass);
+
+    if (!lintLineClass) {
+      return;
+    }
+
+    cm.removeLineClass(index, 'wrap', lintLineClass);
   }
 
   function makeMarker(cm, labels, severity, multiple, tooltips) {
@@ -212,7 +240,7 @@
                                                        state.options.tooltips));
 
       if (isHighlightErrorLinesEnabled(state))
-        cm.addLineClass(line, "wrap", LINT_ROW_ID);
+        cm.addLineClass(line, "wrap", LINT_LINE_ID + maxSeverity);
     }
     if (options.onUpdateLinting) options.onUpdateLinting(annotationsNotSorted, annotations, cm);
   }
