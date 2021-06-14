@@ -84,40 +84,14 @@
   }
 
   function clearErrorLines(cm) {
-    for (var i = cm.firstLine(), j = cm.lastLine(); i < j; i++) {
-      var wrapClass = cm.lineInfo(i).wrapClass;
-
-      if (wrapClass) {
-        removeErrorLine(i, cm, wrapClass);
-      }
-    }
+    cm.eachLine(line => {
+      let has = line.wrapClass && /\bCodeMirror-lint-line-\w+\b/.exec(line.wrapClass);
+      if (has) cm.removeLineClass(line, "wrap", has[0]);
+    })
   }
 
   function isHighlightErrorLinesEnabled(state) {
     return state.options.highlightLines;
-  }
-
-  function findLintLineCssClass(wrapClass) {
-    var lintLineClass = '';
-    var classes = wrapClass.split(' ');
-    for (var i = 0, clsLength = classes.length; i < clsLength; i++) {
-      var cssClass = classes[i];
-      if (cssClass.indexOf(LINT_LINE_ID) > -1) {
-        lintLineClass = cssClass;
-      }
-    }
-
-    return lintLineClass;
-  }
-
-  function removeErrorLine(index, cm, wrapClass) {
-    var lintLineClass = findLintLineCssClass(wrapClass);
-
-    if (!lintLineClass) {
-      return;
-    }
-
-    cm.removeLineClass(index, 'wrap', lintLineClass);
   }
 
   function makeMarker(cm, labels, severity, multiple, tooltips) {
