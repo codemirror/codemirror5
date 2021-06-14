@@ -85,7 +85,7 @@
 
   function clearErrorLines(cm) {
     cm.eachLine(line => {
-      let has = line.wrapClass && /\bCodeMirror-lint-line-\w+\b/.exec(line.wrapClass);
+      var has = line.wrapClass && /\bCodeMirror-lint-line-\w+\b/.exec(line.wrapClass);
       if (has) cm.removeLineClass(line, "wrap", has[0]);
     })
   }
