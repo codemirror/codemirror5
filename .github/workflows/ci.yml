@@ -12,6 +12,6 @@ jobs:
           path: '/home/runner/work/codemirror/codemirror/node_modules'
           key: ${{ runner.os }}-modules
 
-      - run: npm prepare
+      - run: npm install
 
       - run: npm test
