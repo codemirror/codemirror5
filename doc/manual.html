@@ -1320,6 +1320,8 @@ editor.setOption("extraKeys", {
       and <code>end</code> line numbers are given, the range
       from <code>start</code> up to (not including) <code>end</code>,
       and call <code>f</code> for each line, passing the line handle.
+      <code>eachLine</code> stops iterating if <code>f</code> returns
+      truthy value.
       This is a faster way to visit a range of line handlers than
       calling <a href="#getLineHandle"><code>getLineHandle</code></a>
       for each of them. Note that line handles have
