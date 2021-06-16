@@ -308,4 +308,7 @@
 
   MT('import',
    '[keyword import] {[def Name], [variable Person] [keyword as] [def P]} [keyword from] [string \'examples/proto/example.proto\'];');
+
+  MT('velog',
+    '[keyword {velog] [variable-2&error $data][keyword }] Logged [keyword {/velog}]');
 })();
