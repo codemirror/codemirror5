@@ -46,6 +46,7 @@
     "delcall": { soyState: "templ-ref" },
     "log": {},
     "element": { variableScope: true },
+    "velog": {},
   };
 
   var indentingTags = Object.keys(tags).filter(function(tag) {
