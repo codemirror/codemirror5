@@ -40,3 +40,10 @@
   text-decoration: underline;
   color: white !important;
 }
+
+/* changing cursor color in vim mode */
+.CodeMirror-cursor { background-color: #a2a8a175 !important; }
+
+.CodeMirror-cursors { background-color: #a2a8a175 !important; }
+
+.cm-animate-fat-cursor { background-color: #a2a8a175 !important; }
