@@ -5,24 +5,24 @@
 */
 
 .cm-s-material-ocean.CodeMirror {
-  background-color: #0F111A;
-  color: #8F93A2;
+  background-color: #0f111a;
+  color: #8f93a2;
 }
 
 .cm-s-material-ocean .CodeMirror-gutters {
-  background: #0F111A;
-  color: #464B5D;
+  background: #0f111a;
+  color: #464b5d;
   border: none;
 }
 
 .cm-s-material-ocean .CodeMirror-guttermarker,
 .cm-s-material-ocean .CodeMirror-guttermarker-subtle,
 .cm-s-material-ocean .CodeMirror-linenumber {
-  color: #464B5D;
+  color: #464b5d;
 }
 
 .cm-s-material-ocean .CodeMirror-cursor {
-  border-left: 1px solid #FFCC00;
+  border-left: 1px solid #ffcc00;
 }
 
 .cm-s-material-ocean div.CodeMirror-selected {
@@ -34,14 +34,14 @@
 }
 
 .cm-s-material-ocean .CodeMirror-line::selection,
-.cm-s-material-ocean .CodeMirror-line>span::selection,
-.cm-s-material-ocean .CodeMirror-line>span>span::selection {
+.cm-s-material-ocean .CodeMirror-line > span::selection,
+.cm-s-material-ocean .CodeMirror-line > span > span::selection {
   background: rgba(128, 203, 196, 0.2);
 }
 
 .cm-s-material-ocean .CodeMirror-line::-moz-selection,
-.cm-s-material-ocean .CodeMirror-line>span::-moz-selection,
-.cm-s-material-ocean .CodeMirror-line>span>span::-moz-selection {
+.cm-s-material-ocean .CodeMirror-line > span::-moz-selection,
+.cm-s-material-ocean .CodeMirror-line > span > span::-moz-selection {
   background: rgba(128, 203, 196, 0.2);
 }
 
@@ -50,15 +50,15 @@
 }
 
 .cm-s-material-ocean .cm-keyword {
-  color: #C792EA;
+  color: #c792ea;
 }
 
 .cm-s-material-ocean .cm-operator {
-  color: #89DDFF;
+  color: #89ddff;
 }
 
 .cm-s-material-ocean .cm-variable-2 {
-  color: #EEFFFF;
+  color: #eeffff;
 }
 
 .cm-s-material-ocean .cm-variable-3,
@@ -67,23 +67,23 @@
 }
 
 .cm-s-material-ocean .cm-builtin {
-  color: #FFCB6B;
+  color: #ffcb6b;
 }
 
 .cm-s-material-ocean .cm-atom {
-  color: #F78C6C;
+  color: #f78c6c;
 }
 
 .cm-s-material-ocean .cm-number {
-  color: #FF5370;
+  color: #ff5370;
 }
 
 .cm-s-material-ocean .cm-def {
-  color: #82AAFF;
+  color: #82aaff;
 }
 
 .cm-s-material-ocean .cm-string {
-  color: #C3E88D;
+  color: #c3e88d;
 }
 
 .cm-s-material-ocean .cm-string-2 {
@@ -91,7 +91,7 @@
 }
 
 .cm-s-material-ocean .cm-comment {
-  color: #464B5D;
+  color: #464b5d;
 }
 
 .cm-s-material-ocean .cm-variable {
@@ -99,37 +99,48 @@
 }
 
 .cm-s-material-ocean .cm-tag {
-  color: #FF5370;
+  color: #ff5370;
 }
 
 .cm-s-material-ocean .cm-meta {
-  color: #FFCB6B;
+  color: #ffcb6b;
 }
 
 .cm-s-material-ocean .cm-attribute {
-  color: #C792EA;
+  color: #c792ea;
 }
 
 .cm-s-material-ocean .cm-property {
-  color: #C792EA;
+  color: #c792ea;
 }
 
 .cm-s-material-ocean .cm-qualifier {
-  color: #DECB6B;
+  color: #decb6b;
 }
 
 .cm-s-material-ocean .cm-variable-3,
 .cm-s-material-ocean .cm-type {
-  color: #DECB6B;
+  color: #decb6b;
 }
 
-
 .cm-s-material-ocean .cm-error {
-  color: rgba(255, 255, 255, 1.0);
-  background-color: #FF5370;
+  color: rgba(255, 255, 255, 1);
+  background-color: #ff5370;
 }
 
 .cm-s-material-ocean .CodeMirror-matchingbracket {
   text-decoration: underline;
   color: white !important;
+}
+
+.CodeMirror-cursor {
+  background-color: #a2a8a175 !important;
+}
+
+.CodeMirror-cursors {
+  background-color: #a2a8a175 !important;
+}
+
+.cm-animate-fat-cursor {
+  background-color: #a2a8a175 !important;
 }
