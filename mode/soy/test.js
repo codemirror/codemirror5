@@ -311,4 +311,8 @@
 
   MT('velog',
     '[keyword {velog] [variable-2&error $data][keyword }] Logged [keyword {/velog}]');
+
+  MT('extern', '[keyword {extern] [def renderer]: ([def s]:[type string])=>[type string][keyword }] [keyword {/extern}]');
+ 
+  MT('export extern', '[keyword {export] [keyword extern] [def renderer]: ([def s]:[type string])=>[type string][keyword }] [keyword {/extern}]');
 })();
