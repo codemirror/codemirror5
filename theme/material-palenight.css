@@ -135,8 +135,5 @@
 }
 
 /* changing cursor colors in vim mode */
-.CodeMirror-cursor { background-color: #607c8b80 !important; }
-
-.CodeMirror-cursors { background-color: #607c8b80 !important; }
-
-.cm-animate-fat-cursor { background-color: #607c8b80 !important; }
+.cm-s-material-palenight .CodeMirror-cursor { background-color: #607c8b80 !important; }
+.cm-s-material-palenight .cm-animate-fat-cursor { background-color: #607c8b80 !important; }

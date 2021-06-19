@@ -37,9 +37,6 @@
 .cm-s-gruvbox-dark span.cm-tag { color: #fe8019; }
 
 /* changing cursor color in vim mode */
-.CodeMirror-cursor { background-color: #8e8d8875 !important; }
-
-.CodeMirror-cursors { background-color: #8e8d8875 !important; }
-
-.cm-animate-fat-cursor { background-color: #8e8d8875 !important; }
+.cm-s-gruvbox-dark .CodeMirror-cursor { background-color: #8e8d8875 !important; }
+.cm-s-gruvbox-dark .cm-animate-fat-cursor { background-color: #8e8d8875 !important; }
 
