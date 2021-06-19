@@ -36,3 +36,8 @@
 
 .cm-s-base16-dark .CodeMirror-activeline-background { background: #202020; }
 .cm-s-base16-dark .CodeMirror-matchingbracket { text-decoration: underline; color: white !important; }
+
+/* changing cursor color in vim */
+.cm-s-base16-dark .CodeMirror-cursor { background-color: #8e8d8875 !important; }
+.cm-s-base16-dark .cm-animate-fat-cursor { background-color: #8e8d8875 !important; }
+

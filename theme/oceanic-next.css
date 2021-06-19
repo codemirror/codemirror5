@@ -42,3 +42,8 @@
   text-decoration: underline;
   color: white !important;
 }
+
+/* changing cursor color in vim */
+.cm-s-oceanic-next .CodeMirror-cursor { background-color: #a2a8a175 !important; }
+.cm-s-oceanic-next .cm-animate-fat-cursor { background-color: #a2a8a175 !important; }
+
