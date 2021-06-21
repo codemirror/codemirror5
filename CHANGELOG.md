@@ -1,3 +1,13 @@
+## 5.62.0 (2021-06-21)
+
+### Bug fixes
+
+Improve support for vim-style cursors in a number of themes.
+
+### New features
+
+[lint addon](https://codemirror.net/doc/manual.html#addon_lint): Add support for highlighting lines with errors or warnings.
+
 ## 5.61.1 (2021-05-20)
 
 ### Bug fixes
