@@ -25,7 +25,7 @@
     "@state": paramData,
     "template": { soyState: "templ-def", variableScope: true},
     "extern": {soyState: "param-def"},
-    "export": {soyState: "param-def"},
+    "export": {soyState: "export"},
     "literal": { },
     "msg": {},
     "fallbackmsg": { noEndTag: true, reduceIndent: true},
@@ -49,6 +49,7 @@
     "log": {},
     "element": { variableScope: true },
     "velog": {},
+    "const": { soyState: "const-def"},
   };
 
   var indentingTags = Object.keys(tags).filter(function(tag) {
@@ -285,9 +286,6 @@
               return "type";
             }
             if (match = stream.match(/^\w+/)) {
-              if (match[0] == 'extern') {
-                return 'keyword';
-              }
               state.variables = prepend(state.variables, match[0]);
               state.soyState.pop();
               state.soyState.push("param-type");
@@ -528,6 +526,27 @@
               return this.token(stream, state);
             }
             return tokenUntil(stream, state, /\{\/literal}/);
+          case "export":
+            if (match = stream.match(/\w+/)) {
+              state.soyState.pop();
+              if (match == "const") {
+                state.soyState.push("const-def")
+                return "keyword";
+              } else if (match == "extern") {
+                state.soyState.push("param-def")
+                return "keyword";
+              }
+            } else {
+              stream.next();
+            }
+            return null;
+          case "const-def":
+            if (stream.match(/^\w+/)) {
+              state.soyState.pop();
+              return "def";
+            }
+            stream.next();
+            return null;
         }
 
         if (stream.match('{literal}')) {
