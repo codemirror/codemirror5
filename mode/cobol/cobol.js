@@ -254,4 +254,3 @@ CodeMirror.defineMode("cobol", function () {
 CodeMirror.defineMIME("text/x-cobol", "cobol");
 
 });
-
