@@ -195,7 +195,8 @@ CodeMirror.defineMode("cobol", function () {
       case "string": // multi-line string parsing mode
         var next = false;
         while ((next = stream.next()) != null) {
-          if (next == "\"" || next == "\'") {
+          const nextForNext =  stream.string[stream.pos]
+          if ((next == "\"" || next == "\'") && nextForNext !== "\'" && nextForNext !== "\"") {
             state.mode = false;
             break;
           }
@@ -253,3 +254,4 @@ CodeMirror.defineMode("cobol", function () {
 CodeMirror.defineMIME("text/x-cobol", "cobol");
 
 });
+
