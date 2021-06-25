@@ -420,6 +420,7 @@
     var numbers = makeKeyRange(48, 10);
     var validMarks = [].concat(upperCaseAlphabet, lowerCaseAlphabet, numbers, ['<', '>']);
     var validRegisters = [].concat(upperCaseAlphabet, lowerCaseAlphabet, numbers, ['-', '"', '.', ':', '_', '/']);
+    var upperCaseChars;
 
     function isLine(cm, line) {
       return line >= cm.firstLine() && line <= cm.lastLine();
@@ -434,7 +435,12 @@
       return numberRegex.test(k);
     }
     function isUpperCase(k) {
-      return (/^[A-Z]$/).test(k);
+      try {
+        upperCaseChars = new RegExp("^[\\p{Lu}]$", "u");
+      } catch (_) {
+        upperCaseChars = /^[A-Z]$/;
+      }
+      return upperCaseChars.test(k);
     }
     function isWhiteSpaceString(k) {
       return (/^\s*$/).test(k);
