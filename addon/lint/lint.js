@@ -77,7 +77,7 @@
   function clearMarks(cm) {
     var state = cm.state.lint;
     if (state.hasGutter) cm.clearGutter(GUTTER_ID);
-    if (isHighlightErrorLinesEnabled(state)) clearErrorLines(cm);
+    if (state.options.highlightLines) clearErrorLines(cm);
     for (var i = 0; i < state.marked.length; ++i)
       state.marked[i].clear();
     state.marked.length = 0;
@@ -88,10 +88,6 @@
       var has = line.wrapClass && /\bCodeMirror-lint-line-\w+\b/.exec(line.wrapClass);
       if (has) cm.removeLineClass(line, "wrap", has[0]);
     })
-  }
-
-  function isHighlightErrorLinesEnabled(state) {
-    return state.options.highlightLines;
   }
 
   function makeMarker(cm, labels, severity, multiple, tooltips) {
@@ -155,7 +151,8 @@
   function startLinting(cm) {
     var state = cm.state.lint;
     if (!state) return;
-    var options = state.options;
+    var options = JSON.parse(JSON.stringify(state.options)); // deep clone object
+    delete options.highlightLines;
     /*
      * Passing rules in `options` property prevents JSHint (and other linters) from complaining
      * about unrecognized rules like `onUpdateLinting`, `delay`, `lintOnChange`, etc.
@@ -182,6 +179,7 @@
     clearMarks(cm);
 
     var annotations = groupByLine(annotationsNotSorted);
+    var highlightLines = state.options.highlightLines;
 
     for (var line = 0; line < annotations.length; ++line) {
       var anns = annotations[line];
@@ -213,7 +211,7 @@
         cm.setGutterMarker(line, GUTTER_ID, makeMarker(cm, tipLabel, maxSeverity, annotations[line].length > 1,
                                                        state.options.tooltips));
 
-      if (isHighlightErrorLinesEnabled(state))
+      if (highlightLines)
         cm.addLineClass(line, "wrap", LINT_LINE_ID + maxSeverity);
     }
     if (options.onUpdateLinting) options.onUpdateLinting(annotationsNotSorted, annotations, cm);
