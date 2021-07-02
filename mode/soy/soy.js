@@ -33,6 +33,8 @@
     "plural": {},
     "let": { soyState: "var-def" },
     "if": {},
+    "javaimpl": {},
+    "jsimpl": {},
     "elseif": { noEndTag: true, reduceIndent: true},
     "else": { noEndTag: true, reduceIndent: true},
     "switch": {},
