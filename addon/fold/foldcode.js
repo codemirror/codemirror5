@@ -24,9 +24,11 @@
     function getRange(allowFolded) {
       var range = finder(cm, pos);
       if (!range || range.to.line - range.from.line < minSize) return null;
+      if (force === "fold") return range;
+
       var marks = cm.findMarksAt(range.from);
       for (var i = 0; i < marks.length; ++i) {
-        if (marks[i].__isFold && force !== "fold") {
+        if (marks[i].__isFold) {
           if (!allowFolded) return null;
           range.cleared = true;
           marks[i].clear();
