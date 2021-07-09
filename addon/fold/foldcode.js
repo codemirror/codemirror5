@@ -101,7 +101,7 @@
     cm.foldCode(cm.getCursor(), null, "fold");
   };
   CodeMirror.commands.unfold = function(cm) {
-    cm.foldCode(cm.getCursor(), null, "unfold");
+    cm.foldCode(cm.getCursor(), { scanUp: false }, "unfold");
   };
   CodeMirror.commands.foldAll = function(cm) {
     cm.operation(function() {
