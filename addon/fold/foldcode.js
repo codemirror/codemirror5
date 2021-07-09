@@ -47,11 +47,7 @@
       myRange.clear();
       CodeMirror.e_preventDefault(e);
     });
-    var myRange = cm.markText(range.from, range.to, {
-      replacedWith: myWidget,
-      clearOnEnter: getOption(cm, options, "clearOnEnter"),
-      __isFold: true
-    });
+    var myRange = makeMarker(cm, options, range, myWidget);
     myRange.on("clear", function(from, to) {
       CodeMirror.signal(cm, "unfold", cm, from, to);
     });
@@ -74,6 +70,25 @@
       widget = widget.cloneNode(true)
     }
     return widget;
+  }
+
+  function makeMarker(cm, options, range, widget) {
+    var markerGenerator = getOption(cm, options, "marker");
+    var clearOnEnter = getOption(cm, options, "clearOnEnter");
+    var marker;
+
+    if (typeof markerGenerator === "function") {
+      marker = markerGenerator(range.from, range.to, widget, clearOnEnter);
+      marker.__isFold = true;
+    } else {
+      marker = cm.markText(range.from, range.to, {
+        replacedWith: widget,
+        clearOnEnter: clearOnEnter,
+        __isFold: true
+      });
+    }
+
+    return marker;
   }
 
   // Clumsy backwards-compatible interface
