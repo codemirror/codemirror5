@@ -106,13 +106,13 @@
   CodeMirror.commands.foldAll = function(cm) {
     cm.operation(function() {
       for (var i = cm.firstLine(), e = cm.lastLine(); i <= e; i++)
-        cm.foldCode(CodeMirror.Pos(i, 0), null, "fold");
+        cm.foldCode(CodeMirror.Pos(i, 0), { scanUp: false }, "fold");
     });
   };
   CodeMirror.commands.unfoldAll = function(cm) {
     cm.operation(function() {
       for (var i = cm.firstLine(), e = cm.lastLine(); i <= e; i++)
-        cm.foldCode(CodeMirror.Pos(i, 0), null, "unfold");
+        cm.foldCode(CodeMirror.Pos(i, 0), { scanUp: false }, "unfold");
     });
   };
 
