@@ -661,7 +661,7 @@
           this.latestRegister = registerName;
           if (cm.openDialog) {
             this.onRecordingDone = cm.openDialog(
-                '(recording)['+registerName+']', null, {bottom:true});
+                document.createTextNode('(recording)['+registerName+']'), null, {bottom:true});
           }
           this.isRecording = true;
         }
