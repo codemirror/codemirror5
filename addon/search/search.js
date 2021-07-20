@@ -189,8 +189,8 @@
     if (state.annotate) { state.annotate.clear(); state.annotate = null; }
   });}
 
-  function el(tag, attrs, content) {
-    var element = document.createElement(tag);
+  function el(tag, attrs) {
+    var element = tag ? document.createElement(tag) : document.createDocumentFragment();
     for (var key in attrs) {
       element[key] = attrs[key];
     }
@@ -202,41 +202,30 @@
   }
 
   function getQueryDialog(cm)  {
-    var fragment = document.createDocumentFragment();
-    fragment.appendChild(el('span', {className: 'CodeMirror-search-label'}, cm.phrase("Search:")));
-    fragment.appendChild(document.createTextNode(' '));
-    fragment.appendChild(el('input', {type: 'text', 'style': 'width: 10em', className: 'CodeMirror-search-field'}));
-    fragment.appendChild(document.createTextNode(' '));
-    fragment.appendChild(el('span', {style: 'color: #888', className: 'CodeMirror-search-hint'}, cm.phrase("(Use /re/ syntax for regexp search)")));
-    return fragment;
+    return el("", null,
+              el("span", {className: "CodeMirror-search-label"}, cm.phrase("Search:")), " ",
+              el("input", {type: "text", "style": "width: 10em", className: "CodeMirror-search-field"}), " ",
+              el("span", {style: "color: #888", className: "CodeMirror-search-hint"},
+                 cm.phrase("(Use /re/ syntax for regexp search)")));
   }
   function getReplaceQueryDialog(cm) {
-    var fragment = document.createDocumentFragment();
-    fragment.appendChild(document.createTextNode(' '));
-    fragment.appendChild(el('input', {type: 'text', 'style': 'width: 10em', className: 'CodeMirror-search-field'}));
-    fragment.appendChild(document.createTextNode(' '));
-    fragment.appendChild(el('span', {style: 'color: #888', className: 'CodeMirror-search-hint'}, cm.phrase("(Use /re/ syntax for regexp search)")));
-    return fragment;
+    return el("", null, " ",
+              el("input", {type: "text", "style": "width: 10em", className: "CodeMirror-search-field"}), " ",
+              el("span", {style: "color: #888", className: "CodeMirror-search-hint"},
+                 cm.phrase("(Use /re/ syntax for regexp search)")));
   }
   function getReplacementQueryDialog(cm) {
-    var fragment = document.createDocumentFragment();
-    fragment.appendChild(el('span', {className: 'CodeMirror-search-label'}, cm.phrase("With:")));
-    fragment.appendChild(document.createTextNode(' '));
-    fragment.appendChild(el('input', {type: 'text', 'style': 'width: 10em', className: 'CodeMirror-search-field'}));
-    return fragment;
+    return el("", null,
+              el("span", {className: "CodeMirror-search-label"}, cm.phrase("With:")), " ",
+              el("input", {type: "text", "style": "width: 10em", className: "CodeMirror-search-field"}));
   }
   function getDoReplaceConfirm(cm) {
-    var fragment = document.createDocumentFragment();
-    fragment.appendChild(el('span', {className: 'CodeMirror-search-label'}, cm.phrase("Replace?")));
-    fragment.appendChild(document.createTextNode(' '));
-    fragment.appendChild(el('button', {}, cm.phrase("Yes")));
-    fragment.appendChild(document.createTextNode(' '));
-    fragment.appendChild(el('button', {}, cm.phrase("No")));
-    fragment.appendChild(document.createTextNode(' '));
-    fragment.appendChild(el('button', {}, cm.phrase("All")));
-    fragment.appendChild(document.createTextNode(' '));
-    fragment.appendChild(el('button', {}, cm.phrase("Stop")));
-    return fragment;
+    return el("", null,
+              el("span", {className: "CodeMirror-search-label"}, cm.phrase("Replace?")), " ",
+              el("button", {}, cm.phrase("Yes")), " ",
+              el("button", {}, cm.phrase("No")), " ",
+              el("button", {}, cm.phrase("All")), " ",
+              el("button", {}, cm.phrase("Stop")));
   }
 
   function replaceAll(cm, query, text) {
@@ -253,9 +242,10 @@
   function replace(cm, all) {
     if (cm.getOption("readOnly")) return;
     var query = cm.getSelection() || getSearchState(cm).lastQuery;
-    var fragment = document.createDocumentFragment();
-    fragment.appendChild(el('span', {className: 'CodeMirror-search-label'}, (all ? cm.phrase("Replace all:") : cm.phrase("Replace:"))));
-    fragment.appendChild(getReplaceQueryDialog(cm));
+    var dialogText = all ? cm.phrase("Replace all:") : cm.phrase("Replace:")
+    var fragment = el("", null,
+                      el("span", {className: "CodeMirror-search-label"}, dialogText),
+                      getReplaceQueryDialog(cm))
     dialog(cm, fragment, dialogText, query, function(query) {
       if (!query) return;
       query = parseQuery(query);
