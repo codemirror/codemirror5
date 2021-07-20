@@ -1,3 +1,15 @@
+## 5.62.1 (2021-07-20)
+
+### Bug fixes
+
+[vim bindings](https://codemirror.net/demo/vim.html): Make matching of upper-case characters more Unicode-aware.
+
+[lint addon](https://codemirror.net/doc/manual.html#addon_lint): Prevent options passed to the addon itself from being given to the linter.
+
+[show-hint addon](https://codemirror.net/doc/manual.html#addon_show-hint): Improve screen reader support.
+
+[search addon](https://codemirror.net/demo/search.html): Avoid using `innerHTML`.
+
 ## 5.62.0 (2021-06-21)
 
 ### Bug fixes
