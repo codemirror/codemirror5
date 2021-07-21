@@ -67,7 +67,7 @@
     this.linterOptions = conf.options || {};
     for (var prop in defaults) this.options[prop] = defaults[prop];
     for (var prop in conf) {
-      if (defaults.hasOwnProperty(prop)) {
+      if (conf.hasOwnProperty(prop)) {
         if (conf[prop] != null) this.options[prop] = conf[prop];
       } else if (!conf.options) {
         this.linterOptions[prop] = conf[prop];
@@ -83,12 +83,7 @@
     highlightLines: false,
     tooltips: true,
     delay: 500,
-    lintOnChange: true,
-    getAnnotations: null,
-    async: false,
-    selfContain: null,
-    formatAnnotation: null,
-    onUpdateLinting: null
+    lintOnChange: true
   }
 
   function clearMarks(cm) {
@@ -223,9 +218,9 @@
       // use original annotations[line] to show multiple messages
       if (state.hasGutter)
         cm.setGutterMarker(line, GUTTER_ID, makeMarker(cm, tipLabel, maxSeverity, annotations[line].length > 1,
-                                                       options.tooltips));
+                                                       state.options.tooltips));
 
-      if (options.highlightLines)
+      if (state.options.highlightLines)
         cm.addLineClass(line, "wrap", LINT_LINE_ID + maxSeverity);
     }
     if (options.onUpdateLinting) options.onUpdateLinting(annotationsNotSorted, annotations, cm);
