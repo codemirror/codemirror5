@@ -83,7 +83,12 @@
     highlightLines: false,
     tooltips: true,
     delay: 500,
-    lintOnChange: true
+    lintOnChange: true,
+    getAnnotations: null,
+    async: false,
+    selfContain: null,
+    formatAnnotation: null,
+    onUpdateLinting: null
   }
 
   function clearMarks(cm) {
@@ -218,9 +223,9 @@
       // use original annotations[line] to show multiple messages
       if (state.hasGutter)
         cm.setGutterMarker(line, GUTTER_ID, makeMarker(cm, tipLabel, maxSeverity, annotations[line].length > 1,
-                                                       state.options.tooltips));
+                                                       options.tooltips));
 
-      if (state.options.highlightLines)
+      if (options.highlightLines)
         cm.addLineClass(line, "wrap", LINT_LINE_ID + maxSeverity);
     }
     if (options.onUpdateLinting) options.onUpdateLinting(annotationsNotSorted, annotations, cm);
