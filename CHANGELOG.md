@@ -1,3 +1,9 @@
+## 5.62.2 (2021-07-21)
+
+### Bug fixes
+
+[lint addon](https://codemirror.net/doc/manual.html#addon_lint): Fix a regression that broke several addon options.
+
 ## 5.62.1 (2021-07-20)
 
 ### Bug fixes

@@ -1,6 +1,6 @@
 {
   "name": "codemirror",
-  "version": "5.62.1",
+  "version": "5.62.2",
   "main": "lib/codemirror.js",
   "style": "lib/codemirror.css",
   "author": {
