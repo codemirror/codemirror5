@@ -473,7 +473,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
   });
 
   // Databricks
-  CodeMirror.defineMIME("text/x-databricks", {
+  CodeMirror.defineMIME("text/x-databrickssql", {
     name: "sql",
     keywords: set("bloomfilter clone compression constraint convert copy deep delta detail deterministic dry encryption expect fail files history hours incremental live matched merge namespaces restore retain rowformat run shallow stream update vacuum version violation zorder")
   });
