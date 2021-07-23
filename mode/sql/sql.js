@@ -471,6 +471,12 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     dateSQL: set("time"),
     support: set("decimallessFloat zerolessFloat binaryNumber hexNumber")
   });
+
+  // Databricks
+  CodeMirror.defineMIME("text/x-databricks", {
+    name: "sql",
+    keywords: set("bloomfilter clone compression constraint convert copy deep delta detail deterministic dry encryption expect fail files history hours incremental live matched merge namespaces restore retain rowformat run shallow stream update vacuum version violation zorder")
+  });
 });
 
 /*
