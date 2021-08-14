@@ -49,6 +49,10 @@ export function Display(place, doc, input, options) {
   // The element in which the editor lives.
   d.wrapper = elt("div", [d.scrollbarFiller, d.gutterFiller, d.scroller], "CodeMirror")
 
+  // This attribute is respected by automatic translation systems such as Google Translate,
+  // and may also be respected by tools used by human translators.
+  d.wrapper.setAttribute('translate', 'no')
+
   // Work around IE7 z-index bug (not perfect, hence IE7 not really being supported)
   if (ie && ie_version < 8) { d.gutters.style.zIndex = -1; d.scroller.style.paddingRight = 0 }
   if (!webkit && !(gecko && mobile)) d.scroller.draggable = true
