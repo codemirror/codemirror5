@@ -100,10 +100,6 @@ export function Display(place, doc, input, options) {
   // Used to track whether anything happened since the context menu
   // was opened.
   d.selForContextMenu = null
-  
-  // This attribute is respected by automatic translation systems such as Google Translate,
-  // and may also be respected by tools used by human translators.
-  d.setAttribute("translate", "no")
 
   d.activeTouch = null
 
