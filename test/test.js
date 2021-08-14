@@ -2673,6 +2673,6 @@ testCM("mode_lookahead", function(cm) {
   eq(cm.getTokenAt(Pos(1, 1)).type, "atom")
 }, {value: "foo\na\nx\nx\n", mode: "lookahead_mode"})
 
-testCM("should has [translate=no]", function (cm) {
+testCM("should have translate=no attribute", function(cm) {
   eq(cm.getWrapperElement().getAttribute("translate"), "no")
 }, {})
