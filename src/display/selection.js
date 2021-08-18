@@ -37,7 +37,7 @@ export function drawSelectionCursor(cm, head, output) {
   cursor.style.top = pos.top + "px"
   cursor.style.height = Math.max(0, pos.bottom - pos.top) * cm.options.cursorHeight + "px"
 
-  if (/cm-fat-cursor/.test(cm.getWrapperElement().className)) {
+  if (/\bcm-fat-cursor\b/.test(cm.getWrapperElement().className)) {
     let charPos = charCoords(cm, head, "div", null, null);
     cursor.style.width = Math.max(0, charPos.right - charPos.left) + "px";
   }
