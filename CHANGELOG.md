@@ -1,3 +1,15 @@
+## 5.62.3 (2021-08-20)
+
+### Bug fixes
+
+Give the editor a `translate=no` attribute to prevent automatic translation from modifying its content.
+
+Give vim-style cursors a width that matches the character after them.
+
+[merge addon](https://codemirror.net/doc/manual.html#addon_merge): Make buttons keyboard-accessible.
+
+[emacs bindings](https://codemirror.net/demo/emacs.html): Fix by-page scrolling keybindings, which were accidentally inverted.
+
 ## 5.62.2 (2021-07-21)
 
 ### Bug fixes
