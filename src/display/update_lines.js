@@ -8,10 +8,14 @@ import { ie, ie_version } from "../util/browser.js"
 export function updateHeightsInViewport(cm) {
   let display = cm.display
   let prevBottom = display.lineDiv.offsetTop
+  let viewTop = Math.max(0, display.scroller.getBoundingClientRect().top)
+  let oldHeight = display.lineDiv.getBoundingClientRect().top
+  let mustScroll = 0
   for (let i = 0; i < display.view.length; i++) {
     let cur = display.view[i], wrapping = cm.options.lineWrapping
     let height, width = 0
     if (cur.hidden) continue
+    oldHeight += cur.line.height
     if (ie && ie_version < 8) {
       let bot = cur.node.offsetTop + cur.node.offsetHeight
       height = bot - prevBottom
@@ -26,6 +30,7 @@ export function updateHeightsInViewport(cm) {
     }
     let diff = cur.line.height - height
     if (diff > .005 || diff < -.005) {
+      if (oldHeight < viewTop) mustScroll -= diff
       updateLineHeight(cur.line, height)
       updateWidgetHeight(cur.line)
       if (cur.rest) for (let j = 0; j < cur.rest.length; j++)
@@ -40,6 +45,7 @@ export function updateHeightsInViewport(cm) {
       }
     }
   }
+  if (Math.abs(mustScroll) > 2) display.scroller.scrollTop += mustScroll
 }
 
 // Read and store the height of line widgets associated with the
