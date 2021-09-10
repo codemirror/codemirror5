@@ -39,7 +39,9 @@ export function drawSelectionCursor(cm, head, output) {
 
   if (/\bcm-fat-cursor\b/.test(cm.getWrapperElement().className)) {
     let charPos = charCoords(cm, head, "div", null, null)
-    cursor.style.width = Math.max(0, charPos.right - charPos.left) + "px"
+    if (charPos.right - charPos.left > 0) {
+      cursor.style.width = (charPos.right - charPos.left) + "px"
+    }
   }
 
   if (pos.other) {
