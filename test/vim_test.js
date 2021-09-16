@@ -1232,12 +1232,19 @@ testVim('gu_and_gU', function(cm, vim, helpers) {
   eq(cm.getValue(), 'wa wb Xx wc wd');
   eqCursorPos(makeCursor(0, 3), cm.getCursor());
 
-  // TODO: support gUgU guu
-  // eqCursorPos(makeCursor(0, 0), cm.getCursor());
-
   var register = helpers.getRegisterController().getRegister();
   eq('', register.toString());
   is(!register.linewise);
+  
+  cm.setCursor(curStart);
+  cm.setValue('abc efg\nxyz');
+  helpers.doKeys('g', 'U', 'g', 'U');
+  eq(cm.getValue(), 'ABC EFG\nxyz');
+  helpers.doKeys('g', 'u', 'u');
+  eq(cm.getValue(), 'abc efg\nxyz');
+  eqCursorPos(makeCursor(0, 0), cm.getCursor());
+  helpers.doKeys('g', 'U', '2', 'U');
+  eq(cm.getValue(), 'ABC EFG\nXYZ');
 }, { value: 'wa wb xx wc wd' });
 testVim('visual_block_~', function(cm, vim, helpers) {
   cm.setCursor(1, 1);
