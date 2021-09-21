@@ -4305,7 +4305,7 @@
         ignoreCase = (/^[^A-Z]*$/).test(regexPart);
       }
       var regexp = new RegExp(regexPart,
-          (ignoreCase || forceIgnoreCase) ? 'i' : undefined);
+          (ignoreCase || forceIgnoreCase) ? 'im' : 'm');
       return regexp;
     }
 
@@ -4461,7 +4461,14 @@
         var cursor = cm.getSearchCursor(query, pos);
         for (var i = 0; i < repeat; i++) {
           var found = cursor.find(prev);
-          if (i == 0 && found && cursorEqual(cursor.from(), pos)) { found = cursor.find(prev); }
+          if (i == 0 && found && cursorEqual(cursor.from(), pos)) {
+            var lastEndPos = prev ? cursor.from() : cursor.to();
+            found = cursor.find(prev);
+            if (found && !found[0] && cursorEqual(cursor.from(), lastEndPos)) {
+              if (cm.getLine(lastEndPos.line).length == lastEndPos.ch)
+                found = cursor.find(prev);
+            }
+          }
           if (!found) {
             // SearchCursor may have returned null because it hit EOF, wrap
             // around and try again.
@@ -5114,12 +5121,6 @@
               regexPart = new RegExp(regexPart).source; //normalize not escaped characters
           }
           replacePart = tokens[1];
-          // If the pattern ends with $ (line boundary assertion), change $ to \n.
-          // Caveat: this workaround cannot match on the last line of the document.
-          if (/(^|[^\\])(\\\\)*\$$/.test(regexPart)) {
-            regexPart = regexPart.slice(0, -1) + '\\n';
-            replacePart = (replacePart || '') + '\n';
-          }
           if (replacePart !== undefined) {
             if (getOption('pcre')) {
               replacePart = unescapeRegexReplace(replacePart.replace(/([^\\])&/g,"$1$$&"));
@@ -5309,10 +5310,18 @@
         lineEnd += modifiedLineNumber - unmodifiedLineNumber;
         joined = modifiedLineNumber < unmodifiedLineNumber;
       }
+      function findNextValidMatch() {
+        var lastMatchTo = lastPos && copyCursor(searchCursor.to());
+        var match = searchCursor.findNext();
+        if (match && !match[0] && lastMatchTo && cursorEqual(searchCursor.from(), lastMatchTo)) {
+          match = searchCursor.findNext();
+        }
+        return match;
+      }
       function next() {
         // The below only loops to skip over multiple occurrences on the same
         // line when 'global' is not true.
-        while(searchCursor.findNext() &&
+        while(findNextValidMatch() &&
               isInRange(searchCursor.from(), lineStart, lineEnd)) {
           if (!global && searchCursor.from().line == modifiedLineNumber && !joined) {
             continue;

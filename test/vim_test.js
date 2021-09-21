@@ -998,6 +998,12 @@ testVim('dd_only_line', function(cm, vim, helpers) {
   var register = helpers.getRegisterController().getRegister();
   eq(expectedRegister, register.toString());
 }, { value: "thisistheonlyline" });
+testVim('cG', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('c', 'G', 'inserted');
+  eq('inserted\n', cm.getValue());
+  helpers.assertCursorAt(0, 8);
+}, { value: 'line1\nline2'});
 // Yank commands should behave the exact same as d commands, expect that nothing
 // gets deleted.
 testVim('yw_repeat', function(cm, vim, helpers) {
@@ -2752,9 +2758,11 @@ testVim('?_greedy_0_or_more', function(cm, vim, helpers) {
   helpers.doKeys('?');
   helpers.assertCursorAt(1, 1);
   helpers.doKeys('n');
+  helpers.assertCursorAt(1, 0);
+  helpers.doKeys('n');
   helpers.assertCursorAt(0, 5);
   helpers.doKeys('n');
-  helpers.assertCursorAt(0, 3);
+  helpers.assertCursorAt(0, 4);
   helpers.doKeys('n');
   helpers.assertCursorAt(0, 0);
 }, { value: 'aaa  aa\n aa'});
@@ -4329,8 +4337,12 @@ testSubstitute('ex_substitute_multibackslash_replacement', {
   expr: '%s/,/\\\\\\\\\\\\\\\\/g'}); // 16 backslashes.
 testSubstitute('ex_substitute_dollar_assertion', {
   value: 'one,two \n three,four',
-  expectedValue: 'one,two ,\n three,four', // TODO: should match at end of doc.
+  expectedValue: 'one,two ,\n three,four,',
   expr: '%s/$/,/g'});
+testSubstitute('ex_substitute_dollar_assertion_empty_lines', {
+  value: '\n\n\n\n\n\n',
+  expectedValue: ';\n;\n;\n;\n;\n;\n;',
+  expr: '%s/$/;/g'});
 testSubstitute('ex_substitute_dollar_literal', {
   value: 'one$two\n$three\nfour$\n$',
   expectedValue: 'one,two\n,three\nfour,\n,',
@@ -4396,6 +4408,21 @@ testSubstitute('ex_substitute_not_global', {
   value: 'aaa\nbaa\ncaa',
   expectedValue: 'xaa\nbxa\ncxa',
   expr: '%s/a/x/'});
+testSubstitute('ex_substitute_optional', {
+  value: 'aaa  aa\n aa',
+  expectedValue: '<aaa> <> <aa>\n<> <aa>',
+  expr: '%s/(a*)/<$1>/g',
+  noPcreExpr: '%s/\\(a*\\)/<\\1>/g'});
+testSubstitute('ex_substitute_empty_match', {
+  value: 'aaa  aa\n aa\nbb\n',
+  expectedValue: '<aaa>  <aa>\n <aa>\nbb<>\n<>',
+  expr: '%s/(a+|$)/<$1>/g',
+  noPcreExpr: '%s/\\(a+\\|$\\)/<\\1>/g'});
+testSubstitute('ex_substitute_empty_or_match', {
+  value: '1234\n567\n89\n0\n',
+  expectedValue: '<12><34>\n<56>7<>\n<89>\n0<>\n<>',
+  expr: '%s/(..|$)/<$1>/g',
+  noPcreExpr: '%s/\\(..\\|$\\)/<\\1>/g'});
 function testSubstituteConfirm(name, command, initialValue, expectedValue, keys, finalPos) {
   testVim(name, function(cm, vim, helpers) {
     var savedOpenDialog = cm.openDialog;
