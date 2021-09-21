@@ -1106,6 +1106,23 @@ testVim('I_visual_block_replay', function(cm, vim, helpers) {
   eq('12+-34\n5+-6+-78\na+-b+-cdefg\nx+-yz', cm.getValue());
 }, {value: '1234\n5678\nabcdefg\nxyz'});
 
+testVim('visual_block_backwards', function(cm, vim, helpers) {
+  cm.setCursor(0, 0);
+  helpers.doKeys('3', 'l');
+  helpers.doKeys('<C-v>', '2', 'j', '2', '<Left>');
+  eq('123\n678\nbcd', cm.getSelection());
+  helpers.doKeys('A');
+  helpers.assertCursorAt(0, 4);
+  helpers.doKeys('A', '<Esc>');
+  helpers.assertCursorAt(0, 4);
+  helpers.doKeys('g', 'v');
+  eq('123\n678\nbcd', cm.getSelection());
+  helpers.doKeys('x');
+  helpers.assertCursorAt(0, 1);
+  helpers.doKeys('g', 'v');
+  eq('A4 \nA9 \nAef', cm.getSelection());
+}, {value: '01234 line 1\n56789 line 2\nabcdefg line 3\nline 4'});
+
 testVim('d_visual_block', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('<C-v>', '2', 'j', 'l', 'l', 'l', 'd');

@@ -15,13 +15,19 @@ export function prepareSelection(cm, primary = true) {
   let curFragment = result.cursors = document.createDocumentFragment()
   let selFragment = result.selection = document.createDocumentFragment()
 
+  let customCursor = cm.options.$customCursor
+  if (customCursor) primary = true
   for (let i = 0; i < doc.sel.ranges.length; i++) {
     if (!primary && i == doc.sel.primIndex) continue
     let range = doc.sel.ranges[i]
     if (range.from().line >= cm.display.viewTo || range.to().line < cm.display.viewFrom) continue
     let collapsed = range.empty()
-    if (collapsed || cm.options.showCursorWhenSelecting)
+    if (customCursor) {
+      let head = customCursor(cm, range)
+      if (head) drawSelectionCursor(cm, head, curFragment)
+    } else if (collapsed || cm.options.showCursorWhenSelecting) {
       drawSelectionCursor(cm, range.head, curFragment)
+    }
     if (!collapsed)
       drawSelectionRange(cm, range, selFragment)
   }
@@ -39,9 +45,8 @@ export function drawSelectionCursor(cm, head, output) {
 
   if (/\bcm-fat-cursor\b/.test(cm.getWrapperElement().className)) {
     let charPos = charCoords(cm, head, "div", null, null)
-    if (charPos.right - charPos.left > 0) {
-      cursor.style.width = (charPos.right - charPos.left) + "px"
-    }
+    let width = charPos.right - charPos.left
+    cursor.style.width = (width > 0 ? width : cm.defaultCharWidth()) + "px"
   }
 
   if (pos.other) {
