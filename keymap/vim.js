@@ -44,6 +44,25 @@
 })(function(CodeMirror) {
   'use strict';
 
+  function transformCursor(cm, range) {
+    var vim = cm.state.vim
+    if (!vim || vim.insertMode) return range.head;
+    var head = vim.sel.head;
+    if (!head)  return range.head;
+
+    if (vim.visualBlock) {
+      if (range.head.line != head.line) {
+        return;
+      }
+    }
+    if (range.from() == range.anchor && !range.empty()) {
+      if (range.head.line == head.line && range.head.ch != head.ch)
+        return new CodeMirror.Pos(range.head.line, range.head.ch - 1);
+    }
+
+    return range.head;
+  }
+
   var defaultKeymap = [
     // Key to key mapping. This goes first to make it possible to override
     // existing mappings.
@@ -270,11 +289,8 @@
 
     function detachVimMap(cm, next) {
       if (this == CodeMirror.keyMap.vim) {
+        cm.options.$customCursor = null;
         CodeMirror.rmClass(cm.getWrapperElement(), "cm-fat-cursor");
-        if (cm.getOption("inputStyle") == "contenteditable" && document.body.style.caretColor != null) {
-          disableFatCursorMark(cm);
-          cm.getInputField().style.caretColor = "";
-        }
       }
 
       if (!next || next.attach != attachVimMap)
@@ -282,55 +298,13 @@
     }
     function attachVimMap(cm, prev) {
       if (this == CodeMirror.keyMap.vim) {
+        if (cm.curOp) cm.curOp.selectionChanged = true;
+        cm.options.$customCursor = transformCursor;
         CodeMirror.addClass(cm.getWrapperElement(), "cm-fat-cursor");
-        if (cm.getOption("inputStyle") == "contenteditable" && document.body.style.caretColor != null) {
-          enableFatCursorMark(cm);
-          cm.getInputField().style.caretColor = "transparent";
-        }
       }
 
       if (!prev || prev.attach != attachVimMap)
         enterVimMode(cm);
-    }
-
-    function updateFatCursorMark(cm) {
-      if (!cm.state.fatCursorMarks) return;
-      clearFatCursorMark(cm);
-      var ranges = cm.listSelections(), result = []
-      for (var i = 0; i < ranges.length; i++) {
-        var range = ranges[i];
-        if (range.empty()) {
-          var lineLength = cm.getLine(range.anchor.line).length;
-          if (range.anchor.ch < lineLength) {
-            result.push(cm.markText(range.anchor, Pos(range.anchor.line, range.anchor.ch + 1),
-                                    {className: "cm-fat-cursor-mark"}));
-          } else {
-            result.push(cm.markText(Pos(range.anchor.line, lineLength - 1),
-                                    Pos(range.anchor.line, lineLength),
-                                    {className: "cm-fat-cursor-mark"}));
-          }
-        }
-      }
-      cm.state.fatCursorMarks = result;
-    }
-
-    function clearFatCursorMark(cm) {
-      var marks = cm.state.fatCursorMarks;
-      if (marks) for (var i = 0; i < marks.length; i++) marks[i].clear();
-    }
-
-    function enableFatCursorMark(cm) {
-      cm.state.fatCursorMarks = [];
-      updateFatCursorMark(cm)
-      cm.on("cursorActivity", updateFatCursorMark)
-    }
-
-    function disableFatCursorMark(cm) {
-      clearFatCursorMark(cm);
-      cm.off("cursorActivity", updateFatCursorMark);
-      // explicitly set fatCursorMarks to null because event listener above
-      // can be invoke after removing it, if off is called from operation
-      cm.state.fatCursorMarks = null;
     }
 
     // Deprecated, simply setting the keymap works again.
@@ -692,8 +666,6 @@
           // executed in between.
           lastMotion: null,
           marks: {},
-          // Mark for rendering fake cursor for visual mode.
-          fakeCursor: null,
           insertMode: false,
           // Repeat count for changes made in insert mode, triggered by key
           // sequences like 3,i. Only exists when insertMode is true.
@@ -2286,7 +2258,7 @@
           text = cm.getSelection();
           var replacement = fillArray('', ranges.length);
           cm.replaceSelections(replacement);
-          finalHead = ranges[0].anchor;
+          finalHead = cursorMin(ranges[0].head, ranges[0].anchor);
         }
         vimGlobalState.registerController.pushText(
             args.registerName, 'delete', text,
@@ -2506,7 +2478,7 @@
           } else {
             head = Pos(
                 Math.min(sel.head.line, sel.anchor.line),
-                Math.max(sel.head.ch + 1, sel.anchor.ch));
+                Math.max(sel.head.ch, sel.anchor.ch) + 1);
             height = Math.abs(sel.head.line - sel.anchor.line) + 1;
           }
         } else if (insertAt == 'inplace') {
@@ -3220,7 +3192,6 @@
         vim.visualLine ? 'line' : vim.visualBlock ? 'block' : 'char';
       var cmSel = makeCmSelection(cm, sel, mode);
       cm.setSelections(cmSel.ranges, cmSel.primary);
-      updateFakeCursor(cm);
     }
     function makeCmSelection(cm, sel, mode, exclusive) {
       var head = copyCursor(sel.head);
@@ -3253,16 +3224,18 @@
         };
       } else if (mode == 'block') {
         var top = Math.min(anchor.line, head.line),
-            left = Math.min(anchor.ch, head.ch),
+            fromCh = anchor.ch,
             bottom = Math.max(anchor.line, head.line),
-            right = Math.max(anchor.ch, head.ch) + 1;
+            toCh = head.ch;
+        if (fromCh < toCh) { toCh += 1 }
+        else { fromCh += 1 };
         var height = bottom - top + 1;
         var primary = head.line == top ? 0 : height - 1;
         var ranges = [];
         for (var i = 0; i < height; i++) {
           ranges.push({
-            anchor: Pos(top + i, left),
-            head: Pos(top + i, right)
+            anchor: Pos(top + i, fromCh),
+            head: Pos(top + i, toCh)
           });
         }
         return {
@@ -3296,7 +3269,6 @@
       vim.visualLine = false;
       vim.visualBlock = false;
       if (!vim.insertMode) CodeMirror.signal(cm, "vim-mode-change", {mode: "normal"});
-      clearFakeCursor(vim);
     }
 
     // Remove any trailing newlines from the selection. For
@@ -5580,36 +5552,6 @@
         }
       } else if (!cm.curOp.isVimOp) {
         handleExternalSelection(cm, vim);
-      }
-      if (vim.visualMode) {
-        updateFakeCursor(cm);
-      }
-    }
-    /**
-     * Keeps track of a fake cursor to support visual mode cursor behavior.
-     */
-    function updateFakeCursor(cm) {
-      var className = 'cm-animate-fat-cursor';
-      var vim = cm.state.vim;
-      var from = clipCursorToContent(cm, copyCursor(vim.sel.head));
-      var to = offsetCursor(from, 0, 1);
-      clearFakeCursor(vim);
-      // In visual mode, the cursor may be positioned over EOL.
-      if (from.ch == cm.getLine(from.line).length) {
-        var widget = dom('span', { 'class': className }, '\u00a0');
-        vim.fakeCursorBookmark = cm.setBookmark(from, {widget: widget});
-      } else {
-        vim.fakeCursor = cm.markText(from, to, {className: className});
-      }
-    }
-    function clearFakeCursor(vim) {
-      if (vim.fakeCursor) {
-        vim.fakeCursor.clear();
-        vim.fakeCursor = null;
-      }
-      if (vim.fakeCursorBookmark) {
-        vim.fakeCursorBookmark.clear();
-        vim.fakeCursorBookmark = null;
       }
     }
     function handleExternalSelection(cm, vim) {
