@@ -1,3 +1,9 @@
+## 5.63.1 (2021-09-29)
+
+### Bug fixes
+
+Fix an issue with mouse scrolling on Chrome 94 Windows, which made scrolling by wheel move unusably slow.
+
 ## 5.63.0 (2021-09-20)
 
 ### Bug fixes
