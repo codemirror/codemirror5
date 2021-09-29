@@ -42,7 +42,7 @@ export function wheelEventPixels(e) {
 export function onScrollWheel(cm, e) {
   let delta = wheelEventDelta(e), dx = delta.x, dy = delta.y
   let pixelsPerUnit = wheelPixelsPerUnit
-  if (event.deltaMode === 0) {
+  if (e.deltaMode === 0) {
     dx = e.deltaX
     dy = e.deltaY
     pixelsPerUnit = 1
