@@ -20,7 +20,7 @@ import { clearDragCursor, onDragOver, onDragStart, onDrop } from "./drop_events.
 import { ensureGlobalHandlers } from "./global_events.js"
 import { onKeyDown, onKeyPress, onKeyUp } from "./key_events.js"
 import { clickInGutter, onContextMenu, onMouseDown } from "./mouse_events.js"
-import { themeChanged } from "./utils.js"
+import { isEdge94, themeChanged } from "./utils.js"
 import { defaults, optionHandlers, Init } from "./options.js"
 
 // A CodeMirror instance represents an editor. This is the object
@@ -184,9 +184,11 @@ function registerEventHandlers(cm) {
   // area, ensure viewport is updated when scrolling.
   on(d.scroller, "scroll", () => {
     if (d.scroller.clientHeight) {
-      updateScrollTop(cm, d.scroller.scrollTop)
-      setScrollLeft(cm, d.scroller.scrollLeft, true)
-      signal(cm, "scroll", cm)
+      setTimeout(() => {
+        updateScrollTop(cm, d.scroller.scrollTop)
+        setScrollLeft(cm, d.scroller.scrollLeft, true)
+        signal(cm, "scroll", cm)
+      }, isEdge94() ? 120 : 0)
     }
   })
 

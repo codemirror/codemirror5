@@ -5,3 +5,7 @@ export function themeChanged(cm) {
     cm.options.theme.replace(/(^|\s)\s*/g, " cm-s-")
   clearCaches(cm)
 }
+
+export function isEdge94() {
+  return navigator.userAgent.indexOf("Edg/94") >= 0
+}
