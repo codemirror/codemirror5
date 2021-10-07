@@ -10,7 +10,7 @@ jobs:
       - uses: actions/cache@v2
         with:
           path: '/home/runner/work/codemirror/codemirror/node_modules'
-          key: ${{ runner.os }}-modules
+          key: ${{ runner.os }}-modules-5.63.1
 
       - run: npm install
 
