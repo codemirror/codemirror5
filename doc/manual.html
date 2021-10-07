@@ -70,7 +70,7 @@
 <section class=first id=overview>
     <h2 style="position: relative">
       User manual and reference guide
-      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 5.61.0</span>
+      <span style="color: #888; font-size: 1rem; position: absolute; right: 0; bottom: 0">version 5.63.1</span>
     </h2>
 
     <p>CodeMirror is a code-editor component that can be embedded in
@@ -1320,6 +1320,8 @@ editor.setOption("extraKeys", {
       and <code>end</code> line numbers are given, the range
       from <code>start</code> up to (not including) <code>end</code>,
       and call <code>f</code> for each line, passing the line handle.
+      <code>eachLine</code> stops iterating if <code>f</code> returns
+      truthy value.
       This is a faster way to visit a range of line handlers than
       calling <a href="#getLineHandle"><code>getLineHandle</code></a>
       for each of them. Note that line handles have
@@ -2950,6 +2952,7 @@ editor.setOption("extraKeys", {
       By default, the linter will run (debounced) whenever the document is changed.
       You can pass a <code>lintOnChange: false</code> option to disable that.
       You can pass a <code>selfContain: true</code> option to render the tooltip inside the editor instance.
+      And a <code>highlightLines</code> option to add a style to lines that contain problems.
       Depends on <code>addon/lint/lint.css</code>. A demo can be
       found <a href="../demo/lint.html">here</a>.</dd>
 

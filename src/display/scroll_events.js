@@ -41,6 +41,12 @@ export function wheelEventPixels(e) {
 
 export function onScrollWheel(cm, e) {
   let delta = wheelEventDelta(e), dx = delta.x, dy = delta.y
+  let pixelsPerUnit = wheelPixelsPerUnit
+  if (e.deltaMode === 0) {
+    dx = e.deltaX
+    dy = e.deltaY
+    pixelsPerUnit = 1
+  }
 
   let display = cm.display, scroll = display.scroller
   // Quit if there's nothing to scroll here
@@ -69,10 +75,10 @@ export function onScrollWheel(cm, e) {
   // estimated pixels/delta value, we just handle horizontal
   // scrolling entirely here. It'll be slightly off from native, but
   // better than glitching out.
-  if (dx && !gecko && !presto && wheelPixelsPerUnit != null) {
+  if (dx && !gecko && !presto && pixelsPerUnit != null) {
     if (dy && canScrollY)
-      updateScrollTop(cm, Math.max(0, scroll.scrollTop + dy * wheelPixelsPerUnit))
-    setScrollLeft(cm, Math.max(0, scroll.scrollLeft + dx * wheelPixelsPerUnit))
+      updateScrollTop(cm, Math.max(0, scroll.scrollTop + dy * pixelsPerUnit))
+    setScrollLeft(cm, Math.max(0, scroll.scrollLeft + dx * pixelsPerUnit))
     // Only prevent default scrolling if vertical scrolling is
     // actually possible. Otherwise, it causes vertical scroll
     // jitter on OSX trackpads when deltaX is small and deltaY
@@ -85,15 +91,15 @@ export function onScrollWheel(cm, e) {
 
   // 'Project' the visible viewport to cover the area that is being
   // scrolled into view (if we know enough to estimate it).
-  if (dy && wheelPixelsPerUnit != null) {
-    let pixels = dy * wheelPixelsPerUnit
+  if (dy && pixelsPerUnit != null) {
+    let pixels = dy * pixelsPerUnit
     let top = cm.doc.scrollTop, bot = top + display.wrapper.clientHeight
     if (pixels < 0) top = Math.max(0, top + pixels - 50)
     else bot = Math.min(cm.doc.height, bot + pixels + 50)
     updateDisplaySimple(cm, {top: top, bottom: bot})
   }
 
-  if (wheelSamples < 20) {
+  if (wheelSamples < 20 && e.deltaMode !== 0) {
     if (display.wheelStartX == null) {
       display.wheelStartX = scroll.scrollLeft; display.wheelStartY = scroll.scrollTop
       display.wheelDX = dx; display.wheelDY = dy

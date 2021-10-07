@@ -1,3 +1,75 @@
+## 5.63.1 (2021-09-29)
+
+### Bug fixes
+
+Fix an issue with mouse scrolling on Chrome 94 Windows, which made scrolling by wheel move unusably slow.
+
+## 5.63.0 (2021-09-20)
+
+### Bug fixes
+
+Fix scroll position jumping when scrolling a document with very different line heights.
+
+[xml mode](https://codemirror.net/mode/xml/): Look up HTML element behavior in a case-insensitive way.
+
+### New features
+
+[vim bindings](https://codemirror.net/demo/vim.html): Support guu for case-changing.
+
+## 5.62.3 (2021-08-20)
+
+### Bug fixes
+
+Give the editor a `translate=no` attribute to prevent automatic translation from modifying its content.
+
+Give vim-style cursors a width that matches the character after them.
+
+[merge addon](https://codemirror.net/doc/manual.html#addon_merge): Make buttons keyboard-accessible.
+
+[emacs bindings](https://codemirror.net/demo/emacs.html): Fix by-page scrolling keybindings, which were accidentally inverted.
+
+## 5.62.2 (2021-07-21)
+
+### Bug fixes
+
+[lint addon](https://codemirror.net/doc/manual.html#addon_lint): Fix a regression that broke several addon options.
+
+## 5.62.1 (2021-07-20)
+
+### Bug fixes
+
+[vim bindings](https://codemirror.net/demo/vim.html): Make matching of upper-case characters more Unicode-aware.
+
+[lint addon](https://codemirror.net/doc/manual.html#addon_lint): Prevent options passed to the addon itself from being given to the linter.
+
+[show-hint addon](https://codemirror.net/doc/manual.html#addon_show-hint): Improve screen reader support.
+
+[search addon](https://codemirror.net/demo/search.html): Avoid using `innerHTML`.
+
+## 5.62.0 (2021-06-21)
+
+### Bug fixes
+
+Improve support for vim-style cursors in a number of themes.
+
+### New features
+
+[lint addon](https://codemirror.net/doc/manual.html#addon_lint): Add support for highlighting lines with errors or warnings.
+
+## 5.61.1 (2021-05-20)
+
+### Bug fixes
+
+Fix a bug where changing the editor's document could confuse text-direction management.
+
+Fix a bug in horizontally scrolling the cursor into view.
+
+Optimize adding lots of marks in a single transaction.
+
+[simple mode addon](https://codemirror.net/demo/simplemode.html): Support regexps with a unicode flag.
+
+[javascript mode](https://codemirror.net/mode/javascript/index.html): Add support for TypeScript template string types, improve integration with JSX mode.
+
 ## 5.61.0 (2021-04-20)
 
 ### Bug fixes

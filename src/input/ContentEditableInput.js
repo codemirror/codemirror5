@@ -226,7 +226,7 @@ export default class ContentEditableInput {
   receivedFocus() {
     let input = this
     if (this.selectionInEditor())
-      this.pollSelection()
+      setTimeout(() => this.pollSelection(), 20)
     else
       runInOp(this.cm, () => input.cm.curOp.selectionChanged = true)
 

@@ -18,6 +18,7 @@ export function getMarkedSpanFor(spans, marker) {
     if (span.marker == marker) return span
   }
 }
+
 // Remove a span from an array, returning undefined if no spans are
 // left (we don't store arrays for lines without spans).
 export function removeMarkedSpan(spans, span) {
@@ -26,9 +27,16 @@ export function removeMarkedSpan(spans, span) {
     if (spans[i] != span) (r || (r = [])).push(spans[i])
   return r
 }
+
 // Add a span to a line.
-export function addMarkedSpan(line, span) {
-  line.markedSpans = line.markedSpans ? line.markedSpans.concat([span]) : [span]
+export function addMarkedSpan(line, span, op) {
+  let inThisOp = op && window.WeakSet && (op.markedSpans || (op.markedSpans = new WeakSet))
+  if (inThisOp && inThisOp.has(line.markedSpans)) {
+    line.markedSpans.push(span)
+  } else {
+    line.markedSpans = line.markedSpans ? line.markedSpans.concat([span]) : [span]
+    if (inThisOp) inThisOp.add(line.markedSpans)
+  }
   span.marker.attachLine(line)
 }
 

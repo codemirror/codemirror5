@@ -37,6 +37,13 @@ export function drawSelectionCursor(cm, head, output) {
   cursor.style.top = pos.top + "px"
   cursor.style.height = Math.max(0, pos.bottom - pos.top) * cm.options.cursorHeight + "px"
 
+  if (/\bcm-fat-cursor\b/.test(cm.getWrapperElement().className)) {
+    let charPos = charCoords(cm, head, "div", null, null)
+    if (charPos.right - charPos.left > 0) {
+      cursor.style.width = (charPos.right - charPos.left) + "px"
+    }
+  }
+
   if (pos.other) {
     // Secondary cursor, shown when on a 'jump' in bi-directional text
     let otherCursor = output.appendChild(elt("div", "\u00a0", "CodeMirror-cursor CodeMirror-secondarycursor"))

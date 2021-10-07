@@ -308,4 +308,15 @@
 
   MT('import',
    '[keyword import] {[def Name], [variable Person] [keyword as] [def P]} [keyword from] [string \'examples/proto/example.proto\'];');
+
+  MT('velog',
+    '[keyword {velog] [variable-2&error $data][keyword }] Logged [keyword {/velog}]');
+
+  MT('extern', '[keyword {extern] [def renderer]: ([def s]:[type string])=>[type string][keyword }] [keyword {/extern}]');
+
+  MT('export extern', '[keyword {export] [keyword extern] [def renderer]: ([def s]:[type string])=>[type string][keyword }] [keyword {/extern}]');
+
+  MT('const',
+    '[keyword {const] [def FOO] = [atom 5] [keyword /}]',
+    '[keyword {export] [keyword const] [def FOO] = [atom 5] [keyword /}]');
 })();
