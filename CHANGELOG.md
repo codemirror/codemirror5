@@ -1,3 +1,11 @@
+## 5.63.2 (2021-10-11)
+
+### Bug fixes
+
+Prevent external styles from giving the hidden textarea a min-height.
+
+Remove a stray autosave file that was part of the previous release.
+
 ## 5.63.1 (2021-09-29)
 
 ### Bug fixes

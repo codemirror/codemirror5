@@ -66,4 +66,4 @@ import { addLegacyProps } from "./legacy.js"
 
 addLegacyProps(CodeMirror)
 
-CodeMirror.version = "5.63.1"
+CodeMirror.version = "5.63.2"
