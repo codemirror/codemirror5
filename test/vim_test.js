@@ -151,7 +151,7 @@ function testVim(name, run, opts, expectedFail) {
     cm.focus();
     // workaround for cm5 slow polling in blurred window
     Object.defineProperty(cm.state, "focused", {
-        set: function(e) {}, 
+        set: function(e) {},
         get: function() {
             return document.activeElement == cm.getInputField();
         }
@@ -1211,7 +1211,7 @@ testVim('gu_and_gU', function(cm, vim, helpers) {
   var register = helpers.getRegisterController().getRegister();
   eq('', register.toString());
   is(!register.linewise);
-  
+
   cm.setCursor(curStart);
   cm.setValue('abc efg\nxyz');
   helpers.doKeys('g', 'U', 'g', 'U');
@@ -1548,6 +1548,19 @@ testVim('<C-x>/<C-a> search forward', function(cm, vim, helpers) {
     helpers.assertCursorAt(0, 11);
   });
 }, {value: '__jmp1 jmp2 jmp'});
+testVim('insert_ctrl_u', function(cm, vim, helpers) {
+  var curStart = makeCursor(0, 10);
+  cm.setCursor(curStart);
+  helpers.doKeys('a');
+  helpers.doKeys('<C-u>');
+  eq('', cm.getValue());
+  var register = helpers.getRegisterController().getRegister();
+  eq('word1/word2', register.toString());
+  is(!register.linewise);
+  var curEnd = makeCursor(0, 0);
+  eqCursorPos(curEnd, cm.getCursor());
+  eq('vim-insert', cm.getOption('keyMap'));
+}, { value: 'word1/word2' });
 testVim('insert_ctrl_w', function(cm, vim, helpers) {
   var curStart = makeCursor(0, 10);
   cm.setCursor(curStart);
@@ -5010,7 +5023,7 @@ var typeKey = function() {
     if (!prevented && ctrl && !alt && !meta && letter == "c") emitClipboard("copy");
     if (!prevented) updateTextInput();
     emit("keyup", true);
-    
+
     function emitClipboard(type) {
       var data = {bubbles: true, cancelable:true};
       var event = new KeyboardEvent(type, data);
@@ -5033,7 +5046,7 @@ var typeKey = function() {
       data.key = text || keyCodeToKey[keyCode];
       data.code = keyCodeToCode[keyCode];
       var event = new KeyboardEvent(type, data);
-      
+
       var el = document.activeElement;
       el.dispatchEvent(event);
       return event.defaultPrevented;
