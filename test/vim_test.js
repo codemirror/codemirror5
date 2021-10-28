@@ -3522,6 +3522,7 @@ testVim('Ty,;', function(cm, vim, helpers) {
   eq('01230123456789', cm.getValue());
 }, { value: '0123456789'});
 testVim('HML', function(cm, vim, helpers) {
+  cm.refresh();
   var lines = 35;
   var textHeight = cm.defaultTextHeight();
   cm.setSize(600, lines*textHeight);
@@ -3546,6 +3547,7 @@ forEach(['zb','zz','zt','z-','z.','z<CR>'], function(e, idx){
   var lineNum = 250;
   var lines = 35;
   testVim(e, function(cm, vim, helpers) {
+    cm.refresh();
     var k1 = e[0];
     var k2 = e.substring(1);
     var textHeight = cm.defaultTextHeight();
@@ -3558,6 +3560,7 @@ forEach(['zb','zz','zt','z-','z.','z<CR>'], function(e, idx){
   })()});
 });
 testVim('zb_to_bottom', function(cm, vim, helpers){
+  cm.refresh();
   var lineNum = 250;
   cm.setSize(600, 35*cm.defaultTextHeight());
   cm.setCursor(lineNum, 0);
@@ -3568,6 +3571,7 @@ testVim('zb_to_bottom', function(cm, vim, helpers){
   return new Array(500).join('\n');
 })()});
 testVim('zt_to_top', function(cm, vim, helpers){
+  cm.refresh();
   var lineNum = 250;
   cm.setSize(600, 35*cm.defaultTextHeight());
   cm.setCursor(lineNum, 0);
@@ -5047,6 +5051,7 @@ var typeKey = function() {
       event.clipboardData = {
         setData: function() {},
         getData: function() {},
+        clearData: function() {},
       };
       target.dispatchEvent(event);
     }
