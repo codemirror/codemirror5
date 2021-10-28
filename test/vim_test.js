@@ -571,14 +571,14 @@ testVim('paragraph_motions', function(cm, vim, helpers) {
   // ip inside empty space
   cm.setCursor(10, 0);
   helpers.doKeys('v', 'i', 'p');
-  eqCursorPos(Pos(7, 0), cm.getCursor('anchor'));
-  eqCursorPos(Pos(12, 0), cm.getCursor('head'));
+  eqCursorPos(new Pos(7, 0), cm.getCursor('anchor'));
+  eqCursorPos(new Pos(12, 0), cm.getCursor('head'));
   helpers.doKeys('i', 'p');
-  eqCursorPos(Pos(7, 0), cm.getCursor('anchor'));
-  eqCursorPos(Pos(13, 1), cm.getCursor('head'));
+  eqCursorPos(new Pos(7, 0), cm.getCursor('anchor'));
+  eqCursorPos(new Pos(13, 1), cm.getCursor('head'));
   helpers.doKeys('2', 'i', 'p');
-  eqCursorPos(Pos(7, 0), cm.getCursor('anchor'));
-  eqCursorPos(Pos(16, 1), cm.getCursor('head'));
+  eqCursorPos(new Pos(7, 0), cm.getCursor('anchor'));
+  eqCursorPos(new Pos(16, 1), cm.getCursor('head'));
 
   // should switch to visualLine mode
   cm.setCursor(14, 0);
@@ -587,31 +587,31 @@ testVim('paragraph_motions', function(cm, vim, helpers) {
 
   cm.setCursor(14, 0);
   helpers.doKeys('<Esc>', 'V', 'i', 'p');
-  eqCursorPos(Pos(16, 1), cm.getCursor('head'));
+  eqCursorPos(new Pos(16, 1), cm.getCursor('head'));
 
   // ap inside empty space
   cm.setCursor(10, 0);
   helpers.doKeys('<Esc>', 'v', 'a', 'p');
-  eqCursorPos(Pos(7, 0), cm.getCursor('anchor'));
-  eqCursorPos(Pos(13, 1), cm.getCursor('head'));
+  eqCursorPos(new Pos(7, 0), cm.getCursor('anchor'));
+  eqCursorPos(new Pos(13, 1), cm.getCursor('head'));
   helpers.doKeys('a', 'p');
-  eqCursorPos(Pos(7, 0), cm.getCursor('anchor'));
-  eqCursorPos(Pos(16, 1), cm.getCursor('head'));
+  eqCursorPos(new Pos(7, 0), cm.getCursor('anchor'));
+  eqCursorPos(new Pos(16, 1), cm.getCursor('head'));
 
   cm.setCursor(13, 0);
   helpers.doKeys('v', 'a', 'p');
-  eqCursorPos(Pos(13, 0), cm.getCursor('anchor'));
-  eqCursorPos(Pos(14, 0), cm.getCursor('head'));
+  eqCursorPos(new Pos(13, 0), cm.getCursor('anchor'));
+  eqCursorPos(new Pos(14, 0), cm.getCursor('head'));
 
   cm.setCursor(16, 0);
   helpers.doKeys('v', 'a', 'p');
-  eqCursorPos(Pos(14, 0), cm.getCursor('anchor'));
-  eqCursorPos(Pos(16, 1), cm.getCursor('head'));
+  eqCursorPos(new Pos(14, 0), cm.getCursor('anchor'));
+  eqCursorPos(new Pos(16, 1), cm.getCursor('head'));
 
   cm.setCursor(0, 0);
   helpers.doKeys('v', 'a', 'p');
-  eqCursorPos(Pos(0, 0), cm.getCursor('anchor'));
-  eqCursorPos(Pos(4, 0), cm.getCursor('head'));
+  eqCursorPos(new Pos(0, 0), cm.getCursor('anchor'));
+  eqCursorPos(new Pos(4, 0), cm.getCursor('head'));
 
   cm.setCursor(0, 0);
   helpers.doKeys('d', 'i', 'p');
@@ -1473,7 +1473,7 @@ testSelection('vi{_middle_spc', 'a{\n\tbar\n\t}b', /r/, 'vi{', '\n\tbar\n\t');
 testSelection('va{_middle_spc', 'a{\n\tbar\n\t}b', /r/, 'va{', '{\n\tbar\n\t}');
 
 testVim('mouse_select', function(cm, vim, helpers) {
-  cm.setSelection(Pos(0, 2), Pos(0, 4), {origin: '*mouse'});
+  cm.setSelection(new Pos(0, 2), new Pos(0, 4), {origin: '*mouse'});
   is(cm.state.vim.visualMode);
   is(!cm.state.vim.visualLine);
   is(!cm.state.vim.visualBlock);
@@ -1665,7 +1665,7 @@ testVim('i_overwrite_backspace', function(cm, vim, helpers) {
   helpers.doKeys('i');
   helpers.doKeys('<Ins>');
   helpers.doKeys('Backspace');
-  helpers.assertCursorAt(Pos(0, 9, "after"));
+  helpers.assertCursorAt(new Pos(0, 9, "after"));
   eq('0123456789', cm.getValue());
 }, { value: '0123456789'});
 testVim('i_forward_delete', function(cm, vim, helpers) {
@@ -2225,20 +2225,20 @@ testVim('visual_crossover_left', function(cm, vim, helpers) {
 testVim('visual_crossover_up', function(cm, vim, helpers) {
   cm.setCursor(3, 2);
   helpers.doKeys('v', 'j', 'k', 'k');
-  eqCursorPos(Pos(2, 2), cm.getCursor('head'));
-  eqCursorPos(Pos(3, 3), cm.getCursor('anchor'));
+  eqCursorPos(new Pos(2, 2), cm.getCursor('head'));
+  eqCursorPos(new Pos(3, 3), cm.getCursor('anchor'));
   helpers.doKeys('k');
-  eqCursorPos(Pos(1, 2), cm.getCursor('head'));
-  eqCursorPos(Pos(3, 3), cm.getCursor('anchor'));
+  eqCursorPos(new Pos(1, 2), cm.getCursor('head'));
+  eqCursorPos(new Pos(3, 3), cm.getCursor('anchor'));
 }, { value: 'cross\ncross\ncross\ncross\ncross\n'});
 testVim('visual_crossover_down', function(cm, vim, helpers) {
   cm.setCursor(1, 2);
   helpers.doKeys('v', 'k', 'j', 'j');
-  eqCursorPos(Pos(2, 3), cm.getCursor('head'));
-  eqCursorPos(Pos(1, 2), cm.getCursor('anchor'));
+  eqCursorPos(new Pos(2, 3), cm.getCursor('head'));
+  eqCursorPos(new Pos(1, 2), cm.getCursor('anchor'));
   helpers.doKeys('j');
-  eqCursorPos(Pos(3, 3), cm.getCursor('head'));
-  eqCursorPos(Pos(1, 2), cm.getCursor('anchor'));
+  eqCursorPos(new Pos(3, 3), cm.getCursor('head'));
+  eqCursorPos(new Pos(1, 2), cm.getCursor('anchor'));
 }, { value: 'cross\ncross\ncross\ncross\ncross\n'});
 testVim('visual_exit', function(cm, vim, helpers) {
   helpers.doKeys('<C-v>', 'l', 'j', 'j', '<Esc>');
@@ -2393,14 +2393,14 @@ testVim('reselect_visual_block', function(cm, vim, helpers) {
   helpers.doKeys('<C-v>', 'k', 'h', '<C-v>');
   cm.setCursor(2, 1);
   helpers.doKeys('v', 'l', 'g', 'v');
-  eqCursorPos(Pos(1, 2), vim.sel.anchor);
-  eqCursorPos(Pos(0, 1), vim.sel.head);
+  eqCursorPos(new Pos(1, 2), vim.sel.anchor);
+  eqCursorPos(new Pos(0, 1), vim.sel.head);
   // Ensure selection is done with visual block mode rather than one
   // continuous range.
   eq(cm.getSelections().join(''), '23oo')
   helpers.doKeys('g', 'v');
-  eqCursorPos(Pos(2, 1), vim.sel.anchor);
-  eqCursorPos(Pos(2, 2), vim.sel.head);
+  eqCursorPos(new Pos(2, 1), vim.sel.anchor);
+  eqCursorPos(new Pos(2, 2), vim.sel.head);
   helpers.doKeys('<Esc>');
   // Ensure selection of deleted range
   cm.setCursor(1, 1);
@@ -2435,14 +2435,14 @@ testVim('o_visual', function(cm, vim, helpers) {
 testVim('o_visual_block', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('<C-v>','3','j','l','l', 'o');
-  eqCursorPos(Pos(3, 3), vim.sel.anchor);
-  eqCursorPos(Pos(0, 1), vim.sel.head);
+  eqCursorPos(new Pos(3, 3), vim.sel.anchor);
+  eqCursorPos(new Pos(0, 1), vim.sel.head);
   helpers.doKeys('O');
-  eqCursorPos(Pos(3, 1), vim.sel.anchor);
-  eqCursorPos(Pos(0, 3), vim.sel.head);
+  eqCursorPos(new Pos(3, 1), vim.sel.anchor);
+  eqCursorPos(new Pos(0, 3), vim.sel.head);
   helpers.doKeys('o');
-  eqCursorPos(Pos(0, 3), vim.sel.anchor);
-  eqCursorPos(Pos(3, 1), vim.sel.head);
+  eqCursorPos(new Pos(0, 3), vim.sel.anchor);
+  eqCursorPos(new Pos(3, 1), vim.sel.head);
 }, { value: 'abcd\nefgh\nijkl\nmnop'});
 testVim('changeCase_visual', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
@@ -3563,7 +3563,7 @@ testVim('zb_to_bottom', function(cm, vim, helpers){
   cm.setCursor(lineNum, 0);
   helpers.doKeys('z', 'b');
   var scrollInfo = cm.getScrollInfo();
-  eq(scrollInfo.top + scrollInfo.clientHeight, cm.charCoords(Pos(lineNum, 0), 'local').bottom);
+  eq(scrollInfo.top + scrollInfo.clientHeight, cm.charCoords(new Pos(lineNum, 0), 'local').bottom);
 }, { value: (function(){
   return new Array(500).join('\n');
 })()});
@@ -3572,7 +3572,7 @@ testVim('zt_to_top', function(cm, vim, helpers){
   cm.setSize(600, 35*cm.defaultTextHeight());
   cm.setCursor(lineNum, 0);
   helpers.doKeys('z', 't');
-  eq(cm.getScrollInfo().top, cm.charCoords(Pos(lineNum, 0), 'local').top);
+  eq(cm.getScrollInfo().top, cm.charCoords(new Pos(lineNum, 0), 'local').top);
 }, { value: (function(){
   return new Array(500).join('\n');
 })()});
@@ -4659,10 +4659,10 @@ testVim('noremap_swap', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   // 'a' should act like 'i'.
   helpers.doKeys('a');
-  eqCursorPos(Pos(0, 0), cm.getCursor());
+  eqCursorPos(new Pos(0, 0), cm.getCursor());
   // ...and 'i' should act like 'a'.
   helpers.doKeys('<Esc>', 'i');
-  eqCursorPos(Pos(0, 1), cm.getCursor());
+  eqCursorPos(new Pos(0, 1), cm.getCursor());
   // unmap all mappings
   CodeMirror.Vim.mapclear();
 }, { value: 'foo' });
@@ -4673,13 +4673,13 @@ testVim('noremap_map_interaction', function(cm, vim, helpers) {
   CodeMirror.Vim.map('l', 'j');
   cm.setCursor(0, 0);
   helpers.doKeys(';');
-  eqCursorPos(Pos(0, 1), cm.getCursor());
+  eqCursorPos(new Pos(0, 1), cm.getCursor());
   helpers.doKeys('l');
-  eqCursorPos(Pos(1, 1), cm.getCursor());
+  eqCursorPos(new Pos(1, 1), cm.getCursor());
   // map should be able to point to a noremap
   CodeMirror.Vim.map('m', ';');
   helpers.doKeys('m');
-  eqCursorPos(Pos(1, 2), cm.getCursor());
+  eqCursorPos(new Pos(1, 2), cm.getCursor());
   // unmap all mappings
   CodeMirror.Vim.mapclear();
 }, { value: 'wOrd1\nwOrd2' });
@@ -4690,9 +4690,9 @@ testVim('noremap_map_interaction2', function(cm, vim, helpers) {
   CodeMirror.Vim.noremap(';', 'h');
   cm.setCursor(0, 0);
   helpers.doKeys('l');
-  eqCursorPos(Pos(0, 1), cm.getCursor());
+  eqCursorPos(new Pos(0, 1), cm.getCursor());
   helpers.doKeys('m');
-  eqCursorPos(Pos(0, 0), cm.getCursor());
+  eqCursorPos(new Pos(0, 0), cm.getCursor());
   // unmap all mappings
   CodeMirror.Vim.mapclear();
 }, { value: 'wOrd1\nwOrd2' });
