@@ -5696,12 +5696,12 @@
           if (change instanceof InsertModeKey) {
             CodeMirror.lookupKey(change.keyName, 'vim-insert', keyHandler);
           } else if (typeof change == "string") {
-            var cur = cm.getCursor();
-            cm.replaceRange(change, cur, cur);
+            cm.replaceSelection(change);
           } else {
             var start = cm.getCursor();
             var end = offsetCursor(start, 0, change[0].length);
             cm.replaceRange(change[0], start, end);
+            cm.setCursor(end);
           }
         }
       }
