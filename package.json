@@ -3,6 +3,11 @@
   "version": "5.63.3",
   "main": "lib/codemirror.js",
   "style": "lib/codemirror.css",
+  "type": "module",
+  "exports": {
+    "import": "./lib/codemirror.esm.js",
+    "require": "./addon/runmode/runmode.node.js"
+  },
   "author": {
     "name": "Marijn Haverbeke",
     "email": "marijnh@gmail.com",
@@ -21,11 +26,10 @@
     "lint": "bin/lint"
   },
   "devDependencies": {
-    "@rollup/plugin-buble": "^0.21.3",
     "blint": "^1.1.0",
     "node-static": "0.7.11",
     "puppeteer": "^1.20.0",
-    "rollup": "^1.26.3"
+    "rollup": "^2.59.0"
   },
   "bugs": "http://github.com/codemirror/CodeMirror/issues",
   "keywords": [
@@ -42,6 +46,5 @@
     "directories": {},
     "dependencies": {},
     "devDependencies": {}
-  },
-  "dependencies": {}
+  }
 }
