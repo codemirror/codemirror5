@@ -60,6 +60,7 @@ class NativeScrollbars {
       this.vert.firstChild.style.height =
         Math.max(0, measure.scrollHeight - measure.clientHeight + totalHeight) + "px"
     } else {
+      this.vert.scrollTop = 0
       this.vert.style.display = ""
       this.vert.firstChild.style.height = "0"
     }
