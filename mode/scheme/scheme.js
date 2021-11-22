@@ -3,6 +3,7 @@
 
 /**
  * Author: Koh Zi Han, based on implementation by Koh Zi Chun
+ * Imroved by: Jakub T. Jankiewicz
  */
 
 (function(mod) {
@@ -67,6 +68,18 @@ CodeMirror.defineMode("scheme", function () {
         return stream.match(hexMatcher);
     }
 
+    function processEscapedSequance(stream, options) {
+        var next, escaped = false;
+        while ((next = stream.next()) != null) {
+            if (next == options.token && !escaped) {
+
+                options.state.mode = false;
+                break;
+            }
+            escaped = !escaped && next == "\\";
+        }
+    }
+
     return {
         startState: function () {
             return {
@@ -92,16 +105,18 @@ CodeMirror.defineMode("scheme", function () {
 
             switch(state.mode){
                 case "string": // multi-line string parsing mode
-                    var next, escaped = false;
-                    while ((next = stream.next()) != null) {
-                        if (next == "\"" && !escaped) {
-
-                            state.mode = false;
-                            break;
-                        }
-                        escaped = !escaped && next == "\\";
-                    }
+                    processEscapedSequance(stream, {
+                        token: "\"",
+                        state: state
+                    });
                     returnType = STRING; // continue on in scheme-string mode
+                    break;
+                case "symbol": // escape symbol
+                    processEscapedSequance(stream, {
+                        token: "|",
+                        state: state
+                    });
+                    returnType = SYMBOL; // continue on in scheme-symbol mode
                     break;
                 case "comment": // comment parsing mode
                     var next, maybeEnd = false;
@@ -143,6 +158,9 @@ CodeMirror.defineMode("scheme", function () {
                             stream.eatWhile(/[\w_\-!$%&*+\.\/:<=>?@\^~]/);
                             returnType = ATOM;
                         }
+                    } else if (ch == '|') {
+                        state.mode = "symbol";
+                        returnType = SYMBOL;
                     } else if (ch == '#') {
                         if (stream.eat("|")) {                    // Multi-line comment
                             state.mode = "comment"; // toggle to comment mode
