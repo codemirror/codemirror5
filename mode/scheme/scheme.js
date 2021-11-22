@@ -3,7 +3,7 @@
 
 /**
  * Author: Koh Zi Han, based on implementation by Koh Zi Chun
- * Imroved by: Jakub T. Jankiewicz
+ * Improved by: Jakub T. Jankiewicz
  */
 
 (function(mod) {
@@ -18,7 +18,7 @@
 
 CodeMirror.defineMode("scheme", function () {
     var BUILTIN = "builtin", COMMENT = "comment", STRING = "string",
-        ATOM = "atom", NUMBER = "number", BRACKET = "bracket";
+        SYMBOL = "symbol", ATOM = "atom", NUMBER = "number", BRACKET = "bracket";
     var INDENT_WORD_SKIP = 2;
 
     function makeKeywords(str) {
@@ -68,7 +68,7 @@ CodeMirror.defineMode("scheme", function () {
         return stream.match(hexMatcher);
     }
 
-    function processEscapedSequance(stream, options) {
+    function processEscapedSequence(stream, options) {
         var next, escaped = false;
         while ((next = stream.next()) != null) {
             if (next == options.token && !escaped) {
@@ -105,14 +105,14 @@ CodeMirror.defineMode("scheme", function () {
 
             switch(state.mode){
                 case "string": // multi-line string parsing mode
-                    processEscapedSequance(stream, {
+                    processEscapedSequence(stream, {
                         token: "\"",
                         state: state
                     });
                     returnType = STRING; // continue on in scheme-string mode
                     break;
                 case "symbol": // escape symbol
-                    processEscapedSequance(stream, {
+                    processEscapedSequence(stream, {
                         token: "|",
                         state: state
                     });
