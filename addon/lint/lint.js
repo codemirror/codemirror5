@@ -154,7 +154,7 @@
     this.onClick = function(e) { onClick(cm, e); };
     this.waitingFor = 0
     
-    this.contextMenuEnable = typeof options.contextmenu === 'function'
+    this.contextMenuEnable = typeof this.linterOptions.contextmenu === 'function'
   }
 
   var defaults = {
@@ -199,7 +199,7 @@
 
     if (cm.state.lint.contextMenuEnable) {
       marker.addEventListener('click', function (e) {
-        const menus = cm.state.lint.options.contextmenu(annotations)
+        const menus = cm.state.lint.linterOptions.contextmenu(annotations)
         showMenu(cm, menus, e)
       })
     }
@@ -354,7 +354,7 @@
   
   function onClick (cm, e) {
     handleMarkerAction(cm, e, function (cm, annotations, e) {
-      const menus = cm.state.lint.options.contextmenu(annotations)
+      const menus = cm.state.lint.linterOptions.contextmenu(annotations)
       showMenu(cm, menus, e)
     })
   }
