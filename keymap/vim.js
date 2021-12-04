@@ -2098,7 +2098,7 @@
       },
       moveToEndOfDisplayLine: function(cm) {
         cm.execCommand("goLineRight");
-        let head = cm.getCursor();
+        var head = cm.getCursor();
         if (head.sticky == "before") head.ch--;
         return head;
       },
