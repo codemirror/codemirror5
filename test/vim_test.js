@@ -488,11 +488,35 @@ testVim('gj_gk', function(cm, vim, helpers) {
   // Test bottom of document edge case.
   helpers.doKeys('100', 'g', 'j');
   var endingPos = cm.getCursor();
-  is(endingPos != 0, 'gj should not be on wrapped line 0');
+  is(endingPos.ch != 0, 'gj should not be on wrapped line 0');
   var topLeftCharCoords = cm.charCoords(makeCursor(0, 0));
   var endingCharCoords = cm.charCoords(endingPos);
   is(topLeftCharCoords.left == endingCharCoords.left, 'gj should end up on column 0');
 },{ lineNumbers: false, lineWrapping:true, value: 'Thislineisintentionallylongtotestmovementofgjandgkoverwrappedlines.' });
+testVim('g0_g$', function(cm, vim, helpers) {
+  var topLeftCharCoords = cm.charCoords(makeCursor(0, 0));
+  cm.setCursor(0, 4);
+  cm.setSize(120);
+  helpers.doKeys('g', 'Down');
+  var secondLineCoords = cm.charCoords(cm.getCursor());
+  is(secondLineCoords.top > topLeftCharCoords.top);
+  is(secondLineCoords.left > topLeftCharCoords.left);
+
+  helpers.doKeys('g', '0');
+  var start = cm.getCursor();
+  var startCoords = cm.charCoords(start);
+  is(start.ch != 0);
+  is(startCoords.left == topLeftCharCoords.left);
+  is(secondLineCoords.top === startCoords.top);
+  is(secondLineCoords.left > startCoords.left);
+
+  helpers.doKeys('g', '$');
+  var end = cm.getCursor();
+  var endCoords = cm.charCoords(end);
+  is(startCoords.left < endCoords.left);
+  is(startCoords.top == endCoords.top);
+  is(start.ch < end.ch && end.ch < cm.getValue().length / 2);
+},{ lineNumbers: false, lineWrapping:true, value: 'This line is intentionally long to test movement of g$ and g0 over wrapped lines.' });
 testVim('}', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('}');
