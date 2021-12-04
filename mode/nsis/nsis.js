@@ -71,7 +71,7 @@ CodeMirror.defineSimpleMode("nsis",{
     {regex: /[-+\/*=<>!]+/, token: "operator"},
 
     // Variable
-    {regex: /\$\w+/, token: "variable"},
+    {regex: /\$\w[\w\.]+/, token: "variable"},
 
     // Constant
     {regex: /\${[\w\.:-]+}/, token: "variable-2"},
