@@ -1,0 +1,60 @@
+<!doctype html>
+
+<title>CodeMirror: BQN mode</title>
+<meta charset="utf-8" />
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel="stylesheet" href="../../lib/codemirror.css">
+<script src="../../lib/codemirror.js"></script>
+<script src="../../addon/edit/matchbrackets.js"></script>
+<script src="./bqn.js"></script>
+<style>
+  .CodeMirror {
+    border: 2px inset #dee;
+  }
+</style>
+<div id=nav>
+  <a href="https://codemirror.net">
+    <h1>CodeMirror</h1><img id=logo src="../../doc/logo.png" alt="">
+  </a>
+
+  <ul>
+    <li><a href="../../index.html">Home</a>
+    <li><a href="../../doc/manual.html">Manual</a>
+    <li><a href="https://github.com/codemirror/codemirror">Code</a>
+  </ul>
+  <ul>
+    <li><a href="../index.html">Language modes</a>
+    <li><a class=active href="#">BQN</a>
+  </ul>
+</div>
+
+<article>
+  <h2>BQN mode</h2>
+  <form><textarea id="code" name="code">
+Life←{
+  r ← ¯1(⌽⎉1)¯1⌽(2+≢𝕩)↑𝕩
+  s ← ∨´ (1∾<r) ∧ 3‿4=<+´⥊ ¯1‿0‿1 (⌽⎉1)⌜ ¯1‿0‿1 ⌽⌜ <r
+  1(↓⎉1) ¯1(↓⎉1) 1↓ ¯1↓s
+}
+
+blinker ← >⟨0‿0‿0,1‿1‿1,0‿0‿0⟩
+(<".#") ⊏¨˜ Life⍟(↕3) blinker
+</textarea></form>
+
+  <script>
+    var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+      lineNumbers: true,
+      matchBrackets: true,
+      mode: "text/bqn"
+    });
+  </script>
+
+  <p>Simple mode that tries to handle BQN as well as it can.</p>
+  <p>It attempts to label functions/operators based upon
+    monadic/dyadic usage (but this is far from fully fleshed out).
+    This means there are meaningful classnames so hover states can
+    have popups etc.</p>
+
+  <p><strong>MIME types defined:</strong> <code>text/bqn</code> (BQN code)</p>
+</article>
