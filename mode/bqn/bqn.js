@@ -89,6 +89,7 @@ CodeMirror.defineMode("bqn", function() {
   var isDiadicOperator = /[∘⊸⟜○⌾⎉⚇⍟⊘◶⎊]/;
   var isComment = /[#].*$/;
   var isNumber = /[0123456789π∞]/;
+  var isArrow = /[←↩,⋄→⇐]/;
 
   var stringEater = function(type) {
     var prev;
@@ -140,6 +141,9 @@ CodeMirror.defineMode("bqn", function() {
         state.prev = false;
         operatorName = "bqn-diadic-operator-" + builtInDiadicOperators[ch];
         return "operator " + operatorName;
+      }
+      if (isArrow.test(ch)) {
+        return "bqn-arrow";
       }
       if (isNumber.test(ch)) {
         stream.eatWhile(/[\w\.]/);
