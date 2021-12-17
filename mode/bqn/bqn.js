@@ -12,6 +12,31 @@
 "use strict";
 
 CodeMirror.defineMode("bqn", function() {
+  var builtInMonadicOperators = {
+    "`": "scan",
+    "˜": "selfSwap",
+    "˘": "cells",
+    "¨": "each",
+    "⁼": "undo",
+    "⌜": "table",
+    "´": "fold",
+    "˝": "insert",
+    "˙": "constant"
+  }
+
+  var builtInDiadicOperators = {
+    "∘": "atop",
+    "⊸": "beforeBind",
+    "⟜": "afterBind",
+    "○": "over",
+    "⌾": "under",
+    "⎉": "rank",
+    "⚇": "depth",
+    "⍟": "repeat",
+    "⊘": "valences",
+    "◶": "choose",
+    // "⎊": "",
+  }
   var builtInFuncs = {
     "+": ["conjugate", "add"],
     "−": ["negate", "subtract"],
@@ -60,7 +85,10 @@ CodeMirror.defineMode("bqn", function() {
   };
 
   var isFunction = /[+−×÷⋆√⌊⌈∧∨¬∣≤<>≥=≠≡≢⊣⊢⥊∾≍⋈↑↓↕»«⌽⍉/⍋⍒⊏⊑⊐⊒∊⍷⊔!]/;
+  var isMonadicOperator = /[`˜˘¨⁼⌜´˝˙]/;
+  var isDiadicOperator = /[∘⊸⟜○⌾⎉⚇⍟⊘◶⎊]/;
   var isComment = /[#].*$/;
+  var isNumber = /[0123456789π∞]/;
 
   var stringEater = function(type) {
     var prev;
@@ -84,7 +112,7 @@ CodeMirror.defineMode("bqn", function() {
       };
     },
     token: function(stream, state) {
-      var ch, funcName;
+      var ch, funcName, operatorName;
       if (stream.eatSpace()) {
         return null;
       }
@@ -103,26 +131,20 @@ CodeMirror.defineMode("bqn", function() {
         state.prev = true;
         return null;
       }
-      // if (isNiladic.test(ch)) {
-      //   state.prev = false;
-      //   return "niladic";
-      // }
-      if (/[¯\d]/.test(ch)) {
-        if (state.func) {
-          state.func = false;
-          state.prev = false;
-        } else {
-          state.prev = true;
-        }
+      if (isMonadicOperator.test(ch)) {
+        state.prev = false;
+        operatorName = "bqn-monadic-operator" + builtInMonadicOperators[ch];
+        return "operator " + operatorName;
+      }
+      if (isDiadicOperator.test(ch)) {
+        state.prev = false;
+        operatorName = "bqn-diadic-operator-" + builtInDiadicOperators[ch];
+        return "operator " + operatorName;
+      }
+      if (isNumber.test(ch)) {
         stream.eatWhile(/[\w\.]/);
         return "number";
       }
-      // if (isOperator.test(ch)) {
-      //   return "operator bqn-" + builtInOps[ch];
-      // }
-      // if (isArrow.test(ch)) {
-      //   return "bqn-arrow";
-      // }
       if (isFunction.test(ch)) {
         funcName = "bqn-";
         if (builtInFuncs[ch] != null) {
@@ -140,10 +162,6 @@ CodeMirror.defineMode("bqn", function() {
         stream.skipToEnd();
         return "comment";
       }
-      // if (ch === "∘" && stream.peek() === ".") {
-      //   stream.next();
-      //   return "function jot-dot";
-      // }
       stream.eatWhile(/[\w\$_]/);
       state.prev = true;
       return "keyword";
