@@ -1,3 +1,13 @@
+## 5.65.0 (2021-12-20)
+
+### Bug fixes
+
+brace-folding addon: Fix broken folding on lines with both braces and square brackets.
+
+### New features
+
+[vim bindings](https://codemirror.net/demo/vim.html): Support g0, g$, g<Arrow>.
+
 ## 5.64.0 (2021-11-20)
 
 ### Bug fixes
