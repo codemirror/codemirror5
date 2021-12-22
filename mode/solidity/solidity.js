@@ -339,8 +339,8 @@ CodeMirror.defineMode('solidity', function(config) {
 
     if (
       keywordsMoreBlockAndTransactionProperties.propertyIsEnumerable(cur) ||
-      (keywordsBlockAndTransactionProperties[cur] &&
-        keywordsBlockAndTransactionProperties[cur].some(function(item) {
+      (keywordsBlockAndTransactionProperties.hasOwnProperty(cur) &&
+        keywordsBlockAndTransactionProperties[cur].some(function (item) {
           return stream.match('.' + item)
         }))
     ) {
@@ -348,8 +348,8 @@ CodeMirror.defineMode('solidity', function(config) {
     }
 
     if (
-      keywordsAbiEncodeDecodeFunctions[cur] &&
-      keywordsAbiEncodeDecodeFunctions[cur].some(function(item) {
+      keywordsAbiEncodeDecodeFunctions.hasOwnProperty(cur) &&
+      keywordsAbiEncodeDecodeFunctions[cur].some(function (item) {
         return stream.match('.' + item)
       })
     ) {
