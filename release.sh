@@ -83,6 +83,7 @@ mode/swift/swift.js \
 mode/solidity/solidity.js \
 mode/verilog/verilog.js \
 mode/mermaid/mermaid.js \
+mode/protobuf/protobuf.js \
 mode/vb/vb.js \
 keymap/emacs.js \
 keymap/sublime.js \
