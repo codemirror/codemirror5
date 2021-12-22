@@ -1,6 +1,6 @@
 {
   "name": "@hackmd/codemirror",
-  "version": "5.63.4",
+  "version": "5.63.5",
   "main": "lib/codemirror.js",
   "style": "lib/codemirror.css",
   "author": {
