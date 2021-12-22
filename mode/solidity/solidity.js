@@ -70,7 +70,6 @@ CodeMirror.defineMode('solidity', function(config) {
     static: true,
     try: true,
     typeof: true,
-    var: true,
   }
 
   var keywordsSpecial = {
