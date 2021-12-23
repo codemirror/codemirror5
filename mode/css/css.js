@@ -637,7 +637,7 @@ CodeMirror.defineMode("css", function(config, parserConfig) {
     "cell", "center", "checkbox", "circle", "cjk-decimal", "cjk-earthly-branch",
     "cjk-heavenly-stem", "cjk-ideographic", "clear", "clip", "close-quote",
     "col-resize", "collapse", "color", "color-burn", "color-dodge", "column", "column-reverse",
-    "compact", "condensed", "contain", "content", "contents",
+    "compact", "condensed", "conic-gradient", "contain", "content", "contents",
     "content-box", "context-menu", "continuous", "contrast", "copy", "counter", "counters", "cover", "crop",
     "cross", "crosshair", "cubic-bezier", "currentcolor", "cursive", "cyclic", "darken", "dashed", "decimal",
     "decimal-leading-zero", "default", "default-button", "dense", "destination-atop",
