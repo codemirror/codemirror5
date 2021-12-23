@@ -30,7 +30,7 @@
       return {list: ["!important"], from: CodeMirror.Pos(cur.line, token.start),
               to: CodeMirror.Pos(cur.line, token.end)};
 
-    var start = token.start, end = cur.ch, word = token.string.slice(0, end - start);
+    var start = token.start, end = cur.ch, word = token.string.slice(0, end - start).toLowerCase();
     if (/[^\w$_-]/.test(word)) {
       word = ""; start = end = cur.ch;
     }
@@ -41,7 +41,7 @@
     function add(keywords) {
       for (var name in keywords)
         if (!word || name.lastIndexOf(word, 0) == 0)
-          result.push(name);
+          result.push(keywords[name]);
     }
 
     var st = inner.state.state;
