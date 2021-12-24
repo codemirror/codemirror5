@@ -41,7 +41,7 @@
     function add(keywords) {
       for (var name in keywords)
         if (!word || name.lastIndexOf(word, 0) == 0)
-          result.push(keywords[name]);
+          result.push(keywords[name] === 1 ? name : keywords[name]);
     }
 
     var st = inner.state.state;
