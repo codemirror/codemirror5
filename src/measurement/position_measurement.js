@@ -295,9 +295,9 @@ function pageScrollY() {
 }
 
 function widgetTopHeight(lineObj) {
-  let height = 0
-  if (lineObj.widgets) for (let i = 0; i < lineObj.widgets.length; ++i) if (lineObj.widgets[i].above)
-    height += widgetHeight(lineObj.widgets[i])
+  let {widgets} = visualLine(lineObj), height = 0
+  if (widgets) for (let i = 0; i < widgets.length; ++i) if (widgets[i].above)
+    height += widgetHeight(widgets[i])
   return height
 }
 
