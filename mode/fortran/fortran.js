@@ -20,6 +20,10 @@ CodeMirror.defineMode("fortran", function() {
     return keys;
   }
 
+  function wordRegexp(words) {
+    return new RegExp("^((" + words.join(")|(") + "))\\b");
+  }
+
   var keywords = words([
                   "abstract", "accept", "allocatable", "allocate",
                   "array", "assign", "asynchronous", "backspace",
@@ -112,7 +116,7 @@ CodeMirror.defineMode("fortran", function() {
                      "c_short", "c_signed_char", "c_size_t", "character",
                      "complex", "double", "integer", "logical", "real"]);
   var isOperatorChar = /[+\-*&=<>\/\:]/;
-  var litOperator = new RegExp("(\.and\.|\.or\.|\.eq\.|\.lt\.|\.le\.|\.gt\.|\.ge\.|\.ne\.|\.not\.|\.eqv\.|\.neqv\.)", "i");
+  var litOperator = wordRegexp(["and", "or", "eq", "lt", "le", "gt", "ge", "ne", "not", "eqv", "neqv"]);
 
   function tokenBase(stream, state) {
 
