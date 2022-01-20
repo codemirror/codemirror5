@@ -1,3 +1,9 @@
+## 5.65.1 (2022-01-20)
+
+### Bug fixes
+
+Fix miscalculation of vertical positions in lines that have both line widgets and replaced newlines.
+
 ## 5.65.0 (2021-12-20)
 
 ### Bug fixes
