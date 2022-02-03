@@ -2,7 +2,7 @@
   font-family: 'Source Sans Pro';
   font-style: normal;
   font-weight: 400;
-  src: local('Source Sans Pro'), local('SourceSansPro-Regular'), url(//themes.googleusercontent.com/static/fonts/sourcesanspro/v5/ODelI1aHBYDBqgeIAH2zlBM0YzuT7MdOe03otPbuUS0.woff) format('woff');
+  src: local('Source Sans Pro'), local('SourceSansPro-Regular'), url(source_sans.woff) format('woff');
 }
 
 body, html { margin: 0; padding: 0; height: 100%; }
