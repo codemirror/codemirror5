@@ -4667,6 +4667,15 @@ testVim('ex_map_key2key_from_colon', function(cm, vim, helpers) {
   CodeMirror.Vim.mapclear();
 }, { value: 'abc' });
 
+testVim('map <Esc> in normal mode', function(cm, vim, helpers) {
+  CodeMirror.Vim.noremap('<Esc>', 'i', 'normal');
+  helpers.doKeys('<Esc>');
+  is(vim.insertMode, "Didn't switch to insert mode.");
+  helpers.doKeys('<Esc>');
+  is(!vim.insertMode, "Didn't switch to normal mode.");
+  CodeMirror.Vim.mapclear();
+});
+
 testVim('noremap', function(cm, vim, helpers) {
   CodeMirror.Vim.noremap(';', 'l');
   cm.setCursor(0, 0);
