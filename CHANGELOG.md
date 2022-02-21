@@ -1,3 +1,11 @@
+## 5.65.2 (2022-02-21)
+
+### Bug fixes
+
+[clike mode](https://codemirror.net/mode/clike/): Recognize triple quoted string in Java.
+
+[cypher mode](https://codemirror.net/mode/cypher/index.html): Fix handling of punctuation.
+
 ## 5.65.1 (2022-01-20)
 
 ### Bug fixes
