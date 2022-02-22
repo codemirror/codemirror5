@@ -1,3 +1,47 @@
+## 5.65.2 (2022-02-21)
+
+### Bug fixes
+
+[clike mode](https://codemirror.net/mode/clike/): Recognize triple quoted string in Java.
+
+[cypher mode](https://codemirror.net/mode/cypher/index.html): Fix handling of punctuation.
+
+## 5.65.1 (2022-01-20)
+
+### Bug fixes
+
+Fix miscalculation of vertical positions in lines that have both line widgets and replaced newlines.
+
+## 5.65.0 (2021-12-20)
+
+### Bug fixes
+
+brace-folding addon: Fix broken folding on lines with both braces and square brackets.
+
+### New features
+
+[vim bindings](https://codemirror.net/demo/vim.html): Support g0, g$, g<Arrow>.
+
+## 5.64.0 (2021-11-20)
+
+### Bug fixes
+
+Fix a crash that occurred in some situations with replacing marks across line breaks.
+
+Make sure native scrollbars reset their position when hidden and re-shown.
+
+### New features
+
+[vim bindings](https://codemirror.net/demo/vim.html): Support C-u to delete back a line.
+
+## 5.63.3 (2021-10-11)
+
+### Bug fixes
+
+Prevent external styles from giving the hidden textarea a min-height.
+
+Remove a stray autosave file that was part of the previous release.
+
 ## 5.63.1 (2021-09-29)
 
 ### Bug fixes

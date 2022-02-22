@@ -61,12 +61,14 @@ function ensureLineHeights(cm, lineView, rect) {
 export function mapFromLineView(lineView, line, lineN) {
   if (lineView.line == line)
     return {map: lineView.measure.map, cache: lineView.measure.cache}
-  for (let i = 0; i < lineView.rest.length; i++)
-    if (lineView.rest[i] == line)
-      return {map: lineView.measure.maps[i], cache: lineView.measure.caches[i]}
-  for (let i = 0; i < lineView.rest.length; i++)
-    if (lineNo(lineView.rest[i]) > lineN)
-      return {map: lineView.measure.maps[i], cache: lineView.measure.caches[i], before: true}
+  if (lineView.rest) {
+    for (let i = 0; i < lineView.rest.length; i++)
+      if (lineView.rest[i] == line)
+        return {map: lineView.measure.maps[i], cache: lineView.measure.caches[i]}
+    for (let i = 0; i < lineView.rest.length; i++)
+      if (lineNo(lineView.rest[i]) > lineN)
+        return {map: lineView.measure.maps[i], cache: lineView.measure.caches[i], before: true}
+  }
 }
 
 // Render a line into the hidden node display.externalMeasured. Used
@@ -293,9 +295,9 @@ function pageScrollY() {
 }
 
 function widgetTopHeight(lineObj) {
-  let height = 0
-  if (lineObj.widgets) for (let i = 0; i < lineObj.widgets.length; ++i) if (lineObj.widgets[i].above)
-    height += widgetHeight(lineObj.widgets[i])
+  let {widgets} = visualLine(lineObj), height = 0
+  if (widgets) for (let i = 0; i < widgets.length; ++i) if (widgets[i].above)
+    height += widgetHeight(widgets[i])
   return height
 }
 
