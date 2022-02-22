@@ -191,8 +191,7 @@ function registerEventHandlers(cm) {
   })
 
   // Listen to wheel events in order to try and update the viewport on time.
-  on(d.scroller, "mousewheel", e => onScrollWheel(cm, e))
-  on(d.scroller, "DOMMouseScroll", e => onScrollWheel(cm, e))
+  on(d.scroller, "wheel", e => onScrollWheel(cm, e))
 
   // Prevent wrapper from ever scrolling
   on(d.wrapper, "scroll", () => d.wrapper.scrollTop = d.wrapper.scrollLeft = 0)
