@@ -89,9 +89,11 @@ export function defineOptions(CodeMirror) {
   }, true)
   option("keyMap", "default", (cm, val, old) => {
     let next = getKeyMap(val)
-    let prev = old != Init && getKeyMap(old)
-    if (prev && prev.detach) prev.detach(cm, next)
-    if (next.attach) next.attach(cm, prev || null)
+    if(next !== undefined) {
+      let prev = old != Init && getKeyMap(old)
+      if (prev && prev.detach) prev.detach(cm, next)
+      if (next.attach) next.attach(cm, prev || null)
+    }
   })
   option("extraKeys", null)
   option("configureMouse", null)
