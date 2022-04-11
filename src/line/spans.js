@@ -31,7 +31,7 @@ export function removeMarkedSpan(spans, span) {
 // Add a span to a line.
 export function addMarkedSpan(line, span, op) {
   let inThisOp = op && window.WeakSet && (op.markedSpans || (op.markedSpans = new WeakSet))
-  if (inThisOp && inThisOp.has(line.markedSpans)) {
+  if (inThisOp && line.markedSpans && inThisOp.has(line.markedSpans)) {
     line.markedSpans.push(span)
   } else {
     line.markedSpans = line.markedSpans ? line.markedSpans.concat([span]) : [span]
