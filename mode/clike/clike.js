@@ -500,7 +500,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
         return "meta";
       },
       '"': function(stream, state) {
-        if (!stream.match('""\n')) return false;
+        if (!stream.match(/""$/)) return false;
         state.tokenize = tokenTripleString;
         return state.tokenize(stream, state);
       }
