@@ -1,3 +1,13 @@
+## 5.65.3 (2022-04-20)
+
+### Bug fixes
+
+Fix a crash that could occur when when marking text.
+
+[merge addon](https://codemirror.net/doc/manual.html#addon_merge): Add aria label to buttons.
+
+[groovy mode](https://codemirror.net/mode/groovy/index.html): Properly highlight interpolated variables.
+
 ## 5.65.2 (2022-02-21)
 
 ### Bug fixes
