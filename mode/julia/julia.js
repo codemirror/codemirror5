@@ -24,7 +24,7 @@ CodeMirror.defineMode("julia", function(config, parserConf) {
   var uChar = "([^\\u0027\\u005C\\uD800-\\uDFFF]|[\\uD800-\\uDFFF][\\uDC00-\\uDFFF])";
 
   var asciiOperatorsList = [
-    "[<>]:", "[<>=]=", "<<=?", ">>>?=?", "=>", "--?>", "<--[->]?", "\\/\\/",
+    "[<>]:", "[<>=]=", "<<=?", "[!=]==", ">>>?=?", "=>", "--?>", "<--[->]?", "\\/\\/",
     "\\.{2,3}", "[\\.\\\\%*+\\-<>!\\/^|&]=?", "\\?", "\\$", "~", ":"
   ];
   var operators = parserConf.operators || wordRegexp([
