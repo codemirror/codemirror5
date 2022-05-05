@@ -60,11 +60,6 @@ CodeMirror.defineMode("sparql", function(config) {
       stream.skipToEnd();
       return "comment";
     }
-    else if (ch === "^") {
-      ch = stream.peek();
-      if (ch === "^") stream.eat("^");
-      return "operator";
-    }
     else if (operatorChars.test(ch)) {
       return "operator";
     }
