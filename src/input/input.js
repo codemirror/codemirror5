@@ -72,7 +72,7 @@ export function handlePaste(e, cm) {
   let pasted = e.clipboardData && e.clipboardData.getData("Text")
   if (pasted) {
     e.preventDefault()
-    if (!cm.isReadOnly() && !cm.options.disableInput)
+    if (!cm.isReadOnly() && !cm.options.disableInput && cm.hasFocus())
       runInOp(cm, () => applyTextInput(cm, pasted, 0, null, "paste"))
     return true
   }
