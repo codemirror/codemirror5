@@ -1,3 +1,13 @@
+## 5.65.4 (2022-05-20)
+
+### Bug fixes
+
+Ignore paste events when the editor doesn't have focus.
+
+[sparql mode](https://codemirror.net/mode/sparql/index.html): Fix parsing of variables after operators.
+
+[julia mode](https://codemirror.net/mode/julia/): Properly tokenize `!==` and `===` operators.
+
 ## 5.65.3 (2022-04-20)
 
 ### Bug fixes
