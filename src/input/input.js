@@ -131,5 +131,6 @@ export function hiddenTextarea() {
   // If border: 0; -- iOS fails to open keyboard (issue #1287)
   if (ios) te.style.border = "1px solid black"
   disableBrowserMagic(te)
+  te.setAttribute("aria-hidden","true")
   return div
 }
