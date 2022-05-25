@@ -78,7 +78,8 @@
         var baseString = null;
         for (var i = from.line; i < end; ++i) {
           var line = self.getLine(i);
-          var whitespace = line.trim().length === 0 ? line : line.slice(0, firstNonWS(line));
+          var nonWS = firstNonWS(line);
+          var whitespace = nonWS === 0 ? line : line.slice(0, nonWS);
           if (baseString == null || baseString.length > whitespace.length) {
             baseString = whitespace;
           }
