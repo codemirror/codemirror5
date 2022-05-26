@@ -81,6 +81,10 @@ namespace = "comment_";
     cm.lineComment(Pos(1, 0), Pos(2), {indent: true});
   }, simpleProg, "function foo() {\n//   return bar;\n// }");
 
+  test("emptyIndentedLine", "javascript", function(cm) {
+    cm.lineComment(Pos(1, 2), Pos(1, 2), {indent: true});
+  }, "function foo() {\n  \n}", "function foo() {\n  // \n}");
+
   test("singleEmptyLine", "javascript", function(cm) {
     cm.setCursor(1);
     cm.execCommand("toggleComment");
