@@ -202,12 +202,12 @@
   }
 
   function getQueryDialog(cm)  {
-    const label = el("label", {className: "CodeMirror-search-label"}, 
-                     cm.phrase("Search:"),
-                     el("input", {type: "text", "style": "width: 10em", className: "CodeMirror-search-field", id: "CodeMirror-search-field"}));
+    var label = el("label", {className: "CodeMirror-search-label"},
+                   cm.phrase("Search:"),
+                   el("input", {type: "text", "style": "width: 10em", className: "CodeMirror-search-field",
+                                id: "CodeMirror-search-field"}));
     label.setAttribute("for","CodeMirror-search-field");
-    return el("", null,
-              label, " ", " ",
+    return el("", null, label, " ",
               el("span", {style: "color: #666", className: "CodeMirror-search-hint"},
                  cm.phrase("(Use /re/ syntax for regexp search)")));
   }
