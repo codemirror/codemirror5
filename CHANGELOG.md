@@ -1,3 +1,13 @@
+## 5.65.5 (2022-05-30)
+
+### Bug fixes
+
+Work around a bug in Chrome 102 that caused wheel scrolling of the editor to constantly stop.
+
+[search addon](https://codemirror.net/demo/search.html): Make sure the search field has an accessible label.
+
+[comment addon](https://codemirror.net/doc/manual.html#addon_comment): Preserve indentation on otherwise empty lines when indenting.
+
 ## 5.65.4 (2022-05-20)
 
 ### Bug fixes
