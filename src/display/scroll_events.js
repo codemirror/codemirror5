@@ -1,4 +1,4 @@
-import { chrome, gecko, ie, mac, presto, safari, webkit } from "../util/browser.js"
+import { chrome, chrome_version, gecko, ie, mac, presto, safari, webkit } from "../util/browser.js"
 import { e_preventDefault } from "../util/event.js"
 
 import { updateDisplaySimple } from "./update_display.js"
@@ -40,6 +40,17 @@ export function wheelEventPixels(e) {
 }
 
 export function onScrollWheel(cm, e) {
+  // On Chrome 102, viewport updates somehow stop wheel-based
+  // scrolling. Turning off pointer events during the scroll seems
+  // to avoid the issue.
+  if (chrome && chrome_version >= 102) {
+    if (cm.display.chromeScrollHack == null) cm.display.sizer.style.pointerEvents = "none"
+    else clearTimeout(cm.display.chromeScrollHack)
+    cm.display.chromeScrollHack = setTimeout(() => {
+      cm.display.chromeScrollHack = null
+      cm.display.sizer.style.pointerEvents = ""
+    }, 100)
+  }
   let delta = wheelEventDelta(e), dx = delta.x, dy = delta.y
   let pixelsPerUnit = wheelPixelsPerUnit
   if (e.deltaMode === 0) {
