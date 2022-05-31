@@ -309,7 +309,7 @@
         hints.style.width = (winW - 5) + "px";
         overlapX -= (box.right - box.left) - winW;
       }
-      hints.style.left = (left = pos.left - overlapX - offsetLeft) + "px";
+      hints.style.left = (left = Math.max(pos.left - overlapX - offsetLeft, 0)) + "px";
     }
     if (scrolls) for (var node = hints.firstChild; node; node = node.nextSibling)
       node.style.paddingRight = cm.display.nativeBarWidth + "px"
