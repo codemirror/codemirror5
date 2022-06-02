@@ -98,13 +98,13 @@ class NativeScrollbars {
   zeroWidthHack() {
     let w = mac && !mac_geMountainLion ? "12px" : "18px"
     this.horiz.style.height = this.vert.style.width = w
-    this.horiz.style.pointerEvents = this.vert.style.pointerEvents = "none"
+    this.horiz.style.visibility = this.vert.style.visibility = "hidden"
     this.disableHoriz = new Delayed
     this.disableVert = new Delayed
   }
 
   enableZeroWidthBar(bar, delay, type) {
-    bar.style.pointerEvents = "auto"
+    bar.style.visibility = ""
     function maybeDisable() {
       // To find out whether the scrollbar is still visible, we
       // check whether the element under the pixel in the bottom
@@ -115,7 +115,7 @@ class NativeScrollbars {
       let box = bar.getBoundingClientRect()
       let elt = type == "vert" ? document.elementFromPoint(box.right - 1, (box.top + box.bottom) / 2)
           : document.elementFromPoint((box.right + box.left) / 2, box.bottom - 1)
-      if (elt != bar) bar.style.pointerEvents = "none"
+      if (elt != bar) bar.style.visibility = "hidden"
       else delay.set(1000, maybeDisable)
     }
     delay.set(1000, maybeDisable)
