@@ -26,7 +26,7 @@ var keywordList = [
   "require_relative", "extend", "autoload", "__END__", "__FILE__", "__LINE__", "__dir__"
 ], keywords = wordObj(keywordList);
 
-var indentWords = wordObj(["def", "class", "case", "for", "while", "until", "module", "then",
+var indentWords = wordObj(["def", "class", "case", "for", "while", "until", "module",
                            "catch", "loop", "proc", "begin"]);
 var dedentWords = wordObj(["end", "until"]);
 var opening = {"[": "]", "{": "}", "(": ")"};
