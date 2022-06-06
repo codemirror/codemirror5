@@ -137,7 +137,7 @@ function skipAtomicInSelection(doc, sel, bias, mayClear) {
     let range = sel.ranges[i]
     let old = sel.ranges.length == doc.sel.ranges.length && doc.sel.ranges[i]
     let newAnchor = skipAtomic(doc, range.anchor, old && old.anchor, bias, mayClear)
-    let newHead = skipAtomic(doc, range.head, old && old.head, bias, mayClear)
+    let newHead = range.head == range.anchor ? newAnchor : skipAtomic(doc, range.head, old && old.head, bias, mayClear)
     if (out || newAnchor != range.anchor || newHead != range.head) {
       if (!out) out = sel.ranges.slice(0, i)
       out[i] = new Range(newAnchor, newHead)
