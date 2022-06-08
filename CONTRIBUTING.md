@@ -71,7 +71,7 @@ a separate NPM package.
 By contributing code to CodeMirror you
 
  - agree to license the contributed code under CodeMirror's [MIT
-   license](https://codemirror.net/LICENSE).
+   license](https://codemirror.net/5/LICENSE).
 
  - confirm that you have the right to contribute and license the code
    in question. (Either you hold all rights on the code, or the rights

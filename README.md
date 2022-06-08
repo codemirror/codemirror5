@@ -1,6 +1,6 @@
 # CodeMirror
 
-[![Build Status](https://github.com/codemirror/codemirror/workflows/main/badge.svg)](https://github.com/codemirror/codemirror/actions)
+[![Build Status](https://github.com/codemirror/codemirror5/workflows/main/badge.svg)](https://github.com/codemirror/codemirror/actions)
 [![NPM version](https://img.shields.io/npm/v/codemirror.svg)](https://www.npmjs.org/package/codemirror)
 
 CodeMirror is a versatile text editor implemented in JavaScript for
@@ -14,8 +14,8 @@ customizing CodeMirror to fit your application, and extending it with
 new functionality.
 
 You can find more information (and the
-[manual](https://codemirror.net/doc/manual.html)) on the [project
-page](https://codemirror.net). For questions and discussion, use the
+[manual](https://codemirror.net/5/doc/manual.html)) on the [project
+page](https://codemirror.net/5/). For questions and discussion, use the
 [discussion forum](https://discuss.codemirror.net/).
 
 See
@@ -29,7 +29,7 @@ conduct.
 
 ### Installation
 
-Either get the [zip file](https://codemirror.net/codemirror.zip) with
+Either get the [zip file](https://codemirror.net/5/codemirror.zip) with
 the latest version, or make sure you have [Node](https://nodejs.org/)
 installed and run:
 

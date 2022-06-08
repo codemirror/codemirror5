@@ -33,7 +33,7 @@
     "CodeMirror",
     "Editor"
   ],
-  "homepage": "https://codemirror.net",
+  "homepage": "https://codemirror.net/5/",
   "repository": {
     "type": "git",
     "url": "https://github.com/codemirror/CodeMirror.git"
