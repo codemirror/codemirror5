@@ -1,6 +1,6 @@
 # CodeMirror
 
-[![Build Status](https://github.com/codemirror/codemirror5/workflows/main/badge.svg)](https://github.com/codemirror/codemirror/actions)
+[![Build Status](https://github.com/codemirror/codemirror5/workflows/main/badge.svg)](https://github.com/codemirror/codemirror5/actions)
 [![NPM version](https://img.shields.io/npm/v/codemirror.svg)](https://www.npmjs.org/package/codemirror)
 
 CodeMirror is a versatile text editor implemented in JavaScript for
