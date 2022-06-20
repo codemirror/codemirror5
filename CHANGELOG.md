@@ -1,3 +1,15 @@
+## 5.65.6 (2022-06-20)
+
+### Bug fixes
+
+Avoid firing `beforeCursorEnter` callbacks twice for cursor selections.
+
+Improve support for auto-hiding macOS scrollbars.
+
+[show-hint addon](https://codemirror.net/5/doc/manual.html#addon_show-hint): Fix an issue where the tooltip could be placed to the left of the screen.
+
+[swift mode](https://codemirror.net/5/mode/swift): Support structured concurrency keywords.
+
 ## 5.65.5 (2022-05-30)
 
 ### Bug fixes
