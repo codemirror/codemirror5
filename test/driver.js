@@ -101,6 +101,9 @@ function label(str, msg) {
 function eq(a, b, msg) {
   if (a != b) throw new Failure(label(a + " != " + b, msg));
 }
+function notEq(a, b, msg) {
+  if (a == b) throw new Failure(label(a + " == " + b, msg));
+}
 function near(a, b, margin, msg) {
   if (Math.abs(a - b) > margin)
     throw new Failure(label(a + " is not close to " + b + " (" + margin + ")", msg));
