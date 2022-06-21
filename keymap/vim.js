@@ -2155,6 +2155,11 @@
         } else if (character === 't') {
           tmp = expandTagUnderCursor(cm, head, inclusive);
         } else if (character === 's') {
+          // account for cursor on end of sentence symbol
+          var content = cm.getLine(head.line);
+          if (head.ch > 0 && isEndOfSentenceSymbol(content[head.ch])) {
+            head.ch -= 1;
+          }
           var end = getSentence(cm, head, motionArgs.repeat, 1, inclusive)
           var start = getSentence(cm, head, motionArgs.repeat, -1, inclusive)
           // closer vim behaviour, 'a' only takes the space after the sentence if there is one before and after
