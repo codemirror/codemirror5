@@ -2416,11 +2416,14 @@
         var charCoords = cm.charCoords(new Pos(lineNum, 0), 'local');
         var height = cm.getScrollInfo().clientHeight;
         var y = charCoords.top;
-        var lineHeight = charCoords.bottom - y;
         switch (actionArgs.position) {
-          case 'center': y = y - (height / 2) + lineHeight;
+          case 'center': y = charCoords.bottom - height / 2;
             break;
-          case 'bottom': y = y - height + lineHeight;
+          case 'bottom':
+            var lineLastCharPos = new Pos(lineNum, cm.getLine(lineNum).length - 1);
+            var lineLastCharCoords = cm.charCoords(lineLastCharPos, 'local');
+            var lineHeight = lineLastCharCoords.bottom - y;
+            y = y - height + lineHeight
             break;
         }
         cm.scrollTo(null, y);
