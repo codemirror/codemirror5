@@ -3567,6 +3567,7 @@ testVim('HML', function(cm, vim, helpers) {
 })()});
 
 var zVals = [];
+var cursorIndexVals = [];
 forEach(['zb','zz','zt','z-','z.','z<CR>'], function(e, idx){
   var lineNum = 250;
   var lines = 35;
@@ -3576,11 +3577,16 @@ forEach(['zb','zz','zt','z-','z.','z<CR>'], function(e, idx){
     var k2 = e.substring(1);
     var textHeight = cm.defaultTextHeight();
     cm.setSize(600, lines*textHeight);
-    cm.setCursor(lineNum, 0);
+    cm.setCursor(lineNum, 1);
+    var originalCursorIndex = cm.indexFromPos(cm.getCursor());
     helpers.doKeys(k1, k2);
     zVals[idx] = cm.getScrollInfo().top;
+    cursorIndexVals[idx] = {
+      before: originalCursorIndex,
+      after: cm.indexFromPos(cm.getCursor())
+    };
   }, { value: (function(){
-    return new Array(500).join('\n');
+    return new Array(500).join('12\n');
   })()});
 });
 testVim('zb_to_bottom', function(cm, vim, helpers){
@@ -3618,6 +3624,30 @@ testVim('zz==z.', function(cm, vim, helpers){
 });
 testVim('zt==z<CR>', function(cm, vim, helpers){
   eq(zVals[2], zVals[5]);
+});
+testVim('zt_no_cursor_change', function(cm, vim, helpers){
+  var cursorIndexes = cursorIndexVals[2]
+  eq(cursorIndexes.before, cursorIndexes.after);
+});
+testVim('z<CR>_cursor_change', function(cm, vim, helpers){
+  var cursorIndexes = cursorIndexVals[5]
+  notEq(cursorIndexes.before, cursorIndexes.after);
+});
+testVim('zz_no_cursor_change', function(cm, vim, helpers){
+  var cursorIndexes = cursorIndexVals[1]
+  eq(cursorIndexes.before, cursorIndexes.after);
+});
+testVim('z._cursor_change', function(cm, vim, helpers){
+  var cursorIndexes = cursorIndexVals[4]
+  notEq(cursorIndexes.before, cursorIndexes.after);
+});
+testVim('zb_no_cursor_change', function(cm, vim, helpers){
+  var cursorIndexes = cursorIndexVals[0]
+  eq(cursorIndexes.before, cursorIndexes.after);
+});
+testVim('z-_cursor_change', function(cm, vim, helpers){
+  var cursorIndexes = cursorIndexVals[3]
+  notEq(cursorIndexes.before, cursorIndexes.after);
 });
 
 var moveTillCharacterSandbox =
