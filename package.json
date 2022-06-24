@@ -45,6 +45,6 @@
   },
   "dependencies": {},
   "publishConfig": {
-    "tag": "legacy"
+    "tag": "version5"
   }
 }
