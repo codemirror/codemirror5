@@ -3821,18 +3821,18 @@
     }
   function getSentence(cm, cur, repeat, dir, inclusive /*includes whitespace*/) {
     /*
-	  Takes an index object
-	  {
-		line: the line string,
-		ln: line number,
-		pos: index in line,
-		dir: direction of traversal (-1 or 1)
-	  }
-	  and modifies the line, ln, and pos members to represent the
-	  next valid position or sets the line to null if there are
-	  no more valid positions.
-	 */
-    function nextChar(cm, curr) {
+    Takes an index object
+    {
+    line: the line string,
+    ln: line number,
+    pos: index in line,
+    dir: direction of traversal (-1 or 1)
+    }
+    and modifies the line, ln, and pos members to represent the
+    next valid position or sets the line to null if there are
+    no more valid positions.
+   */
+    function nextChar(curr) {
       if (curr.pos + curr.dir < 0 || curr.pos + curr.dir >= curr.line.length) {
           curr.line = null;
         }
@@ -3841,9 +3841,9 @@
       }
     }
     /*
-	  Performs one iteration of traversal in forward direction
-	  Returns an index object of the new location
-	 */
+    Performs one iteration of traversal in forward direction
+    Returns an index object of the new location
+   */
     function forward(cm, ln, pos, dir) {
       var line = cm.getLine(ln);
 
@@ -3861,7 +3861,7 @@
       var lastSentencePos = curr.pos;
 
       // Move one step to skip character we start on
-      nextChar(cm, curr);
+      nextChar(curr);
 
       while (curr.line !== null) {
         lastSentencePos = curr.pos;
@@ -3869,11 +3869,11 @@
           if (!inclusive) {
             return { ln: curr.ln, pos: curr.pos + 1 };
           } else {
-            nextChar(cm, curr);
+            nextChar(curr);
             while (curr.line !== null ) {
               if (isWhiteSpaceString(curr.line[curr.pos])) {
                 lastSentencePos = curr.pos;
-                nextChar(cm, curr)
+                nextChar(curr)
               } else {
                 break;
               }
@@ -3881,15 +3881,15 @@
             return { ln: curr.ln, pos: lastSentencePos + 1, };
           }
         }
-        nextChar(cm, curr);
+        nextChar(curr);
       }
       return { ln: curr.ln, pos: lastSentencePos + 1 };
     }
 
     /*
-	  Performs one iteration of traversal in reverse direction
-	  Returns an index object of the new location
-	 */
+    Performs one iteration of traversal in reverse direction
+    Returns an index object of the new location
+   */
     function reverse(cm, ln, pos, dir) {
       var line = cm.getLine(ln);
 
@@ -3907,7 +3907,7 @@
       var lastSentencePos = curr.pos;
 
       // Move one step to skip character we start on
-      nextChar(cm, curr);
+      nextChar(curr);
 
       while (curr.line !== null) {
         if (!isWhiteSpaceString(curr.line[curr.pos]) && !isEndOfSentenceSymbol(curr.line[curr.pos])) {
@@ -3926,7 +3926,7 @@
           }
         }
 
-        nextChar(cm, curr);
+        nextChar(curr);
       }
       curr.line = line
       if (inclusive && isWhiteSpaceString(curr.line[curr.pos])) {
@@ -3958,17 +3958,17 @@
   function findSentence(cm, cur, repeat, dir) {
 
     /*
-	  Takes an index object
-	  {
-		line: the line string,
-		ln: line number,
-		pos: index in line,
-		dir: direction of traversal (-1 or 1)
-	  }
-	  and modifies the line, ln, and pos members to represent the
-	  next valid position or sets them to null if there are
-	  no more valid positions.
-	 */
+    Takes an index object
+    {
+    line: the line string,
+    ln: line number,
+    pos: index in line,
+    dir: direction of traversal (-1 or 1)
+    }
+    and modifies the line, ln, and pos members to represent the
+    next valid position or sets them to null if there are
+    no more valid positions.
+   */
       function nextChar(cm, idx) {
         if (idx.pos + idx.dir < 0 || idx.pos + idx.dir >= idx.line.length) {
           idx.ln += idx.dir;
