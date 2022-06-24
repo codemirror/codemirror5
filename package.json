@@ -43,5 +43,8 @@
     "dependencies": {},
     "devDependencies": {}
   },
-  "dependencies": {}
+  "dependencies": {},
+  "publishConfig": {
+    "tag": "version5"
+  }
 }
