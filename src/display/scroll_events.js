@@ -43,7 +43,7 @@ export function onScrollWheel(cm, e) {
   // On Chrome 102, viewport updates somehow stop wheel-based
   // scrolling. Turning off pointer events during the scroll seems
   // to avoid the issue.
-  if (chrome && chrome_version >= 102) {
+  if (chrome && chrome_version == 102) {
     if (cm.display.chromeScrollHack == null) cm.display.sizer.style.pointerEvents = "none"
     else clearTimeout(cm.display.chromeScrollHack)
     cm.display.chromeScrollHack = setTimeout(() => {
