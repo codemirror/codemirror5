@@ -648,6 +648,86 @@ testVim('paragraph_motions', function(cm, vim, helpers) {
   eq('b\na\na\nc\n', register.toString());
 }, { value: 'a\na\n\n\n\nb\nc\n\n\n\n\n\n\nd\n\ne\nf' });
 
+testVim('sentence_selections', function(cm, vim, helpers) {
+  // vis at beginning of line
+  cm.setCursor(0, 0);
+  helpers.doKeys('v', 'i', 's');
+  eqCursorPos(new Pos(0, 0), cm.getCursor('anchor'));
+  eqCursorPos(new Pos(0, 14), cm.getCursor('head'));
+
+  // vas at beginning of line
+  cm.setCursor(0, 0);
+  helpers.doKeys('v', 'a', 's');
+  eqCursorPos(new Pos(0, 0), cm.getCursor('anchor'));
+  eqCursorPos(new Pos(0, 15), cm.getCursor('head'));
+
+  // vis on sentence end
+  cm.setCursor(0, 13);
+  helpers.doKeys('v', 'i', 's');
+  eqCursorPos(new Pos(0, 0), cm.getCursor('anchor'));
+  eqCursorPos(new Pos(0, 14), cm.getCursor('head'));
+
+  // vas on sentence end
+  cm.setCursor(0, 13);
+  helpers.doKeys('v', 'a', 's');
+  eqCursorPos(new Pos(0, 0), cm.getCursor('anchor'));
+  eqCursorPos(new Pos(0, 15), cm.getCursor('head'));
+
+  // vis at sentence end, no whitespace after it
+  cm.setCursor(1, 18);
+  helpers.doKeys('v', 'i', 's');
+  eqCursorPos(new Pos(1, 13), cm.getCursor('anchor'));
+  eqCursorPos(new Pos(1, 19), cm.getCursor('head'));
+
+  // vas at sentence end, no whitespace after it
+  cm.setCursor(1, 18);
+  helpers.doKeys('v', 'a', 's');
+  eqCursorPos(new Pos(1, 12), cm.getCursor('anchor'));
+  eqCursorPos(new Pos(1, 19), cm.getCursor('head'));
+
+  // vis at sentence beginning, on whitespace
+  cm.setCursor(0, 14);
+  helpers.doKeys('v', 'i', 's');
+  eqCursorPos(new Pos(0, 14), cm.getCursor('anchor'));
+  eqCursorPos(new Pos(0, 29), cm.getCursor('head'));
+
+  cm.setCursor(0, 0);
+  helpers.doKeys('d', 'i', 's');
+  var register = helpers.getRegisterController().getRegister();
+  eq('Test sentence.', register.toString());
+
+  // return to original value
+  helpers.doKeys('u')
+
+  cm.setCursor(0, 0);
+  helpers.doKeys('d', 'a', 's');
+  register = helpers.getRegisterController().getRegister();
+  eq('Test sentence. ', register.toString());
+
+  // return to original value
+  helpers.doKeys('u')
+
+  cm.setCursor(1, 20);
+  helpers.doKeys('c', 'a', 's', '<Esc>');
+  register = helpers.getRegisterController().getRegister();
+  eq('Test.', register.toString());
+
+  // return to original value
+  helpers.doKeys('u')
+
+  cm.setCursor(3, 11);
+  helpers.doKeys('y', 'a', 's');
+  register = helpers.getRegisterController().getRegister();
+  eq('This is more text. ', register.toString());
+
+  cm.setCursor(3, 31);
+  helpers.doKeys('y', 'a', 's');
+  register = helpers.getRegisterController().getRegister();
+  eq(' No end of sentence symbol', register.toString());
+
+}, { value: 'Test sentence. Test question?\nAgain.Never. Again.Test.\n\nHello. This is more text. No end of sentence symbol\n' });
+
+
 // Operator tests
 testVim('dl', function(cm, vim, helpers) {
   var curStart = makeCursor(0, 0);
