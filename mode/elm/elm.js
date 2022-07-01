@@ -229,7 +229,7 @@
     return {
       startState: function ()  { return { f: normal() }; },
       copyState:  function (s) { return { f: s.f }; },
-      
+
       lineComment: '--',
 
       token: function(stream, state) {
