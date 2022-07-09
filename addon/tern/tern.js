@@ -589,10 +589,16 @@
   }
 
   function dialog(cm, text, f) {
-    if (cm.openDialog)
-      cm.openDialog(text + ": <input type=text>", f);
-    else
+    if (cm.openDialog) {
+      var fragment = document.createDocumentFragment();
+      fragment.appendChild(document.createTextNode(text + ": "));
+      var input = document.createElement("input");
+      input.type = "text";
+      fragment.appendChild(input);
+      cm.openDialog(fragment, f);
+    } else {
       f(prompt(text, ""));
+    }
   }
 
   // Tooltips
