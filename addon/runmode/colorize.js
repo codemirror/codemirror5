@@ -31,7 +31,7 @@
 
       var text = [];
       textContent(node, text);
-      node.innerHTML = "";
+      node.textContent = "";
       CodeMirror.runMode(text.join(""), mode, node);
 
       node.className += " cm-s-default";
