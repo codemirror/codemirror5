@@ -642,8 +642,8 @@
           register.clear();
           this.latestRegister = registerName;
           if (cm.openDialog) {
-            this.onRecordingDone = cm.openDialog(
-                document.createTextNode('(recording)['+registerName+']'), null, {bottom:true});
+            var template = dom('span', {class: 'cm-vim-message'}, 'recording @' + registerName);
+            this.onRecordingDone = cm.openDialog(template, null, {bottom:true});
           }
           this.isRecording = true;
         }
