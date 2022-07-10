@@ -1,6 +1,8 @@
 var Pos = CodeMirror.Pos;
 CodeMirror.Vim.suppressErrorLogging = true;
 
+var isOldCodeMirror = /^5/.test(CodeMirror.version);
+
 var code = '' +
 ' wOrd1 (#%\n' +
 ' word3] \n' +
@@ -314,6 +316,7 @@ testMotion('|_repeat', ['3', '|'], makeCursor(0, 2), makeCursor(0,4));
 testMotion('h', 'h', makeCursor(0, 0), word1.start);
 testMotion('h_repeat', ['3', 'h'], offsetCursor(word1.end, 0, -3), word1.end);
 testMotion('l', 'l', makeCursor(0, 1));
+testMotion('Space', 'Space', makeCursor(0, 1));
 testMotion('l_repeat', ['2', 'l'], makeCursor(0, 2));
 testMotion('j', 'j', offsetCursor(word1.end, 1, 0), word1.end);
 testMotion('j_repeat', ['2', 'j'], offsetCursor(word1.end, 2, 0), word1.end);
@@ -494,9 +497,9 @@ testVim('gj_gk', function(cm, vim, helpers) {
   is(topLeftCharCoords.left == endingCharCoords.left, 'gj should end up on column 0');
 },{ lineNumbers: false, lineWrapping:true, value: 'Thislineisintentionallylongtotestmovementofgjandgkoverwrappedlines.' });
 testVim('g0_g$', function(cm, vim, helpers) {
+  cm.setSize(120);
   var topLeftCharCoords = cm.charCoords(makeCursor(0, 0));
   cm.setCursor(0, 4);
-  cm.setSize(120);
   helpers.doKeys('g', 'Down');
   var secondLineCoords = cm.charCoords(cm.getCursor());
   is(secondLineCoords.top > topLeftCharCoords.top);
@@ -516,7 +519,7 @@ testVim('g0_g$', function(cm, vim, helpers) {
   is(startCoords.left < endCoords.left);
   is(startCoords.top == endCoords.top);
   is(start.ch < end.ch && end.ch < cm.getValue().length / 2);
-},{ lineNumbers: false, lineWrapping:true, value: 'This line is intentionally long to test movement of g$ and g0 over wrapped lines.' });
+},{ lineNumbers: false, lineWrapping:true, value: 'This line is long to test movement of g$ and g0 over wrapped lines.' });
 testVim('}', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
   helpers.doKeys('}');
@@ -1366,7 +1369,14 @@ testVim('._delete_visualBlock', function(cm, vim, helpers) {
   eq('ve\n\nsome\nsugar', cm.getValue());
   helpers.doKeys('j', 'j', '.');
   eq('ve\n\nome\nugar', cm.getValue());
-  helpers.doKeys('u', '<C-r>', '.');
+  helpers.doKeys('u');
+  if (!isOldCodeMirror) helpers.assertCursorAt(2, 0);
+  eq('ve\n\nsome\nsugar', cm.getValue());
+  helpers.doKeys('<C-r>');
+  helpers.assertCursorAt(2, 0);
+  eq('ve\n\nome\nugar', cm.getValue());
+  helpers.doKeys('.');
+  helpers.assertCursorAt(2, 0);
   eq('ve\n\nme\ngar', cm.getValue());
 },{value: 'give\nme\nsome\nsugar' });
 testVim('>{motion}', function(cm, vim, helpers) {
@@ -1421,13 +1431,12 @@ testVim('=', function(cm, vim, helpers) {
   eq(expectedValue, cm.getValue());
 }, { value: '   word1\n  word2\n  word3', indentUnit: 2 });
 
-// Edit tests - configureCm is an optional argument that gives caller
-// access to the cm object.
-function testEdit(name, before, pos, edit, after, configureCm) {
+
+// Edit tests
+function testEdit(name, before, pos, edit, after, opts) {
+  if (!opts) opts = {};
+  opts.value = before;
   return testVim(name, function(cm, vim, helpers) {
-             if (configureCm) {
-               configureCm(cm);
-             }
              var ch = before.search(pos)
              var line = before.substring(0, ch).split('\n').length - 1;
              if (line) {
@@ -1436,7 +1445,7 @@ function testEdit(name, before, pos, edit, after, configureCm) {
              cm.setCursor(line, ch);
              helpers.doKeys.apply(this, edit.split(''));
              eq(after, cm.getValue());
-           }, {value: before});
+           }, opts);
 }
 
 // These Delete tests effectively cover word-wise Change, Visual & Yank.
@@ -1534,24 +1543,24 @@ testEdit('da>_middle_spc', 'a\t<\n\tbar\n>b', /r/, 'da>', 'a\tb');
 
 // deleting tag objects
 testEdit('dat_noop', '<outer><inner>hello</inner></outer>', /n/, 'dat', '<outer><inner>hello</inner></outer>');
-testEdit('dat_open_tag', '<outer><inner>hello</inner></outer>', /n/, 'dat', '<outer></outer>', function(cm) {
-  cm.setOption('mode', 'xml');
+testEdit('dat_open_tag', '<outer><inner>hello</inner></outer>', /n/, 'dat', '<outer></outer>', {
+  mode: 'xml'
 });
-testEdit('dat_inside_tag', '<outer><inner>hello</inner></outer>', /l/, 'dat', '<outer></outer>', function(cm) {
-  cm.setOption('mode', 'xml');
+testEdit('dat_inside_tag', '<outer><inner>hello</inner></outer>', /l/, 'dat', '<outer></outer>', {
+  mode: 'xml'
 });
-testEdit('dat_close_tag', '<outer><inner>hello</inner></outer>', /\//, 'dat', '<outer></outer>', function(cm) {
-  cm.setOption('mode', 'xml');
+testEdit('dat_close_tag', '<outer><inner>hello</inner></outer>', /\//, 'dat', '<outer></outer>', {
+  mode: 'xml'
 });
 
-testEdit('dit_open_tag', '<outer><inner>hello</inner></outer>', /n/, 'dit', '<outer><inner></inner></outer>', function(cm) {
-  cm.setOption('mode', 'xml');
+testEdit('dit_open_tag', '<outer><inner>hello</inner></outer>', /n/, 'dit', '<outer><inner></inner></outer>', {
+  mode: 'xml'
 });
-testEdit('dit_inside_tag', '<outer><inner>hello</inner></outer>', /l/, 'dit', '<outer><inner></inner></outer>', function(cm) {
-  cm.setOption('mode', 'xml');
+testEdit('dit_inside_tag', '<outer><inner>hello</inner></outer>', /l/, 'dit', '<outer><inner></inner></outer>', {
+  mode: 'xml'
 });
-testEdit('dit_close_tag', '<outer><inner>hello</inner></outer>', /\//, 'dit', '<outer><inner></inner></outer>', function(cm) {
-  cm.setOption('mode', 'xml');
+testEdit('dit_close_tag', '<outer><inner>hello</inner></outer>', /\//, 'dit', '<outer><inner></inner></outer>', {
+  mode: 'xml'
 });
 
 function testSelection(name, before, pos, keys, sel) {
@@ -1986,11 +1995,11 @@ testVim('r_visual_block', function(cm, vim, helpers) {
   eq('1  l\n5  l\nalllefg', cm.getValue());
   cm.setCursor(2, 0);
   helpers.doKeys('o');
-  helpers.doKeys('\t\t')
+  helpers.doKeys('\t\t');
   helpers.doKeys('<Esc>');
   helpers.doKeys('<C-v>', 'h', 'h', 'r', 'r');
   eq('1  l\n5  l\nalllefg\nrrrrrrrr', cm.getValue());
-}, {value: '1234\n5678\nabcdefg'});
+}, {value: '1234\n5678\nabcdefg', indentWithTabs: true});
 testVim('R', function(cm, vim, helpers) {
   cm.setCursor(0, 1);
   helpers.doKeys('R');
@@ -2043,10 +2052,12 @@ testVim('mark\'', function(cm, vim, helpers) {
   helpers.assertCursorAt(1, 1);
   // edits
   helpers.doKeys('g', 'I', '\n', '<Esc>', 'l');
+  // the column may be different depending on editor behavior in insert mode
+  var ch = cm.getCursor().ch;
   helpers.doKeys('`', '`');
   helpers.assertCursorAt(7, 2);
   helpers.doKeys('`', '`');
-  helpers.assertCursorAt(2, 1);
+  helpers.assertCursorAt(2, ch);
 });
 testVim('mark.', function(cm, vim, helpers) {
   cm.setCursor(0, 0);
@@ -2803,7 +2814,7 @@ testVim('?_nongreedy', function(cm, vim, helpers) {
   helpers.doKeys('n');
   helpers.assertCursorAt(0, 4);
   helpers.doKeys('n');
-  helpers.assertCursorAt(0, 1);
+  helpers.assertCursorAt(0, isOldCodeMirror ? 1 : 0);
 }, { value: 'aaa aa \n a aa'});
 testVim('/_greedy', function(cm, vim, helpers) {
   helpers.doKeys('/', 'a+', '\n');
@@ -3625,6 +3636,32 @@ testVim('Ty,;', function(cm, vim, helpers) {
   helpers.doKeys('y', ',', 'P');
   eq('01230123456789', cm.getValue());
 }, { value: '0123456789'});
+testVim('page_motions', function(cm, vim, helpers) {
+  var value = "x".repeat(200).split("").map((_, i)=>i).join("\n");
+  cm.setValue(value);
+  cm.refresh();
+  var lines = 10;
+  var textHeight = cm.defaultTextHeight();
+  cm.setSize(600, lines*textHeight);
+  cm.setCursor(100, 0);
+  cm.refresh();
+  helpers.doKeys('<C-u>');
+  helpers.assertCursorAt(95, 0);
+  helpers.doKeys('<C-u>');
+  helpers.assertCursorAt(90, 0);
+  helpers.doKeys('<C-d>');
+  helpers.doKeys('<C-d>');
+  helpers.assertCursorAt(100, 0);
+  cm.refresh();
+  helpers.doKeys('<C-f>');
+  cm.refresh();
+  helpers.assertCursorAt(110, 0);
+
+  helpers.doKeys('<C-b>');
+  cm.refresh();
+  helpers.assertCursorAt(100, 0);
+  eq(value, cm.getValue());
+});
 testVim('HML', function(cm, vim, helpers) {
   cm.refresh();
   var lines = 35;
@@ -3706,28 +3743,31 @@ testVim('zt==z<CR>', function(cm, vim, helpers){
   eq(zVals[2], zVals[5]);
 });
 testVim('zt_no_cursor_change', function(cm, vim, helpers){
-  var cursorIndexes = cursorIndexVals[2]
+  var cursorIndexes = cursorIndexVals[2];
   eq(cursorIndexes.before, cursorIndexes.after);
 });
 testVim('z<CR>_cursor_change', function(cm, vim, helpers){
-  var cursorIndexes = cursorIndexVals[5]
-  notEq(cursorIndexes.before, cursorIndexes.after);
+  var cursorIndexes = cursorIndexVals[5];
+  eq(cursorIndexes.before, 751);
+  eq(cursorIndexes.after, 750);
 });
 testVim('zz_no_cursor_change', function(cm, vim, helpers){
-  var cursorIndexes = cursorIndexVals[1]
+  var cursorIndexes = cursorIndexVals[1];
   eq(cursorIndexes.before, cursorIndexes.after);
 });
 testVim('z._cursor_change', function(cm, vim, helpers){
-  var cursorIndexes = cursorIndexVals[4]
-  notEq(cursorIndexes.before, cursorIndexes.after);
+  var cursorIndexes = cursorIndexVals[4];
+  eq(cursorIndexes.before, 751);
+  eq(cursorIndexes.after, 750);
 });
 testVim('zb_no_cursor_change', function(cm, vim, helpers){
-  var cursorIndexes = cursorIndexVals[0]
+  var cursorIndexes = cursorIndexVals[0];
   eq(cursorIndexes.before, cursorIndexes.after);
 });
 testVim('z-_cursor_change', function(cm, vim, helpers){
-  var cursorIndexes = cursorIndexVals[3]
-  notEq(cursorIndexes.before, cursorIndexes.after);
+  var cursorIndexes = cursorIndexVals[3];
+  eq(cursorIndexes.before, 751);
+  eq(cursorIndexes.after, 750);
 });
 
 var moveTillCharacterSandbox =
@@ -3779,16 +3819,21 @@ var scrollMotionSandbox =
   '\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n';
 testVim('scrollMotion', function(cm, vim, helpers){
   var prevCursor, prevScrollInfo;
+  cm.setSize(320, 200);
   cm.setCursor(0, 0);
+  cm.refresh();
   // ctrl-y at the top of the file should have no effect.
   helpers.doKeys('<C-y>');
   eq(0, cm.getCursor().line);
+  cm.refresh();
   prevScrollInfo = cm.getScrollInfo();
   helpers.doKeys('<C-e>');
   eq(1, cm.getCursor().line);
+  cm.refresh();
   is(prevScrollInfo.top < cm.getScrollInfo().top);
   // Jump to the end of the sandbox.
   cm.setCursor(1000, 0);
+  cm.refresh();
   prevCursor = cm.getCursor();
   // ctrl-e at the bottom of the file should have no effect.
   helpers.doKeys('<C-e>');
@@ -5120,22 +5165,29 @@ var typeKey = function() {
     Backquote: [192, "`", "~"], Minus: [189, "-", "_"], Equal: [187, "=", "+"],
     BracketLeft: [219, "[", "{"], Backslash: [220, "\\", "|"], BracketRight: [221, "]", "}"],
     Semicolon: [186, ";", ":"], Quote: [222, "'", '"'], Comma: [188, ",", "<"],
-    Period: [190, ".", ">"], Slash: [191, "/", "?"], Space: [32, " "], NumpadAdd: [107, "+"],
+    Period: [190, ".", ">"], Slash: [191, "/", "?"], Space: [32, " ", " "], NumpadAdd: [107, "+"],
     NumpadDecimal: [110, "."], NumpadSubtract: [109, "-"], NumpadDivide: [111, "/"], NumpadMultiply: [106, "*"]
   };
   for (var i in specialKeys) {
     var key = specialKeys[i];
     printableKeys[i] = printableKeys[key[1]] = shiftedKeys[key[2]] = key[0];
     keyCodeToCode[key[0]] = i;
+    keyCodeToKey[key[0]] = key[1];
+    keyCodeToKey["s-" + key[0]] = key[2];
   }
   for (var i = 0; i < 10; i++) {
-    printableKeys[i] = shiftedKeys["!@#$%^&*()"[i]] = 48 + i;
+    var shifted = "!@#$%^&*()"[i];
+    printableKeys[i] = shiftedKeys[shifted] = 48 + i;
     keyCodeToCode[48 + i] = "Digit" + i;
+    keyCodeToKey[48 + i] = i.toString();
+    keyCodeToKey["s-" + (48 + i)] = shifted;
   }
-  for (var i = 65; i < 90; i++) {
+  for (var i = 65; i < 91; i++) {
     var chr = String.fromCharCode(i + 32);
     printableKeys[chr] = shiftedKeys[chr.toUpperCase()] = i;
     keyCodeToCode[i] = "Key" + chr.toUpperCase();
+    keyCodeToKey[i] = chr;
+    keyCodeToKey["s-" + i] = chr.toUpperCase();
   }
   for (var i = 1; i < 13; i++) {
     controlKeys["F" + i] = 111 + i;
@@ -5145,6 +5197,7 @@ var typeKey = function() {
     keyCodeToKey[controlKeys[i]] = i;
     keyCodeToCode[controlKeys[i]] = i;
   }
+  controlKeys["\t"] = controlKeys.Tab;
   controlKeys["\n"] = controlKeys.Return;
   controlKeys.Del = controlKeys.Delete;
   controlKeys.Esc = controlKeys.Escape;
@@ -5178,6 +5231,10 @@ var typeKey = function() {
       isTextInput = false;
     } else if (shift) {
       text = text.toUpperCase();
+    } 
+    
+    if (keyCodeToKey[keyCode] != text && keyCodeToKey["s-" + keyCode] == text) {
+      shift = true;
     }
 
     var target = document.activeElement;
@@ -5204,11 +5261,11 @@ var typeKey = function() {
       data.charCode = text.charCodeAt(0);
       data.keyCode = type == "keypress" ? data.charCode : keyCode;
       data.which = data.keyCode;
-      data.shiftKey = shift || shiftedKeys[text];
+      data.shiftKey = shift || (shiftedKeys[text] && !printableKeys[text]);
       data.ctrlKey = ctrl;
       data.altKey = alt;
       data.metaKey = meta;
-      data.key = text || keyCodeToKey[keyCode];
+      data.key = keyCodeToKey[(shift ? "s-" : "") + keyCode] || console.error(text);
       data.code = keyCodeToCode[keyCode];
       var event = new KeyboardEvent(type, data);
 
@@ -5221,6 +5278,7 @@ var typeKey = function() {
         text = "\n";
       }
       if (target._handleInputEventForTest) {
+        if (!isTextInput) return;
         return target._handleInputEventForTest(text);
       }
       var isTextarea = "selectionStart" in target && typeof target.value == "string";
