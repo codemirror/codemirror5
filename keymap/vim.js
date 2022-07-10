@@ -87,6 +87,8 @@
     { keys: '<C-c>', type: 'keyToKey', toKeys: '<Esc>' },
     { keys: '<C-[>', type: 'keyToKey', toKeys: '<Esc>', context: 'insert' },
     { keys: '<C-c>', type: 'keyToKey', toKeys: '<Esc>', context: 'insert' },
+    { keys: '<C-Esc>', type: 'keyToKey', toKeys: '<Esc>' }, // ipad keyboard sends C-Esc instead of C-[
+    { keys: '<C-Esc>', type: 'keyToKey', toKeys: '<Esc>', context: 'insert' },
     { keys: 's', type: 'keyToKey', toKeys: 'cl', context: 'normal' },
     { keys: 's', type: 'keyToKey', toKeys: 'c', context: 'visual'},
     { keys: 'S', type: 'keyToKey', toKeys: 'cc', context: 'normal' },
@@ -716,7 +718,7 @@
     }
 
     var lastInsertModeKeyTimer;
-    var vimApi= {
+    var vimApi = {
       buildKeyMap: function() {
         // TODO: Convert keymap into dictionary format for fast lookup.
       },
@@ -943,9 +945,10 @@
           var match = commandDispatcher.matchCommand(mainKey, defaultKeymap, vim.inputState, context);
           if (match.type == 'none') { clearInputState(cm); return false; }
           else if (match.type == 'partial') { return true; }
+          else if (match.type == 'clear') { clearInputState(cm); return true; }
 
           vim.inputState.keyBuffer = '';
-          var keysMatcher = /^(\d*)(.*)$/.exec(keys);
+          keysMatcher = /^(\d*)(.*)$/.exec(keys);
           if (keysMatcher[1] && keysMatcher[1] != '0') {
             vim.inputState.pushRepeatDigit(keysMatcher[1]);
           }
@@ -1247,7 +1250,7 @@
         }
         if (bestMatch.keys.slice(-11) == '<character>') {
           var character = lastChar(keys);
-          if (!character) return {type: 'none'};
+          if (!character || character.length > 1) return {type: 'clear'};
           inputState.selectedCharacter = character;
         }
         return {type: 'full', command: bestMatch};
@@ -1491,6 +1494,7 @@
           vimGlobalState.exCommandHistoryController.pushInput(input);
           vimGlobalState.exCommandHistoryController.reset();
           exCommandDispatcher.processCommand(cm, input);
+          clearInputState(cm);
         }
         function onPromptKeyDown(e, input, close) {
           var keyName = CodeMirror.keyName(e), up, offset;
@@ -2011,7 +2015,7 @@
         }
         var orig = cm.charCoords(head, 'local');
         motionArgs.repeat = repeat;
-        var curEnd = motions.moveByDisplayLines(cm, head, motionArgs, vim);
+        curEnd = motions.moveByDisplayLines(cm, head, motionArgs, vim);
         if (!curEnd) {
           return null;
         }
@@ -2302,22 +2306,30 @@
       },
       indent: function(cm, args, ranges) {
         var vim = cm.state.vim;
-        var startLine = ranges[0].anchor.line;
-        var endLine = vim.visualBlock ?
-          ranges[ranges.length - 1].anchor.line :
-          ranges[0].head.line;
-        // In visual mode, n> shifts the selection right n times, instead of
-        // shifting n lines right once.
-        var repeat = (vim.visualMode) ? args.repeat : 1;
-        if (args.linewise) {
-          // The only way to delete a newline is to delete until the start of
-          // the next line, so in linewise mode evalInput will include the next
-          // line. We don't want this in indent, so we go back a line.
-          endLine--;
-        }
-        for (var i = startLine; i <= endLine; i++) {
+        if (cm.indentMore) {
+          var repeat = (vim.visualMode) ? args.repeat : 1;
           for (var j = 0; j < repeat; j++) {
-            cm.indentLine(i, args.indentRight);
+            if (args.indentRight) cm.indentMore();
+            else cm.indentLess();
+          }
+        } else {
+          var startLine = ranges[0].anchor.line;
+          var endLine = vim.visualBlock ?
+            ranges[ranges.length - 1].anchor.line :
+            ranges[0].head.line;
+          // In visual mode, n> shifts the selection right n times, instead of
+          // shifting n lines right once.
+          var repeat = (vim.visualMode) ? args.repeat : 1;
+          if (args.linewise) {
+            // The only way to delete a newline is to delete until the start of
+            // the next line, so in linewise mode evalInput will include the next
+            // line. We don't want this in indent, so we go back a line.
+            endLine--;
+          }
+          for (var i = startLine; i <= endLine; i++) {
+            for (var j = 0; j < repeat; j++) {
+              cm.indentLine(i, args.indentRight);
+            }
           }
         }
         return motions.moveToFirstNonWhiteSpaceCharacter(cm, ranges[0].anchor);
@@ -4481,7 +4493,7 @@
     }
 
     function showConfirm(cm, template) {
-      var pre = dom('pre', {$color: 'red', class: 'cm-vim-message'}, template);
+      var pre = dom('div', {$color: 'red', $whiteSpace: 'pre', class: 'cm-vim-message'}, template);
       if (cm.openNotification) {
         cm.openNotification(pre, {bottom: true, duration: 5000});
       } else {

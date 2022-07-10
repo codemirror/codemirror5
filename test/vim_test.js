@@ -1,7 +1,7 @@
 var Pos = CodeMirror.Pos;
 CodeMirror.Vim.suppressErrorLogging = true;
 
-var isOldCodeMirror = /^5/.test(CodeMirror.version);
+var isOldCodeMirror = /^5\./.test(CodeMirror.version);
 
 var code = '' +
 ' wOrd1 (#%\n' +
@@ -4891,6 +4891,31 @@ testVim('noremap_map_interaction2', function(cm, vim, helpers) {
   // unmap all mappings
   CodeMirror.Vim.mapclear();
 }, { value: 'wOrd1\nwOrd2' });
+
+testVim('updateStatus', function(cm, vim, helpers) {
+  var keys = '';
+  CodeMirror.on(cm, 'vim-keypress', function(key) {
+    keys = keys + key;
+  });
+  CodeMirror.on(cm, 'vim-command-done', function(e) {
+    keys = '';
+  });
+  helpers.doKeys('d');
+  eq(keys, 'd');
+  helpers.doKeys('/', 'match', '\n');
+  eq(keys, '');
+  helpers.assertCursorAt(0, 0);
+  helpers.doKeys('d');
+  eq(keys, 'd');
+  helpers.doKeys('/', '<Esc>');
+  eq(keys, '');
+  helpers.doKeys('d');
+  eq(keys, 'd');
+  helpers.doKeys(':');
+  eq(keys, 'd:');
+  helpers.doKeys('<Esc>');
+  eq(keys, '');
+}, { value: 'text match match \n next' });
 
 // Test event handlers
 testVim('beforeSelectionChange', function(cm, vim, helpers) {
