@@ -719,6 +719,7 @@
 
     var lastInsertModeKeyTimer;
     var vimApi = {
+      enterVimMode: enterVimMode,
       buildKeyMap: function() {
         // TODO: Convert keymap into dictionary format for fast lookup.
       },
@@ -840,6 +841,8 @@
           return command();
         }
       },
+      multiSelectHandleKey: multiSelectHandleKey,
+
       /**
        * This is the outermost function called by CodeMirror, after keys have
        * been mapped to their Vim equivalents.
@@ -5894,6 +5897,73 @@
       }
     }
 
+    // multiselect support
+    function cloneVimState(state) {
+      var n = new state.constructor();
+      Object.keys(state).forEach(function(key) {
+        var o = state[key];
+        if (Array.isArray(o))
+          o = o.slice();
+        else if (o && typeof o == "object" && o.constructor != Object)
+          o = cloneVimState(o);
+        n[key] = o;
+      });
+      if (state.sel) {
+        n.sel = {
+          head: state.sel.head && copyCursor(state.sel.head),
+          anchor: state.sel.anchor && copyCursor(state.sel.anchor)
+        };
+      }
+      return n;
+    }
+    function multiSelectHandleKey(cm, key, origin) {
+      var isHandled = false;
+      var vim = vimApi.maybeInitVimState_(cm);
+      var visualBlock = vim.visualBlock || vim.wasInVisualBlock;
+
+      var wasMultiselect = cm.isInMultiSelectMode();
+      if (vim.wasInVisualBlock && !wasMultiselect) {
+        vim.wasInVisualBlock = false;
+      } else if (wasMultiselect && vim.visualBlock) {
+         vim.wasInVisualBlock = true;
+      }
+
+      if (key == '<Esc>' && !vim.insertMode && !vim.visualMode && wasMultiselect && vim.status == "<Esc>") {
+        // allow editor to exit multiselect
+        clearInputState(cm);
+      } else if (visualBlock || !wasMultiselect || cm.inVirtualSelectionMode) {
+        isHandled = vimApi.handleKey(cm, key, origin);
+      } else {
+        var old = cloneVimState(vim);
+
+        cm.operation(function() {
+          cm.curOp.isVimOp = true;
+          cm.forEachSelection(function() {
+            var head = cm.getCursor("head");
+            var anchor = cm.getCursor("anchor");
+            var headOffset = !cursorIsBefore(head, anchor) ? -1 : 0;
+            var anchorOffset = cursorIsBefore(head, anchor) ? -1 : 0;
+            head = offsetCursor(head, 0, headOffset);
+            anchor = offsetCursor(anchor, 0, anchorOffset);
+            cm.state.vim.sel.head = head;
+            cm.state.vim.sel.anchor = anchor;
+
+            isHandled = vimApi.handleKey(cm, key, origin);
+            if (cm.virtualSelection) {
+              cm.state.vim = cloneVimState(old);
+            }
+          });
+          if (cm.curOp.cursorActivity && !isHandled)
+            cm.curOp.cursorActivity = false;
+          cm.state.vim = vim
+        }, true);
+      }
+      // some commands may bring visualMode and selection out of sync
+      if (isHandled && !vim.visualMode && !vim.insert && vim.visualMode != cm.somethingSelected()) {
+        handleExternalSelection(cm, vim, true);
+      }
+      return isHandled;
+    }
     resetVimGlobalState();
     return vimApi;
   };
