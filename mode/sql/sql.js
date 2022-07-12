@@ -43,7 +43,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
       (((ch == "b" || ch == "B") && stream.match(/^'[01]+'/))
       || (ch == "0" && stream.match(/^b[01]+/)))) {
       // bitstring
-      // ref: http://dev.mysql.com/doc/refman/5.5/en/bit-field-literals.html
+      // ref: https://dev.mysql.com/doc/refman/8.0/en/bit-value-literals.html
       return "number";
     } else if (ch.charCodeAt(0) > 47 && ch.charCodeAt(0) < 58) {
       // numbers
@@ -489,7 +489,11 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     A list of supported syntaxes which are not common, but are supported by more than 1 DBMS.
     * ODBCdotTable: .tableName
     * zerolessFloat: .1
-    * doubleQuote
+    * decimallessFloat: 1.
+    * hexNumber: X'01AF' X'01af' x'01AF' x'01af' 0x01AF 0x01af
+    * binaryNumber: b'01' B'01' 0b01
+    * doubleQuote: "string"
+    * escapeConstant: E''
     * nCharCast: N'string'
     * charsetCast: _utf8'string'
     * commentHash: use # char for comments
