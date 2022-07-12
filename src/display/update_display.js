@@ -2,7 +2,7 @@ import { sawCollapsedSpans } from "../line/saw_special_spans.js"
 import { heightAtLine, visualLineEndNo, visualLineNo } from "../line/spans.js"
 import { getLine, lineNumberFor } from "../line/utils_line.js"
 import { displayHeight, displayWidth, getDimensions, paddingVert, scrollGap } from "../measurement/position_measurement.js"
-import { mac, webkit } from "../util/browser.js"
+import { mac, webkit, chrome } from "../util/browser.js"
 import { activeElt, removeChildren, contains } from "../util/dom.js"
 import { hasHandler, signal } from "../util/event.js"
 import { signalLater } from "../util/operation_group.js"
@@ -94,6 +94,11 @@ export function updateDisplayIfNeeded(cm, update) {
 
   if (update.editorIsHidden) {
     resetView(cm)
+    return false
+  }
+
+  // Bail out if there is a touch event in progress on chrome. Fixes https://github.com/codemirror/CodeMirror/issues/5844
+  if (chrome && cm.activeTouch !== null && !update.force) {
     return false
   }
 
