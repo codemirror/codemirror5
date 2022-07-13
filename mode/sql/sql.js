@@ -35,19 +35,19 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
 
     if (support.hexNumber &&
       ((ch == "0" && stream.match(/^[xX][0-9a-fA-F]+/))
-      || (ch == "x" || ch == "X") && stream.match(/^'[0-9a-fA-F]+'/))) {
+      || (ch == "x" || ch == "X") && stream.match(/^'[0-9a-fA-F]*'/))) {
       // hex
-      // ref: http://dev.mysql.com/doc/refman/5.5/en/hexadecimal-literals.html
+      // ref: https://dev.mysql.com/doc/refman/8.0/en/hexadecimal-literals.html
       return "number";
     } else if (support.binaryNumber &&
-      (((ch == "b" || ch == "B") && stream.match(/^'[01]+'/))
+      (((ch == "b" || ch == "B") && stream.match(/^'[01]*'/))
       || (ch == "0" && stream.match(/^b[01]+/)))) {
       // bitstring
       // ref: https://dev.mysql.com/doc/refman/8.0/en/bit-value-literals.html
       return "number";
     } else if (ch.charCodeAt(0) > 47 && ch.charCodeAt(0) < 58) {
       // numbers
-      // ref: http://dev.mysql.com/doc/refman/5.5/en/number-literals.html
+      // ref: https://dev.mysql.com/doc/refman/8.0/en/number-literals.html
       stream.match(/^[0-9]*(\.[0-9]+)?([eE][-+]?[0-9]+)?/);
       support.decimallessFloat && stream.match(/^\.(?!\.)/);
       return "number";
@@ -56,14 +56,14 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
       return "variable-3";
     } else if (ch == "'" || (ch == '"' && support.doubleQuote)) {
       // strings
-      // ref: http://dev.mysql.com/doc/refman/5.5/en/string-literals.html
+      // ref: https://dev.mysql.com/doc/refman/8.0/en/string-literals.html
       state.tokenize = tokenLiteral(ch);
       return state.tokenize(stream, state);
     } else if ((((support.nCharCast && (ch == "n" || ch == "N"))
         || (support.charsetCast && ch == "_" && stream.match(/[a-z][a-z0-9]*/i)))
         && (stream.peek() == "'" || stream.peek() == '"'))) {
       // charset casting: _utf8'str', N'str', n'str'
-      // ref: http://dev.mysql.com/doc/refman/5.5/en/string-literals.html
+      // ref: https://dev.mysql.com/doc/refman/8.0/en/string-literals.html
       return "keyword";
     } else if (support.escapeConstant && (ch == "e" || ch == "E")
         && (stream.peek() == "'" || (stream.peek() == '"' && support.doubleQuote))) {
@@ -95,7 +95,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
       if (stream.match(/^\.+/))
         return null
       // .table_name (ODBC)
-      // // ref: http://dev.mysql.com/doc/refman/5.6/en/identifier-qualifiers.html
+      // // ref: https://dev.mysql.com/doc/refman/8.0/en/identifier-qualifiers.html
       if (support.ODBCdotTable && stream.match(/^[\w\d_$#]+/))
         return "variable-2";
     } else if (operatorChars.test(ch)) {
@@ -112,13 +112,13 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     } else if (ch == '{' &&
         (stream.match(/^( )*(d|D|t|T|ts|TS)( )*'[^']*'( )*}/) || stream.match(/^( )*(d|D|t|T|ts|TS)( )*"[^"]*"( )*}/))) {
       // dates (weird ODBC syntax)
-      // ref: http://dev.mysql.com/doc/refman/5.5/en/date-and-time-literals.html
+      // ref: https://dev.mysql.com/doc/refman/8.0/en/date-and-time-literals.html
       return "number";
     } else {
       stream.eatWhile(/^[_\w\d]/);
       var word = stream.current().toLowerCase();
       // dates (standard SQL syntax)
-      // ref: http://dev.mysql.com/doc/refman/5.5/en/date-and-time-literals.html
+      // ref: https://dev.mysql.com/doc/refman/8.0/en/date-and-time-literals.html
       if (dateSQL.hasOwnProperty(word) && (stream.match(/^( )+'[^']*'/) || stream.match(/^( )+"[^"]*"/)))
         return "number";
       if (atoms.hasOwnProperty(word)) return "atom";
@@ -214,7 +214,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
   // `identifier`
   function hookIdentifier(stream) {
     // MySQL/MariaDB identifiers
-    // ref: http://dev.mysql.com/doc/refman/5.6/en/identifier-qualifiers.html
+    // ref: https://dev.mysql.com/doc/refman/8.0/en/identifier-qualifiers.html
     var ch;
     while ((ch = stream.next()) != null) {
       if (ch == "`" && !stream.eat("`")) return "variable-2";
@@ -241,7 +241,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     // variables
     // @@prefix.varName @varName
     // varName can be quoted with ` or ' or "
-    // ref: http://dev.mysql.com/doc/refman/5.5/en/user-variables.html
+    // ref: https://dev.mysql.com/doc/refman/8.0/en/user-variables.html
     if (stream.eat("@")) {
       stream.match('session.');
       stream.match('local.');
@@ -266,12 +266,12 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
   // short client keyword token
   function hookClient(stream) {
     // \N means NULL
-    // ref: http://dev.mysql.com/doc/refman/5.5/en/null-values.html
+    // ref: https://dev.mysql.com/doc/refman/8.0/en/null-values.html
     if (stream.eat("N")) {
         return "atom";
     }
     // \g, etc
-    // ref: http://dev.mysql.com/doc/refman/5.5/en/mysql-commands.html
+    // ref: https://dev.mysql.com/doc/refman/8.0/en/mysql-commands.html
     return stream.match(/^[a-zA-Z.#!?]/) ? "variable-2" : null;
   }
 
@@ -287,7 +287,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
 
   var defaultBuiltin = "bool boolean bit blob enum long longblob longtext medium mediumblob mediumint mediumtext time timestamp tinyblob tinyint tinytext text bigint int int1 int2 int3 int4 int8 integer float float4 float8 double char varbinary varchar varcharacter precision real date datetime year unsigned signed decimal numeric"
 
-  // A generic SQL Mode. It's not a standard, it just try to support what is generally supported
+  // A generic SQL Mode. It's not a standard, it just tries to support what is generally supported
   CodeMirror.defineMIME("text/x-sql", {
     name: "sql",
     keywords: set(sqlKeywords + "begin"),
