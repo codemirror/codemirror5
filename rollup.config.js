@@ -1,4 +1,13 @@
 import buble from '@rollup/plugin-buble';
+import fs from "fs";
+
+function copy(from, to) {
+  let data = fs.readFileSync(from);
+  fs.writeFileSync(to, data);
+}
+
+copy(require.resolve("cm5-vim/vim.js"), "./keymap/vim.js");
+copy(require.resolve("cm5-vim/vim_test.js"), "./test/vim_test.js");
 
 export default [
   {
