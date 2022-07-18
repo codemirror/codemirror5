@@ -73,7 +73,7 @@ export function onMouseDown(e) {
   }
   if (clickInGutter(cm, e)) return
   let pos = posFromMouse(cm, e), button = e_button(e), repeat = pos ? clickRepeat(pos, button) : "single"
-  window.focus()
+  display.wrapper.ownerDocument.defaultView.focus()
 
   // #3261: make sure, that we're not starting a second selection
   if (button == 1 && cm.state.selectingText)
