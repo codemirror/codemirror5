@@ -6,10 +6,6 @@ let copyVim = copy({
     { 
       src: require.resolve("cm5-vim/vim.js").replace(/\\/g,  "/"), 
       dest: "./keymap" 
-    },
-    {
-      src: require.resolve("cm5-vim/vim_test.js").replace(/\\/g,  "/"), 
-      dest: "./test" 
     }
   ]
 });
