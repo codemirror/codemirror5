@@ -16,8 +16,9 @@ export function maybeScrollWindow(cm, rect) {
   if (signalDOMEvent(cm, "scrollCursorIntoView")) return
 
   let display = cm.display, box = display.sizer.getBoundingClientRect(), doScroll = null
+  let doc = display.wrapper.ownerDocument
   if (rect.top + box.top < 0) doScroll = true
-  else if (rect.bottom + box.top > (window.innerHeight || document.documentElement.clientHeight)) doScroll = false
+  else if (rect.bottom + box.top > (doc.defaultView.innerHeight || doc.documentElement.clientHeight)) doScroll = false
   if (doScroll != null && !phantom) {
     let scrollNode = elt("div", "\u200b", null, `position: absolute;
                          top: ${rect.top - display.viewOffset - paddingTop(cm.display)}px;

@@ -96,7 +96,7 @@ export default class ContentEditableInput {
       let kludge = hiddenTextarea(), te = kludge.firstChild
       cm.display.lineSpace.insertBefore(kludge, cm.display.lineSpace.firstChild)
       te.value = lastCopied.text.join("\n")
-      let hadFocus = activeElt()
+      let hadFocus = activeElt(div.ownerDocument)
       selectInput(te)
       setTimeout(() => {
         cm.display.lineSpace.removeChild(kludge)
@@ -119,7 +119,7 @@ export default class ContentEditableInput {
 
   prepareSelection() {
     let result = prepareSelection(this.cm, false)
-    result.focus = activeElt() == this.div
+    result.focus = activeElt(this.div.ownerDocument) == this.div
     return result
   }
 
@@ -213,7 +213,7 @@ export default class ContentEditableInput {
 
   focus() {
     if (this.cm.options.readOnly != "nocursor") {
-      if (!this.selectionInEditor() || activeElt() != this.div)
+      if (!this.selectionInEditor() || activeElt(this.div.ownerDocument) != this.div)
         this.showSelection(this.prepareSelection(), true)
       this.div.focus()
     }

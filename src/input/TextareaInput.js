@@ -177,7 +177,7 @@ export default class TextareaInput {
   supportsTouch() { return false }
 
   focus() {
-    if (this.cm.options.readOnly != "nocursor" && (!mobile || activeElt() != this.textarea)) {
+    if (this.cm.options.readOnly != "nocursor" && (!mobile || activeElt(this.textarea.ownerDocument) != this.textarea)) {
       try { this.textarea.focus() }
       catch (e) {} // IE8 will throw if the textarea is display: none or not in DOM
     }
@@ -299,9 +299,9 @@ export default class TextareaInput {
       z-index: 1000; background: ${ie ? "rgba(255, 255, 255, .05)" : "transparent"};
       outline: none; border-width: 0; outline: none; overflow: hidden; opacity: .05; filter: alpha(opacity=5);`
     let oldScrollY
-    if (webkit) oldScrollY = window.scrollY // Work around Chrome issue (#2712)
+    if (webkit) oldScrollY = te.ownerDocument.defaultView.scrollY // Work around Chrome issue (#2712)
     display.input.focus()
-    if (webkit) window.scrollTo(null, oldScrollY)
+    if (webkit) te.ownerDocument.defaultView.scrollTo(null, oldScrollY)
     display.input.reset()
     // Adds "Select all" to context menu in FF
     if (!cm.somethingSelected()) te.value = input.prevInput = " "

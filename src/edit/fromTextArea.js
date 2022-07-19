@@ -13,7 +13,7 @@ export function fromTextArea(textarea, options) {
   // Set autofocus to true if this textarea is focused, or if it has
   // autofocus and no other element is focused.
   if (options.autofocus == null) {
-    let hasFocus = activeElt()
+    let hasFocus = activeElt(textarea.ownerDocument)
     options.autofocus = hasFocus == textarea ||
       textarea.getAttribute("autofocus") != null && hasFocus == document.body
   }

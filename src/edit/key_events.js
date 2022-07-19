@@ -3,7 +3,7 @@ import { restartBlink } from "../display/selection.js"
 import { isModifierKey, keyName, lookupKey } from "../input/keymap.js"
 import { eventInWidget } from "../measurement/widgets.js"
 import { ie, ie_version, mac, presto, gecko } from "../util/browser.js"
-import { activeElt, addClass, rmClass } from "../util/dom.js"
+import { activeElt, addClass, rmClass, doc } from "../util/dom.js"
 import { e_preventDefault, off, on, signalDOMEvent } from "../util/event.js"
 import { hasCopyEvent } from "../util/feature_detection.js"
 import { Delayed, Pass } from "../util/misc.js"
@@ -107,7 +107,7 @@ let lastStoppedKey = null
 export function onKeyDown(e) {
   let cm = this
   if (e.target && e.target != cm.display.input.getField()) return
-  cm.curOp.focus = activeElt()
+  cm.curOp.focus = activeElt(doc(cm))
   if (signalDOMEvent(cm, e)) return
   // IE does strange things with escape.
   if (ie && ie_version < 11 && e.keyCode == 27) e.returnValue = false

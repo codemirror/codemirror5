@@ -64,15 +64,15 @@ export function contains(parent, child) {
   } while (child = child.parentNode)
 }
 
-export function activeElt() {
+export function activeElt(doc) {
   // IE and Edge may throw an "Unspecified Error" when accessing document.activeElement.
   // IE < 10 will throw when accessed while the page is loading or in an iframe.
   // IE > 9 and Edge will throw when accessed in an iframe if document.body is unavailable.
   let activeElement
   try {
-    activeElement = document.activeElement
+    activeElement = doc.activeElement
   } catch(e) {
-    activeElement = document.body || null
+    activeElement = doc.body || null
   }
   while (activeElement && activeElement.shadowRoot && activeElement.shadowRoot.activeElement)
     activeElement = activeElement.shadowRoot.activeElement
@@ -95,3 +95,7 @@ if (ios) // Mobile Safari apparently has a bug where select() is broken.
   selectInput = function(node) { node.selectionStart = 0; node.selectionEnd = node.value.length }
 else if (ie) // Suppress mysterious IE10 errors
   selectInput = function(node) { try { node.select() } catch(_e) {} }
+
+export function doc(cm) { return cm.display.wrapper.ownerDocument.defaultView }
+
+export function win(cm) { return doc(cm).defaultView }
