@@ -77,7 +77,7 @@ function restoreSelection(snapshot) {
   snapshot.activeElt.focus()
   if (!/^(INPUT|TEXTAREA)$/.test(snapshot.activeElt.nodeName) &&
       snapshot.anchorNode && contains(document.body, snapshot.anchorNode) && contains(document.body, snapshot.focusNode)) {
-    let doc = shapshot.activeElt.ownerDocument
+    let doc = snapshot.activeElt.ownerDocument
     let sel = doc.defaultView.getSelection(), range = doc.createRange()
     range.setEnd(snapshot.anchorNode, snapshot.anchorOffset)
     range.collapse(false)
