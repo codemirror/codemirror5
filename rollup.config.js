@@ -1,13 +1,18 @@
 import buble from '@rollup/plugin-buble';
-import fs from "fs";
+import copy from 'rollup-plugin-copy'
 
-function copy(from, to) {
-  let data = fs.readFileSync(from);
-  fs.writeFileSync(to, data);
-}
-
-copy(require.resolve("cm5-vim/vim.js"), "./keymap/vim.js");
-copy(require.resolve("cm5-vim/vim_test.js"), "./test/vim_test.js");
+let copyVim = copy({
+  targets: [
+    { 
+      src: require.resolve("cm5-vim/vim.js").replace(/\\/g,  "/"), 
+      dest: "./keymap" 
+    },
+    {
+      src: require.resolve("cm5-vim/vim_test.js").replace(/\\/g,  "/"), 
+      dest: "./test" 
+    }
+  ]
+});
 
 export default [
   {
@@ -26,7 +31,7 @@ export default [
       file: "lib/codemirror.js",
       name: "CodeMirror"
     },
-    plugins: [ buble({namedFunctionExpressions: false}) ]
+    plugins: [ buble({namedFunctionExpressions: false}), copyVim ]
   },
   {
     input: ["src/addon/runmode/runmode-standalone.js"],
