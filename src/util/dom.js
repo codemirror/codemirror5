@@ -96,6 +96,6 @@ if (ios) // Mobile Safari apparently has a bug where select() is broken.
 else if (ie) // Suppress mysterious IE10 errors
   selectInput = function(node) { try { node.select() } catch(_e) {} }
 
-export function doc(cm) { return cm.display.wrapper.ownerDocument.defaultView }
+export function doc(cm) { return cm.display.wrapper.ownerDocument }
 
 export function win(cm) { return doc(cm).defaultView }
