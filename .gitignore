@@ -1,6 +1,7 @@
 /node_modules
 /npm-debug.log
 /package-lock.json
+/keymap/vim.js
 /test*.html
 .tern-*
 *~
