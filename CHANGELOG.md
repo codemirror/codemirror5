@@ -1,3 +1,13 @@
+## 5.65.7 (2022-07-20)
+
+### Bug fixes
+
+Fix several references to the global `document`/`window`, improving support for creating an editor in another frame.
+
+[vim bindings](https://codemirror.net/5/demo/vim.html): Use [upstream](https://github.com/replit/codemirror-vim/) code instead of keeping our own copy.
+
+[tern addon](https://codemirror.net/5/demo/tern.html): Properly HTML escape variable names in rename dialog.
+
 ## 5.65.6 (2022-06-20)
 
 ### Bug fixes
