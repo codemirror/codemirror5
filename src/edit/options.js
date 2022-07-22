@@ -68,7 +68,7 @@ export function defineOptions(CodeMirror) {
     for (let i = newBreaks.length - 1; i >= 0; i--)
       replaceRange(cm.doc, val, newBreaks[i], Pos(newBreaks[i].line, newBreaks[i].ch + val.length))
   })
-  option("specialChars", /[\u0000-\u001f\u007f-\u009f\u00ad\u061c\u200b\u200e\u200f\u2028\u2029\ufeff\ufff9-\ufffc]/g, (cm, val, old) => {
+  option("specialChars", /[\u0000-\u001f\u007f-\u009f\u00ad\u061c\u200b\u200e\u200f\u2028\u2029\u202d\u202e\u2066\u2067\u2069\ufeff\ufff9-\ufffc]/g, (cm, val, old) => {
     cm.state.specialChars = new RegExp(val.source + (val.test("\t") ? "" : "|\t"), "g")
     if (old != Init) cm.refresh()
   })
