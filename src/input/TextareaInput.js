@@ -28,6 +28,7 @@ export default class TextareaInput {
     // Used to work around IE issue with selection being forgotten when focus moves away from textarea
     this.hasSelection = false
     this.composing = null
+    this.resetting = false
   }
 
   init(display) {
@@ -158,8 +159,9 @@ export default class TextareaInput {
   // Reset the input to correspond to the selection (or to be empty,
   // when not typing and nothing is selected)
   reset(typing) {
-    if (this.contextMenuPending || this.composing) return
+    if (this.contextMenuPending || this.composing && typing) return
     let cm = this.cm
+    this.resetting = true
     if (cm.somethingSelected()) {
       this.prevInput = ""
       let content = cm.getSelection()
@@ -170,6 +172,7 @@ export default class TextareaInput {
       this.prevInput = this.textarea.value = ""
       if (ie && ie_version >= 9) this.hasSelection = null
     }
+    this.resetting = false
   }
 
   getField() { return this.textarea }
@@ -227,7 +230,7 @@ export default class TextareaInput {
     // possible when it is clear that nothing happened. hasSelection
     // will be the case when there is a lot of text in the textarea,
     // in which case reading its value would be expensive.
-    if (this.contextMenuPending || !cm.state.focused ||
+    if (this.contextMenuPending || this.resetting || !cm.state.focused ||
         (hasSelection(input) && !prevInput && !this.composing) ||
         cm.isReadOnly() || cm.options.disableInput || cm.state.keySeq)
       return false
