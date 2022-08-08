@@ -839,6 +839,7 @@
     var out = copy ? Pos(pos.line, pos.ch) : pos, at = 0;
     for (;;) {
       var nl = str.indexOf("\n", at);
+      nl = nl === -1 ? str.indexOf("\r", at) : nl;
       if (nl == -1) break;
       ++out.line;
       if (other) ++other.line;
