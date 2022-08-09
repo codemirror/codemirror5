@@ -45,6 +45,16 @@
   })
 }}
 {% include (&#39;test.incl.html.twig&#39;) %}
+
+# for item in seq:
+    &lt;li&gt;{{ item }} &lt;/li&gt;    ## this comment is ignored
+# endfor
+# set text = "Multiline
+	text"
+# for href, caption in [('index.html', 'Index'),
+                        ('about.html', 'About')]:
+    &lt;li&gt;&lt;a href="{{ href }}"&gt;{{ caption }}&lt;/a&gt;&lt;/li&gt;
+# endfor
 </textarea></form>
     <script>
       var editor =
