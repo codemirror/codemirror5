@@ -94,7 +94,7 @@
         else if (ch == "[") {
           stream.next()
           state.inbrackets++;
-        }        
+        }
         else if (!state.lineTag && (stream.match(state.intag + "}") || stream.eat("-") && stream.match(state.intag + "}"))) {        
           state.intag = false;
           return "tag";
