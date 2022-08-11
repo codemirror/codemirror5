@@ -614,7 +614,7 @@
     var gapElts = [lockWrap];
     if (dv.mv.options.revertButtons !== false) {
       dv.copyButtons = elt("div", null, "CodeMirror-merge-copybuttons-" + dv.type);
-      function copyButtons(e) {
+      var copyButtons = function(e) {
         var node = e.target || e.srcElement;
         if (!node.chunk) return;
         if (node.className == "CodeMirror-merge-copy-reverse") {
