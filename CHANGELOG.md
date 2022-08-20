@@ -1,3 +1,15 @@
+## 5.65.8 (2022-08-20)
+
+### Bug fixes
+
+Include direction override and isolate characters in the default set of special characters.
+
+Fix an issue that could cause document corruption when mouse-selecting during composition.
+
+[foldgutter addon](https://codemirror.net/5/doc/manual.html#addon_foldgutter): Refresh markers when the editor's mode changes.
+
+[merge addon](https://codemirror.net/5/doc/manual.html#addon_merge): Fix syntax that prevented the addon from loading in IE10.
+
 ## 5.65.7 (2022-07-20)
 
 ### Bug fixes
