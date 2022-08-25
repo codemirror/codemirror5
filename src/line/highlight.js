@@ -212,6 +212,9 @@ function runMode(cm, text, mode, context, f, lineClasses, forceToEnd) {
   let stream = new StringStream(text, cm.options.tabSize, context), style
   let inner = cm.options.addModeClass && [null]
   if (text == "") extractLineClasses(callBlankLine(mode, context.state), lineClasses)
+  if(text.length>cm.options.maxHighlightLength){
+    stream.pos = text.length;
+  }
   while (!stream.eol()) {
     if (stream.pos > cm.options.maxHighlightLength) {
       flattenSpans = false
