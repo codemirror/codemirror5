@@ -291,7 +291,7 @@
       if (curTop - height > 0) { // Fits above cursor
         hints.style.top = (top = pos.top - height - offsetTop) + "px";
         below = false;
-      } else if (box.top + height > winH) {
+      } else if (height > winH) {
         hints.style.height = (winH - 5) + "px";
         hints.style.top = (top = pos.bottom - box.top - offsetTop) + "px";
         var cursor = cm.getCursor();
@@ -300,6 +300,8 @@
           hints.style.left = (left = pos.left - offsetLeft) + "px";
           box = hints.getBoundingClientRect();
         }
+      } else if (pos.bottom + height > winH) {
+        hints.style.height = (winH - pos.bottom - 5) + "px";
       }
     }
     var overlapX = box.right - winW;
