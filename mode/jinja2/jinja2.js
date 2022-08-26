@@ -79,19 +79,19 @@
           stream.next();
           return "string";
         }
-        else if (state.inbraces > 0 && ch ==")") {
+        else if (state.inbraces != null && state.inbraces > 0 && ch ==")") {
           stream.next()
           state.inbraces--;
         }
-        else if (ch == "(") {
+        else if (state.inbraces != null && ch == "(") {
           stream.next()
           state.inbraces++;
         }
-        else if (state.inbrackets > 0 && ch =="]") {
+        else if (state.inbrackets != null && state.inbrackets > 0 && ch =="]") {
           stream.next()
           state.inbrackets--;
         }
-        else if (ch == "[") {
+        else if (state.inbrackets != null && ch == "[") {
           stream.next()
           state.inbrackets++;
         }
