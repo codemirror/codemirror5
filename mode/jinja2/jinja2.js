@@ -95,7 +95,7 @@
           stream.next()
           state.inbrackets++;
         }
-        else if (!state.lineTag && (stream.match(state.intag + "}") || stream.eat("-") && stream.match(state.intag + "}"))) {        
+        else if (!state.lineTag && (stream.match(state.intag + "}") || stream.eat("-") && stream.match(state.intag + "}"))) {
           state.intag = false;
           return "tag";
         } else if(stream.match(operator)) {
