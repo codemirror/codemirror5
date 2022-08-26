@@ -286,20 +286,14 @@
     setTimeout(function() { startScroll = cm.getScrollInfo(); });
 
     var overlapY = box.bottom - winH;
-    if (overlapY > 0) {
-      var height = box.bottom - box.top, curTop = pos.top - (pos.bottom - box.top);
-      if (curTop - height > 0) { // Fits above cursor
-        hints.style.top = (top = pos.top - height - offsetTop) + "px";
+    if (overlapY > 0) { // Does not fit below
+      var height = box.bottom - box.top, spaceAbove = box.top - (pos.bottom - pos.top) - 2
+      if (winH - box.top < spaceAbove) { // More room at the top
+        if (height > spaceAbove) hints.style.height = (height = spaceAbove) + "px";
+        hints.style.top = ((top = pos.top - height) + offsetTop) + "px";
         below = false;
-      } else if (height > winH) {
-        hints.style.height = (winH - 5) + "px";
-        hints.style.top = (top = pos.bottom - box.top - offsetTop) + "px";
-        var cursor = cm.getCursor();
-        if (data.from.ch != cursor.ch) {
-          pos = cm.cursorCoords(cursor);
-          hints.style.left = (left = pos.left - offsetLeft) + "px";
-          box = hints.getBoundingClientRect();
-        }
+      } else {
+        hints.style.height = (winH - box.top - 2) + "px";
       }
     }
     var overlapX = box.right - winW;
