@@ -181,7 +181,7 @@
           state.intag = false
           state.lineTag = false
         }
-	return style;
+        return style;
       },
       blockCommentStart: "{#",
       blockCommentEnd: "#}",
