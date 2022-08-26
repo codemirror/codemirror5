@@ -291,7 +291,7 @@
       if (curTop - height > 0) { // Fits above cursor
         hints.style.top = (top = pos.top - height - offsetTop) + "px";
         below = false;
-      } else if (height > winH) {
+      } else if (box.top + height > winH) {
         hints.style.height = (winH - 5) + "px";
         hints.style.top = (top = pos.bottom - box.top - offsetTop) + "px";
         var cursor = cm.getCursor();
