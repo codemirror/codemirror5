@@ -1,4 +1,4 @@
-import { gecko, ie, ie_version, mobile, webkit } from "../util/browser.js"
+import { gecko, ie, ie_version, mobile, webkit, chrome, chrome_version } from "../util/browser.js"
 import { elt, eltP } from "../util/dom.js"
 import { scrollerGap } from "../util/misc.js"
 import { getGutters, renderGutters } from "./gutters.js"
@@ -48,6 +48,8 @@ export function Display(place, doc, input, options) {
   d.scroller.setAttribute("tabIndex", "-1")
   // The element in which the editor lives.
   d.wrapper = elt("div", [d.scrollbarFiller, d.gutterFiller, d.scroller], "CodeMirror")
+  // See #6982. FIXME remove when this has been fixed for a while in Chrome
+  if (chrome && chrome_version >= 105) d.wrapper.style.clipPath = "inset(0px)"
 
   // This attribute is respected by automatic translation systems such as Google Translate,
   // and may also be respected by tools used by human translators.
