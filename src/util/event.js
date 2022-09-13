@@ -7,10 +7,15 @@ import { indexOf } from "./misc.js"
 // registering native DOM handlers.
 
 const noHandlers = []
+const scrollBlockingEvents = ['touchstart', 'touchmove', 'touchend', 'mousewheel']
 
 export let on = function(emitter, type, f) {
+  let listenerOptions = false
+  if(scrollBlockingEvents.includes(type)){
+    listenerOptions = {passive: false}
+  }
   if (emitter.addEventListener) {
-    emitter.addEventListener(type, f, false)
+    emitter.addEventListener(type, f, listenerOptions)
   } else if (emitter.attachEvent) {
     emitter.attachEvent("on" + type, f)
   } else {
