@@ -1,3 +1,15 @@
+## 5.65.9 (2022-09-20)
+
+### Bug fixes
+
+Add a workaround for a regression in Chrome 105 that could cause content below the editor to not receive mouse events.
+
+[show-hint addon](https://codemirror.net/5/doc/manual.html#addon_show-hint): Resize the tooltip if it doesn't fit the screen.
+
+[swift mode](https://codemirror.net/5/mode/swift): Fix tokenizing of block comments.
+
+[jinja2 mode](https://codemirror.net/5/mode/jinja2/): Support line statements.
+
 ## 5.65.8 (2022-08-20)
 
 ### Bug fixes
