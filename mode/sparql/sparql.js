@@ -34,14 +34,13 @@ CodeMirror.defineMode("sparql", function(config) {
                              "data", "copy", "to", "move", "add", "create", "drop", "clear", "load", "into"]);
   var operatorChars = /[*+\-<>=&|\^\/!\?]/;
   var PN_CHARS_BASE =
-    "[A-Z]|[a-z]|[\\u{00C0}-\\u{00D6}]|[\\u{00D8}-\\u{00F6}]|[\\u{00F8}-\\u{02FF}]|" +
+    "[A-Za-z]|[\\u{00C0}-\\u{00D6}]|[\\u{00D8}-\\u{00F6}]|[\\u{00F8}-\\u{02FF}]|" +
     "[\\u{0370}-\\u{037D}]|[\\u{037F}-\\u{1FFF}]|[\\u{200C}-\\u{200D}]|[\\u{2070}-\\u{218F}]|" +
     "[\\u{2C00}-\\u{2FEF}]|[\\u{3001}-\\u{D7FF}]|[\\u{F900}-\\u{FDCF}]|[\\u{FDF0}-\\u{FFFD}]|[\\u{10000}-\\u{EFFFF}]";
   var PN_CHARS_U = PN_CHARS_BASE + "|_";
   var PN_CHARS = PN_CHARS_U + "|-|[0-9]|\\u{00B7}|[\\u{0300}-\\u{036F}]|[\\u{203F}-\\u{2040}]";
   var PREFIX_START = new RegExp(PN_CHARS_BASE, "u");
-  var PREFIX_MID = new RegExp(PN_CHARS + "|\\.", "u");
-  var PREFIX_END = new RegExp(PN_CHARS, "u");
+  var PREFIX_REMAINDER = new RegExp("((" + PN_CHARS + "|\\.)*(" + PN_CHARS + "))?:", "u");
 
   function tokenBase(stream, state) {
     var ch = stream.next();
@@ -80,28 +79,19 @@ CodeMirror.defineMode("sparql", function(config) {
       stream.eatWhile(/[a-z\d\-]/i);
       return "meta";
     }
-    else {
-      if (PREFIX_START.test(ch)) {
-        if (stream.eatWhile(PREFIX_MID)) {
-          stream.backUp(1);
-          if (stream.eat(PREFIX_END) && stream.eat(":")) {
-            eatPnLocal(stream);
-            return "atom";
-          }
-        } else if (stream.eat(":")) {
-          eatPnLocal(stream);
-          return "atom";
-        }
-      }
-      stream.eatWhile(/[_\w\d]/);
-      var word = stream.current();
-      if (ops.test(word))
-        return "builtin";
-      else if (keywords.test(word))
-        return "keyword";
-      else
-        return "variable";
+    else if (PREFIX_START.test(ch) && stream.match(PREFIX_REMAINDER, false)) {
+        stream.match(PREFIX_REMAINDER)
+        eatPnLocal(stream);
+        return "atom";
     }
+    stream.eatWhile(/[_\w\d]/);
+    var word = stream.current();
+    if (ops.test(word))
+      return "builtin";
+    else if (keywords.test(word))
+      return "keyword";
+    else
+      return "variable";
   }
 
   function eatPnLocal(stream) {
