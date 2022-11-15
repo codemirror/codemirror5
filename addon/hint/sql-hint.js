@@ -24,15 +24,13 @@
   function isArray(val) { return Object.prototype.toString.call(val) == "[object Array]" }
 
   function getKeywords(editor) {
-    var mode = editor.doc.modeOption;
-    if (mode === "sql") mode = "text/x-sql";
-    return CodeMirror.resolveMode(mode).keywords;
+    return editor.getModeAt(editor.getCursor()).keywords || CodeMirror.resolveMode("text/x-sql").keywords;
   }
 
   function getIdentifierQuote(editor) {
-    var mode = editor.doc.modeOption;
-    if (mode === "sql") mode = "text/x-sql";
-    return CodeMirror.resolveMode(mode).identifierQuote || "`";
+    return editor.getModeAt(editor.getCursor()).identifierQuote ||
+      CodeMirror.resolveMode("text/x-sql").identifierQuote ||
+      "`";
   }
 
   function getText(item) {
