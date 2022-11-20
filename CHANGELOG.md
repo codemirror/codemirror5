@@ -1,3 +1,11 @@
+## 5.65.10 (2022-11-20)
+
+### Bug fixes
+
+[sql-hint addon](https://codemirror.net/5/doc/manual.html#addon_sql-hint): Fix completion when the SQL mode is wrapped by some outer mode.
+
+[javascript mode](https://codemirror.net/5/mode/javascript/index.html): Fix parsing of property keywords before private property names.
+
 ## 5.65.9 (2022-09-20)
 
 ### Bug fixes
