@@ -59,7 +59,10 @@ export default class ContentEditableInput {
       }
     })
 
-    on(div, "touchstart", () => input.forceCompositionEnd())
+    on(div, "touchstart", () => {
+      input.forceCompositionEnd()
+      input.lastTap = +new Date()
+    })
 
     on(div, "input", () => {
       if (!this.composing) this.readFromDOMSoon()
@@ -349,6 +352,11 @@ export default class ContentEditableInput {
   }
   forceCompositionEnd() {
     if (!this.composing) return
+    if (+new Date() < this.lastTap - 400) return
+    var startPos = cm.indexFromPos(cm.getCursor('from'))
+    var endPos = cm.indexFromPos(cm.getCursor('to'))
+    if (startPos !== endPos) return // do not force composition during selection
+
     clearTimeout(this.readDOMTimeout)
     this.composing = null
     this.updateFromDOM()
