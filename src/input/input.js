@@ -114,8 +114,8 @@ export function copyableRanges(cm) {
 }
 
 export function disableBrowserMagic(field, spellcheck, autocorrect, autocapitalize) {
-  field.setAttribute("autocorrect", autocorrect ? "" : "off")
-  field.setAttribute("autocapitalize", autocapitalize ? "" : "off")
+  field.setAttribute("autocorrect", autocorrect ? "on" : "off")
+  field.setAttribute("autocapitalize", autocapitalize ? "on" : "off")
   field.setAttribute("spellcheck", !!spellcheck)
 }
 
