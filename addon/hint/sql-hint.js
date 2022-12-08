@@ -23,16 +23,16 @@
 
   function isArray(val) { return Object.prototype.toString.call(val) == "[object Array]" }
 
-  function getModeConf(editor) {
-    return editor.getModeAt(editor.getCursor()).config || CodeMirror.resolveMode("text/x-sql")
+  function getModeConf(editor, field) {
+    return editor.getModeAt(editor.getCursor()).config[field] || CodeMirror.resolveMode("text/x-sql")[field]
   }
 
   function getKeywords(editor) {
-    return getModeConf(editor).keywords || []
+    return getModeConf(editor, "keywords") || []
   }
 
   function getIdentifierQuote(editor) {
-    return getModeConf(editor).identifierQuote || "`";
+    return getModeConf(editor, "identifierQuote") || "`";
   }
 
   function getText(item) {
