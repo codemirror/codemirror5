@@ -109,9 +109,9 @@
     var nameParts = getText(name).split(".");
     for (var i = 0; i < nameParts.length; i++)
       nameParts[i] = identifierQuote +
-        // duplicate identifierQuotes
-        nameParts[i].replace(new RegExp(identifierQuote,"g"), identifierQuote+identifierQuote) +
-        identifierQuote;
+      // duplicate identifierQuotes
+    nameParts[i].replace(new RegExp(identifierQuote,"g"), identifierQuote+identifierQuote) +
+      identifierQuote;
     var escaped = nameParts.join(".");
     if (typeof name == "string") return escaped;
     name = shallowClone(name);
@@ -283,21 +283,21 @@
         }
         return w;
       };
-    addMatches(result, search, defaultTable, function(w) {
+      addMatches(result, search, defaultTable, function(w) {
         return objectOrClass(w, "CodeMirror-hint-table CodeMirror-hint-default-table");
-    });
-    addMatches(
+      });
+      addMatches(
         result,
         search,
         tables, function(w) {
           return objectOrClass(w, "CodeMirror-hint-table");
         }
-    );
-    if (!disableKeywords)
-      addMatches(result, search, keywords, function(w) {
+      );
+      if (!disableKeywords)
+        addMatches(result, search, keywords, function(w) {
           return objectOrClass(w.toUpperCase(), "CodeMirror-hint-keyword");
-      });
-  }
+        });
+    }
 
     return {list: result, from: Pos(cur.line, start), to: Pos(cur.line, end)};
   });
