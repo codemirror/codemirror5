@@ -94,9 +94,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
         return "number";
       if (stream.match(/^\.+/))
         return null
-      // .table_name (ODBC)
-      // // ref: https://dev.mysql.com/doc/refman/8.0/en/identifier-qualifiers.html
-      if (support.ODBCdotTable && stream.match(/^[\w\d_$#]+/))
+      if (stream.match(/^[\w\d_$#]+/))
         return "variable-2";
     } else if (operatorChars.test(ch)) {
       // operators
@@ -295,7 +293,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     builtin: set(defaultBuiltin),
     atoms: set("false true null unknown"),
     dateSQL: set("date time timestamp"),
-    support: set("ODBCdotTable doubleQuote binaryNumber hexNumber")
+    support: set("doubleQuote binaryNumber hexNumber")
   });
 
   CodeMirror.defineMIME("text/x-mssql", {
@@ -322,7 +320,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     atoms: set("false true null unknown"),
     operatorChars: /^[*+\-%<>!=&|^]/,
     dateSQL: set("date time timestamp"),
-    support: set("ODBCdotTable decimallessFloat zerolessFloat binaryNumber hexNumber doubleQuote nCharCast charsetCast commentHash commentSpaceRequired"),
+    support: set("decimallessFloat zerolessFloat binaryNumber hexNumber doubleQuote nCharCast charsetCast commentHash commentSpaceRequired"),
     hooks: {
       "@":   hookVar,
       "`":   hookIdentifier,
@@ -338,7 +336,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     atoms: set("false true null unknown"),
     operatorChars: /^[*+\-%<>!=&|^]/,
     dateSQL: set("date time timestamp"),
-    support: set("ODBCdotTable decimallessFloat zerolessFloat binaryNumber hexNumber doubleQuote nCharCast charsetCast commentHash commentSpaceRequired"),
+    support: set("decimallessFloat zerolessFloat binaryNumber hexNumber doubleQuote nCharCast charsetCast commentHash commentSpaceRequired"),
     hooks: {
       "@":   hookVar,
       "`":   hookIdentifier,
@@ -409,7 +407,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     atoms: set("false true null unknown"),
     operatorChars: /^[*+\-%<>!=]/,
     dateSQL: set("date timestamp"),
-    support: set("ODBCdotTable doubleQuote binaryNumber hexNumber")
+    support: set("doubleQuote binaryNumber hexNumber")
   });
 
   CodeMirror.defineMIME("text/x-pgsql", {
@@ -424,7 +422,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     operatorChars: /^[*\/+\-%<>!=&|^\/#@?~]/,
     backslashStringEscapes: false,
     dateSQL: set("date time timestamp"),
-    support: set("ODBCdotTable decimallessFloat zerolessFloat binaryNumber hexNumber nCharCast charsetCast escapeConstant")
+    support: set("decimallessFloat zerolessFloat binaryNumber hexNumber nCharCast charsetCast escapeConstant")
   });
 
   // Google's SQL-like query language, GQL
@@ -446,7 +444,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     atoms: set("false true null unknown"),
     operatorChars: /^[*+\-%<>!=&|^\/#@?~]/,
     dateSQL: set("date time timestamp"),
-    support: set("ODBCdotTable decimallessFloat zerolessFloat binaryNumber hexNumber nCharCast charsetCast")
+    support: set("decimallessFloat zerolessFloat binaryNumber hexNumber nCharCast charsetCast")
   });
 
   // Spark SQL
@@ -457,7 +455,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     atoms: set("false true null"),
     operatorChars: /^[*\/+\-%<>!=~&|^]/,
     dateSQL: set("date time timestamp"),
-    support: set("ODBCdotTable doubleQuote zerolessFloat")
+    support: set("doubleQuote zerolessFloat")
   });
 
   // Esper
@@ -490,7 +488,7 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     dateSQL: set("date time timestamp zone"),
     // hexNumber is necessary for VARBINARY literals, e.g. X'65683F'
     // but it also enables 0xFF hex numbers, which Trino doesn't support.
-    support: set("ODBCdotTable decimallessFloat zerolessFloat hexNumber")
+    support: set("decimallessFloat zerolessFloat hexNumber")
   });
 });
 
@@ -508,7 +506,6 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     Commands parsed and executed by the client (not the server).
   support:
     A list of supported syntaxes which are not common, but are supported by more than 1 DBMS.
-    * ODBCdotTable: .tableName
     * zerolessFloat: .1
     * decimallessFloat: 1.
     * hexNumber: X'01AF' X'01af' x'01AF' x'01af' 0x01AF 0x01af
