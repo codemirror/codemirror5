@@ -1,6 +1,6 @@
 import { operation, runInOp } from "../display/operations.js"
 import { prepareSelection } from "../display/selection.js"
-import { applyTextInput, copyableRanges, handlePaste, hiddenTextarea, setLastCopied } from "./input.js"
+import { applyTextInput, copyableRanges, handlePaste, hiddenTextarea, disableBrowserMagic, setLastCopied } from "./input.js"
 import { cursorCoords, posFromMouse } from "../measurement/position_measurement.js"
 import { eventInWidget } from "../measurement/widgets.js"
 import { simpleSelection } from "../model/selection.js"
@@ -117,6 +117,8 @@ export default class TextareaInput {
     // The semihidden textarea that is focused when the editor is
     // focused, and receives input.
     this.textarea = this.wrapper.firstChild
+    let opts = this.cm.options
+    disableBrowserMagic(this.textarea, opts.spellcheck, opts.autocorrect, opts.autocapitalize)
   }
 
   screenReaderLabelChanged(label) {

@@ -94,6 +94,7 @@ export default class ContentEditableInput {
       }
       // Old-fashioned briefly-focus-a-textarea hack
       let kludge = hiddenTextarea(), te = kludge.firstChild
+      disableBrowserMagic(te)
       cm.display.lineSpace.insertBefore(kludge, cm.display.lineSpace.firstChild)
       te.value = lastCopied.text.join("\n")
       let hadFocus = activeElt(div.ownerDocument)
