@@ -610,7 +610,7 @@
     lock.setAttribute("tabindex", "0");
     var lockWrap = elt("div", [lock], "CodeMirror-merge-scrolllock-wrap");
     CodeMirror.on(lock, "click", function() { setScrollLock(dv, !dv.lockScroll); });
-    CodeMirror.on(lock, "keyup", function(e) { e.key === "Enter" && setScrollLock(dv, !dv.lockScroll); });
+    CodeMirror.on(lock, "keyup", function(e) { (e.key === "Enter" || e.code === "Space") && setScrollLock(dv, !dv.lockScroll); });
     var gapElts = [lockWrap];
     if (dv.mv.options.revertButtons !== false) {
       dv.copyButtons = elt("div", null, "CodeMirror-merge-copybuttons-" + dv.type);
@@ -624,7 +624,7 @@
         copyChunk(dv, dv.edit, dv.orig, node.chunk);
       }
       CodeMirror.on(dv.copyButtons, "click", copyButtons);
-      CodeMirror.on(dv.copyButtons, "keyup", function(e) { e.key === "Enter" && copyButtons(e); });
+      CodeMirror.on(dv.copyButtons, "keyup", function(e) { (e.key === "Enter" || e.code === "Space") && copyButtons(e); });
       gapElts.unshift(dv.copyButtons);
     }
     if (dv.mv.options.connect != "align") {
