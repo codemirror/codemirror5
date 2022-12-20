@@ -1,3 +1,11 @@
+## 5.65.11 (2022-12-20)
+
+### Bug fixes
+
+Also respect autocapitalize/autocorrect/spellcheck options in textarea mode.
+
+[sql-hint addon](https://codemirror.net/5/doc/manual.html#addon_sql-hint): Fix keyword completion in generic SQL mode.
+
 ## 5.65.10 (2022-11-20)
 
 ### Bug fixes
