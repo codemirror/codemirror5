@@ -56,7 +56,7 @@
 
   MT("dedentElsePass",
      "[keyword if] [variable x]:",
-     "    [keyword pass]",
+     "     [keyword pass]",
      "[keyword elif] [variable y]:",
      "    [keyword pass]",
      "[keyword else]:",
@@ -71,4 +71,19 @@
      "        [keyword pass]",
      "    [keyword else]:",
      "        [variable baz]()")
+  
+  MT("dedentCase",
+     "[keyword match] [variable x]:",
+     "    [keyword case] [variable y]:",
+     "        [variable foo]()")
+  MT("dedentCasePass",
+     "[keyword match] [variable x]:",
+     "    [keyword case] [variable y]:",
+     "        [keyword pass]")
+
+  MT("dedentCaseInFunction",
+     "[keyword def] [def foo]():",
+     "    [keyword match] [variable x]:",
+     "        [keyword case] [variable y]:",
+     "            [variable foo]()")
 })();
