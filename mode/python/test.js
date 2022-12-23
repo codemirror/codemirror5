@@ -71,7 +71,7 @@
      "        [keyword pass]",
      "    [keyword else]:",
      "        [variable baz]()")
-  
+
   MT("dedentCase",
      "[keyword match] [variable x]:",
      "    [keyword case] [variable y]:",
