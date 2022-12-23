@@ -56,7 +56,7 @@
 
   MT("dedentElsePass",
      "[keyword if] [variable x]:",
-     "     [keyword pass]",
+     "    [keyword pass]",
      "[keyword elif] [variable y]:",
      "    [keyword pass]",
      "[keyword else]:",
