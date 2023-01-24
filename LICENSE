@@ -1,6 +1,6 @@
 MIT License
 
-Copyright (C) 2017 by Marijn Haverbeke <marijnh@gmail.com> and others
+Copyright (C) 2017 by Marijn Haverbeke <marijn@haverbeke.berlin> and others
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
 of this software and associated documentation files (the "Software"), to deal
