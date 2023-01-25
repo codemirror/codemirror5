@@ -32,7 +32,8 @@ CodeMirror.defineMode('mllike', function(_config, parserConfig) {
     'type': 'keyword',
     'val': 'keyword',
     'while': 'keyword',
-    'with': 'keyword'
+    'with': 'keyword',
+    '|>': 'keyword'
   };
 
   var extraWords = parserConfig.extraWords || {};
