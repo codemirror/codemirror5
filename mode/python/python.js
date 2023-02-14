@@ -60,7 +60,7 @@
     if (py3) {
       // since http://legacy.python.org/dev/peps/pep-0465/ @ is also an operator
       var identifiers = parserConf.identifiers|| /^[_A-Za-z\u00A1-\uFFFF][_A-Za-z0-9\u00A1-\uFFFF]*/;
-      myKeywords = myKeywords.concat(["nonlocal", "None", "async", "await", "match", "case"]);
+      myKeywords = myKeywords.concat(["nonlocal", "None", "aiter", "anext", "async", "await", "breakpoint", "match", "case"]);
       myBuiltins = myBuiltins.concat(["ascii", "bytes", "exec", "print"]);
       var stringPrefixes = new RegExp("^(([rbuf]|(br)|(rb)|(fr)|(rf))?('{3}|\"{3}|['\"]))", "i");
     } else {
