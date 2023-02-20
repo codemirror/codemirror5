@@ -1,3 +1,9 @@
+## 5.65.12 (2023-02-20)
+
+### Bug fixes
+
+[python mode](https://codemirror.net/5/mode/python/): Add new built-ins and keywords.
+
 ## 5.65.11 (2022-12-20)
 
 ### Bug fixes
