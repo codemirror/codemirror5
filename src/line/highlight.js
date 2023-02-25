@@ -158,7 +158,8 @@ function callBlankLine(mode, state) {
 }
 
 function readToken(mode, stream, state, inner) {
-  for (let i = 0; i < 10; i++) {
+  let maxAttempts = mode.allowIndefiniteTokenCalls? Number.MAX_VALUE : 10;
+  for (let i = 0; i < maxAttempts; i++) {
     if (inner) inner[0] = innerMode(mode, state).mode
     let style = mode.token(stream, state)
     if (stream.pos > stream.start) return style
