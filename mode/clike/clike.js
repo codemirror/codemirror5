@@ -613,6 +613,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
         return state.tokenize(stream, state);
       },
       "'": function(stream) {
+        if (stream.match(/^(\\[^'\s]+|[^\\'])'/)) return "string-2"
         stream.eatWhile(/[\w\$_\xa1-\uffff]/);
         return "atom";
       },
