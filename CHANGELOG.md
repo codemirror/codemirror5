@@ -1,3 +1,11 @@
+## 5.65.13 (2023-04-27)
+
+### Bug fixes
+
+[dart mode](https://codemirror.net/5/mode/dart/index.html): Add some new keywords.
+
+[clike mode](https://codemirror.net/5/mode/clike/): Tokenize Scala character literals.
+
 ## 5.65.12 (2023-02-20)
 
 ### Bug fixes
