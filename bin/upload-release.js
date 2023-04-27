@@ -24,7 +24,7 @@ function post(host, path, body) {
     } else if (res.statusCode >= 400) {
       console.error(res.statusCode, res.statusMessage)
       res.on("data", d => console.log(d.toString()))
-      res.on("end", process.exit(1))
+      res.on("end", () => process.exit(1))
     }
   })
   req.write(body)
