@@ -274,7 +274,7 @@
   //var kqlKeywords = "alter and as asc between by count desc distinct from group having in insert into is join like not on or order select set table union update values where limit ";
 
   // these keywords are used by all KQL dialects (however, a mode can still overwrite it)
-  var kqlKeywords = "ago and bin by case contains count distinct evaluate extend format_datetime has in invoke join let limit lookup make-series mv-expand or parse print project project-away project-keep project-rename project-reorder range render search sort summarize take top union where";
+  var kqlKeywords = "ago and bin by case contains count distinct evaluate extend format_datetime has in invoke join let limit lookup make-series mv-expand on or parse print project project-away project-keep project-rename project-reorder range render search sort summarize take top union where";
   // turn a space-separated list into an array
   function set(str) {
     var obj = {}, words = str.split(" ");
