@@ -26,6 +26,13 @@
       if (!tt.parentNode) return CodeMirror.off(document, "mousemove", position);
       tt.style.top = Math.max(0, e.clientY - tt.offsetHeight - 5) + "px";
       tt.style.left = (e.clientX + 5) + "px";
+
+      var box = tt.getBoundingClientRect()
+      var parentView = tt.ownerDocument.defaultView
+      if ( tt.offsetLeft + box.width > parentView.innerWidth)
+      {
+        tt.style.left = tt.offsetLeft - box.width
+      }
     }
     CodeMirror.on(document, "mousemove", position);
     position(e);
