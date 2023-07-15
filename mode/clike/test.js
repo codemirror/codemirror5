@@ -162,4 +162,9 @@
          "[type StringBuffer];",
          "[type StringBuilder];",
          "[type Void];");
+
+  MTJAVA("indent",
+         "[keyword public] [keyword class] [def A] [keyword extends] [variable B]",
+         "{",
+         "  [variable c]()")
 })();
