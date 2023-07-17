@@ -1,3 +1,13 @@
+## 5.65.14 (2023-07-17)
+
+### Bug fixes
+
+[clike mode](https://codemirror.net/5/mode/clike/): Fix poor indentation in some Java code.
+
+[nsis mode](https://codemirror.net/5/mode/nsis/index.html): Recognize `!assert` command.
+
+[lint addon](https://codemirror.net/5/doc/manual.html#addon_lint): Remove broken annotation deduplication.
+
 ## 5.65.13 (2023-04-27)
 
 ### Bug fixes
