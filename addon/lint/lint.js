@@ -25,14 +25,14 @@
     function position(e) {
       if (!tt.parentNode) return CodeMirror.off(document, "mousemove", position);
       tt.style.top = Math.max(0, e.clientY - tt.offsetHeight - 5) + "px";
-            
-      var parentView = tt.ownerDocument.defaultView
+
+      var parentView = tt.ownerDocument.defaultView;
       var leftPos = e.clientX;
       if (leftPos + tt.offsetWidth > parentView.innerWidth)
       {
-        leftPos = Math.max(0, leftPos - tt.offsetWidth)
+        leftPos = Math.max(0, leftPos - tt.offsetWidth);
       }
-      tt.style.left = (leftPos + 5) + "px"
+      tt.style.left = (leftPos + 5) + "px";
     }
     CodeMirror.on(document, "mousemove", position);
     position(e);
