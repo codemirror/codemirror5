@@ -29,33 +29,33 @@
 import 'dart:math' show Random;
 
 void main() {
-  print(new Die(n: 12).roll());
+  print(Die(n: 12).roll());
 }
 
 // Define a class.
 class Die {
   // Define a class variable.
-  static Random shaker = new Random();
+  static final Random shaker = Random();
 
   // Define instance variables.
-  int sides, value;
-
-  // Define a method using shorthand syntax.
-  String toString() => '$value';
+  final int sides;
+  int? lastRoll;
 
   // Define a constructor.
-  Die({int n: 6}) {
-    if (4 <= n && n <= 20) {
-      sides = n;
-    } else {
+  Die({int n = 6}) : sides = n {
+    if (4 > n || n > 20) {
       // Support for errors and exceptions.
-      throw new ArgumentError(/* */);
+      throw ArgumentError(/* */);
     }
   }
 
+  // Define a method using shorthand syntax.
+  @override
+  String toString() => '$lastRoll';
+
   // Define an instance method.
   int roll() {
-    return value = shaker.nextInt(sides) + 1;
+    return lastRoll = shaker.nextInt(sides) + 1;
   }
 }
 </textarea>
