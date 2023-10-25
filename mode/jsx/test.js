@@ -96,5 +96,5 @@
      "[bracket&tag <][tag MyComponent] [attribute foo]={[number 0]} [bracket&tag />]; [comment //error]")
 
    TS("tsx_react_generics",
-      "[variable x] [operator =] [operator <] [type T],[operator >] ([variable v]: [type T]) [operator =>] [variable v];")
+      "[variable x] [operator =] [operator <] [type T],[operator >] ([def v]: [type T]) [operator =>] [variable-2 v];")
 })()
