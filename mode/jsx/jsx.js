@@ -103,7 +103,8 @@
     }
 
     function jsToken(stream, state, cx) {
-      if (stream.peek() == "<" && !/,\s*>/.test(stream.string) && jsMode.expressionAllowed(stream, cx.state)) {
+      if (stream.peek() == "<" && !stream.match(/^<([^<>]|<[^>]*>)+,\s*>/, false) &&
+          jsMode.expressionAllowed(stream, cx.state)) {
         state.context = new Context(CodeMirror.startState(xmlMode, jsMode.indent(cx.state, "", "")),
                                     xmlMode, 0, state.context)
         jsMode.skipExpression(cx.state)
