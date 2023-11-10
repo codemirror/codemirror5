@@ -3,7 +3,7 @@ import { heightAtLine, visualLineEndNo, visualLineNo } from "../line/spans.js"
 import { getLine, lineNumberFor } from "../line/utils_line.js"
 import { displayHeight, displayWidth, getDimensions, paddingVert, scrollGap } from "../measurement/position_measurement.js"
 import { mac, webkit } from "../util/browser.js"
-import { activeElt, removeChildren, contains, win, doc } from "../util/dom.js"
+import { activeElt, removeChildren, contains, win, root, rootNode } from "../util/dom.js"
 import { hasHandler, signal } from "../util/event.js"
 import { signalLater } from "../util/operation_group.js"
 import { indexOf } from "../util/misc.js"
@@ -57,7 +57,7 @@ export function maybeClipScrollbars(cm) {
 
 function selectionSnapshot(cm) {
   if (cm.hasFocus()) return null
-  let active = activeElt(doc(cm))
+  let active = activeElt(root(cm))
   if (!active || !contains(cm.display.lineDiv, active)) return null
   let result = {activeElt: active}
   if (window.getSelection) {
@@ -73,7 +73,7 @@ function selectionSnapshot(cm) {
 }
 
 function restoreSelection(snapshot) {
-  if (!snapshot || !snapshot.activeElt || snapshot.activeElt == activeElt(snapshot.activeElt.ownerDocument)) return
+  if (!snapshot || !snapshot.activeElt || snapshot.activeElt == activeElt(rootNode(snapshot.activeElt))) return
   snapshot.activeElt.focus()
   if (!/^(INPUT|TEXTAREA)$/.test(snapshot.activeElt.nodeName) &&
       snapshot.anchorNode && contains(document.body, snapshot.anchorNode) && contains(document.body, snapshot.focusNode)) {

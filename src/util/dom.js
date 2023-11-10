@@ -64,13 +64,14 @@ export function contains(parent, child) {
   } while (child = child.parentNode)
 }
 
-export function activeElt(doc) {
+export function activeElt(rootNode) {
   // IE and Edge may throw an "Unspecified Error" when accessing document.activeElement.
   // IE < 10 will throw when accessed while the page is loading or in an iframe.
   // IE > 9 and Edge will throw when accessed in an iframe if document.body is unavailable.
+  let doc = rootNode.ownerDocument || rootNode
   let activeElement
   try {
-    activeElement = doc.activeElement
+    activeElement = rootNode.activeElement
   } catch(e) {
     activeElement = doc.body || null
   }
@@ -97,5 +98,14 @@ else if (ie) // Suppress mysterious IE10 errors
   selectInput = function(node) { try { node.select() } catch(_e) {} }
 
 export function doc(cm) { return cm.display.wrapper.ownerDocument }
+
+export function root(cm) {
+  return rootNode(cm.display.wrapper)
+}
+
+export function rootNode(element) {
+  // Detect modern browsers (2017+).
+  return element.getRootNode ? element.getRootNode() : element.ownerDocument
+}
 
 export function win(cm) { return doc(cm).defaultView }

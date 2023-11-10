@@ -1,5 +1,5 @@
 import { CodeMirror } from "./CodeMirror.js"
-import { activeElt } from "../util/dom.js"
+import { activeElt, rootNode } from "../util/dom.js"
 import { off, on } from "../util/event.js"
 import { copyObj } from "../util/misc.js"
 
@@ -13,7 +13,7 @@ export function fromTextArea(textarea, options) {
   // Set autofocus to true if this textarea is focused, or if it has
   // autofocus and no other element is focused.
   if (options.autofocus == null) {
-    let hasFocus = activeElt(textarea.ownerDocument)
+    let hasFocus = activeElt(rootNode(textarea))
     options.autofocus = hasFocus == textarea ||
       textarea.getAttribute("autofocus") != null && hasFocus == document.body
   }

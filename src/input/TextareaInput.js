@@ -6,7 +6,7 @@ import { eventInWidget } from "../measurement/widgets.js"
 import { simpleSelection } from "../model/selection.js"
 import { selectAll, setSelection } from "../model/selection_updates.js"
 import { captureRightClick, ie, ie_version, ios, mac, mobile, presto, webkit } from "../util/browser.js"
-import { activeElt, removeChildrenAndAdd, selectInput } from "../util/dom.js"
+import { activeElt, removeChildrenAndAdd, selectInput, rootNode } from "../util/dom.js"
 import { e_preventDefault, e_stop, off, on, signalDOMEvent } from "../util/event.js"
 import { hasSelection } from "../util/feature_detection.js"
 import { Delayed, sel_dontScroll } from "../util/misc.js"
@@ -182,7 +182,7 @@ export default class TextareaInput {
   supportsTouch() { return false }
 
   focus() {
-    if (this.cm.options.readOnly != "nocursor" && (!mobile || activeElt(this.textarea.ownerDocument) != this.textarea)) {
+    if (this.cm.options.readOnly != "nocursor" && (!mobile || activeElt(rootNode(this.textarea)) != this.textarea)) {
       try { this.textarea.focus() }
       catch (e) {} // IE8 will throw if the textarea is display: none or not in DOM
     }
