@@ -9,7 +9,7 @@ import { normalizeSelection, Range, Selection } from "../model/selection.js"
 import { extendRange, extendSelection, replaceOneSelection, setSelection } from "../model/selection_updates.js"
 import { captureRightClick, chromeOS, ie, ie_version, mac, webkit, safari } from "../util/browser.js"
 import { getOrder, getBidiPartAt } from "../util/bidi.js"
-import { activeElt, doc as getDoc, win } from "../util/dom.js"
+import { activeElt, root, win } from "../util/dom.js"
 import { e_button, e_defaultPrevented, e_preventDefault, e_target, hasHandler, off, on, signal, signalDOMEvent } from "../util/event.js"
 import { dragAndDrop } from "../util/feature_detection.js"
 import { bind, countColumn, findColumn, sel_mouse } from "../util/misc.js"
@@ -128,7 +128,7 @@ function configureMouse(cm, repeat, event) {
 
 function leftButtonDown(cm, pos, repeat, event) {
   if (ie) setTimeout(bind(ensureFocus, cm), 0)
-  else cm.curOp.focus = activeElt(getDoc(cm))
+  else cm.curOp.focus = activeElt(root(cm))
 
   let behavior = configureMouse(cm, repeat, event)
 
@@ -292,7 +292,7 @@ function leftButtonSelect(cm, event, start, behavior) {
     let cur = posFromMouse(cm, e, true, behavior.unit == "rectangle")
     if (!cur) return
     if (cmp(cur, lastPos) != 0) {
-      cm.curOp.focus = activeElt(getDoc(cm))
+      cm.curOp.focus = activeElt(root(cm))
       extendTo(cur)
       let visible = visibleLines(display, doc)
       if (cur.line >= visible.to || cur.line < visible.from)

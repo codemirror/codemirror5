@@ -1,7 +1,7 @@
 import { deleteNearSelection } from "./deleteNearSelection.js"
 import { commands } from "./commands.js"
 import { attachDoc } from "../model/document_data.js"
-import { activeElt, addClass, rmClass, doc, win } from "../util/dom.js"
+import { activeElt, addClass, rmClass, root, win } from "../util/dom.js"
 import { eventMixin, signal } from "../util/event.js"
 import { getLineStyles, getContextBefore, takeToken } from "../line/highlight.js"
 import { indentLine } from "../input/indent.js"
@@ -358,7 +358,7 @@ export default function(CodeMirror) {
 
       signal(this, "overwriteToggle", this, this.state.overwrite)
     },
-    hasFocus: function() { return this.display.input.getField() == activeElt(doc(this)) },
+    hasFocus: function() { return this.display.input.getField() == activeElt(root(this)) },
     isReadOnly: function() { return !!(this.options.readOnly || this.doc.cantEdit) },
 
     scrollTo: methodOp(function (x, y) { scrollToCoords(this, x, y) }),
