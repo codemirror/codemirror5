@@ -1,3 +1,13 @@
+## 5.65.16 (2023-11-20)
+
+### Bug fixes
+
+Fix focus tracking in shadow DOM.
+
+[go mode](https://codemirror.net/5/mode/go/): Allow underscores in numbers.
+
+[jsx mode](https://codemirror.net/5/mode/jsx/index.html): Support TS generics marked by trailing comma.
+
 ## 5.65.15 (2023-08-29)
 
 ### Bug fixes
