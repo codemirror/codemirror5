@@ -1,0 +1,56 @@
+<!doctype html>
+
+<title>CodeMirror: HCL mode</title>
+<meta charset="utf-8"/>
+<link rel=stylesheet href="../../doc/docs.css">
+
+<link rel="stylesheet" href="../../lib/codemirror.css">
+<link rel="stylesheet" href="../../theme/elegant.css">
+<script src="../../lib/codemirror.js"></script>
+<script src="../../addon/edit/matchbrackets.js"></script>
+<script src="hcl.js"></script>
+<style>.CodeMirror {border:1px solid #999; background:#ffc}</style>
+<div id=nav>
+<a href="https://codemirror.net/5"><h1>CodeMirror</h1><img id=logo src="../../doc/logo.png" alt=""></a>
+
+<ul>
+<li><a href="../../index.html">Home</a>
+<li><a href="../../doc/manual.html">Manual</a>
+<li><a href="https://github.com/codemirror/codemirror5">Code</a>
+</ul>
+<ul>
+<li><a href="../index.html">Language modes</a>
+<li><a class=active href="#">HCL</a>
+</ul>
+</div>
+
+<article>
+<h2>HCL mode</h2>
+<form><textarea id="code" name="code">
+# Example HCL code
+variable "instance_count" {
+ type        = number
+ description = "Number of instances to launch"
+ default     = 1
+}
+
+resource "aws_instance" "example" {
+ ami           = "ami-0c55b159cbfafe1f0"
+ instance_type = "t2.micro"
+ count         = var.instance_count
+}
+</textarea></form>
+
+<script>
+     var editor = CodeMirror.fromTextArea(document.getElementById("code"), {
+       theme: "elegant",
+       matchBrackets: true,
+       indentUnit: 2, // Adjust indentUnit based on your preferences
+       tabSize: 2,   // Adjust tabSize based on your preferences
+       indentWithTabs: false,
+       mode: "text/x-hcl"
+     });
+</script>
+
+<p><strong>MIME type:</strong> <code>text/x-hcl</code></p>
+</article>
