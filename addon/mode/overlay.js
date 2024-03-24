@@ -4,8 +4,12 @@
 // Utility function that allows modes to be combined. The mode given
 // as the base argument takes care of most of the normal mode
 // functionality, but a second (typically simple) mode is used, which
-// can override the style of text. Both modes get to parse all of the
-// text, but when both assign a non-null style to a piece of code, the
+// can override the style of text.
+// If state.overlay.freezeBaseState is true,
+// only the overlay mode will parse the text
+// until state.overlay.freezeBaseState is set to false.
+// Otherwise, both modes get to parse all of the text,
+// but when both assign a non-null style to a piece of code, the
 // overlay wins, unless the combine argument was true and not overridden,
 // or state.overlay.combineTokens was true, in which case the styles are
 // combined.
@@ -47,7 +51,7 @@ CodeMirror.overlayMode = function(base, overlay, combine) {
         state.basePos = state.overlayPos = stream.start;
       }
 
-      if (stream.start == state.basePos) {
+      if (stream.start == state.basePos && !state.overlay.freezeBaseState) {
         state.baseCur = base.token(stream, state.base);
         state.basePos = stream.pos;
       }
@@ -55,6 +59,9 @@ CodeMirror.overlayMode = function(base, overlay, combine) {
         stream.pos = stream.start;
         state.overlayCur = overlay.token(stream, state.overlay);
         state.overlayPos = stream.pos;
+      }
+      if (state.overlay.freezeBaseState) {
+        state.basePos = state.overlayPos;
       }
       stream.pos = Math.min(state.basePos, state.overlayPos);
 

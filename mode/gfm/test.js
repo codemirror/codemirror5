@@ -136,6 +136,15 @@
   MT("vanillaLinkEmphasis",
      "foo [em *][em&link http://www.example.com/index.html][em *] bar");
 
+  MT("vanillaLinkUnderscoreInParam",
+     "foo [link http://www.example.com/?bar_baz] hello");
+
+  MT("vanillaLinkUnderscoreStartsParam",
+     "foo [link http://www.example.com/?_bar] hello");
+
+  MT("vanillaLinkUnderscoreStartsParamNoSlash",
+     "foo [link http://www.example.com?_bar] hello");
+
   MT("notALink",
      "foo asfd:asdf bar");
 
