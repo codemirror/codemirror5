@@ -174,11 +174,7 @@
     if (open == -1) return false
     var endLine = end == start ? startLine : self.getLine(end)
     var close = endLine.indexOf(endString, end == start ? open + startString.length : 0);
-    var insideStart = Pos(start, open + 1), insideEnd = Pos(end, close + 1)
-    if (close == -1 ||
-        !/comment/.test(self.getTokenTypeAt(insideStart)) ||
-        !/comment/.test(self.getTokenTypeAt(insideEnd)) ||
-        self.getRange(insideStart, insideEnd, "\n").indexOf(endString) > -1)
+    if (close == -1)
       return false;
 
     // Avoid killing block comments completely outside the selection.

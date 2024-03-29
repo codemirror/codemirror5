@@ -115,4 +115,16 @@ namespace = "comment_";
     cm.setCursor(1, 0)
     cm.execCommand("toggleComment")
   }, "<!-- foo\nbar -->", "<!-- foo\nbar -->")
+  
+  var beforeToggleComment = "\nAAA\n    <!-- BBB -->\nCCC\n\n";
+  var afterToggleComment  = "\n<!-- AAA\n    <!-- BBB -->\nCCC -->\n\n";
+  test("toggleSelectionContainingInnerCommentedLine1", "xml", function(cm) {
+    cm.setSelection({line: 1, ch: 6}, {line: 3, ch: 6});
+    cm.execCommand("toggleComment");
+  }, beforeToggleComment, afterToggleComment);
+  test("toggleSelectionContainingInnerCommentedLine2", "xml", function(cm) {
+    cm.setSelection({line: 1, ch: 6}, {line: 3, ch: 6});
+    cm.execCommand("toggleComment");
+    cm.execCommand("toggleComment");
+  }, beforeToggleComment, beforeToggleComment);
 })();
