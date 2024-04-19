@@ -116,6 +116,11 @@ namespace = "comment_";
     cm.execCommand("toggleComment")
   }, "<!-- foo\nbar -->", "<!-- foo\nbar -->")
   
+  test("toggleWithMultipleInnerComments", "javascript", function(cm) {
+    cm.execCommand("selectAll")
+    cm.execCommand("toggleComment")
+  }, "/* foo */\na\n/* bar */\nb", "// /* foo */\n// a\n// /* bar */\n// b")
+  
   var beforeToggleComment = "\nAAA\n    <!-- BBB -->\nCCC\n\n";
   var afterToggleComment  = "\n<!-- AAA\n    <!-- BBB -->\nCCC -->\n\n";
   test("toggleSelectionContainingInnerCommentedLine1", "xml", function(cm) {
