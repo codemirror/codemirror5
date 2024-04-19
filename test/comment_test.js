@@ -115,4 +115,9 @@ namespace = "comment_";
     cm.setCursor(1, 0)
     cm.execCommand("toggleComment")
   }, "<!-- foo\nbar -->", "<!-- foo\nbar -->")
+  
+  test("toggleWithMultipleInnerComments", "javascript", function(cm) {
+    cm.execCommand("selectAll")
+    cm.execCommand("toggleComment")
+  }, "/* foo */\na\n/* bar */\nb", "// /* foo */\n// a\n// /* bar */\n// b")
 })();
