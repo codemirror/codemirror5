@@ -121,15 +121,27 @@ namespace = "comment_";
     cm.execCommand("toggleComment")
   }, "/* foo */\na\n/* bar */\nb", "// /* foo */\n// a\n// /* bar */\n// b")
   
-  var beforeToggleComment = "\nAAA\n    <!-- BBB -->\nCCC\n\n";
-  var afterToggleComment  = "\n<!-- AAA\n    <!-- BBB -->\nCCC -->\n\n";
+  var before = 'console.log("//string gets corrupted.");';
+  var after  = '// console.log("//string gets corrupted.");';
+  test("toggleWithStringContainingComment1", "javascript", function(cm) {
+    cm.setCursor({line: 0, ch: 16 /* after // inside string */});
+    cm.execCommand("toggleComment");
+  }, before, after)
+  test("toggleWithStringContainingComment1", "javascript", function(cm) {
+    cm.setCursor({line: 0, ch: 16 /* after // inside string */});
+    cm.execCommand("toggleComment");
+    cm.execCommand("toggleComment");
+  }, before, before)
+  
+  var before = "\nAAA\n    <!-- BBB -->\nCCC\n\n";
+  var after  = "\n<!-- AAA\n    <!-- BBB -->\nCCC -->\n\n";
   test("toggleSelectionContainingInnerCommentedLine1", "xml", function(cm) {
     cm.setSelection({line: 1, ch: 6}, {line: 3, ch: 6});
     cm.execCommand("toggleComment");
-  }, beforeToggleComment, afterToggleComment);
+  }, before, after);
   test("toggleSelectionContainingInnerCommentedLine2", "xml", function(cm) {
     cm.setSelection({line: 1, ch: 6}, {line: 3, ch: 6});
     cm.execCommand("toggleComment");
     cm.execCommand("toggleComment");
-  }, beforeToggleComment, beforeToggleComment);
+  }, before, before);
 })();
