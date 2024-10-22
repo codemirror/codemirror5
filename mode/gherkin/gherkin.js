@@ -155,7 +155,26 @@ CodeMirror.defineMode("gherkin", function () {
         state.inKeywordLine = true;
         return "keyword";
 
-      // INLINE STRING
+        // ROLE
+      } else if(!state.inKeywordLine && state.allowScenario && stream.match(/(角色|ロール|역할|บทบาท|ಪಾತ್ರೆ|పాత్ర|ਭੂਮਿਕਾ|भूमिका|الدور|רול|Роль|Роля|Φύλο|Rolă|Роля|Rolle|Rol|Ról|Rooli|Rolė|Rolle|Rolul|Роля|Rollen|Rola|Rolă|Rol|Fonksiyon|Funcao|Funkcija|Funcţie|Función|Função|Funktion|Funzione|Lýsing hlutverks|Hlutverk|Rola|Role):/)) {
+        state.allowScenario = true;
+        state.allowBackground = true;
+        state.allowPlaceholders = false;
+        state.allowSteps = false;
+        state.allowMultilineArgument = false;
+        state.inKeywordLine = true;
+        return "keyword";
+
+        // EXAMPLES
+      } else if (state.allowScenario && stream.match(/(例子|例|サンプル|예|ชุดของเหตุการณ์|ชุดของדוגמה|ಉದಾಹರಣೆಗಳು|ఉదాహరణలు|ਉਦਾਹਰਨਾਂ|उदाहरण|نماذج|امثلة|دוגמאות|דוגמה|Üрнәкләр|Сценарији|Примеры|Примери|Приклади|Μισόλλαρα|Παραδείγματα|Voorbeelden|Variantai|Tapaukset|Scenarios|Przykłady|Primjeri|Primeri|Příklady|Príklady|Piemēri|Példák|Pavyzdžiai|Örnekler|Exemplos|Exemples|Exemple|Exempel|Examples|Esempi|Ekzemploj|Ejemplos):/)) {
+        state.allowPlaceholders = false;
+        state.allowSteps = true;
+        state.allowBackground = false;
+        state.allowMultilineArgument = true;
+        state.inKeywordLine = true;
+        return "keyword";
+
+        // INLINE STRING
       } else if (stream.match(/"[^"]*"?/)) {
         return "string";
 
