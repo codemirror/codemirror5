@@ -165,8 +165,8 @@ CodeMirror.defineMode("gherkin", function () {
         state.inKeywordLine = true;
         return "keyword";
 
-        // EXAMPLES
-      } else if (state.allowScenario && stream.match(/(例子|例|サンプル|예|ชุดของเหตุการณ์|ชุดของדוגמה|ಉದಾಹರಣೆಗಳು|ఉదాహరణలు|ਉਦਾਹਰਨਾਂ|उदाहरण|نماذج|امثلة|دוגמאות|דוגמה|Üрнәкләр|Сценарији|Примеры|Примери|Приклади|Μισόλλαρα|Παραδείγματα|Voorbeelden|Variantai|Tapaukset|Scenarios|Przykłady|Primjeri|Primeri|Příklady|Príklady|Piemēri|Példák|Pavyzdžiai|Örnekler|Exemplos|Exemples|Exemple|Exempel|Examples|Esempi|Ekzemploj|Ejemplos):/)) {
+        // EXAMPLE
+      } else if (state.allowScenario && stream.match(/(例子|例|サンプル|예|ชุดของเหตุการณ์|ชุดของדוגמה|ಉದಾಹರಣೆಗಳು|ఉదాహరణలు|ਉਦਾਹਰਨਾਂ|उदाहरण|نماذج|امثلة|دוגמאות|דוגמה|Üрнәкләр|Сценарији|Примеры|Примери|Приклади|Μισόλλαρα|Παραδείγματα|Voorbeelden|Variantai|Tapaukset|Scenarios|Przykłady|Primjeri|Primeri|Příklady|Príklady|Piemēri|Példák|Pavyzdžiai|Örnekler|Exemplos|Exemples|Exemple|Exempel|Esempi|Ekzemploj|Ejemplos):/)) {
         state.allowPlaceholders = false;
         state.allowSteps = true;
         state.allowBackground = false;
