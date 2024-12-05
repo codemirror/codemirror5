@@ -72,7 +72,7 @@ CodeMirror.defineMode("pascal", function() {
       return "operator";
     }
     stream.eatWhile(/[\w\$_]/);
-    var cur = stream.current();
+    var cur = stream.current().toLowerCase();
     if (keywords.propertyIsEnumerable(cur)) return "keyword";
     if (atoms.propertyIsEnumerable(cur)) return "atom";
     return "variable";
