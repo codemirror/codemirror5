@@ -421,6 +421,10 @@ CodeMirror.defineMode("sql", function(config, parserConfig) {
     atoms: set("false true null unknown"),
     operatorChars: /^[*\/+\-%<>!=&|^\/#@?~]/,
     backslashStringEscapes: false,
+    identifierQuote: "\"", // https://www.postgresql.org/docs/current/sql-syntax-lexical.html#SQL-SYNTAX-IDENTIFIERS
+    hooks: {
+      "\"":   hookIdentifierDoublequote
+    },
     dateSQL: set("date time timestamp"),
     support: set("decimallessFloat zerolessFloat binaryNumber hexNumber nCharCast charsetCast escapeConstant")
   });
