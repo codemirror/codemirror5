@@ -1,3 +1,13 @@
+## 5.65.19 (2025-03-20)
+
+### Bug fixes
+
+[gherkin mode](https://codemirror.net/5/mode/gherkin/index.html): Add support for Rule Example keywords
+
+[pascal mode](https://codemirror.net/5/mode/pascal/index.html) Make keywords case-insensitive
+
+[sql mode](https://codemirror.net/5/mode/sql/) Support quoted identifier for PostgreSQL
+
 ## 5.65.18 (2024-09-20)
 
 ### Bug fixes
