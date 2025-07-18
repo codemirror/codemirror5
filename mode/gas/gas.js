@@ -350,4 +350,6 @@ CodeMirror.defineMode("gas", function(_config, parserConfig) {
   };
 });
 
+CodeMirror.defineMIME("text/x-gas", "gas");
+
 });
