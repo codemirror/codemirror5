@@ -290,7 +290,7 @@
       var height = box.bottom - box.top, spaceAbove = box.top - (pos.bottom - pos.top) - 2
       if (winH - box.top < spaceAbove) { // More room at the top
         if (height > spaceAbove) hints.style.height = (height = spaceAbove) + "px";
-        hints.style.top = ((top = pos.top - height) + offsetTop) + "px";
+        hints.style.top = ((top = pos.top - height) - offsetTop) + "px";
         below = false;
       } else {
         hints.style.height = (winH - box.top - 2) + "px";
