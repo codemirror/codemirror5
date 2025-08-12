@@ -1,3 +1,0 @@
-#!/usr/bin/env node
-
-process.exit(require("../test/lint").ok ? 0 : 1);
