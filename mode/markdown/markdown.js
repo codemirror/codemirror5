@@ -484,7 +484,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       }
     }
 
-    if (ch === '!' && stream.match(/\[[^\]]*\] ?(?:\(|\[)/, false)) {
+    if (ch === '!' && stream.match(/\[[^\]\n]*](?=\(|\[)/, false)) {
       state.imageMarker = true;
       state.image = true;
       if (modeCfg.highlightFormatting) state.formatting = "image";
@@ -518,7 +518,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       if (modeCfg.highlightFormatting) state.formatting = "link";
       var type = getType(state);
       state.linkText = false;
-      state.inline = state.f = stream.match(/\(.*?\)| ?\[.*?\]/, false) ? linkHref : inlineNormal
+      state.inline = state.f = stream.match(/\(([^()]*|\(([^()]*)\))*\)| ?\[(?:[^\]\\]|\\.)*]/, false) ? linkHref : inlineNormal
       return type;
     }
 
@@ -534,7 +534,7 @@ CodeMirror.defineMode("markdown", function(cmCfg, modeCfg) {
       return type + tokenTypes.linkInline;
     }
 
-    if (ch === '<' && stream.match(/^[^> \\]+@(?:[^\\>]|\\.)+>/, false)) {
+    if (ch === '<' && stream.match(/^[^\s>@]+@[^>\s]+>/, false)) {
       state.f = state.inline = linkInline;
       if (modeCfg.highlightFormatting) state.formatting = "link";
       var type = getType(state);
