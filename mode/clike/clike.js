@@ -677,7 +677,7 @@ CodeMirror.defineMode("clike", function(config, parserConfig) {
       "ByteArray Char CharArray DeprecationLevel DoubleArray Enum FloatArray Function Int IntArray Lazy " +
       "LazyThreadSafetyMode LongArray Nothing ShortArray Unit"
     ),
-    intendSwitch: false,
+    indentSwitch: false,
     indentStatements: false,
     multiLineStrings: true,
     number: /^(?:0x[a-f\d_]+|0b[01_]+|(?:[\d_]+(\.\d+)?|\.\d+)(?:e[-+]?[\d_]+)?)(ul?|l|f)?/i,
