@@ -25,7 +25,7 @@
     "blint": "^1.1.2",
     "cm5-vim": "^0.0.5",
     "node-static": "0.7.11",
-    "puppeteer": "^1.20.0",
+    "puppeteer": "^4.0.0",
     "rollup": "^1.26.3",
     "rollup-plugin-copy": "^3.4.0"
   },
