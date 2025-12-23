@@ -2676,3 +2676,90 @@ testCM("mode_lookahead", function(cm) {
 testCM("should have translate=no attribute", function(cm) {
   eq(cm.getWrapperElement().getAttribute("translate"), "no")
 }, {})
+
+// Tests for SQL mode - focusing on text/x-mysql
+
+testCM("sql_mysql_keyword_invisible", function(cm) {
+  var tokens = cm.getLineTokens(0);
+  var invisible = tokens.find(t => t.string.toUpperCase() === "INVISIBLE");
+  is(invisible, "INVISIBLE token should exist");
+  eq(invisible.type, "keyword");
+}, {
+  mode: "text/x-mysql",
+  value: "CREATE INDEX idx ON t(c) INVISIBLE"
+});
+
+testCM("sql_mysql_role_token_exists", function(cm) {
+  var tokens = cm.getLineTokens(0);
+  var role = tokens.find(t => t.string.toUpperCase() === "ROLE");
+  is(role, "ROLE token should exist");
+}, {
+  mode: "text/x-mysql",
+  value: "CREATE ROLE reporting_role"
+});
+
+testCM("sql_mysql_keyword_json_table", function(cm) {
+  var tokens = cm.getLineTokens(0);
+  var jt = tokens.find(t => t.string.toUpperCase() === "JSON_TABLE");
+  is(jt, "JSON_TABLE token should exist");
+  eq(jt.type, "keyword");
+}, {
+  mode: "text/x-mysql",
+  value: "SELECT * FROM JSON_TABLE(doc, '$.a[*]' COLUMNS(x INT PATH '$')) jt"
+});
+
+testCM("sql_mysql_window_keywords", function(cm) {
+  var tokens = cm.getLineTokens(0);
+  var kws = tokens
+    .filter(t => t.type === "keyword")
+    .map(t => t.string.toUpperCase());
+
+  is(kws.includes("OVER"));
+  is(kws.includes("PARTITION"));
+  is(kws.includes("ROW_NUMBER"));
+}, {
+  mode: "text/x-mysql",
+  value: "SELECT ROW_NUMBER() OVER (PARTITION BY dept) FROM emp"
+});
+
+testCM("sql_mysql_with_recursive_keywords", function(cm) {
+  var tokens = cm.getLineTokens(0);
+  var kws = tokens
+    .filter(t => t.type === "keyword")
+    .map(t => t.string.toUpperCase());
+
+  is(kws.includes("WITH"));
+  is(kws.includes("RECURSIVE"));
+}, {
+  mode: "text/x-mysql",
+  value: "WITH RECURSIVE t AS (SELECT 1) SELECT * FROM t"
+});
+
+testCM("sql_mysql_date_type_token", function(cm) {
+  var tokens = cm.getLineTokens(0);
+  var date = tokens.find(t => t.string.toUpperCase() === "DATE");
+  is(date, "DATE token should exist");
+}, {
+  mode: "text/x-mysql",
+  value: "CREATE TABLE t (d DATE)"
+});
+
+testCM("sql_mysql_schema_tokens", function(cm) {
+  var tokens = cm.getLineTokens(0);
+  var schemas = tokens.find(t => t.string.toUpperCase() === "SCHEMAS");
+  is(schemas, "SCHEMAS token should exist");
+  is(schemas.type === "keyword" || schemas.type === "builtin");
+}, {
+  mode: "text/x-mysql",
+  value: "SHOW SCHEMAS"
+});
+
+testCM("sql_mysql_invisible_identifier_untouched", function(cm) {
+  var tokens = cm.getLineTokens(0);
+  var ident = tokens.find(t => t.string === "idx");
+  is(ident);
+  is(ident.type !== "keyword");
+}, {
+  mode: "text/x-mysql",
+  value: "CREATE INDEX idx ON t(c) INVISIBLE"
+});

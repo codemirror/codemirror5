@@ -166,7 +166,6 @@
     list: [{"text":"schema.users","className":"CodeMirror-hint-table"},
         {"text":"schema.countries","className":"CodeMirror-hint-table"},
         {"text":"SCHEMA","className":"CodeMirror-hint-keyword"},
-        {"text":"SCHEMA_NAME","className":"CodeMirror-hint-keyword"},
         {"text":"SCHEMAS","className":"CodeMirror-hint-keyword"}],
     from: Pos(0, 7),
     to: Pos(0, 12)

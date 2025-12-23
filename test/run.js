@@ -8,6 +8,12 @@ var server = require('http').createServer(function (req, res) {
   req.addListener('end', function () {
     files.serve(req, res, function (err/*, result */) {
       if (err) {
+        // 404 is NORMAL (favicon.ico etc.)
+        if (err.status === 404) {
+          res.end();
+          return;
+        }
+
         console.error(err);
         process.exit(1);
       }
