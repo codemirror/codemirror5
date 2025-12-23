@@ -1,0 +1,98 @@
+//========================================================================
+// Copyright Universidade Federal do Espirito Santo (Ufes)
+//
+// This program is free software: you can redistribute it and/or modify
+// it under the terms of the GNU General Public License as published by
+// the Free Software Foundation, either version 3 of the License, or
+// (at your option) any later version.
+//
+// This program is distributed in the hope that it will be useful,
+// but WITHOUT ANY WARRANTY; without even the implied warranty of
+// MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+// GNU General Public License for more details.
+//
+// You should have received a copy of the GNU General Public License
+// along with this program.  If not, see <https://www.gnu.org/licenses/>.
+//
+// This program is released under license GNU GPL v3+ license.
+//
+//========================================================================
+
+// For format details, see https://aka.ms/devcontainer.json. For config
+// options, see the README at:
+// https://github.com/devcontainers/templates/tree/main/src/typescript-node
+{
+  // A name for the dev container displayed in the UI.
+  "name": "codemirror5-devcontainer",
+
+  // "image": "mcr.microsoft.com/devcontainers/javascript-node:20",
+  // Or use a Dockerfile or Docker Compose file. More info:
+  // https://containers.dev/guide/dockerfile
+  "build": {
+    // Sets the run context to the same level of the .devcontainer folder.
+    "context": ".",
+    // Update the 'dockerFile' property if you aren't using the standard
+    // 'Dockerfile' filename.
+    "dockerfile": "Dockerfile"
+   },
+  // "dockerComposeFile": "docker-compose.yml",
+  // "service": "devcontainer",
+
+  // An array of Docker CLI arguments that should be used when running the
+  // container.
+  "runArgs": ["--name=codemirror5-devcontainer", "--rm"],
+
+  // Use 'postCreateCommand' to run commands after the container is created.
+  "postCreateCommand": "npm install",
+
+  // Indicates whether devcontainer.json supporting tools should stop the
+  // containers when the related tool window is closed / shut down.
+  "shutdownAction": "stopContainer",
+  // "shutdownAction": "stopCompose",
+
+  // Sets the default path that devcontainer.json supporting services / tools
+  // should open when connecting to the container. Defaults to the automatic
+  // source code mount location.
+  "workspaceFolder": "/workspaces/${localWorkspaceFolderBasename}",
+
+  // Cross-orchestrator way to add additional mounts to a container.
+  // "mounts": [
+  //   "source=${localWorkspaceFolder}/data,target=/data,type=bind,consistency=cached"
+  // ],
+
+  // Use 'forwardPorts' to make a list of ports inside the container
+  // available locally.
+  // "forwardPorts": [],
+
+  // Configure tool-specific properties.
+  "customizations": {
+    // Configure properties specific to VS Code.
+    "vscode": {
+      "settings": {},
+      "extensions": [
+        "dbaeumer.vscode-eslint",
+        "esbenp.prettier-vscode",
+        "foxundermoon.shell-format",
+        "ms-azuretools.vscode-docker",
+        "davidanson.vscode-markdownlint",
+        "fnando.linter",
+        "streetsidesoftware.code-spell-checker",
+        "touchlab.touchlab-vscode-office",
+        "github.copilot-chat"
+      ]
+    }
+  },
+
+  // Uncomment to connect as root instead. More info: https://aka.ms/dev-containers-non-root.
+  "remoteUser": "node",
+
+  // Features to add to the dev container.
+  // More info: https://containers.dev/features.
+  "features": {
+    "ghcr.io/akhildevelops/devcontainer-features/apt:0": {},
+    "ghcr.io/devcontainers/features/git:1": {
+      "ppa": true,
+      "version": "os-provided"
+    }
+  }
+}

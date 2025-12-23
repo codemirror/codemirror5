@@ -1,0 +1,92 @@
+{
+  "shellformat.effectLanguages": [
+    "gitignore"
+  ],
+  "[dockerfile]": {
+    "editor.formatOnSave": false,
+    "editor.defaultFormatter": "ms-azuretools.vscode-docker"
+  },
+  "[gitignore]": {
+    "editor.formatOnSave": false,
+    "editor.defaultFormatter": "foxundermoon.shell-format"
+  },
+  "[javascript]": {
+    "editor.formatOnSave": false,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "[markdown]": {
+    "editor.formatOnSave": false,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "editor.formatOnSave": false,
+  "linter.linters": {
+    "eslint": {
+      "capabilities": [
+        "ignore-line",
+        "ignore-file",
+        "fix-one",
+        "fix-all",
+        "fix-inline"
+      ],
+      "command": [
+        "eslint",
+        "--format",
+        "json",
+        ["$config", "--config", "$config"],
+        ["$debug", "--loglevel", "debug", "--debug"],
+        ["$fixAll", "--fix-dry-run"],
+        ["$fixOne", "--fix-dry-run"],
+        "--stdin-filename",
+        "$file",
+        "--stdin"
+      ],
+      "configFiles": [
+        ".eslintrc.js",
+        ".eslintrc.cjs",
+        ".eslintrc.yaml",
+        ".eslintrc.yml",
+        ".eslintrc.json",
+        ".eslintrc"
+      ],
+      "enabled": false,
+      "languages": ["javascript", "jsx", "typescript", "typescriptreact"],
+      "name": "eslint",
+      "url": "https://eslint.org"
+    },
+    "hadolint": {
+      "capabilities": ["ignore-line"],
+      "command": [
+        "hadolint",
+        "--format",
+        "json",
+        ["$config", "--config", "$config"],
+        "-"
+      ],
+      "configFiles": [".hadolint.yml", ".hadolint.yaml"],
+      "enabled": true,
+      "languages": ["dockerfile"],
+      "name": "hadolint",
+      "url": "https://github.com/hadolint/hadolint"
+    },
+    "markdownlint": {
+      "capabilities": ["fix-inline"],
+      "command": [
+        "markdownlint",
+        "--json",
+        ["$fixAll", "--fix"],
+        ["$config", "--config", "$config"],
+        "--stdin"
+      ],
+      "configFiles": [
+        ".markdownlint.json",
+        ".markdownlint.yaml",
+        ".markdownlint.yml",
+        ".markdownlintrc"
+      ],
+      "enabled": true,
+      "languages": ["markdown"],
+      "name": "markdownlint",
+      "url": "https://github.com/DavidAnson/markdownlint"
+    }
+  }
+}
