@@ -122,13 +122,61 @@
     }
   }
 
+  //Normalization for Arabic
+  var normalizeArabicChars = function (s) {
+    function filter(c) {
+      switch (c) {
+        // ALEF Chars
+        case 'إ' :
+        case 'أ' :
+        case 'آ' :
+        case 'ٵ' :
+        case 'ٳ' :
+        case 'ٲ' :
+        case 'ٱ' :
+          return 'ا'
+        // TAAA MARBOTA Chars
+        case 'ۃ' :
+        case 'ہ' :
+          return 'ة'
+        // YAAA Chars
+        case 'ى' :
+        case 'ي' :
+        case 'ٸ' :
+          return 'ي'
+        case 'ئ':
+          return 'يء'
+        default :
+          return c
+      }
+    }
+    var normalized = "", i, l
+    for (i = 0, l = s.length; i < l; i = i + 1) {
+      normalized = normalized + filter(s.charAt(i))
+    }
+    return normalized
+  }
+
+  function hasArabic(str) {
+    var pattern = /[\u0600-\u06FF\u0750-\u077F]/;
+    return pattern.test(str);
+  }
+
   var doFold, noFold
-  if (String.prototype.normalize) {
-    doFold = function(str) { return str.normalize("NFD").toLowerCase() }
-    noFold = function(str) { return str.normalize("NFD") }
-  } else {
-    doFold = function(str) { return str.toLowerCase() }
-    noFold = function(str) { return str }
+  doFold = function(str){
+    str = str.toLowerCase()
+    if (String.prototype.normalize)
+      str = str.normalize("NFD")
+    if (hasArabic(str))
+      return normalizeArabicChars(str)
+    return str
+  }
+  noFold = function(str){
+    if (String.prototype.normalize)
+      str = str.normalize("NFD")
+    if (hasArabic(str))
+      return normalizeArabicChars(str)
+    return str
   }
 
   // Maps a position in a case-folded line back to a position in the original line
