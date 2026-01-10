@@ -40,7 +40,7 @@
 
     keywords = new RegExp("^\\b(" + keywords.join("|") + ")\\b");
     filters = new RegExp("^\\b(" + filters.join("|") + ")\\b");
-    operators = new RegExp("^\\b(" + operators.join("|") + ")\\b");
+    operators = new RegExp("^\\B(" + operators.join("|") + ")\\B");
     wordOperators = new RegExp("^\\b(" + wordOperators.join("|") + ")\\b");
 
     // We have to return "null" instead of null, in order to avoid string
