@@ -1,3 +1,11 @@
+## 5.65.21 (2026-02-07)
+
+### Bug fixes
+
+Better handle configuration objects with a null prototype.
+
+[kotlin mode](https://codemirror.net/5/mode/clike/): Fix tokenizing of unsigned long literals.
+
 ## 5.65.20 (2025-08-10)
 
 ### Bug fixes
