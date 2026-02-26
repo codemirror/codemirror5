@@ -213,5 +213,11 @@
      "[def @font-face] [comment /* foo */] {",
      "  [property src]: [variable&callee url]([string x]);",
      "  [property font-family]: [variable One];",
-     "}")
+     "}");
+
+  MT("property-with-uPpeRCaSe",
+      "[tag p] { [property cOlOr]:[keyword red]; }");
+
+  MT("keyword-with-uPpeRCaSe",
+      "[tag p] { [property color]:[keyword oRanGe]; }");
 })();
