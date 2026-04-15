@@ -28,7 +28,7 @@
   <ul>
     <li><a href="../index.html">Home</a></li>
     <li><a href="#overview" class=active data-default="true">Manual</a></li>
-    <li><a href="https://github.com/codemirror/codemirror5">Code</a></li>
+    <li><a href="https://code.haverbeke.berlin/codemirror/codemirror5">Code</a></li>
   </ul>
   <ul>
     <li><a href="#usage">Basic Usage</a></li>
@@ -3608,7 +3608,7 @@ editor.setOption("extraKeys", {
 
     <h3 id="vimapi_events">Events</h3>
 
-    <p>VIM mode signals a few events on the editor instance. For an example usage, see <a href="https://github.com/codemirror/CodeMirror/blob/5.55.0/demo/vim.html#L101-L110">demo/vim.html#L101</a>.</p>
+    <p>VIM mode signals a few events on the editor instance. For an example usage, see <a href="https://code.haverbeke.berlin/codemirror/CodeMirror/blob/5.55.0/demo/vim.html#L101-L110">demo/vim.html#L101</a>.</p>
 
     <dl>
       <dt id="vimapi_commanddone"><code><strong>"vim-command-done"</strong> (reason: undefined)</code></dt>
@@ -3689,20 +3689,20 @@ editor.setOption("extraKeys", {
       <dt id="vimapi_getRegisterController"><strong><code>getRegisterController()</code></strong></dt>
       <dd>Returns the RegisterController that manages the state of registers
       used by vim mode. For the RegisterController api see its
-      definition <a href="https://github.com/CodeMirror/CodeMirror/blob/b2d26b4ccb1d0994ae84d18ad8b84018de176da9/keymap/vim.js#L1123">here</a>.
+      definition <a href="https://code.haverbeke.berlin/codemirror/codemirror5/src/commit/b2d26b4ccb1d0994ae84d18ad8b84018de176da9/keymap/vim.js#L1123">here</a>.
       </dd>
 
       <dt id='vimapi_buildkeymap'><strong><code>buildKeyMap()</code></strong></dt>
       <dd>
       Not currently implemented. If you would like to contribute this please open
-      a pull request on <a href="https://github.com/codemirror/CodeMirror">GitHub</a>.
+      a pull request on <a href="https://code.haverbeke.berlin/codemirror/CodeMirror">Forgejo</a>.
       </dd>
 
       <dt id="vimapi_defineRegister"><strong><code>defineRegister()</code></strong></dt>
       <dd> Defines an external register. The name should be a single character
       that will be used to reference the register. The register should support
       <code>setText</code>, <code>pushText</code>, <code>clear</code>, and <code>toString</code>.
-      See <a href="https://github.com/CodeMirror/CodeMirror/blob/b2d26b4ccb1d0994ae84d18ad8b84018de176da9/keymap/vim.js#L1055">Register</a> for a reference implementation.
+      See <a href="https://code.haverbeke.berlin/codemirror/codemirror5/src/commit/b2d26b4ccb1d0994ae84d18ad8b84018de176da9/keymap/vim.js#L1055">Register</a> for a reference implementation.
       </dd>
 
       <dt id="vimapi_getVimGlobalState_"><strong><code>getVimGlobalState_()</code></strong></dt>

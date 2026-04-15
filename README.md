@@ -2,8 +2,6 @@
 
 **NOTE:** [CodeMirror 6](https://codemirror.net/) exists, and is more mobile-friendly, more accessible, better designed, and much more actively maintained.
 
-[![Build Status](https://github.com/codemirror/codemirror5/workflows/main/badge.svg)](https://github.com/codemirror/codemirror5/actions)
-
 CodeMirror is a versatile text editor implemented in JavaScript for
 the browser. It is specialized for editing code, and comes with over
 100 language modes and various addons that implement more advanced
@@ -20,7 +18,7 @@ page](https://codemirror.net/5/). For questions and discussion, use the
 [discussion forum](https://discuss.codemirror.net/).
 
 See
-[CONTRIBUTING.md](https://github.com/codemirror/CodeMirror/blob/master/CONTRIBUTING.md)
+[CONTRIBUTING.md](https://code.haverbeke.berlin/codemirror/codemirror5/src/branch/main/CONTRIBUTING.md)
 for contributing guidelines.
 
 The CodeMirror community aims to be welcoming to everybody. We use the

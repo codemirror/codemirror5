@@ -29,7 +29,7 @@
     "rollup": "^1.26.3",
     "rollup-plugin-copy": "^3.4.0"
   },
-  "bugs": "http://github.com/codemirror/CodeMirror/issues",
+  "bugs": "http://code.haverbeke.berlin/codemirror/codemirror5/issues",
   "keywords": [
     "JavaScript",
     "CodeMirror",
@@ -38,7 +38,7 @@
   "homepage": "https://codemirror.net/5/",
   "repository": {
     "type": "git",
-    "url": "https://github.com/codemirror/CodeMirror.git"
+    "url": "git+https://code.haverbeke.berlin/codemirror/codemirror5.git"
   },
   "jspm": {
     "directories": {},

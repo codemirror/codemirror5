@@ -12,7 +12,7 @@ Community discussion, questions, and informal bug reporting is done on the
 ## Submitting bug reports
 
 The preferred way to report bugs is to use the
-[GitHub issue tracker](http://github.com/codemirror/CodeMirror/issues). Before
+[issue tracker](http://code.haverbeke.berlin/codemirror/codemirror5/issues). Before
 reporting a bug, read these pointers.
 
 **Note:** The issue tracker is for *bugs*, not requests for help. Questions
@@ -55,23 +55,6 @@ Code written by "AI" language models (either partially or fully) is
 **not welcome**. Both because you cannot guarantee it's not parroting
 copyrighted content, and because it tends to be of low quality and a
 waste of time to review.
-
-- Make sure you have a [GitHub Account](https://github.com/signup/free)
-- Fork [CodeMirror](https://github.com/codemirror/CodeMirror/)
-  ([how to fork a repo](https://help.github.com/articles/fork-a-repo))
-- Make your changes
-- If your changes are easy to test or likely to regress, add tests.
-  Tests for the core go into `test/test.js`, some modes have their own
-  test suite under `mode/XXX/test.js`. Feel free to add new test
-  suites to modes that don't have one yet (be sure to link the new
-  tests into `test/index.html`).
-- Follow the general code style of the rest of the project (see
-  below). Run `bin/lint` to verify that the linter is happy.
-- Make sure all tests pass. Visit `test/index.html` in your browser to
-  run them.
-- Submit a pull request
-([how to create a pull request](https://help.github.com/articles/fork-a-repo)).
-  Don't put more than one feature/fix in a single pull request.
 
 By contributing code to CodeMirror you
 
